@@ -19,7 +19,7 @@ Support for `play-json`
 
 ### Examples
 
-Please check out [examples](https://github.com/iterators/kebs/tree/master/examples/src/main/pl/iterators/kebs_examples)
+Please check out [examples](https://github.com/theiterators/kebs/tree/master/examples/src/main/scala/pl/iterators/kebs_examples)
 
 #### - kebs generates slick mappers for your case-class wrappers
 
