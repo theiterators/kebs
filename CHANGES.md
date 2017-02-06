@@ -1,6 +1,6 @@
-## Version 1.2.3
+## Version 1.3.0
 
-> 20.01.2017
+> 06.02.2017
 
 First published version of `kebs`:
 * Generation of slick mappers for 1-element case classes and lists

@@ -7,15 +7,15 @@ Slick (`kebs-slick`), Spray (`kebs-spray-json`) or Play (`kebs-play-json`)
 
 ### SBT
 
-`libraryDependencies += "pl.iterators" %% "kebs-slick" % "1.2.3"`
+`libraryDependencies += "pl.iterators" %% "kebs-slick" % "1.3.0"`
 
 Support for `spray-json`
 
-`libraryDependencies += "pl.iterators" %% "kebs-spray-json" % "1.2.3"`
+`libraryDependencies += "pl.iterators" %% "kebs-spray-json" % "1.3.0"`
 
 Support for `play-json`
 
-`libraryDependencies += "pl.iterators" %% "kebs-play-json" % "1.2.3"`
+`libraryDependencies += "pl.iterators" %% "kebs-play-json" % "1.3.0"`
 
 ### Examples
 
