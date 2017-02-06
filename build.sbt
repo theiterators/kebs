@@ -77,7 +77,7 @@ lazy val commonSettings = baseSettings ++ Seq(
     libraryDependencies += scalaTest % "test"
   )
 
-lazy val coreSettings = commonSettings ++ Seq(
+lazy val slickSettings = commonSettings ++ Seq(
     libraryDependencies += slickPg % "test",
     libraryDependencies += optionalEnumeratum
   )
@@ -86,7 +86,7 @@ lazy val macroUtilsSettings = commonMacroSettings ++ Seq(
     libraryDependencies += optionalEnumeratum
   )
 
-lazy val macroSettings = commonMacroSettings ++ Seq(
+lazy val slickMacroSettings = commonMacroSettings ++ Seq(
     libraryDependencies += slick,
     libraryDependencies += optionalEnumeratum
   )
@@ -131,26 +131,26 @@ lazy val macroUtils = project
     moduleName := "kebs-macro-utils"
   )
 
-lazy val macros = project
-  .in(file("macros"))
+lazy val slickMacros = project
+  .in(file("slick-macros"))
   .dependsOn(macroUtils)
-  .settings(macroSettings: _*)
+  .settings(slickMacroSettings: _*)
   .settings(publishSettings: _*)
   .settings(
-    name := "macros",
+    name := "slick-macros",
     description := "Macros supporting Kebs library",
-    moduleName := "kebs-macros"
+    moduleName := "kebs-slick-macros"
   )
 
-lazy val core = project
-  .in(file("core"))
-  .dependsOn(macros)
-  .settings(coreSettings: _*)
+lazy val slickSupport = project
+  .in(file("slick"))
+  .dependsOn(slickMacros)
+  .settings(slickSettings: _*)
   .settings(publishSettings: _*)
   .settings(
-    name := "core",
+    name := "slick",
     description := "Library to eliminate the boilerplate code that comes with the use of Slick",
-    moduleName := "kebs-core"
+    moduleName := "kebs-slick"
   )
 
 lazy val sprayJsonMacros = project
@@ -199,7 +199,7 @@ lazy val playJsonSupport = project
 
 lazy val examples = project
   .in(file("examples"))
-  .dependsOn(core, sprayJsonSupport, playJsonSupport)
+  .dependsOn(slickSupport, sprayJsonSupport, playJsonSupport)
   .settings(examplesSettings: _*)
   .settings(noPublishSettings: _*)
   .settings(
@@ -220,10 +220,9 @@ lazy val benchmarks = project
 
 lazy val kebs = project
   .in(file("."))
-  .aggregate(macroUtils, macros, core, sprayJsonMacros, sprayJsonSupport, playJsonMacros, playJsonSupport, examples)
-  .dependsOn(core)
-  .settings(commonSettings: _*)
-  .settings(publishSettings: _*)
+  .aggregate(macroUtils, slickMacros, slickSupport, sprayJsonMacros, sprayJsonSupport, playJsonMacros, playJsonSupport, examples)
+  .settings(baseSettings: _*)
+  .settings(noPublishSettings: _*)
   .settings(
     name := "kebs",
     description := "Library to eliminate the boilerplate code that comes with the use of Slick"

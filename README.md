@@ -3,11 +3,11 @@
 ### Why?
 
 `kebs` is for eliminating some common sources of boilerplate code that arise when you use 
-Slick, Spray (`kebs-spray-json`) or Play (`kebs-play-json`)
+Slick (`kebs-slick`), Spray (`kebs-spray-json`) or Play (`kebs-play-json`)
 
 ### SBT
 
-`libraryDependencies += "pl.iterators" %% "kebs" % "1.2.3"`
+`libraryDependencies += "pl.iterators" %% "kebs-slick" % "1.2.3"`
 
 Support for `spray-json`
 
@@ -21,7 +21,7 @@ Support for `play-json`
 
 Please check out [examples](https://github.com/theiterators/kebs/tree/master/examples/src/main/scala/pl/iterators/kebs_examples)
 
-#### - kebs generates slick mappers for your case-class wrappers
+#### - kebs generates slick mappers for your case-class wrappers (kebs-slick)
 
 If you want to model the following table
 
@@ -111,7 +111,7 @@ object MyPostgresProfile extends ExPostgresDriver with PgArraySupport {
 import MyPostgresProfile.api._
 ```
 
-**`kebs` can also generate mappings for Postgres ARRAY type**, which is a common source of boilerplate in `slick-pg`.
+**`kebs-slick` can also generate mappings for Postgres ARRAY type**, which is a common source of boilerplate in `slick-pg`.
 Instead of:
 
 ```scala
