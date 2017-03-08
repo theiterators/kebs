@@ -62,7 +62,7 @@ val slick      = "com.typesafe.slick"  %% "slick"      % "3.2.0"
 val slickPg    = "com.github.tminglei" %% "slick-pg"   % "0.15.0-RC"
 val enumeratum = "com.beachape"        %% "enumeratum" % "1.5.8"
 val sprayJson  = "io.spray"            %% "spray-json" % "1.3.3"
-val playJson   = "com.typesafe.play"   %% "play-json"  % "2.5.10"
+val playJson   = "com.typesafe.play"   %% "play-json"  % "2.6.0-M1"
 
 val akkaHttpVersion = "10.0.4"
 def akkaHttpInExamples = {
