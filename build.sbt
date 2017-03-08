@@ -60,11 +60,11 @@ def optional(dependency: ModuleID) = dependency % "provided"
 val scalaTest  = "org.scalatest"       %% "scalatest"  % "3.0.1"
 val slick      = "com.typesafe.slick"  %% "slick"      % "3.2.0"
 val slickPg    = "com.github.tminglei" %% "slick-pg"   % "0.15.0-RC"
-val enumeratum = "com.beachape"        %% "enumeratum" % "1.5.2"
+val enumeratum = "com.beachape"        %% "enumeratum" % "1.5.8"
 val sprayJson  = "io.spray"            %% "spray-json" % "1.3.3"
 val playJson   = "com.typesafe.play"   %% "play-json"  % "2.5.10"
 
-val akkaHttpVersion = "10.0.1"
+val akkaHttpVersion = "10.0.4"
 def akkaHttpInExamples = {
   val akkaHttp          = "com.typesafe.akka" %% "akka-http"            % akkaHttpVersion
   val akkaHttpSprayJson = "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion
