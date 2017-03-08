@@ -57,12 +57,19 @@ lazy val noPublishSettings =
 
 def optional(dependency: ModuleID) = dependency % "provided"
 
-val scalaTest  = "org.scalatest"       %% "scalatest"  % "3.0.1"
-val slick      = "com.typesafe.slick"  %% "slick"      % "3.2.0"
-val slickPg    = "com.github.tminglei" %% "slick-pg"   % "0.15.0-RC"
-val enumeratum = "com.beachape"        %% "enumeratum" % "1.5.8"
-val sprayJson  = "io.spray"            %% "spray-json" % "1.3.3"
-val playJson   = "com.typesafe.play"   %% "play-json"  % "2.6.0-M1"
+val scalaTest = "org.scalatest"       %% "scalatest"  % "3.0.1"
+val slick     = "com.typesafe.slick"  %% "slick"      % "3.2.0"
+val slickPg   = "com.github.tminglei" %% "slick-pg"   % "0.15.0-RC"
+val sprayJson = "io.spray"            %% "spray-json" % "1.3.3"
+val playJson  = "com.typesafe.play"   %% "play-json"  % "2.6.0-M1"
+
+val enumeratumVersion = "1.5.8"
+val enumeratum        = "com.beachape" %% "enumeratum" % enumeratumVersion
+def enumeratumInExamples = {
+  val playJsonSupport = "com.beachape" %% "enumeratum-play-json" % enumeratumVersion
+  Seq(enumeratum, playJsonSupport)
+}
+val optionalEnumeratum = optional(enumeratum)
 
 val akkaHttpVersion = "10.0.4"
 def akkaHttpInExamples = {
@@ -75,8 +82,6 @@ def akkaHttpInBenchmarks = {
   val akkaHttpTestkit = "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion
   akkaHttpInExamples :+ akkaHttpTestkit
 }
-
-val optionalEnumeratum = optional(enumeratum)
 
 lazy val commonSettings = baseSettings ++ Seq(
     scalacOptions ++= Seq("-language:experimental.macros", "-optimise"),
@@ -108,17 +113,14 @@ lazy val sprayJsonSettings = commonSettings ++ Seq(
   )
 
 lazy val playJsonMacroSettings = commonMacroSettings ++ Seq(
-    libraryDependencies += playJson,
-    libraryDependencies += optionalEnumeratum
+    libraryDependencies += playJson
   )
 
-lazy val playJsonSettings = commonSettings ++ Seq(
-    libraryDependencies += optionalEnumeratum
-  )
+lazy val playJsonSettings = commonSettings
 
 lazy val examplesSettings = commonSettings ++ Seq(
     libraryDependencies += slickPg,
-    libraryDependencies += enumeratum,
+    libraryDependencies ++= enumeratumInExamples,
     libraryDependencies ++= akkaHttpInExamples
   )
 

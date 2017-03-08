@@ -3,9 +3,8 @@ package pl.iterators.kebs_examples
 import java.net.URL
 import java.util.UUID
 
-import enumeratum.{Enum, EnumEntry}
+import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
 import pl.iterators.kebs.json.KebsPlay
-import pl.iterators.kebs.json.enums.KebsEnumFormats
 import play.api.libs.json._
 
 import scala.util.Try
@@ -27,21 +26,10 @@ object PlayJsonFormat {
     def flatFormat[P, T <: Product](construct: P => T)(implicit jf: Format[P]): Format[T] =
       Format[T](jf.map(construct), Writes(a => jf.writes(a.productElement(0).asInstanceOf[P])))
 
-    def enumFormat[T <: EnumEntry](enumCompanion: Enum[T]): Format[T] = new Format[T] {
-      override def reads(json: JsValue): JsResult[T] = json match {
-        case JsString(name) =>
-          enumCompanion.withNameInsensitiveOption(name).map(JsSuccess(_)).getOrElse(JsError("error.expected.validenumvalue"))
-        case _ => JsError("error.expected.enumstring")
-      }
-
-      override def writes(o: T): JsValue = JsString(o.entryName)
-    }
-
     implicit val thingIdJsonFormat          = flatFormat(ThingId.apply)
     implicit val tagIdJsonFormat            = flatFormat(TagId.apply)
     implicit val thingNameJsonFormat        = flatFormat(ThingName.apply)
     implicit val thingDescriptionJsonFormat = flatFormat(ThingDescription.apply)
-    implicit val thingStatusJsonFormat      = enumFormat(ThingStatus)
 
     implicit val errorJsonFormat              = Json.format[Error]
     implicit val locationJsonFormat           = Json.format[Location]
@@ -49,7 +37,7 @@ object PlayJsonFormat {
     implicit val thingJsonFormat              = Json.format[Thing]
   }
 
-  object AfterKebs extends JsonProtocol with KebsPlay with KebsEnumFormats {
+  object AfterKebs extends JsonProtocol with KebsPlay {
     implicit val errorJsonFormat              = Json.format[Error]
     implicit val locationJsonFormat           = Json.format[Location]
     implicit val createThingRequestJsonFormat = Json.format[ThingCreateRequest]
@@ -63,7 +51,7 @@ object PlayJsonFormat {
   case class Location(latitude: Double, longitude: Double)
 
   sealed trait ThingStatus extends EnumEntry
-  object ThingStatus extends Enum[ThingStatus] {
+  object ThingStatus extends Enum[ThingStatus] with PlayJsonEnum[ThingStatus] {
     case object Active     extends ThingStatus
     case object Unapproved extends ThingStatus
     case object Blocked    extends ThingStatus
