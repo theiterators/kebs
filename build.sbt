@@ -2,14 +2,22 @@ lazy val scalafmtSettings = Seq(
     scalafmtConfig := Some(file(".scalafmt.conf"))
   ) ++ reformatOnCompileSettings
 
-lazy val baseSettings = Seq(
+lazy val baseSettings = {
+  val scala_2_11             = "2.11.8"
+  val scala_2_12             = "2.12.1"
+  val mainScalaVersion       = scala_2_11
+  val supportedScalaVersions = Seq(scala_2_11, scala_2_12)
+
+  Seq(
     organization := "pl.iterators",
     organizationName := "Iterators",
     organizationHomepage := Some(url("https://iterato.rs")),
     homepage := Some(url("https://github.com/theiterators/kebs")),
-    scalaVersion := "2.11.8",
+    crossScalaVersions := supportedScalaVersions,
+    scalaVersion := mainScalaVersion,
     scalacOptions := Seq("-deprecation", "-unchecked", "-feature", "-encoding", "utf8")
   ) ++ scalafmtSettings
+}
 
 lazy val commonMacroSettings = baseSettings ++ Seq(
     libraryDependencies += "org.scala-lang" % "scala-reflect"  % scalaVersion.value,
@@ -35,8 +43,7 @@ lazy val publishSettings = Seq(
               email = "mrzeznicki@iterato.rs",
               url = url("https://github.com/marcin-rzeznicki"))),
   scmInfo := Some(
-    ScmInfo(browseUrl = url("https://github.com/theiterators/kebs"),
-            connection = "scm:git:https://github.com/theiterators/kebs.git")),
+    ScmInfo(browseUrl = url("https://github.com/theiterators/kebs"), connection = "scm:git:https://github.com/theiterators/kebs.git")),
   useGpg := true,
   releasePublishArtifactsAction := PgpKeys.publishSigned.value,
   credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
@@ -51,8 +58,8 @@ lazy val noPublishSettings =
 def optional(dependency: ModuleID) = dependency % "provided"
 
 val scalaTest  = "org.scalatest"       %% "scalatest"  % "3.0.1"
-val slick      = "com.typesafe.slick"  %% "slick"      % "3.1.1"
-val slickPg    = "com.github.tminglei" %% "slick-pg"   % "0.14.4"
+val slick      = "com.typesafe.slick"  %% "slick"      % "3.2.0"
+val slickPg    = "com.github.tminglei" %% "slick-pg"   % "0.15.0-RC"
 val enumeratum = "com.beachape"        %% "enumeratum" % "1.5.2"
 val sprayJson  = "io.spray"            %% "spray-json" % "1.3.3"
 val playJson   = "com.typesafe.play"   %% "play-json"  % "2.5.10"

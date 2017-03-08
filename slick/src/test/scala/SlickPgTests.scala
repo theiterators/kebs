@@ -1,4 +1,4 @@
-import com.github.tminglei.slickpg.ExPostgresDriver
+import com.github.tminglei.slickpg.ExPostgresProfile
 import org.scalatest.{FunSuite, Matchers}
 
 class SlickPgTests extends FunSuite with Matchers {
@@ -9,7 +9,7 @@ class SlickPgTests extends FunSuite with Matchers {
   case class Id(id: Int)
   case class ServiceLine(id: Id, name: ServiceLineName)
 
-  trait PostgresDriver extends ExPostgresDriver {
+  trait PostgresDriver extends ExPostgresProfile {
     override val api = PostgresApi
 
     object PostgresApi extends API with Kebs

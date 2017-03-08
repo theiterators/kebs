@@ -1,13 +1,13 @@
 package pl.iterators.kebs_examples
 
-import com.github.tminglei.slickpg.{ExPostgresDriver, PgArraySupport}
+import com.github.tminglei.slickpg._
 
 object ListValueCommonType {
   case class Institution(value: Long)
   case class MarketFinancialProduct(value: String)
 
   object BeforeKebs {
-    object MyPostgresProfile extends ExPostgresDriver with PgArraySupport {
+    object MyPostgresProfile extends ExPostgresProfile with PgArraySupport {
       override val api: API = new API {}
       trait API extends super.API with ArrayImplicits {
         implicit val institutionListTypeWrapper =
@@ -29,7 +29,7 @@ object ListValueCommonType {
   }
 
   object AfterKebs {
-    object MyPostgresProfile extends ExPostgresDriver with PgArraySupport {
+    object MyPostgresProfile extends ExPostgresProfile with PgArraySupport {
       override val api: API = new API {}
       trait API extends super.API with ArrayImplicits
     }
@@ -47,7 +47,7 @@ object ListValueCommonType {
 
   object AfterKebsTraitStyle {
     import pl.iterators.kebs.Kebs
-    object MyPostgresProfile extends ExPostgresDriver with PgArraySupport {
+    object MyPostgresProfile extends ExPostgresProfile with PgArraySupport {
       override val api: API = new API {}
       trait API extends super.API with ArrayImplicits with Kebs
     }

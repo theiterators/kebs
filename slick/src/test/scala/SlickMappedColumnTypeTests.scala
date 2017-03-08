@@ -1,5 +1,5 @@
 import org.scalatest.{FunSuite, Matchers}
-import slick.driver.PostgresDriver.api._
+import slick.jdbc.PostgresProfile.api._
 import slick.lifted.ProvenShape
 
 class SlickMappedColumnTypeTests extends FunSuite with Matchers {

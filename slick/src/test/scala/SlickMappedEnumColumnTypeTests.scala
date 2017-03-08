@@ -2,8 +2,7 @@ import enumeratum.{Enum, EnumEntry}
 import org.scalatest.{FunSuite, Matchers}
 
 class SlickMappedEnumColumnTypeTests extends FunSuite with Matchers {
-  import slick.driver.PostgresDriver.api._
-  import slick.lifted.ProvenShape
+  import slick.jdbc.PostgresProfile.api._
   import pl.iterators.kebs.enums.lowercase._
 
   sealed trait WorkerAccountStatus extends EnumEntry

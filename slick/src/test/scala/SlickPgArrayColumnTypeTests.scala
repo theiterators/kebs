@@ -1,11 +1,11 @@
-import com.github.tminglei.slickpg.{ExPostgresDriver, PgArraySupport}
+import com.github.tminglei.slickpg._
 import org.scalatest.{FunSuite, Matchers}
 
 class SlickPgArrayColumnTypeTests extends FunSuite with Matchers {
   case class Institution(value: Long)
   case class MarketFinancialProduct(value: String)
 
-  object MyPostgresProfile extends ExPostgresDriver with PgArraySupport {
+  object MyPostgresProfile extends ExPostgresProfile with PgArraySupport {
     override val api: API = new API {}
     trait API extends super.API with ArrayImplicits
   }
