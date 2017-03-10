@@ -2,22 +2,21 @@ lazy val scalafmtSettings = Seq(
     scalafmtConfig := Some(file(".scalafmt.conf"))
   ) ++ reformatOnCompileSettings
 
-lazy val baseSettings = {
-  val scala_2_11             = "2.11.8"
-  val scala_2_12             = "2.12.1"
-  val mainScalaVersion       = scala_2_11
-  val supportedScalaVersions = Seq(scala_2_11, scala_2_12)
+val scala_2_11             = "2.11.8"
+val scala_2_12             = "2.12.1"
+val mainScalaVersion       = scala_2_11
+val supportedScalaVersions = Seq(scala_2_11, scala_2_12)
 
-  Seq(
+lazy val baseSettings = Seq(
     organization := "pl.iterators",
     organizationName := "Iterators",
     organizationHomepage := Some(url("https://iterato.rs")),
     homepage := Some(url("https://github.com/theiterators/kebs")),
-    crossScalaVersions := supportedScalaVersions,
     scalaVersion := mainScalaVersion,
     scalacOptions := Seq("-deprecation", "-unchecked", "-feature", "-encoding", "utf8")
   ) ++ scalafmtSettings
-}
+
+lazy val crossBuildSettings = Seq(crossScalaVersions := supportedScalaVersions)
 
 lazy val commonMacroSettings = baseSettings ++ Seq(
     libraryDependencies += "org.scala-lang" % "scala-reflect"  % scalaVersion.value,
@@ -61,7 +60,16 @@ val scalaTest = "org.scalatest"       %% "scalatest"  % "3.0.1"
 val slick     = "com.typesafe.slick"  %% "slick"      % "3.2.0"
 val slickPg   = "com.github.tminglei" %% "slick-pg"   % "0.15.0-RC"
 val sprayJson = "io.spray"            %% "spray-json" % "1.3.3"
-val playJson  = "com.typesafe.play"   %% "play-json"  % "2.6.0-M1"
+def playJson(scalaVersion: String) = {
+  val version = CrossVersion.partialVersion(scalaVersion) match {
+    case Some((2, 12)) => "2.6.0-M4"
+    case Some((2, 11)) => "2.5.12"
+    case _ =>
+      throw new IllegalArgumentException(s"Unsupported Scala version $scalaVersion")
+  }
+
+  "com.typesafe.play" %% "play-json" % version
+}
 
 val enumeratumVersion = "1.5.8"
 val enumeratum        = "com.beachape" %% "enumeratum" % enumeratumVersion
@@ -113,7 +121,7 @@ lazy val sprayJsonSettings = commonSettings ++ Seq(
   )
 
 lazy val playJsonMacroSettings = commonMacroSettings ++ Seq(
-    libraryDependencies += playJson
+    libraryDependencies += playJson(scalaVersion.value)
   )
 
 lazy val playJsonSettings = commonSettings
@@ -133,6 +141,7 @@ lazy val benchmarkSettings = commonSettings ++ Seq(
 lazy val macroUtils = project
   .in(file("macro-utils"))
   .settings(macroUtilsSettings: _*)
+  .settings(crossBuildSettings: _*)
   .settings(publishSettings: _*)
   .settings(
     name := "macro-utils",
@@ -144,6 +153,7 @@ lazy val slickMacros = project
   .in(file("slick-macros"))
   .dependsOn(macroUtils)
   .settings(slickMacroSettings: _*)
+  .settings(crossBuildSettings: _*)
   .settings(publishSettings: _*)
   .settings(
     name := "slick-macros",
@@ -155,6 +165,7 @@ lazy val slickSupport = project
   .in(file("slick"))
   .dependsOn(slickMacros)
   .settings(slickSettings: _*)
+  .settings(crossBuildSettings: _*)
   .settings(publishSettings: _*)
   .settings(
     name := "slick",
@@ -166,6 +177,7 @@ lazy val sprayJsonMacros = project
   .in(file("spray-json-macros"))
   .dependsOn(macroUtils)
   .settings(sprayJsonMacroSettings: _*)
+  .settings(crossBuildSettings: _*)
   .settings(publishSettings: _*)
   .settings(
     name := "spray-json-macros",
@@ -177,6 +189,7 @@ lazy val sprayJsonSupport = project
   .in(file("spray-json"))
   .dependsOn(sprayJsonMacros)
   .settings(sprayJsonSettings: _*)
+  .settings(crossBuildSettings: _*)
   .settings(publishSettings: _*)
   .settings(
     name := "spray-json",
@@ -188,6 +201,7 @@ lazy val playJsonMacros = project
   .in(file("play-json-macros"))
   .dependsOn(macroUtils)
   .settings(playJsonMacroSettings: _*)
+  .settings(crossBuildSettings: _*)
   .settings(publishSettings: _*)
   .settings(
     name := "play-json-macros",
@@ -199,6 +213,7 @@ lazy val playJsonSupport = project
   .in(file("play-json"))
   .dependsOn(playJsonMacros)
   .settings(playJsonSettings: _*)
+  .settings(crossBuildSettings: _*)
   .settings(publishSettings: _*)
   .settings(
     name := "play-json",
