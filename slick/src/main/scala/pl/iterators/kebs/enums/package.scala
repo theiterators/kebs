@@ -6,6 +6,4 @@ package object enums extends KebsEnums {
 
   object lowercase extends Lowercase
 
-  object asInt extends AsInt
-
 }

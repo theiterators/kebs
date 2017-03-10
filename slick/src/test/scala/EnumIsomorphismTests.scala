@@ -41,12 +41,4 @@ class EnumIsomorphismTests extends FunSuite with Matchers {
     iso.comap("GOODBYE") shouldBe GoodBye
   }
 
-  test("implicit isomorphism from EnumEntry - index") {
-    import pl.iterators.kebs.enums.asInt._
-
-    val iso = implicitly[Isomorphism[Greeting, Int]]
-    iso.map(Bye) shouldBe 3
-    iso.comap(3) shouldBe Bye
-  }
-
 }

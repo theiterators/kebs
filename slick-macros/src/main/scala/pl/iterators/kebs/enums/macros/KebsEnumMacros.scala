@@ -10,7 +10,8 @@ class KebsEnumMacros(override val c: whitebox.Context) extends EnumMacroUtils {
 
   private def materializeIsomorphism[E, T](enumMapComap: EnumMapComap[E, T]) = {
     val E = enumMapComap.E
-    assertEnumEntry(E, s"To materialize column type ${E.typeSymbol} must subclass enumeratum.EnumEntry")
+    enumMapComap.assertValid(
+      s"To materialize column type ${E.typeSymbol} must subclass enumeratum.EnumEntry or enumeratum.values.ValueEnumEntry")
 
     val to    = enumMapComap.To
     val map   = enumMapComap.mapFunction
@@ -27,6 +28,6 @@ class KebsEnumMacros(override val c: whitebox.Context) extends EnumMacroUtils {
   def materializeEnumColumnWithNameUppercase[E: c.WeakTypeTag]: c.Expr[Isomorphism[E, String]] =
     materializeIsomorphism[E, String](new Uppercase)
 
-  def materializeEnumColumnWithIndex[E: c.WeakTypeTag]: c.Expr[Isomorphism[E, Int]] = materializeIsomorphism[E, Int](new IndexOf)
+  def materializeValueEnumColumn[E: c.WeakTypeTag, V]: c.Expr[Isomorphism[E, V]] = materializeIsomorphism[E, V](new Value)
 
 }
