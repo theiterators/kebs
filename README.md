@@ -222,7 +222,6 @@ class People(tag: Tag) extends Table[Person](tag, "people") {
 You can also choose between a few **strategies of writing enums**.
 If you just import `enums._`, then you'll get its `entryName` in db. 
 If you import `enums.lowercase._` or `enums.uppercase._` then it'll save enum name in, respectively, lower or upper case
-If you import `enums.asInt._`, then you'll get entry's index (as returned by `Enum.indexOf`). 
 Of course, enums also work with traits:
 
 ```scala
@@ -237,6 +236,18 @@ object MyPostgresProfile extends ExPostgresDriver {
 import MyPostgresProfile.api._
 ```
 
+`kebs` also supports `ValueEnum`s, to save something other than entry's name to db. For example, if you wanted `WorkerAccountStatus` to be saved as int value, you'd write:
+ 
+ ```scala
+ sealed abstract class WorkerAccountStatusInt(val value: Int) extends IntEnumEntry
+ object WorkerAccountStatusInt extends IntEnum[WorkerAccountStatusInt] {
+     case object Unapproved extends WorkerAccountStatusInt(0)
+     case object Active     extends WorkerAccountStatusInt(1)
+     case object Blocked    extends WorkerAccountStatusInt(2)
+    
+     override val values = findValues
+ }
+ ```
 
 #### - kebs eliminates spray-json induced boilerplate (kebs-spray-json)
 
@@ -345,33 +356,22 @@ object ThingProtocol extends JsonProtocol with KebsSpray with KebsEnumFormats
 ```
 
 As in slick's example, you have two additional enum serialization strategies: 
-_uppercase_ i _lowercase_ (`KebsEnumFormats.Uppercase`, `KebsEnumFormats.Lowercase`)
+_uppercase_ i _lowercase_ (`KebsEnumFormats.Uppercase`, `KebsEnumFormats.Lowercase`), as well as support for `ValueEnumEntry`
 
 #### - kebs eliminates play-json induced boilerplate (kebs-play-json)
 
 To be honest `play-json` has never been a source of extensive boilerplate for me- thanks to `Json.format[CC]` macro.
-Only _flat_ formats have to written over and over. And there is no support for `enumeratum`.
+Only _flat_ formats have had to be written over and over. ~~And there is no support for `enumeratum`~~ (support for `enumeratum` is provided by `enumeratum-play-json` and has been removed from `kebs`).
 So if you find yourself writing lots of code similar to:
 
 ```scala
 def flatFormat[P, T <: Product](construct: P => T)(implicit jf: Format[P]): Format[T] =
   Format[T](jf.map(construct), Writes(a => jf.writes(a.productElement(0).asInstanceOf[P])))
 
-def enumFormat[T <: EnumEntry](enumCompanion: Enum[T]): Format[T] = new Format[T] {
-  override def reads(json: JsValue): JsResult[T] = json match {
-    case JsString(name) =>
-      enumCompanion.withNameInsensitiveOption(name).map(JsSuccess(_)).getOrElse(JsError("error.expected.validenumvalue"))
-    case _ => JsError("error.expected.enumstring")
-  }
-
-  override def writes(o: T): JsValue = JsString(o.entryName)
-}
-
 implicit val thingIdJsonFormat          = flatFormat(ThingId.apply)
 implicit val tagIdJsonFormat            = flatFormat(TagId.apply)
 implicit val thingNameJsonFormat        = flatFormat(ThingName.apply)
 implicit val thingDescriptionJsonFormat = flatFormat(ThingDescription.apply)
-implicit val thingStatusJsonFormat      = enumFormat(ThingStatus)
 
 implicit val errorJsonFormat              = Json.format[Error]
 implicit val locationJsonFormat           = Json.format[Location]
@@ -383,7 +383,6 @@ implicit val thingJsonFormat              = Json.format[Thing]
 
 ```scala
 import pl.iterators.kebs.json._
-import enums._
   
 implicit val errorJsonFormat              = Json.format[Error]
 implicit val locationJsonFormat           = Json.format[Location]
@@ -394,7 +393,7 @@ implicit val thingJsonFormat              = Json.format[Thing]
 (or, trait-style)
 
 ```scala
-object AfterKebs extends JsonProtocol with KebsPlay with KebsEnumFormats {
+object AfterKebs extends JsonProtocol with KebsPlay {
 implicit val errorJsonFormat              = Json.format[Error]
 implicit val locationJsonFormat           = Json.format[Location]
 implicit val createThingRequestJsonFormat = Json.format[ThingCreateRequest]
@@ -402,4 +401,3 @@ implicit val thingJsonFormat              = Json.format[Thing]
 }
 ```
 
-Furthermore, just like in slick and spray, you can choose from _uppercase_ and _lowercase_ strategies for serializing enums.
