@@ -1,27 +1,23 @@
-lazy val scalafmtSettings = Seq(
-    scalafmtConfig := Some(file(".scalafmt.conf"))
-  ) ++ reformatOnCompileSettings
-
 val scala_2_11             = "2.11.8"
 val scala_2_12             = "2.12.1"
 val mainScalaVersion       = scala_2_11
 val supportedScalaVersions = Seq(scala_2_11, scala_2_12)
 
 lazy val baseSettings = Seq(
-    organization := "pl.iterators",
-    organizationName := "Iterators",
-    organizationHomepage := Some(url("https://iterato.rs")),
-    homepage := Some(url("https://github.com/theiterators/kebs")),
-    scalaVersion := mainScalaVersion,
-    scalacOptions := Seq("-deprecation", "-unchecked", "-feature", "-encoding", "utf8")
-  ) ++ scalafmtSettings
+  organization := "pl.iterators",
+  organizationName := "Iterators",
+  organizationHomepage := Some(url("https://iterato.rs")),
+  homepage := Some(url("https://github.com/theiterators/kebs")),
+  scalaVersion := mainScalaVersion,
+  scalacOptions := Seq("-deprecation", "-unchecked", "-feature", "-encoding", "utf8")
+)
 
 lazy val crossBuildSettings = Seq(crossScalaVersions := supportedScalaVersions)
 
 lazy val commonMacroSettings = baseSettings ++ Seq(
-    libraryDependencies += "org.scala-lang" % "scala-reflect"  % scalaVersion.value,
-    libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided"
-  )
+  libraryDependencies += "org.scala-lang" % "scala-reflect"  % scalaVersion.value,
+  libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided"
+)
 
 lazy val publishToNexus = publishTo := {
   val nexus = "https://oss.sonatype.org/"
@@ -49,10 +45,14 @@ lazy val publishSettings = Seq(
 )
 
 lazy val noPublishSettings =
-  Seq(publishToNexus /*must be set for sbt-release*/, publishArtifact := false, releasePublishArtifactsAction := {
-    val projectName = name.value
-    streams.value.log.warn(s"Publishing for $projectName is turned off")
-  })
+  Seq(
+    publishToNexus /*must be set for sbt-release*/,
+    publishArtifact := false,
+    releasePublishArtifactsAction := {
+      val projectName = name.value
+      streams.value.log.warn(s"Publishing for $projectName is turned off")
+    }
+  )
 
 def optional(dependency: ModuleID) = dependency % "provided"
 
@@ -92,51 +92,51 @@ def akkaHttpInBenchmarks = {
 }
 
 lazy val commonSettings = baseSettings ++ Seq(
-    scalacOptions ++= Seq("-language:experimental.macros", "-optimise"),
-    (scalacOptions in Test) ++= Seq("-Ymacro-debug-lite", "-Xlog-implicits"),
-    libraryDependencies += scalaTest % "test"
-  )
+  scalacOptions ++= Seq("-language:experimental.macros", "-optimise"),
+  (scalacOptions in Test) ++= Seq("-Ymacro-debug-lite", "-Xlog-implicits"),
+  libraryDependencies += scalaTest % "test"
+)
 
 lazy val slickSettings = commonSettings ++ Seq(
-    libraryDependencies += slickPg % "test",
-    libraryDependencies += optionalEnumeratum
-  )
+  libraryDependencies += slickPg % "test",
+  libraryDependencies += optionalEnumeratum
+)
 
 lazy val macroUtilsSettings = commonMacroSettings ++ Seq(
-    libraryDependencies += optionalEnumeratum
-  )
+  libraryDependencies += optionalEnumeratum
+)
 
 lazy val slickMacroSettings = commonMacroSettings ++ Seq(
-    libraryDependencies += slick,
-    libraryDependencies += optionalEnumeratum
-  )
+  libraryDependencies += slick,
+  libraryDependencies += optionalEnumeratum
+)
 
 lazy val sprayJsonMacroSettings = commonMacroSettings ++ Seq(
-    libraryDependencies += sprayJson,
-    libraryDependencies += optionalEnumeratum
-  )
+  libraryDependencies += sprayJson,
+  libraryDependencies += optionalEnumeratum
+)
 
 lazy val sprayJsonSettings = commonSettings ++ Seq(
-    libraryDependencies += optionalEnumeratum
-  )
+  libraryDependencies += optionalEnumeratum
+)
 
 lazy val playJsonMacroSettings = commonMacroSettings ++ Seq(
-    libraryDependencies += playJson(scalaVersion.value)
-  )
+  libraryDependencies += playJson(scalaVersion.value)
+)
 
 lazy val playJsonSettings = commonSettings
 
 lazy val examplesSettings = commonSettings ++ Seq(
-    libraryDependencies += slickPg,
-    libraryDependencies ++= enumeratumInExamples,
-    libraryDependencies ++= akkaHttpInExamples
-  )
+  libraryDependencies += slickPg,
+  libraryDependencies ++= enumeratumInExamples,
+  libraryDependencies ++= akkaHttpInExamples
+)
 
 lazy val benchmarkSettings = commonSettings ++ Seq(
-    libraryDependencies += scalaTest,
-    libraryDependencies += enumeratum,
-    libraryDependencies ++= akkaHttpInBenchmarks
-  )
+  libraryDependencies += scalaTest,
+  libraryDependencies += enumeratum,
+  libraryDependencies ++= akkaHttpInBenchmarks
+)
 
 lazy val macroUtils = project
   .in(file("macro-utils"))

@@ -193,25 +193,30 @@ object SprayJsonFormatBenchmark {
           None,
           "RAPIO",
           1,
-          List(Reservation("?", 1, "stolik", "20:00-21:00", "<none>"),
-               Reservation("?", 2, "stolik", "20:00-21:00", "<none>"),
-               Reservation("?", 3, "stolik", "20:00-21:00", "<none>")),
+          List(
+            Reservation("?", 1, "stolik", "20:00-21:00", "<none>"),
+            Reservation("?", 2, "stolik", "20:00-21:00", "<none>"),
+            Reservation("?", 3, "stolik", "20:00-21:00", "<none>")
+          ),
           TravelTime(distance = 100, driving = 99, walking = 1),
           "pizzera",
           "<none>"
         )))
     val sampleReservetionDetailsResponse = ReservationDetailsResponse(
-      Venue(LocationFull("Czernichów", 49.9915924, 19.6754663, "Czernichów", "CET", "Czernichów 232", "małopolskie", "32-071"),
-            "RAPIO",
-            1,
-            "pizzeria",
-            List.empty,
-            "Pizzeria & Restauracja RAPIO",
-            "Pizzeria & Restauracja RAPIO",
-            Rater("?", 100.0, 1.0, "?")),
+      Venue(
+        LocationFull("Czernichów", 49.9915924, 19.6754663, "Czernichów", "CET", "Czernichów 232", "małopolskie", "32-071"),
+        "RAPIO",
+        1,
+        "pizzeria",
+        List.empty,
+        "Pizzeria & Restauracja RAPIO",
+        "Pizzeria & Restauracja RAPIO",
+        Rater("?", 100.0, 1.0, "?")
+      ),
       BookedReservation("?", "stolik", "20.00-21:00"),
       Some(Payment(Some(PaymentDetails(fee = None, serviceCharge = Some(100), tax = Some(0.08), total = Some(108))))),
-      token = "abcdefgh")
+      token = "abcdefgh"
+    )
     val sampleReservations = Reservations(List(
       RequestedReservation("abcdefgh", RequestedReservationDetails(LocalDate.now(), LocalTime.now()), Some(Cancellation(Some(Fee(10)))))))
 

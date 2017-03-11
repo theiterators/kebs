@@ -16,11 +16,9 @@ abstract class MacroUtils {
   }
 
   protected def caseAccessors(caseClassType: Type): List[MethodSymbol] =
-    caseClassType.decls
-      .collect {
-        case decl if decl.isMethod && decl.asMethod.isCaseAccessor => decl.asMethod
-      }
-      .toList
+    caseClassType.decls.collect {
+      case decl if decl.isMethod && decl.asMethod.isCaseAccessor => decl.asMethod
+    }.toList
 
   object Product1 {
     def unapply(t: Type): Option[MethodSymbol] = caseAccessors(t) match {
