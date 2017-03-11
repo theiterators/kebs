@@ -1,3 +1,12 @@
+## Version 1.4.0
+
+> 11.03.2017
+
+This version adds support for Scala 2.12 (using `play-json 1.6.0-M4`)
+* Support for `ValueEnumEntry` and `ValueEnum` for `slick` and `spray-json`
+* Removed `play-json` support for `enumeratum` - use `enumeratum-play-json` instead
+
+
 ## Version 1.3.0
 
 > 06.02.2017
