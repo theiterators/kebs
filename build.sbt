@@ -12,8 +12,6 @@ lazy val baseSettings = Seq(
   scalacOptions := Seq("-deprecation", "-unchecked", "-feature", "-encoding", "utf8")
 )
 
-lazy val crossBuildSettings = Seq(crossScalaVersions := supportedScalaVersions)
-
 lazy val commonMacroSettings = baseSettings ++ Seq(
   libraryDependencies += "org.scala-lang" % "scala-reflect"  % scalaVersion.value,
   libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided"
@@ -26,6 +24,8 @@ lazy val publishToNexus = publishTo := {
   else
     Some("releases" at nexus + "service/local/staging/deploy/maven2")
 }
+
+lazy val crossBuildSettings = Seq(crossScalaVersions := supportedScalaVersions, releaseCrossBuild := true)
 
 lazy val publishSettings = Seq(
   publishToNexus,
@@ -42,7 +42,7 @@ lazy val publishSettings = Seq(
   useGpg := true,
   releasePublishArtifactsAction := PgpKeys.publishSigned.value,
   credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
-)
+) ++ crossBuildSettings
 
 lazy val noPublishSettings =
   Seq(
@@ -242,6 +242,8 @@ lazy val benchmarks = project
     moduleName := "kebs-benchmarks"
   )
 
+import ReleaseTransformations._
+enablePlugins(CrossPerProjectPlugin)
 lazy val kebs = project
   .in(file("."))
   .aggregate(macroUtils, slickMacros, slickSupport, sprayJsonMacros, sprayJsonSupport, playJsonMacros, playJsonSupport, examples)
@@ -249,5 +251,19 @@ lazy val kebs = project
   .settings(noPublishSettings: _*)
   .settings(
     name := "kebs",
-    description := "Library to eliminate the boilerplate code that comes with the use of Slick"
+    description := "Library to eliminate the boilerplate code that comes with the use of Slick",
+    releaseCrossBuild := false /*to work with sbt-doge*/,
+    releaseProcess := Seq[ReleaseStep](
+      checkSnapshotDependencies,
+      inquireVersions,
+      runClean,
+      releaseStepCommandAndRemaining("+test"),
+      setReleaseVersion,
+      commitReleaseVersion,
+      tagRelease,
+      releaseStepCommandAndRemaining("+publish"),
+      setNextVersion,
+      commitNextVersion,
+      pushChanges
+    )
   )
