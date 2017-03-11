@@ -92,7 +92,7 @@ def akkaHttpInBenchmarks = {
 }
 
 lazy val commonSettings = baseSettings ++ Seq(
-  scalacOptions ++= Seq("-language:experimental.macros", "-optimise"),
+  scalacOptions ++= Seq("-language:experimental.macros"),
   (scalacOptions in Test) ++= Seq("-Ymacro-debug-lite", "-Xlog-implicits"),
   libraryDependencies += scalaTest % "test"
 )
