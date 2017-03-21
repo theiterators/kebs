@@ -1,8 +1,8 @@
 import org.scalatest.{FunSuite, Matchers}
-import slick.jdbc.PostgresProfile.api._
 import slick.lifted.ProvenShape
 
 class SlickMappedColumnTypeTests extends FunSuite with Matchers {
+  import slick.jdbc.PostgresProfile.api._
   import pl.iterators.kebs._
 
   case class Id(id: Long)

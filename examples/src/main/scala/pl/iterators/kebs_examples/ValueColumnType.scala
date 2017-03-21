@@ -1,6 +1,6 @@
 package pl.iterators.kebs_examples
 
-import slick.jdbc.PostgresProfile.api._
+import slick.driver.PostgresDriver.api._
 import slick.lifted.ProvenShape
 
 object ValueColumnType {

@@ -7,7 +7,7 @@ object ListValueCommonType {
   case class MarketFinancialProduct(value: String)
 
   object BeforeKebs {
-    object MyPostgresProfile extends ExPostgresProfile with PgArraySupport {
+    object MyPostgresProfile extends ExPostgresDriver with PgArraySupport {
       override val api: API = new API {}
       trait API extends super.API with ArrayImplicits {
         implicit val institutionListTypeWrapper =
@@ -29,7 +29,7 @@ object ListValueCommonType {
   }
 
   object AfterKebs {
-    object MyPostgresProfile extends ExPostgresProfile with PgArraySupport {
+    object MyPostgresProfile extends ExPostgresDriver with PgArraySupport {
       override val api: API = new API {}
       trait API extends super.API with ArrayImplicits
     }
@@ -47,7 +47,7 @@ object ListValueCommonType {
 
   object AfterKebsTraitStyle {
     import pl.iterators.kebs.Kebs
-    object MyPostgresProfile extends ExPostgresProfile with PgArraySupport {
+    object MyPostgresProfile extends ExPostgresDriver with PgArraySupport {
       override val api: API = new API {}
       trait API extends super.API with ArrayImplicits with Kebs
     }
