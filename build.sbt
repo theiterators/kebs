@@ -55,21 +55,20 @@ lazy val noPublishSettings =
   )
 
 def optional(dependency: ModuleID) = dependency % "provided"
+def dependentVersion(scalaVersion: String, scala2_11Version: String, scala2_12Version: String) =
+  CrossVersion.partialVersion(scalaVersion) match {
+    case Some((2, 12)) => scala2_12Version
+    case Some((2, 11)) => scala2_11Version
+    case _ =>
+      throw new IllegalArgumentException(s"Unsupported Scala version $scalaVersion")
+  }
 
 val scalaTest = "org.scalatest"       %% "scalatest"  % "3.0.1"
 val slick     = "com.typesafe.slick"  %% "slick"      % "3.2.0"
 val slickPg   = "com.github.tminglei" %% "slick-pg"   % "0.15.0-RC"
 val sprayJson = "io.spray"            %% "spray-json" % "1.3.3"
-def playJson(scalaVersion: String) = {
-  val version = CrossVersion.partialVersion(scalaVersion) match {
-    case Some((2, 12)) => "2.6.0-M4"
-    case Some((2, 11)) => "2.5.12"
-    case _ =>
-      throw new IllegalArgumentException(s"Unsupported Scala version $scalaVersion")
-  }
-
-  "com.typesafe.play" %% "play-json" % version
-}
+def playJson(scalaVersion: String) =
+  "com.typesafe.play" %% "play-json" % dependentVersion(scalaVersion, scala2_11Version = "2.5.13", scala2_12Version = "2.6.0-M5")
 
 val enumeratumVersion = "1.5.8"
 val enumeratum        = "com.beachape" %% "enumeratum" % enumeratumVersion
