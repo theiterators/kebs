@@ -1,3 +1,13 @@
+## Version 1.4.1
+
+> 21.03.2017
+
+Dependencies changed:
+- `kebs-play-json` depends on `play-json` `2.5.13` in `2.11`; `1.6.0-M5` in `2.12`
+- `kebs-slick`     depends on `slick`     `3.1.1`  in `2.11`; `3.2.0`    in `2.12`
+
+It's safe to bump up slick to `3.2.0` manually if you are on `2.11` - `kebs-slick` does not depend on anything slick-version-specific
+
 ## Version 1.4.0
 
 > 11.03.2017
