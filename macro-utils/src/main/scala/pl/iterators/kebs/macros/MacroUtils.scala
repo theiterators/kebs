@@ -35,4 +35,6 @@ abstract class MacroUtils {
     implicitTree
   }
 
+  protected def isString(t: Type) = definitions.StringClass == t.typeSymbol
+
 }

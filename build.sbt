@@ -80,17 +80,14 @@ def enumeratumInExamples = {
 }
 val optionalEnumeratum = optional(enumeratum)
 
-val akkaHttpVersion = "10.0.4"
+val akkaHttpVersion = "10.0.5"
+val akkaHttp        = "com.typesafe.akka" %% "akka-http" % akkaHttpVersion
+val akkaHttpTestkit = "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion
 def akkaHttpInExamples = {
-  val akkaHttp          = "com.typesafe.akka" %% "akka-http"            % akkaHttpVersion
   val akkaHttpSprayJson = "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion
-
   Seq(akkaHttp, akkaHttpSprayJson)
 }
-def akkaHttpInBenchmarks = {
-  val akkaHttpTestkit = "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion
-  akkaHttpInExamples :+ akkaHttpTestkit
-}
+def akkaHttpInBenchmarks = akkaHttpInExamples :+ akkaHttpTestkit
 
 lazy val commonSettings = baseSettings ++ Seq(
   scalacOptions ++= Seq("-language:experimental.macros"),
@@ -126,6 +123,14 @@ lazy val playJsonMacroSettings = commonMacroSettings ++ Seq(
 )
 
 lazy val playJsonSettings = commonSettings
+
+lazy val akkaHttpMacroSettings = commonMacroSettings ++ Seq(
+  libraryDependencies += akkaHttp
+)
+
+lazy val akkaHttpSettings = commonSettings ++ Seq(
+  libraryDependencies += akkaHttpTestkit % "test"
+)
 
 lazy val examplesSettings = commonSettings ++ Seq(
   libraryDependencies += slickPg(scalaVersion.value),
@@ -222,6 +227,30 @@ lazy val playJsonSupport = project
     moduleName := "kebs-play-json"
   )
 
+lazy val akkaHttpMacros = project
+  .in(file("akka-http-macros"))
+  .dependsOn(macroUtils)
+  .settings(akkaHttpMacroSettings: _*)
+  .settings(crossBuildSettings: _*)
+  .settings(publishSettings: _*)
+  .settings(
+    name := "akka-http",
+    description := "Automatic generation of akka-http deserializers for 1-element case classes - macros",
+    moduleName := "kebs-akka-http-macros"
+  )
+
+lazy val akkaHttpSupport = project
+  .in(file("akka-http"))
+  .dependsOn(akkaHttpMacros)
+  .settings(akkaHttpSettings: _*)
+  .settings(crossBuildSettings: _*)
+  .settings(publishSettings: _*)
+  .settings(
+    name := "akka-http",
+    description := "Automatic generation of akka-http deserializers for 1-element case classes",
+    moduleName := "kebs-akka-http"
+  )
+
 lazy val examples = project
   .in(file("examples"))
   .dependsOn(slickSupport, sprayJsonSupport, playJsonSupport)
@@ -247,7 +276,16 @@ import ReleaseTransformations._
 enablePlugins(CrossPerProjectPlugin)
 lazy val kebs = project
   .in(file("."))
-  .aggregate(macroUtils, slickMacros, slickSupport, sprayJsonMacros, sprayJsonSupport, playJsonMacros, playJsonSupport, examples)
+  .aggregate(macroUtils,
+             slickMacros,
+             slickSupport,
+             sprayJsonMacros,
+             sprayJsonSupport,
+             playJsonMacros,
+             playJsonSupport,
+             akkaHttpMacros,
+             akkaHttpSupport,
+             examples)
   .settings(baseSettings: _*)
   .settings(noPublishSettings: _*)
   .settings(
