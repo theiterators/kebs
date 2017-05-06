@@ -14,7 +14,7 @@ class KebsPlayMacros(override val c: whitebox.Context) extends MacroUtils {
   private def materializeReads[A](A: Type, field: MethodSymbol): c.Expr[Reads[A]] = {
     val B          = field.typeSignatureIn(A).resultType
     val jsonReadsB = inferImplicitValue(jsonReadsOf(B), s"To materialize Reads for ${A.typeSymbol}, Reads[$B] is needed")
-    val readsA     = q"$jsonReadsB.map(${companion(A)}(_))"
+    val readsA     = q"$jsonReadsB.map(${apply(A)})"
 
     c.Expr[Reads[A]](readsA)
   }

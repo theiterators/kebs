@@ -31,7 +31,7 @@ class KebsMacros(override val c: whitebox.Context) extends MacroUtils {
     assertNoEnclosingMappedProjection(from, to)
 
     val map   = q"_.$caseAccessor"
-    val comap = q"${companion(from)}(_)"
+    val comap = apply(from)
 
     q"new _root_.slick.lifted.Isomorphism[$from, $to]($map, $comap)"
   }

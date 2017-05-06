@@ -30,7 +30,7 @@ class KebsUnmarshallersMacros(override val c: whitebox.Context) extends MacroUti
     val from = caseAccessor.typeSignatureIn(caseClassType).resultType
     val to   = caseClassType
 
-    val f = q"${companion(caseClassType)}(_)"
+    val f = apply(caseClassType)
 
     q"_root_.akka.http.scaladsl.unmarshalling.Unmarshaller.strict[$from, $to]($f)"
   }
