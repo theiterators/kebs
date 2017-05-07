@@ -5,7 +5,7 @@ import pl.iterators.kebs.unmarshallers.KebsUnmarshallers.InvariantDummy
 
 trait KebsFromStringUnmarshallers {
   @inline
-  def kebsFromStringUnmarshaller[A, A1 <: A, B](um: Unmarshaller[A, B])(
+  final def kebsFromStringUnmarshaller[A, A1 <: A, B](um: Unmarshaller[A, B])(
       implicit fsu: FromStringUnmarshaller[A1]): FromStringUnmarshaller[B] =
     fsu andThen um
 }

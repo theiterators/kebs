@@ -1,8 +1,11 @@
+import akka.http.scaladsl.server.MalformedQueryParamRejection
 import akka.http.scaladsl.server.directives.ParameterDirectives._
 import akka.http.scaladsl.server.directives.PathDirectives.path
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import akka.http.scaladsl.unmarshalling.Unmarshal
+import enumeratum._
+import enumeratum.values.{IntEnum, IntEnumEntry}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{FunSuite, Matchers}
 
@@ -13,24 +16,61 @@ class AkkaHttpUnmarshallerTests extends FunSuite with Matchers with ScalatestRou
   case class CantUnmarshall(s: String, i: Int)
   case object O
 
-  import pl.iterators.kebs.unmarshallers._
+  sealed trait Greeting extends EnumEntry
 
-  test("Unmarhsal") {
+  object Greeting extends Enum[Greeting] {
+    val values = findValues
+
+    case object Hello   extends Greeting
+    case object GoodBye extends Greeting
+    case object Hi      extends Greeting
+    case object Bye     extends Greeting
+  }
+
+  sealed abstract class LibraryItem(val value: Int) extends IntEnumEntry
+
+  object LibraryItem extends IntEnum[LibraryItem] {
+    case object Book     extends LibraryItem(1)
+    case object Movie    extends LibraryItem(2)
+    case object Magazine extends LibraryItem(3)
+    case object CD       extends LibraryItem(4)
+
+    val values = findValues
+  }
+
+  import pl.iterators.kebs.unmarshallers._
+  import enums._
+
+  test("Unmarshal") {
     Unmarshal(42).to[I].futureValue shouldBe I(42)
     Unmarshal("42").to[S].futureValue shouldBe S("42")
   }
 
-  test("Unmarhsal parametrized") {
+  test("Unmarshal parametrized") {
     Unmarshal("42").to[P[String]].futureValue shouldBe P("42")
   }
 
-  test("Unmarhsal case object") {
+  test("Unmarshal case object") {
     Unmarshal("42").to[O.type].futureValue shouldBe O
     Unmarshal(42).to[O.type].futureValue shouldBe O
   }
 
+  test("Unmarshal enum") {
+    Unmarshal("hello").to[Greeting].futureValue shouldBe Greeting.Hello
+    Unmarshal("blah").to[Greeting].failed.futureValue shouldBe a[IllegalArgumentException]
+  }
+
+  test("Unmarshal value enum") {
+    Unmarshal(3).to[LibraryItem].futureValue shouldBe LibraryItem.Magazine
+    Unmarshal(5).to[LibraryItem].failed.futureValue shouldBe a[IllegalArgumentException]
+  }
+
   test("No unmarshaller for case-classes of arity > 1") {
     """Unmarshal("42").to[CantUnmarshall]""" shouldNot compile
+  }
+
+  test("Unmarshalling value enums is type-safe") {
+    """Unmarshal(1L).to[LibraryItem]""" shouldNot compile
   }
 
   test("Unmarshal from string") {
@@ -55,12 +95,17 @@ class AkkaHttpUnmarshallerTests extends FunSuite with Matchers with ScalatestRou
     }
   }
 
-  test("Unmarshalling repeated parameter") {
-    val testRoute = parameters('i.as[I].?) { i =>
-      complete(i.toString)
+  test("Unmarshalling enum parameter") {
+    val testRoute = parameters('greeting.as[Greeting]) { greeting =>
+      complete(greeting.toString)
     }
-    Get("/?i=42") ~> testRoute ~> check {
-      responseAs[String] shouldEqual "Some(I(42))"
+    Get("/?greeting=hi") ~> testRoute ~> check {
+      responseAs[String] shouldEqual "Hi"
+    }
+    Get("/?greeting=blah") ~> testRoute ~> check {
+      rejection shouldEqual MalformedQueryParamRejection("greeting",
+                                                         "Invalid value 'blah'. Expected one of: Hello, GoodBye, Hi, Bye",
+                                                         None)
     }
   }
 

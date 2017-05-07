@@ -125,11 +125,13 @@ lazy val playJsonMacroSettings = commonMacroSettings ++ Seq(
 lazy val playJsonSettings = commonSettings
 
 lazy val akkaHttpMacroSettings = commonMacroSettings ++ Seq(
-  libraryDependencies += akkaHttp
+  libraryDependencies += akkaHttp,
+  libraryDependencies += optionalEnumeratum
 )
 
 lazy val akkaHttpSettings = commonSettings ++ Seq(
-  libraryDependencies += akkaHttpTestkit % "test"
+  libraryDependencies += akkaHttpTestkit % "test",
+  libraryDependencies += optionalEnumeratum
 )
 
 lazy val examplesSettings = commonSettings ++ Seq(
