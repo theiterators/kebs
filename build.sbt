@@ -236,7 +236,7 @@ lazy val akkaHttpMacros = project
   .settings(crossBuildSettings: _*)
   .settings(publishSettings: _*)
   .settings(
-    name := "akka-http",
+    name := "akka-http-macros",
     description := "Automatic generation of akka-http deserializers for 1-element case classes - macros",
     moduleName := "kebs-akka-http-macros"
   )
