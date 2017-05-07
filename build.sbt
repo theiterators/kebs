@@ -292,7 +292,7 @@ lazy val kebs = project
   .settings(noPublishSettings: _*)
   .settings(
     name := "kebs",
-    description := "Library to eliminate the boilerplate code that comes with the use of Slick",
+    description := "Library to eliminate the boilerplate code",
     releaseCrossBuild := false /*to work with sbt-doge*/,
     releaseProcess := Seq[ReleaseStep](
       checkSnapshotDependencies,
