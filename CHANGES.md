@@ -1,3 +1,9 @@
+## Version 1.4.2
+
+> 07.05.2017
+
+This release adds new module `kebs-akka-http` which generates `akka-http` unmarshallers for 1-element case classes and supports enumeratum
+
 ## Version 1.4.1
 
 > 21.03.2017
