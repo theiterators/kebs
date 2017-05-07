@@ -255,7 +255,7 @@ lazy val akkaHttpSupport = project
 
 lazy val examples = project
   .in(file("examples"))
-  .dependsOn(slickSupport, sprayJsonSupport, playJsonSupport)
+  .dependsOn(slickSupport, sprayJsonSupport, playJsonSupport, akkaHttpSupport)
   .settings(examplesSettings: _*)
   .settings(noPublishSettings: _*)
   .settings(
