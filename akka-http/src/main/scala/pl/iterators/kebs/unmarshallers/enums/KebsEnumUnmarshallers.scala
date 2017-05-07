@@ -2,7 +2,7 @@ package pl.iterators.kebs.unmarshallers.enums
 
 import akka.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
 import akka.http.scaladsl.util.FastFuture
-import enumeratum.values.{ValueEnum, ValueEnumEntry}
+import enumeratum.values._
 import enumeratum.{Enum, EnumEntry}
 import pl.iterators.kebs.unmarshallers.KebsFromStringUnmarshallers
 import pl.iterators.kebs.unmarshallers.KebsUnmarshallers.InvariantDummy
@@ -27,6 +27,19 @@ trait ValueEnumUnmarshallers extends KebsFromStringUnmarshallers {
           .mkString(", ")}"""))
     }
   }
+
+  implicit def kebsIntValueEnumFromStringUnmarshaller[E <: IntEnumEntry](implicit um: Unmarshaller[Int, E]): FromStringUnmarshaller[E] =
+    kebsFromStringUnmarshaller(um)
+  implicit def kebsLongValueEnumFromStringUnmarshaller[E <: LongEnumEntry](
+      implicit um: Unmarshaller[Long, E]): FromStringUnmarshaller[E] =
+    kebsFromStringUnmarshaller(um)
+  implicit def kebsShortValueEnumFromStringUnmarshaller[E <: ShortEnumEntry](
+      implicit um: Unmarshaller[Short, E]): FromStringUnmarshaller[E] =
+    kebsFromStringUnmarshaller(um)
+  implicit def kebsByteValueEnumFromStringUnmarshaller[E <: ByteEnumEntry](
+      implicit um: Unmarshaller[Byte, E]): FromStringUnmarshaller[E] =
+    kebsFromStringUnmarshaller(um)
+
 }
 
 trait KebsEnumUnmarshallers extends EnumUnmarshallers with ValueEnumUnmarshallers {

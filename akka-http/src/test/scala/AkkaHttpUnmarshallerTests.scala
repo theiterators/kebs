@@ -5,7 +5,7 @@ import akka.http.scaladsl.server.directives.RouteDirectives.complete
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import enumeratum._
-import enumeratum.values.{IntEnum, IntEnumEntry}
+import enumeratum.values._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{FunSuite, Matchers}
 
@@ -109,6 +109,18 @@ class AkkaHttpUnmarshallerTests extends FunSuite with Matchers with ScalatestRou
     }
   }
 
+  test("Unmarshalling value enum parameter") {
+    val testRoute = parameters('libraryItem.as[LibraryItem]) { item =>
+      complete(item.toString)
+    }
+    Get("/?libraryItem=1") ~> testRoute ~> check {
+      responseAs[String] shouldEqual "Book"
+    }
+    Get("/?libraryItem=10") ~> testRoute ~> check {
+      rejection shouldEqual MalformedQueryParamRejection("libraryItem", "Invalid value '10'. Expected one of: 1, 2, 3, 4", None)
+    }
+  }
+
   case class Red(value: Int)
   case class Green(value: Int)
   case class Blue(value: Int)
@@ -124,4 +136,29 @@ class AkkaHttpUnmarshallerTests extends FunSuite with Matchers with ScalatestRou
     Get("/color?red=1&green=2&blue=3") ~> route ~> check { responseAs[String] shouldEqual "Color(Red(1),Green(2),Blue(3))" }
 
   }
+
+  sealed abstract class ShirtSize(val value: String) extends StringEnumEntry
+
+  case object ShirtSize extends StringEnum[ShirtSize] {
+
+    case object Small  extends ShirtSize("S")
+    case object Medium extends ShirtSize("M")
+    case object Large  extends ShirtSize("L")
+
+    val values = findValues
+
+  }
+
+  test("Unmarshalling string value enum parameter") {
+    val testRoute = parameters('shirtSize.as[ShirtSize]) { shirtSize =>
+      complete(shirtSize.toString)
+    }
+    Get("/?shirtSize=M") ~> testRoute ~> check {
+      responseAs[String] shouldEqual "Medium"
+    }
+    Get("/?shirtSize=XL") ~> testRoute ~> check {
+      rejection shouldEqual MalformedQueryParamRejection("shirtSize", "Invalid value 'XL'. Expected one of: S, M, L", None)
+    }
+  }
+
 }
