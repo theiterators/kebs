@@ -101,4 +101,18 @@ class SprayJsonFormatTests extends FunSuite with Matchers {
       case _ => ()
     }
   }
+
+  case class Thing(thingId: String, parent: Option[Thing])
+  implicit val thingFormat: RootJsonFormat[Thing] = jsonFormatRec[Thing]
+
+  test("bug: mutually recursive") {
+    val t  = Thing("child", Some(Thing("parent", None)))
+    val jf = implicitly[JsonFormat[Thing]]
+    jf.write(t) shouldBe JsObject("thingId" -> JsString("child"), "parent" -> JsObject("thingId" -> JsString("parent")))
+    jf.read(JsObject(
+      "thingId" -> JsString("child"),
+      "parent"  -> JsObject("thingId" -> JsString("parent"), "parent" -> JsObject("thingId" -> JsString("grandparent"))))) shouldBe Thing(
+      "child",
+      Some(Thing("parent", Some(Thing("grandparent", None)))))
+  }
 }

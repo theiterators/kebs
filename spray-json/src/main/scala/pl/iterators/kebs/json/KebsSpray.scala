@@ -7,6 +7,7 @@ trait KebsSpray { self: DefaultJsonProtocol =>
   implicit def jsonFormatN[T <: Product]: RootJsonFormat[T] = macro KebsSprayMacros.materializeRootFormat[T]
   implicit def jsonFlatFormat[T <: Product]: JsonFormat[T] = macro KebsSprayMacros.materializeFlatFormat[T]
 
+  final def jsonFormatRec[T <: Product]: RootJsonFormat[T] = macro KebsSprayMacros.materializeLazyFormat[T]
   @inline final def constructJsonFormat[T](reader: JsValue => T, writer: T => JsValue) = jsonFormat(reader, writer)
 }
 

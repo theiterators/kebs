@@ -25,14 +25,15 @@ class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
     c.Expr[JsonFormat[T]](q"${_this}.constructJsonFormat[$T]($readerF, $writerF)")
   }
 
-  private def materializeJsonFormat0[T](T: Type) = c.Expr[RootJsonFormat[T]](q"${_this}.jsonFormat0[$T](() => ${T.termSymbol})")
+  private def materializeJsonFormat0(T: Type) = q"${_this}.jsonFormat0[$T](() => ${T.termSymbol})"
 
+  private def extractFieldTypes(fields: List[MethodSymbol], in: Type)      = fields.map(_.typeSignatureIn(in).resultType)
   protected def extractFieldNames(fields: List[MethodSymbol]): Seq[String] = fields.map(_.name.decodedName.toString)
-  private def materializeRootJsonFormat[T](T: Type, fields: List[MethodSymbol]) = {
-    val Ps         = fields.map(_.typeSignatureIn(T).resultType)
+  private def materializeRootJsonFormat(T: Type, fields: List[MethodSymbol]) = {
+    val Ps         = extractFieldTypes(fields, T)
     val fieldNames = extractFieldNames(fields)
 
-    c.Expr[RootJsonFormat[T]](q"${_this}.jsonFormat[..$Ps, $T](${apply(T)}, ..$fieldNames)")
+    q"${_this}.jsonFormat[..$Ps, $T](${apply(T)}, ..$fieldNames)"
   }
 
   final def materializeFlatFormat[T: c.WeakTypeTag]: c.Expr[JsonFormat[T]] = {
@@ -51,21 +52,36 @@ class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
 
     def isLookingFor(t: Type) = c.enclosingImplicits.head.pt.typeSymbol == t.typeSymbol
 
-    caseAccessors(T) match {
-      case Nil => materializeJsonFormat0[T](T)
+    val jsonFormat = caseAccessors(T) match {
+      case Nil => materializeJsonFormat0(T)
       case (_1 :: Nil) =>
         if (isLookingFor(jsonFormatOf(T))) c.abort(c.enclosingPosition, "Flat format preferred")
-        else materializeRootJsonFormat[T](T, List(_1))
-      case fields => materializeRootJsonFormat[T](T, fields)
+        else materializeRootJsonFormat(T, List(_1))
+      case fields => materializeRootJsonFormat(T, fields)
     }
+    c.Expr[RootJsonFormat[T]](jsonFormat)
   }
 
+  final def materializeLazyFormat[T: c.WeakTypeTag]: c.Expr[RootJsonFormat[T]] = {
+    val T = weakTypeOf[T]
+    assertCaseClass(T, s"To materialize recursive RootJsonFormat, ${T.typeSymbol} must be a case class")
+
+    caseAccessors(T) match {
+      case Nil => c.abort(c.enclosingPosition, s"${T.typeSymbol} is case object")
+      case fields =>
+        val format = materializeRootJsonFormat(T, fields)
+        c.Expr[RootJsonFormat[T]](q"""{
+          implicit lazy val __jf: ${jsonFormatOf(T)} = ${_this}.lazyFormat($format)
+          ${_this}.rootFormat(__jf)
+        }""")
+    }
+  }
 }
 
 object KebsSprayMacros {
   class SnakifyVariant(context: whitebox.Context) extends KebsSprayMacros(context) {
-    import c.universe._
     import SnakifyVariant.snakify
+    import c.universe._
 
     override protected def extractFieldNames(fields: List[MethodSymbol]) = super.extractFieldNames(fields).map(snakify)
   }

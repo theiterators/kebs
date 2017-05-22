@@ -139,7 +139,7 @@ class AkkaHttpUnmarshallerTests extends FunSuite with Matchers with ScalatestRou
 
   sealed abstract class ShirtSize(val value: String) extends StringEnumEntry
 
-  case object ShirtSize extends StringEnum[ShirtSize] {
+  object ShirtSize extends StringEnum[ShirtSize] {
 
     case object Small  extends ShirtSize("S")
     case object Medium extends ShirtSize("M")
