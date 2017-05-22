@@ -10,6 +10,7 @@ import scala.reflect.macros._
 class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
   import c.universe._
 
+  private val noflatType            = typeOf[noflat]
   private val jsonFormat            = typeOf[JsonFormat[_]]
   private def jsonFormatOf(p: Type) = appliedType(jsonFormat, p)
 
@@ -52,7 +53,7 @@ class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
     assertCaseClass(T, s"To materialize RootJsonFormat, ${T.typeSymbol} must be a case class")
 
     def isLookingFor(t: Type) = c.enclosingImplicits.headOption.exists(_.pt.typeSymbol == t.typeSymbol)
-    def noflat(t: Type) = t.typeSymbol.annotations.exists(_.tree.tpe <:< weakTypeOf[noflat])
+    def noflat(t: Type) = t.typeSymbol.annotations.exists(_.tree.tpe =:= noflatType)
 
     val jsonFormat = caseAccessors(T) match {
       case Nil => materializeJsonFormat0(T)
