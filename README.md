@@ -3,12 +3,23 @@
 [![Maven Central](https://img.shields.io/maven-central/v/pl.iterators/kebs-slick_2.11.svg)]()
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/theiterators/kebs/master/COPYING)
 
+### Table of contents
+* [Why?](#why)
+* [SBT](#sbt)
+* [Examples](#examples)
+  * [slick](#--kebs-generates-slick-mappers-for-your-case-class-wrappers-kebs-slick)
+  * [spray-json](#--kebs-eliminates-spray-json-induced-boilerplate-kebs-spray-json)
+  * [play-json](#--kebs-eliminates-play-json-induced-boilerplate-kebs-play-json)
+  * [akka-http](#--kebs-generates-akka-http-unmarshaller-kebs-akka-http)
+
 ### Why?
 
 `kebs` is for eliminating some common sources of boilerplate code that arise when you use 
-Slick (`kebs-slick`), Spray (`kebs-spray-json`) or Play (`kebs-play-json`)
+Slick (`kebs-slick`), Spray (`kebs-spray-json`), Play (`kebs-play-json`) or Akka HTTP (`kebs-akka-http`).
 
 ### SBT
+
+Support for `slick`
 
 `libraryDependencies += "pl.iterators" %% "kebs-slick" % "1.4.2"`
 
