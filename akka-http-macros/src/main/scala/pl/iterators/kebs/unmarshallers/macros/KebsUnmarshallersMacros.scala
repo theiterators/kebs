@@ -13,7 +13,6 @@ class KebsUnmarshallersMacros(override val c: whitebox.Context) extends MacroUti
     assertCaseClass(B, s"To materialize unmarshaller, ${B.typeSymbol} must be a case class")
 
     caseAccessors(B) match {
-      case Nil => c.Expr[Unmarshaller[Any, B]](materializeAny(B))
       case _1 :: Nil =>
         val umTree = if (isString(weakTypeOf[A])) materializeFromString(B, _1) else materializeStrict(B, _1)
         c.Expr[Unmarshaller[A, B]](umTree)
@@ -35,10 +34,4 @@ class KebsUnmarshallersMacros(override val c: whitebox.Context) extends MacroUti
     q"_root_.akka.http.scaladsl.unmarshalling.Unmarshaller.strict[$from, $to]($f)"
   }
 
-  private def materializeAny(caseObjectType: Type) = {
-    val from = definitions.AnyTpe
-    val f    = q"(_ => ${caseObjectType.termSymbol})"
-
-    q"_root_.akka.http.scaladsl.unmarshalling.Unmarshaller.strict[$from, $caseObjectType]($f)"
-  }
 }

@@ -51,8 +51,7 @@ class AkkaHttpUnmarshallerTests extends FunSuite with Matchers with ScalatestRou
   }
 
   test("Unmarshal case object") {
-    Unmarshal("42").to[O.type].futureValue shouldBe O
-    Unmarshal(42).to[O.type].futureValue shouldBe O
+    """Unmarshal(42).to[O.type]""" shouldNot compile
   }
 
   test("Unmarshal enum") {
@@ -158,6 +157,32 @@ class AkkaHttpUnmarshallerTests extends FunSuite with Matchers with ScalatestRou
     }
     Get("/?shirtSize=XL") ~> testRoute ~> check {
       rejection shouldEqual MalformedQueryParamRejection("shirtSize", "Invalid value 'XL'. Expected one of: S, M, L", None)
+    }
+  }
+
+  sealed trait SortOrder extends EnumEntry
+  object SortOrder extends Enum[SortOrder] {
+    case object Asc  extends SortOrder
+    case object Desc extends SortOrder
+
+    override val values = findValues
+  }
+
+  test("bug: work with default enum values") {
+    val route =
+      path("test_enum") {
+        parameter('sort.as[SortOrder] ? (SortOrder.Desc: SortOrder)) { sort =>
+          complete {
+            s"Sort was $sort"
+          }
+        }
+      }
+
+    Get("/test_enum?sort=Asc") ~> route ~> check {
+      responseAs[String] shouldBe "Sort was Asc"
+    }
+    Get("/test_enum") ~> route ~> check {
+      responseAs[String] shouldBe "Sort was Desc"
     }
   }
 

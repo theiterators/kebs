@@ -449,7 +449,7 @@ import pl.iterators.kebs.unmarshallers._
 import enums._
 
 val route = get {
-  parameters('sortBy.as[Column], 'order.as[SortOrder] ? SortOrder.Desc, 'offset.as[Offset] ? Offset(0), 'limit.as[Limit])
+  parameters('sortBy.as[Column], 'order.as[SortOrder] ? (SortOrder.Desc: SortOrder), 'offset.as[Offset] ? Offset(0), 'limit.as[Limit])
     .as(PaginationQuery) { query =>
       //...
     }
