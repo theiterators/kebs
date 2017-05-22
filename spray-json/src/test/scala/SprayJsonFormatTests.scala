@@ -115,4 +115,25 @@ class SprayJsonFormatTests extends FunSuite with Matchers {
       "child",
       Some(Thing("parent", Some(Thing("grandparent", None)))))
   }
+
+  case class Book(name: String, chapters: List[Chapter])
+  case class Chapter(name: String)
+
+  implicit val chapterRootFormat: RootJsonFormat[Chapter] = jsonFormatN[Chapter]
+
+  test("work with nested single field objects") {
+    val json =
+      """
+        | {
+        |   "name": "Functional Programming in Scala",
+        |   "chapters": [{"name":"first"}, {"name":"second"}]
+        | }
+      """.stripMargin
+
+    json.parseJson.convertTo[Book] shouldBe Book(
+      name = "Functional Programming in Scala",
+      chapters = List(Chapter("first"), Chapter("second"))
+    )
+  }
+
 }

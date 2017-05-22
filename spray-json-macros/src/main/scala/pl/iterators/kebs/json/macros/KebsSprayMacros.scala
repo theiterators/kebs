@@ -50,7 +50,7 @@ class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
     val T = weakTypeOf[T]
     assertCaseClass(T, s"To materialize RootJsonFormat, ${T.typeSymbol} must be a case class")
 
-    def isLookingFor(t: Type) = c.enclosingImplicits.head.pt.typeSymbol == t.typeSymbol
+    def isLookingFor(t: Type) = c.enclosingImplicits.headOption.exists(_.pt.typeSymbol == t.typeSymbol)
 
     val jsonFormat = caseAccessors(T) match {
       case Nil => materializeJsonFormat0(T)
