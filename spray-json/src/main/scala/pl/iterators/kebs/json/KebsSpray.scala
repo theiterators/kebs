@@ -18,6 +18,6 @@ object KebsSpray {
   }
   trait NoFlat extends KebsSpray { self: DefaultJsonProtocol =>
     import macros.KebsSprayMacros
-    override implicit def jsonFormatN[T <: Product] = macro KebsSprayMacros.NoflatVariant.materializeRootFormat[T]
+    implicit def noflat_jsonFormatN[T <: Product]: RootJsonFormat[T] = macro KebsSprayMacros.NoflatVariant.materializeRootFormat[T]
   }
 }
