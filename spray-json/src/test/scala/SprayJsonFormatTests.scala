@@ -1,7 +1,7 @@
 import java.util.UUID
 
 import org.scalatest.{FunSuite, Matchers}
-import pl.iterators.kebs.json.KebsSpray
+import pl.iterators.kebs.json.{KebsSpray, noflat}
 import spray.json._
 
 class SprayJsonFormatTests extends FunSuite with Matchers {
@@ -136,4 +136,25 @@ class SprayJsonFormatTests extends FunSuite with Matchers {
     )
   }
 
+
+  case class BookNF(name: String, chapters: List[ChapterNF])
+  @noflat case class ChapterNF(name: String)
+
+  test("work with nested single field objects - noflat annotation") {
+    val json = JsObject(
+      "name"     -> JsString("Functional Programming in Scala"),
+      "chapters" -> JsArray(
+        JsObject("name" -> JsString("first")),
+        JsObject("name" -> JsString("second"))
+      )
+    )
+    val instance = BookNF(
+      name     = "Functional Programming in Scala",
+      chapters = List(ChapterNF("first"), ChapterNF("second"))
+    )
+
+    val jf = implicitly[RootJsonFormat[BookNF]]
+    jf.read(json) shouldBe instance
+    jf.write(instance) shouldBe json
+  }
 }
