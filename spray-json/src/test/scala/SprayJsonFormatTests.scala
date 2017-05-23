@@ -136,20 +136,19 @@ class SprayJsonFormatTests extends FunSuite with Matchers {
     )
   }
 
-
   case class BookNF(name: String, chapters: List[ChapterNF])
   @noflat case class ChapterNF(name: String)
 
   test("work with nested single field objects - noflat annotation") {
     val json = JsObject(
-      "name"     -> JsString("Functional Programming in Scala"),
+      "name" -> JsString("Functional Programming in Scala"),
       "chapters" -> JsArray(
         JsObject("name" -> JsString("first")),
         JsObject("name" -> JsString("second"))
       )
     )
     val instance = BookNF(
-      name     = "Functional Programming in Scala",
+      name = "Functional Programming in Scala",
       chapters = List(ChapterNF("first"), ChapterNF("second"))
     )
 

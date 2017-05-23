@@ -48,17 +48,19 @@ class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
     }
   }
 
+  protected val preferFlat: Boolean = true
+
   final def materializeRootFormat[T: c.WeakTypeTag]: c.Expr[RootJsonFormat[T]] = {
     val T = weakTypeOf[T]
     assertCaseClass(T, s"To materialize RootJsonFormat, ${T.typeSymbol} must be a case class")
 
     def isLookingFor(t: Type) = c.enclosingImplicits.headOption.exists(_.pt.typeSymbol == t.typeSymbol)
-    def noflat(t: Type) = t.typeSymbol.annotations.exists(_.tree.tpe =:= noflatType)
+    def noflat(t: Type)       = t.typeSymbol.annotations.exists(_.tree.tpe =:= noflatType)
 
     val jsonFormat = caseAccessors(T) match {
       case Nil => materializeJsonFormat0(T)
       case (_1 :: Nil) =>
-        if (isLookingFor(jsonFormatOf(T)) && !noflat(T)) c.abort(c.enclosingPosition, "Flat format preferred")
+        if (preferFlat && isLookingFor(jsonFormatOf(T)) && !noflat(T)) c.abort(c.enclosingPosition, "Flat format preferred")
         else materializeRootJsonFormat(T, List(_1))
       case fields => materializeRootJsonFormat(T, fields)
     }
@@ -82,6 +84,9 @@ class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
 }
 
 object KebsSprayMacros {
+  class NoflatVariant(context: whitebox.Context) extends KebsSprayMacros(context) {
+    override protected val preferFlat = false
+  }
   class SnakifyVariant(context: whitebox.Context) extends KebsSprayMacros(context) {
     import SnakifyVariant.snakify
     import c.universe._
