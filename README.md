@@ -355,7 +355,44 @@ case class Thing(id: ThingId, name: ThingName, ...)
 
 it'll do what you probably expected - `{"id": "uuid", "name": "str"}`. But it also takes into account
 if you want `RootJsonFormat` or not. So `case class Error(message: String)` in `Conflict -> Error("Already exists")` will be formatted as
-`{"message": "Already exists"}` in JSON
+`{"message": "Already exists"}` in JSON. 
+
+What if you do not want to use 'flat' format by default?
+You have three options to choose from:
+* redefine implicits for case-classes you want serialized 'non-flat'
+```scala
+case class Book(name: String, chapters: List[Chapter])
+case class Chapter(name: String)
+
+implicit val chapterRootFormat: RootJsonFormat[Chapter] = jsonFormatN[Chapter]
+
+test("work with nested single field objects") {
+    val json =
+      """
+        | {
+        |   "name": "Functional Programming in Scala",
+        |   "chapters": [{"name":"first"}, {"name":"second"}]
+        | }
+      """.stripMargin
+    
+    json.parseJson.convertTo[Book] shouldBe Book(
+      name = "Functional Programming in Scala",
+      chapters = List(Chapter("first"), Chapter("second"))
+    )
+}
+```
+
+* mix-in `KebsSpray.NonFlat` if you want _flat_ format to become globally turned off for a protocol
+```scala
+object KebsProtocol extends DefaultJsonProtocol with KebsSpray.NoFlat
+```
+
+* use `noflat` annotation on selected case-classes (thanks to @dbronecki)
+```scala
+case class Book(name: String, chapters: List[Chapter])
+@noflat case class Chapter(name: String)
+```
+
 
 Often you have to deal with convention to have **`snake-case` fields in JSON**.
 That's something `kebs-spray-json` can do for you as well
