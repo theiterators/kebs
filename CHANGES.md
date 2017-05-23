@@ -1,3 +1,14 @@
+## Version 1.4.3
+
+> 23.05.2017
+
+* Support for automatically generated mutually-recursive JSON formatters in `spray-json` 
+(fixes https://github.com/theiterators/kebs/issues/1)
+* Support for choice between _flat_ and _non-flat_ serialization in `spray-json`
+(fixes https://github.com/theiterators/kebs/issues/3)
+* Fixed 'Default Enum value is always used instead of the one passed in request' in `kebs-akka-http`
+(fixes https://github.com/theiterators/kebs/issues/2)
+
 ## Version 1.4.2
 
 > 07.05.2017
