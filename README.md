@@ -422,6 +422,8 @@ case class Thing(thingId: String, parent: Option[Thing])
 implicit val thingFormat: RootJsonFormat[Thing] = jsonFormatRec[Thing]
 ```
 
+`kebs-spray-json` also provides JSON formats for case classes with more than 22 fields.
+
 #### - kebs eliminates play-json induced boilerplate (kebs-play-json)
 
 To be honest `play-json` has never been a source of extensive boilerplate for me- thanks to `Json.format[CC]` macro.

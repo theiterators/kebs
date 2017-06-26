@@ -6,6 +6,7 @@ abstract class MacroUtils {
   val c: whitebox.Context
 
   protected val _this = c.prefix.tree
+  protected val maxCaseClassFields = 22
 
   import c.universe._
 

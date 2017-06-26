@@ -32,10 +32,40 @@ class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
   private def extractFieldTypes(fields: List[MethodSymbol], in: Type)      = fields.map(_.typeSignatureIn(in).resultType)
   protected def extractFieldNames(fields: List[MethodSymbol]): Seq[String] = fields.map(_.name.decodedName.toString)
   private def materializeRootJsonFormat(T: Type, fields: List[MethodSymbol]) = {
-    val Ps         = extractFieldTypes(fields, T)
-    val fieldNames = extractFieldNames(fields)
+    val Ps             = extractFieldTypes(fields, T)
+    val jsonFieldNames = extractFieldNames(fields)
 
-    q"${_this}.jsonFormat[..$Ps, $T](${apply(T)}, ..$fieldNames)"
+    if (fields.size <= maxCaseClassFields) {
+      q"${_this}.jsonFormat[..$Ps, $T](${apply(T)}, ..$jsonFieldNames)"
+    } else {
+      val classFieldNames = fields.map(_.name.decodedName.toString)
+      val reader =
+        q"""new _root_.spray.json.RootJsonReader[$T] {
+              import _root_.spray.json._
+              def read(json: _root_.spray.json.JsValue): $T = json match {
+                case _: _root_.spray.json.JsObject =>
+                  ${apply(T)}(
+                    ..${(classFieldNames zip Ps zip jsonFieldNames).map { case ((classField, fieldType), jsonField) =>
+                      q"${TermName(classField)} = json.getField[$fieldType]($jsonField)"
+                    }}
+                  )
+                case _ => deserializationError("JSON object expected")
+              }
+            }
+         """
+
+      val writer =
+        q"""new _root_.spray.json.RootJsonWriter[$T] {
+              import _root_.spray.json._
+              def write(obj: $T): _root_.spray.json.JsValue =
+                _root_.spray.json.JsObject(_root_.scala.Predef.Map(
+                  ..${(classFieldNames zip jsonFieldNames).map { case (classField, jsonField) => q"$jsonField -> obj.${TermName(classField)}.toJson" }}
+                ))
+            }
+         """
+
+      q"${_this}.rootJsonFormat[$T]($reader, $writer)"
+    }
   }
 
   final def materializeFlatFormat[T: c.WeakTypeTag]: c.Expr[JsonFormat[T]] = {

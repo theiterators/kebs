@@ -1,6 +1,6 @@
 import org.scalatest.{FunSuite, Matchers}
 import pl.iterators.kebs.json.KebsSpray
-import spray.json.{DefaultJsonProtocol, JsNumber, JsObject, JsString, JsonFormat, RootJsonFormat}
+import spray.json.{DefaultJsonProtocol, JsArray, JsBoolean, JsNull, JsNumber, JsObject, JsString, JsonFormat, RootJsonFormat}
 
 class SprayJsonFormatSnakifyVariantTests extends FunSuite with Matchers {
   object KebsProtocol extends DefaultJsonProtocol with KebsSpray.Snakified
@@ -51,5 +51,64 @@ class SprayJsonFormatSnakifyVariantTests extends FunSuite with Matchers {
     jf.read(JsObject("c_field" -> JsNumber(10), "d_field" -> JsObject("int_field" -> JsNumber(100), "string_field" -> JsString("abb")))) shouldBe Compound(
       C(10),
       D(100, "abb"))
+  }
+
+  test("Root format snakified - case class with > 22 fields (issue #7)") {
+    import model._
+
+    val jf = implicitly[JsonFormat[ClassWith23Fields]]
+    val obj = ClassWith23Fields(
+      "f1 value",
+      2,
+      3L,
+      None,
+      Some("f5 value"),
+      "six",
+      List("f7 value 1", "f7 value 2"),
+      "f8 value",
+      "f9 value",
+      "f10 value",
+      "f11 value",
+      "f12 value",
+      "f13 value",
+      "f14 value",
+      "f15 value",
+      "f16 value",
+      "f17 value",
+      "f18 value",
+      "f19 value",
+      "f20 value",
+      "f21 value",
+      "f22 value",
+      true
+    )
+    val json = JsObject(Map(
+      "f1" -> JsString("f1 value"),
+      "f2" -> JsNumber(2),
+      "f3" -> JsNumber(3),
+      "f4" -> JsNull,
+      "f5" -> JsString("f5 value"),
+      "field_number_six" -> JsString("six"),
+      "f7" -> JsArray(JsString("f7 value 1"), JsString("f7 value 2")),
+      "f8" -> JsString("f8 value"),
+      "f9" -> JsString("f9 value"),
+      "f10" -> JsString("f10 value"),
+      "f11" -> JsString("f11 value"),
+      "f12" -> JsString("f12 value"),
+      "f13" -> JsString("f13 value"),
+      "f14" -> JsString("f14 value"),
+      "f15" -> JsString("f15 value"),
+      "f16" -> JsString("f16 value"),
+      "f17" -> JsString("f17 value"),
+      "f18" -> JsString("f18 value"),
+      "f19" -> JsString("f19 value"),
+      "f20" -> JsString("f20 value"),
+      "f21" -> JsString("f21 value"),
+      "f22" -> JsString("f22 value"),
+      "f23" -> JsBoolean(true)
+    ))
+
+    jf.write(obj) shouldBe json
+    jf.read(json) shouldBe obj
   }
 }
