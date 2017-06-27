@@ -3,6 +3,9 @@
 [![Maven Central](https://img.shields.io/maven-central/v/pl.iterators/kebs-slick_2.11.svg)]()
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/theiterators/kebs/master/COPYING)
 
+
+![logo](https://raw.githubusercontent.com/theiterators/kebs/master/logo.png)
+
 ### Table of contents
 * [Why?](#why)
 * [SBT](#sbt)
