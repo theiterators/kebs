@@ -412,6 +412,13 @@ object ThingProtocol extends JsonProtocol with KebsSpray with KebsEnumFormats
 As in slick's example, you have two additional enum serialization strategies: 
 _uppercase_ i _lowercase_ (`KebsEnumFormats.Uppercase`, `KebsEnumFormats.Lowercase`), as well as support for `ValueEnumEntry`
 
+It can also generate recursive formats via `jsonFormatRec` macro, as in the following example:
+
+```scala
+case class Thing(thingId: String, parent: Option[Thing])
+implicit val thingFormat: RootJsonFormat[Thing] = jsonFormatRec[Thing]
+```
+
 #### - kebs eliminates play-json induced boilerplate (kebs-play-json)
 
 To be honest `play-json` has never been a source of extensive boilerplate for me- thanks to `Json.format[CC]` macro.
