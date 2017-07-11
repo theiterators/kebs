@@ -24,19 +24,19 @@ Slick (`kebs-slick`), Spray (`kebs-spray-json`), Play (`kebs-play-json`) or Akka
 
 Support for `slick`
 
-`libraryDependencies += "pl.iterators" %% "kebs-slick" % "1.4.3"`
+`libraryDependencies += "pl.iterators" %% "kebs-slick" % "1.4.4"`
 
 Support for `spray-json`
 
-`libraryDependencies += "pl.iterators" %% "kebs-spray-json" % "1.4.3"`
+`libraryDependencies += "pl.iterators" %% "kebs-spray-json" % "1.4.4"`
 
 Support for `play-json`
 
-`libraryDependencies += "pl.iterators" %% "kebs-play-json" % "1.4.3"`
+`libraryDependencies += "pl.iterators" %% "kebs-play-json" % "1.4.4"`
 
 Support for `akka-http`
 
-`libraryDependencies += "pl.iterators" %% "kebs-akka-http" % "1.4.3"`
+`libraryDependencies += "pl.iterators" %% "kebs-akka-http" % "1.4.4"`
 
 Builds for Scala `2.11` and `2.12` are provided
 

@@ -1,3 +1,10 @@
+## Version 1.4.4
+
+> 11.07.2017
+
+* JSON - Support for case classes with more then 22 fields
+(fixes https://github.com/theiterators/kebs/issues/7)
+
 ## Version 1.4.3
 
 > 23.05.2017
