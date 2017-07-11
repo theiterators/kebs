@@ -1,13 +1,13 @@
 package pl.iterators.kebs_examples
 
-import com.github.tminglei.slickpg.ExPostgresDriver
+import com.github.tminglei.slickpg.ExPostgresProfile
 import enumeratum.{Enum, EnumEntry}
 import slick.lifted.ProvenShape
 
 object EnumValueColumnType {
 
   object BeforeKebs {
-    import slick.driver.PostgresDriver.api._
+    import slick.jdbc.PostgresProfile.api._
 
     object People {
       implicit val userIdColumnType: BaseColumnType[UserId]                 = MappedColumnType.base(_.userId, UserId.apply)
@@ -62,7 +62,7 @@ object EnumValueColumnType {
   }
 
   object AfterKebs {
-    import slick.driver.PostgresDriver.api._
+    import slick.jdbc.PostgresProfile.api._
     import pl.iterators.kebs._
     import enums._
 
@@ -101,7 +101,7 @@ object EnumValueColumnType {
     import pl.iterators.kebs.Kebs
     import pl.iterators.kebs.enums.KebsEnums
 
-    object MyPostgresProfile extends ExPostgresDriver {
+    object MyPostgresProfile extends ExPostgresProfile {
       override val api: API = new API {}
       trait API extends super.API with Kebs with KebsEnums.Lowercase
     }

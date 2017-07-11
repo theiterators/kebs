@@ -1,6 +1,6 @@
 val scala_2_11             = "2.11.11"
 val scala_2_12             = "2.12.2"
-val mainScalaVersion       = scala_2_11
+val mainScalaVersion       = scala_2_12
 val supportedScalaVersions = Seq(scala_2_11, scala_2_12)
 
 lazy val baseSettings = Seq(
