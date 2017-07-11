@@ -67,12 +67,12 @@ val scalaTest = "org.scalatest" %% "scalatest" % "3.0.1"
 def slick(scalaVersion: String) =
   "com.typesafe.slick" %% "slick" % sv(scalaVersion, scala2_12Version = "3.2.0", scala2_11Version = "3.1.1")
 def slickPg(scalaVersion: String) =
-  "com.github.tminglei" %% "slick-pg" % sv(scalaVersion, scala2_12Version = "0.15.0-RC", scala2_11Version = "0.14.6")
+  "com.github.tminglei" %% "slick-pg" % sv(scalaVersion, scala2_12Version = "0.15.1", scala2_11Version = "0.14.6")
 val sprayJson = "io.spray" %% "spray-json" % "1.3.3"
 def playJson(scalaVersion: String) =
-  "com.typesafe.play" %% "play-json" % sv(scalaVersion, scala2_11Version = "2.5.13", scala2_12Version = "2.6.0-M6")
+  "com.typesafe.play" %% "play-json" % sv(scalaVersion, scala2_11Version = "2.5.13", scala2_12Version = "2.6.2")
 
-val enumeratumVersion = "1.5.11"
+val enumeratumVersion = "1.5.12"
 val enumeratum        = "com.beachape" %% "enumeratum" % enumeratumVersion
 def enumeratumInExamples = {
   val playJsonSupport = "com.beachape" %% "enumeratum-play-json" % enumeratumVersion
