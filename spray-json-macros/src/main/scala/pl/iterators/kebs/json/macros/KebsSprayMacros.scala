@@ -45,9 +45,10 @@ class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
               def read(json: _root_.spray.json.JsValue): $T = json match {
                 case _: _root_.spray.json.JsObject =>
                   ${apply(T)}(
-                    ..${(classFieldNames zip Ps zip jsonFieldNames).map { case ((classField, fieldType), jsonField) =>
-                      q"${TermName(classField)} = json.getField[$fieldType]($jsonField)"
-                    }}
+                    ..${(classFieldNames zip Ps zip jsonFieldNames).map {
+          case ((classField, fieldType), jsonField) =>
+            q"${TermName(classField)} = json.getField[$fieldType]($jsonField)"
+        }}
                   )
                 case _ => deserializationError("JSON object expected")
               }
@@ -59,7 +60,9 @@ class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
               import _root_.spray.json._
               def write(obj: $T): _root_.spray.json.JsValue =
                 _root_.spray.json.JsObject(_root_.scala.Predef.Map(
-                  ..${(classFieldNames zip jsonFieldNames).map { case (classField, jsonField) => q"$jsonField -> obj.${TermName(classField)}.toJson" }}
+                  ..${(classFieldNames zip jsonFieldNames).map {
+          case (classField, jsonField) => q"$jsonField -> obj.${TermName(classField)}.toJson"
+        }}
                 ))
             }
          """
