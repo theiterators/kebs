@@ -1,8 +1,16 @@
+## Version 1.4.5
+
+> 14.07.2017
+
+* Fix bug in JSON support for case classes with more than 22 fields
+(https://github.com/theiterators/kebs/issues/16)
+* There was a problem with mapping slick columns as sequences of EnumEntries - fixed
+
 ## Version 1.4.4
 
 > 11.07.2017
 
-* JSON - Support for case classes with more then 22 fields
+* JSON - Support for case classes with more than 22 fields
 (fixes https://github.com/theiterators/kebs/issues/7)
 
 ## Version 1.4.3
