@@ -1,7 +1,9 @@
 package object model {
 
+  case class F1(f1: String) extends AnyVal
+
   case class ClassWith23Fields(
-      f1: String,
+      f1: F1,
       f2: Int,
       f3: Long,
       f4: Option[String],
