@@ -10,6 +10,11 @@ trait SlickEnum {
     new Isomorphism[E, String](_.entryName.toUpperCase, enum.withNameUppercaseOnly(_))
   def lowercaseEnumIsomorphism[E <: EnumEntry](enum: Enum[E]): Isomorphism[E, String] =
     new Isomorphism[E, String](_.entryName.toLowerCase, enum.withNameLowercaseOnly(_))
+
+  implicit def enumListColumnType[E <: EnumEntry](implicit iso: Isomorphism[E, String]): Isomorphism[List[E], List[String]] =
+    new Isomorphism[List[E], List[String]](_.map(iso.map), _.map(iso.comap))
+  implicit def enumSeqColumnType[E <: EnumEntry](implicit iso: Isomorphism[E, String]): Isomorphism[Seq[E], List[String]] =
+    new Isomorphism[Seq[E], List[String]](_.map(iso.map).toList, _.map(iso.comap))
 }
 
 trait SlickValueEnum {

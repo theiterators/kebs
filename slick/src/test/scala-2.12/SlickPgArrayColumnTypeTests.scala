@@ -1,4 +1,5 @@
 import com.github.tminglei.slickpg._
+import enumeratum.{Enum, EnumEntry}
 import org.scalatest.{FunSuite, Matchers}
 
 class SlickPgArrayColumnTypeTests extends FunSuite with Matchers {
@@ -34,5 +35,37 @@ class SlickPgArrayColumnTypeTests extends FunSuite with Matchers {
       |      def * = (id, institutions, mktFinancialProducts)
       |    }
     """.stripMargin should compile
+  }
+
+  sealed trait AnEnum extends EnumEntry
+  object AnEnum extends Enum[AnEnum] {
+    case object Soomething    extends AnEnum
+    case object SomethingElse extends AnEnum
+
+    override val values = findValues
+  }
+  import enums._
+
+  test("seqValueColumnType with enums") {
+    """
+      |    class EnumSeqTestTable(tag: Tag) extends Table[(Long, Seq[AnEnum])](tag, "EnumSeqTest") {
+      |      def id = column[Long]("id", O.AutoInc, O.PrimaryKey)
+      |      def enums = column[Seq[AnEnum]]("enums")
+      |
+      |      def * = (id, enums)
+      |    }
+    """.stripMargin should compile
+  }
+
+  test("seqValueColumnType with enums and not enums") {
+    """
+      |    class EnumSeqTestTable(tag: Tag) extends Table[(Long, Seq[Institution], Seq[AnEnum])](tag, "EnumSeqTest") {
+      |      def id = column[Long]("id", O.AutoInc, O.PrimaryKey)
+      |      def institutions = column[Seq[Institution]]("institutions")
+      |      def enums = column[Seq[AnEnum]]("enums")
+      |
+      |      def * = (id, institutions, enums)
+      |    }
+      """.stripMargin should compile
   }
 }
