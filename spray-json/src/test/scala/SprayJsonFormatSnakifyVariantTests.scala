@@ -58,7 +58,7 @@ class SprayJsonFormatSnakifyVariantTests extends FunSuite with Matchers {
 
     val jf = implicitly[JsonFormat[ClassWith23Fields]]
     val obj = ClassWith23Fields(
-      "f1 value",
+      F1("f1 value"),
       2,
       3L,
       None,
