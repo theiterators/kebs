@@ -12,7 +12,7 @@ class KebsPlayMacros(override val c: whitebox.Context) extends MacroUtils {
   private def jsonReadsOf(p: Type) = appliedType(jsonReads, p)
 
   private def materializeReads[A](A: Type, field: MethodSymbol): c.Expr[Reads[A]] = {
-    val B          = field.typeSignatureIn(A).resultType
+    val B          = resultType(field, A)
     val jsonReadsB = inferImplicitValue(jsonReadsOf(B), s"To materialize Reads for ${A.typeSymbol}, Reads[$B] is needed")
     val readsA     = q"$jsonReadsB.map(${apply(A)})"
 
@@ -23,7 +23,7 @@ class KebsPlayMacros(override val c: whitebox.Context) extends MacroUtils {
   private def jsonWritesOf(p: Type) = appliedType(jsonWrites, p)
 
   private def materializeWrites[A](A: Type, field: MethodSymbol): c.Expr[Writes[A]] = {
-    val B           = field.typeSignatureIn(A).resultType
+    val B           = resultType(field, A)
     val jsonWritesB = inferImplicitValue(jsonWritesOf(B), s"To materialize Writes for ${A.typeSymbol}, Writes[$B] is needed")
     val writesA     = q"_root_.play.api.libs.json.Writes[$A]((obj: $A) => $jsonWritesB.writes(obj.$field))"
 

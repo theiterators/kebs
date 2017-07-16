@@ -18,7 +18,7 @@ class KebsMacros(override val c: whitebox.Context) extends MacroUtils {
 
   private def materializeIsomorphism(caseClassType: Type, caseAccessor: MethodSymbol) = {
     val from = caseClassType
-    val to   = caseAccessor.typeSignatureIn(from).resultType
+    val to   = resultType(caseAccessor, caseClassType)
 
     /*
       One special case to check: if we're generating mapped projection of one-column table then we'll end up with conflicting implicits:
