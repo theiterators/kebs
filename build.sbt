@@ -89,6 +89,9 @@ def akkaHttpInExamples = {
 }
 def akkaHttpInBenchmarks = akkaHttpInExamples :+ akkaHttpTestkit
 
+val avroVersion = "1.7.0"
+val avro        = "com.sksamuel.avro4s" %% "avro4s-core" % avroVersion
+
 lazy val commonSettings = baseSettings ++ Seq(
   scalacOptions ++= Seq("-language:experimental.macros"),
   (scalacOptions in Test) ++= Seq("-Ymacro-debug-lite", "-Xlog-implicits"),
@@ -133,6 +136,12 @@ lazy val akkaHttpSettings = commonSettings ++ Seq(
   libraryDependencies += akkaHttpTestkit % "test",
   libraryDependencies += optionalEnumeratum
 )
+
+lazy val avroMacroSettings = commonMacroSettings ++ Seq(
+  libraryDependencies += avro
+)
+
+lazy val avroSettings = commonSettings
 
 lazy val examplesSettings = commonSettings ++ Seq(
   libraryDependencies += slickPg(scalaVersion.value),
@@ -253,6 +262,30 @@ lazy val akkaHttpSupport = project
     moduleName := "kebs-akka-http"
   )
 
+lazy val avroMacros = project
+  .in(file("avro-macros"))
+  .dependsOn(macroUtils)
+  .settings(avroMacroSettings: _*)
+  .settings(crossBuildSettings: _*)
+  .settings(publishSettings: _*)
+  .settings(
+    name := "avro-macros",
+    description := "Automatic generation of avro4s custom mappings for 1-element case classes - macros",
+    moduleName := "kebs-avro-macros"
+  )
+
+lazy val avroSupport = project
+  .in(file("avro"))
+  .dependsOn(avroMacros)
+  .settings(avroSettings: _*)
+  .settings(crossBuildSettings: _*)
+  .settings(publishSettings: _*)
+  .settings(
+    name := "avro",
+    description := "Automatic generation of avro4s custom mappings for 1-element case classes",
+    moduleName := "kebs-avro"
+  )
+
 lazy val examples = project
   .in(file("examples"))
   .dependsOn(slickSupport, sprayJsonSupport, playJsonSupport, akkaHttpSupport)
@@ -278,16 +311,20 @@ import ReleaseTransformations._
 enablePlugins(CrossPerProjectPlugin)
 lazy val kebs = project
   .in(file("."))
-  .aggregate(macroUtils,
-             slickMacros,
-             slickSupport,
-             sprayJsonMacros,
-             sprayJsonSupport,
-             playJsonMacros,
-             playJsonSupport,
-             akkaHttpMacros,
-             akkaHttpSupport,
-             examples)
+  .aggregate(
+    macroUtils,
+    slickMacros,
+    slickSupport,
+    sprayJsonMacros,
+    sprayJsonSupport,
+    playJsonMacros,
+    playJsonSupport,
+    akkaHttpMacros,
+    akkaHttpSupport,
+    avroMacros,
+    avroSupport,
+    examples
+  )
   .settings(baseSettings: _*)
   .settings(noPublishSettings: _*)
   .settings(

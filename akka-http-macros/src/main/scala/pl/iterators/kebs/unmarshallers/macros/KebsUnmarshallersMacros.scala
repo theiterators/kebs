@@ -26,7 +26,7 @@ class KebsUnmarshallersMacros(override val c: whitebox.Context) extends MacroUti
   }
 
   private def materializeStrict(caseClassType: Type, caseAccessor: MethodSymbol) = {
-    val from = caseAccessor.typeSignatureIn(caseClassType).resultType
+    val from = resultType(caseAccessor, caseClassType)
     val to   = caseClassType
 
     val f = apply(caseClassType)
