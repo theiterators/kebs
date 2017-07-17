@@ -1,3 +1,9 @@
+## Version 1.5.0
+
+> 17.07.2017
+
+This release adds new module `kebs-avro`
+
 ## Version 1.4.5
 
 > 14.07.2017
