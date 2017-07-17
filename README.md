@@ -14,11 +14,12 @@
   * [spray-json](#--kebs-eliminates-spray-json-induced-boilerplate-kebs-spray-json)
   * [play-json](#--kebs-eliminates-play-json-induced-boilerplate-kebs-play-json)
   * [akka-http](#--kebs-generates-akka-http-unmarshaller-kebs-akka-http)
+  * [avro4s](#--kebs-generates-avro-schemasserializersdeserializers-for-value-types-kebs-avro)
 
 ### Why?
 
 `kebs` is for eliminating some common sources of boilerplate code that arise when you use 
-Slick (`kebs-slick`), Spray (`kebs-spray-json`), Play (`kebs-play-json`) or Akka HTTP (`kebs-akka-http`).
+Slick (`kebs-slick`), Spray (`kebs-spray-json`), Play (`kebs-play-json`), Akka HTTP (`kebs-akka-http`) or Avro4s (`kebs-avro`).
 
 ### SBT
 
@@ -37,6 +38,10 @@ Support for `play-json`
 Support for `akka-http`
 
 `libraryDependencies += "pl.iterators" %% "kebs-akka-http" % "1.4.5"`
+
+Support for `avro4s`
+
+`libraryDependencies += "pl.iterators" %% "kebs-avro" % "1.4.5"`
 
 Builds for Scala `2.11` and `2.12` are provided
 
@@ -507,3 +512,56 @@ val route = get {
 
 ```
 
+#### - kebs generates Avro schemas/serializers/deserializers for value types (kebs-avro)
+
+
+If you use _value types_ and `avro4s`, you might be disappointed to hear that `avro4s` generates avro _records_ even if your case-class extends from `AnyVal`. For example:
+
+```scala
+case class Ingredient(name: String) extends AnyVal
+case class Pizza(name: String, 
+                 ingredients: Seq[Ingredient], 
+                 vegetarian: Boolean, 
+                 vegan: Boolean, 
+                 calories: Int)
+
+AvroSchema[Pizza]
+
+```
+
+will generate
+
+```json
+{
+  "type":"record",
+  "name":"Pizza",
+  "namespace":"<empty>",
+  "fields":[{"name":"name",
+             "type":"string"},
+            {"name":"ingredients",
+             "type":{"type":"array",
+                     "items":{
+                              "type":"record",
+                              "name":"Ingredient",
+                              "fields":[{"name":"name","type":"string"}]
+                             }
+                    }
+            }, //...
+}
+
+```
+
+As you can see even though `Ingredient` is just a wrapper for a string value, it doesn't get reflected in the schema.
+With `kebs-avro` though, such case-classes will be represented as primitive types (just `import pl.iterators.kebs.avro._` )
+
+```json
+{
+  "type":"record",
+  "name":"Pizza",
+  "namespace":"<empty>",
+  "fields":[{"name":"name",
+             "type":"string"},
+            {"name":"ingredients",
+             "type":{"type":"array","items":"string"}}, //...
+}
+```

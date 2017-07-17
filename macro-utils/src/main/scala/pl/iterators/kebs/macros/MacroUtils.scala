@@ -35,7 +35,10 @@ abstract class MacroUtils {
     if (implicitTree.isEmpty) c.abort(c.enclosingPosition, msgIfNotFound)
     implicitTree
   }
+  protected def resultType(method: MethodSymbol, in: Type) = method.typeSignatureIn(in).resultType
 
-  protected def isString(t: Type) = definitions.StringClass == t.typeSymbol
+  protected def isString(t: Type)                     = definitions.StringClass == t.typeSymbol
+  protected def isAnyVal(t: Type)                     = t <:< definitions.AnyValTpe
+  protected def assertAnyVal(t: Type, msg: => String) = if (!isAnyVal(t)) c.abort(c.enclosingPosition, msg)
 
 }

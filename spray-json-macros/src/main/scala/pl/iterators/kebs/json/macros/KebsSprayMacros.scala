@@ -15,7 +15,7 @@ class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
   private def jsonFormatOf(p: Type) = appliedType(jsonFormat, p)
 
   private def materializeJsonFormat[T](T: Type, field: MethodSymbol) = {
-    val P           = field.typeSignatureIn(T).resultType
+    val P           = resultType(field, T)
     val jsonFormatP = jsonFormatOf(P)
 
     def inferJsonFormat =
@@ -29,7 +29,7 @@ class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
 
   private def materializeJsonFormat0(T: Type) = q"${_this}.jsonFormat0[$T](() => ${T.termSymbol})"
 
-  private def extractFieldTypes(fields: List[MethodSymbol], in: Type)      = fields.map(_.typeSignatureIn(in).resultType)
+  private def extractFieldTypes(fields: List[MethodSymbol], in: Type)      = fields.map(resultType(_, in))
   protected def extractFieldNames(fields: List[MethodSymbol]): Seq[String] = fields.map(_.name.decodedName.toString)
   private def materializeRootJsonFormat(T: Type, fields: List[MethodSymbol]) = {
     val Ps             = extractFieldTypes(fields, T)
