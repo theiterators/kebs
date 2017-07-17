@@ -14,7 +14,7 @@
   * [spray-json](#--kebs-eliminates-spray-json-induced-boilerplate-kebs-spray-json)
   * [play-json](#--kebs-eliminates-play-json-induced-boilerplate-kebs-play-json)
   * [akka-http](#--kebs-generates-akka-http-unmarshaller-kebs-akka-http)
-  * [avro4s](#--kebs-generates-Avro-schemas-serializers-deserializers-for-value-types-kebs-avro)
+  * [avro4s](#--kebs-generates-avro-schemasserializersdeserializers-for-value-types-kebs-avro)
 
 ### Why?
 
