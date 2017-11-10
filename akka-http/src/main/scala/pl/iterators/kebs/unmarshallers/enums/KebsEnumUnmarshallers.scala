@@ -30,14 +30,12 @@ trait ValueEnumUnmarshallers extends KebsFromStringUnmarshallers {
 
   implicit def kebsIntValueEnumFromStringUnmarshaller[E <: IntEnumEntry](implicit um: Unmarshaller[Int, E]): FromStringUnmarshaller[E] =
     kebsFromStringUnmarshaller(um)
-  implicit def kebsLongValueEnumFromStringUnmarshaller[E <: LongEnumEntry](
-      implicit um: Unmarshaller[Long, E]): FromStringUnmarshaller[E] =
+  implicit def kebsLongValueEnumFromStringUnmarshaller[E <: LongEnumEntry](implicit um: Unmarshaller[Long, E]): FromStringUnmarshaller[E] =
     kebsFromStringUnmarshaller(um)
   implicit def kebsShortValueEnumFromStringUnmarshaller[E <: ShortEnumEntry](
       implicit um: Unmarshaller[Short, E]): FromStringUnmarshaller[E] =
     kebsFromStringUnmarshaller(um)
-  implicit def kebsByteValueEnumFromStringUnmarshaller[E <: ByteEnumEntry](
-      implicit um: Unmarshaller[Byte, E]): FromStringUnmarshaller[E] =
+  implicit def kebsByteValueEnumFromStringUnmarshaller[E <: ByteEnumEntry](implicit um: Unmarshaller[Byte, E]): FromStringUnmarshaller[E] =
     kebsFromStringUnmarshaller(um)
 
 }

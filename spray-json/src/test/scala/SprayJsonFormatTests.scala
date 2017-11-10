@@ -109,9 +109,10 @@ class SprayJsonFormatTests extends FunSuite with Matchers {
     val t  = Thing("child", Some(Thing("parent", None)))
     val jf = implicitly[JsonFormat[Thing]]
     jf.write(t) shouldBe JsObject("thingId" -> JsString("child"), "parent" -> JsObject("thingId" -> JsString("parent")))
-    jf.read(JsObject(
-      "thingId" -> JsString("child"),
-      "parent"  -> JsObject("thingId" -> JsString("parent"), "parent" -> JsObject("thingId" -> JsString("grandparent"))))) shouldBe Thing(
+    jf.read(
+      JsObject(
+        "thingId" -> JsString("child"),
+        "parent"  -> JsObject("thingId" -> JsString("parent"), "parent" -> JsObject("thingId" -> JsString("grandparent"))))) shouldBe Thing(
       "child",
       Some(Thing("parent", Some(Thing("grandparent", None)))))
   }
