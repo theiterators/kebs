@@ -1,5 +1,5 @@
 val scala_2_11             = "2.11.11"
-val scala_2_12             = "2.12.2"
+val scala_2_12             = "2.12.4"
 val mainScalaVersion       = scala_2_12
 val supportedScalaVersions = Seq(scala_2_11, scala_2_12)
 
@@ -9,7 +9,9 @@ lazy val baseSettings = Seq(
   organizationHomepage := Some(url("https://iterato.rs")),
   homepage := Some(url("https://github.com/theiterators/kebs")),
   scalaVersion := mainScalaVersion,
-  scalacOptions := Seq("-deprecation", "-unchecked", "-feature", "-encoding", "utf8")
+  scalacOptions := Seq("-deprecation", "-unchecked", "-feature", "-encoding", "utf8"),
+  scalafmtVersion := "1.2.0",
+  scalafmtOnCompile := true
 )
 
 lazy val commonMacroSettings = baseSettings ++ Seq(
@@ -308,7 +310,6 @@ lazy val benchmarks = project
   )
 
 import ReleaseTransformations._
-enablePlugins(CrossPerProjectPlugin)
 lazy val kebs = project
   .in(file("."))
   .aggregate(
