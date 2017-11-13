@@ -65,12 +65,10 @@ def sv(scalaVersion: String, scala2_11Version: String, scala2_12Version: String)
       throw new IllegalArgumentException(s"Unsupported Scala version $scalaVersion")
   }
 
-val scalaTest = "org.scalatest" %% "scalatest" % "3.0.1"
-def slick(scalaVersion: String) =
-  "com.typesafe.slick" %% "slick" % sv(scalaVersion, scala2_12Version = "3.2.0", scala2_11Version = "3.1.1")
-def slickPg(scalaVersion: String) =
-  "com.github.tminglei" %% "slick-pg" % sv(scalaVersion, scala2_12Version = "0.15.1", scala2_11Version = "0.14.6")
-val sprayJson = "io.spray" %% "spray-json" % "1.3.3"
+val scalaTest = "org.scalatest"       %% "scalatest"  % "3.0.1"
+val slick     = "com.typesafe.slick"  %% "slick"      % "3.2.1"
+val slickPg   = "com.github.tminglei" %% "slick-pg"   % "0.15.4"
+val sprayJson = "io.spray"            %% "spray-json" % "1.3.3"
 def playJson(scalaVersion: String) =
   "com.typesafe.play" %% "play-json" % sv(scalaVersion, scala2_11Version = "2.5.13", scala2_12Version = "2.6.2")
 
@@ -101,7 +99,7 @@ lazy val commonSettings = baseSettings ++ Seq(
 )
 
 lazy val slickSettings = commonSettings ++ Seq(
-  libraryDependencies += slickPg(scalaVersion.value) % "test",
+  libraryDependencies += slickPg % "test",
   libraryDependencies += optionalEnumeratum
 )
 
@@ -110,7 +108,7 @@ lazy val macroUtilsSettings = commonMacroSettings ++ Seq(
 )
 
 lazy val slickMacroSettings = commonMacroSettings ++ Seq(
-  libraryDependencies += slick(scalaVersion.value),
+  libraryDependencies += slick,
   libraryDependencies += optionalEnumeratum
 )
 
@@ -146,7 +144,7 @@ lazy val avroMacroSettings = commonMacroSettings ++ Seq(
 lazy val avroSettings = commonSettings
 
 lazy val examplesSettings = commonSettings ++ Seq(
-  libraryDependencies += slickPg(scalaVersion.value),
+  libraryDependencies += slickPg,
   libraryDependencies ++= enumeratumInExamples,
   libraryDependencies ++= akkaHttpInExamples
 )
