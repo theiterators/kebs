@@ -1,3 +1,11 @@
+## Version 1.5.1
+
+> 17.11.2017
+
+* Add new isomorphisms helpful for Postgres HStore support
+* `kebs-slick` now depends on Slick 3.2.1 (for both 2.11 and 2.12) - we don't have to check for potential ambiguity for `MappedProjection`
+* `play-json` version bump to 2.6.7 (for both 2.11 and 2.12)
+
 ## Version 1.5.0
 
 > 17.07.2017
