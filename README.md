@@ -1,6 +1,6 @@
 ## Kebs
 
-[![Maven Central](https://img.shields.io/maven-central/v/pl.iterators/kebs-slick_2.11.svg)]()
+[![Maven Central](https://img.shields.io/maven-central/v/pl.iterators/kebs-slick_2.12.svg)]()
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/theiterators/kebs/master/COPYING)
 
 
