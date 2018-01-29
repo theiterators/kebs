@@ -98,6 +98,7 @@ lazy val commonSettings = baseSettings ++ Seq(
 )
 
 lazy val slickSettings = commonSettings ++ Seq(
+  libraryDependencies += slick,
   libraryDependencies += slickPg % "test",
   libraryDependencies += optionalEnumeratum
 )
@@ -106,41 +107,27 @@ lazy val macroUtilsSettings = commonMacroSettings ++ Seq(
   libraryDependencies += optionalEnumeratum
 )
 
-lazy val slickMacroSettings = commonMacroSettings ++ Seq(
-  libraryDependencies += slick,
-  libraryDependencies += optionalEnumeratum
-)
-
 lazy val sprayJsonMacroSettings = commonMacroSettings ++ Seq(
-  libraryDependencies += sprayJson,
-  libraryDependencies += optionalEnumeratum
+  libraryDependencies += sprayJson
 )
 
 lazy val sprayJsonSettings = commonSettings ++ Seq(
   libraryDependencies += optionalEnumeratum
 )
 
-lazy val playJsonMacroSettings = commonMacroSettings ++ Seq(
+lazy val playJsonSettings = commonSettings ++ Seq(
   libraryDependencies += playJson
 )
 
-lazy val playJsonSettings = commonSettings
-
-lazy val akkaHttpMacroSettings = commonMacroSettings ++ Seq(
-  libraryDependencies += akkaHttp,
-  libraryDependencies += optionalEnumeratum
-)
-
 lazy val akkaHttpSettings = commonSettings ++ Seq(
+  libraryDependencies += akkaHttp,
   libraryDependencies += akkaHttpTestkit % "test",
   libraryDependencies += optionalEnumeratum
 )
 
-lazy val avroMacroSettings = commonMacroSettings ++ Seq(
+lazy val avroSettings = commonSettings ++ Seq(
   libraryDependencies += avro
 )
-
-lazy val avroSettings = commonSettings
 
 lazy val examplesSettings = commonSettings ++ Seq(
   libraryDependencies += slickPg,
@@ -165,21 +152,9 @@ lazy val macroUtils = project
     moduleName := "kebs-macro-utils"
   )
 
-lazy val slickMacros = project
-  .in(file("slick-macros"))
-  .dependsOn(macroUtils)
-  .settings(slickMacroSettings: _*)
-  .settings(crossBuildSettings: _*)
-  .settings(publishSettings: _*)
-  .settings(
-    name := "slick-macros",
-    description := "Macros supporting Kebs library",
-    moduleName := "kebs-slick-macros"
-  )
-
 lazy val slickSupport = project
   .in(file("slick"))
-  .dependsOn(slickMacros)
+  .dependsOn(macroUtils)
   .settings(slickSettings: _*)
   .settings(crossBuildSettings: _*)
   .settings(publishSettings: _*)
@@ -213,21 +188,9 @@ lazy val sprayJsonSupport = project
     moduleName := "kebs-spray-json"
   )
 
-lazy val playJsonMacros = project
-  .in(file("play-json-macros"))
-  .dependsOn(macroUtils)
-  .settings(playJsonMacroSettings: _*)
-  .settings(crossBuildSettings: _*)
-  .settings(publishSettings: _*)
-  .settings(
-    name := "play-json-macros",
-    description := "Automatic generation of Play json formats for case-classes - macros",
-    moduleName := "kebs-play-json-macros"
-  )
-
 lazy val playJsonSupport = project
   .in(file("play-json"))
-  .dependsOn(playJsonMacros)
+  .dependsOn(macroUtils)
   .settings(playJsonSettings: _*)
   .settings(crossBuildSettings: _*)
   .settings(publishSettings: _*)
@@ -237,21 +200,9 @@ lazy val playJsonSupport = project
     moduleName := "kebs-play-json"
   )
 
-lazy val akkaHttpMacros = project
-  .in(file("akka-http-macros"))
-  .dependsOn(macroUtils)
-  .settings(akkaHttpMacroSettings: _*)
-  .settings(crossBuildSettings: _*)
-  .settings(publishSettings: _*)
-  .settings(
-    name := "akka-http-macros",
-    description := "Automatic generation of akka-http deserializers for 1-element case classes - macros",
-    moduleName := "kebs-akka-http-macros"
-  )
-
 lazy val akkaHttpSupport = project
   .in(file("akka-http"))
-  .dependsOn(akkaHttpMacros)
+  .dependsOn(macroUtils)
   .settings(akkaHttpSettings: _*)
   .settings(crossBuildSettings: _*)
   .settings(publishSettings: _*)
@@ -261,21 +212,9 @@ lazy val akkaHttpSupport = project
     moduleName := "kebs-akka-http"
   )
 
-lazy val avroMacros = project
-  .in(file("avro-macros"))
-  .dependsOn(macroUtils)
-  .settings(avroMacroSettings: _*)
-  .settings(crossBuildSettings: _*)
-  .settings(publishSettings: _*)
-  .settings(
-    name := "avro-macros",
-    description := "Automatic generation of avro4s custom mappings for 1-element case classes - macros",
-    moduleName := "kebs-avro-macros"
-  )
-
 lazy val avroSupport = project
   .in(file("avro"))
-  .dependsOn(avroMacros)
+  .dependsOn(macroUtils)
   .settings(avroSettings: _*)
   .settings(crossBuildSettings: _*)
   .settings(publishSettings: _*)
@@ -311,15 +250,11 @@ lazy val kebs = project
   .in(file("."))
   .aggregate(
     macroUtils,
-    slickMacros,
     slickSupport,
     sprayJsonMacros,
     sprayJsonSupport,
-    playJsonMacros,
     playJsonSupport,
-    akkaHttpMacros,
     akkaHttpSupport,
-    avroMacros,
     avroSupport,
     examples
   )

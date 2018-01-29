@@ -3,7 +3,7 @@ package pl.iterators.kebs.macros
 import scala.reflect.macros._
 
 abstract class MacroUtils {
-  val c: whitebox.Context
+  val c: blackbox.Context
 
   protected val _this              = c.prefix.tree
   protected val maxCaseClassFields = 22

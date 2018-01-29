@@ -2,6 +2,7 @@ package pl.iterators.kebs.json
 
 import enumeratum.values.{ValueEnum, ValueEnumEntry}
 import enumeratum.{Enum, EnumEntry}
+import pl.iterators.kebs.macros.enums.{EnumOf, ValueEnumOf}
 import spray.json.{JsString, JsValue, JsonFormat}
 
 trait SprayJsonEnum {
@@ -45,17 +46,16 @@ trait SprayJsonValueEnum {
 }
 
 trait KebsEnumFormats extends SprayJsonEnum with SprayJsonValueEnum {
-  import macros.KebsSprayEnumMacros
-
-  implicit def jsonEnumFormat[E <: EnumEntry]: JsonFormat[E] = macro KebsSprayEnumMacros.materializeEnumFormat[E]
-  implicit def jsonValueEnumFormat[E <: ValueEnumEntry[_]]: JsonFormat[E] = macro KebsSprayEnumMacros.materializeValueEnumFormat[E]
+  implicit def jsonEnumFormat[E <: EnumEntry](implicit ev: EnumOf[E]): JsonFormat[E] = jsonFormat(ev.enum)
+  implicit def jsonValueEnumFormat[V, E <: ValueEnumEntry[V]](implicit ev: ValueEnumOf[V, E],
+                                                              baseJsonFormat: JsonFormat[V]): JsonFormat[E] = jsonFormat(ev.valueEnum)
 
   trait Uppercase extends SprayJsonEnum {
-    implicit def jsonEnumFormat[E <: EnumEntry]: JsonFormat[E] = macro KebsSprayEnumMacros.materializeEnumUppercaseFormat[E]
+    implicit def jsonEnumFormat[E <: EnumEntry](implicit ev: EnumOf[E]): JsonFormat[E] = uppercaseJsonFormat(ev.enum)
   }
 
   trait Lowercase extends SprayJsonEnum {
-    implicit def jsonEnumFormat[E <: EnumEntry]: JsonFormat[E] = macro KebsSprayEnumMacros.materializeEnumLowercaseFormat[E]
+    implicit def jsonEnumFormat[E <: EnumEntry](implicit ev: EnumOf[E]): JsonFormat[E] = lowercaseJsonFormat(ev.enum)
   }
 }
 

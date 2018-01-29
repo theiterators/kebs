@@ -184,6 +184,6 @@ class AkkaHttpUnmarshallerTests extends FunSuite with Matchers with ScalatestRou
     Get("/test_enum") ~> route ~> check {
       responseAs[String] shouldBe "Sort was Desc"
     }
-  }
 
+  }
 }
