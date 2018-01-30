@@ -1,7 +1,7 @@
 package pl.iterators.kebs.json
 
 import pl.iterators.kebs.macros.CaseClass1Rep
-import spray.json.{DefaultJsonProtocol, JsValue, JsonFormat, RootJsonFormat}
+import spray.json.{DefaultJsonProtocol, JsValue, JsonFormat, JsonReader, JsonWriter, RootJsonFormat}
 
 trait KebsSpray { self: DefaultJsonProtocol =>
   import macros.KebsSprayMacros
@@ -14,12 +14,11 @@ trait KebsSpray { self: DefaultJsonProtocol =>
 
   final def jsonFormatRec[T <: Product]: RootJsonFormat[T] = macro KebsSprayMacros.materializeLazyFormat[T]
 
-  implicit class PimpedJsValue(jsValue: JsValue) {
-    def _kebs_getField[T](fieldName: String)(implicit jf: JsonFormat[T]): T = fromField[T](jsValue, fieldName)
-  }
-  implicit class PimpedAny[T](any: T) {
-    def _kebs_toJson(implicit jf: JsonFormat[T]): JsValue = jf.write(any)
-  }
+  @inline
+  def _kebs_getField[T](value: JsValue, fieldName: String)(implicit reader: JsonReader[T]) = fromField[T](value, fieldName)
+  @inline
+  def _kebs_toJson[T](any: T)(implicit jf: JsonWriter[T]): JsValue = jf.write(any)
+
 }
 
 object KebsSpray {

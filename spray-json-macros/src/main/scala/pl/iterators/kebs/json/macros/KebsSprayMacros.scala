@@ -2,7 +2,7 @@ package pl.iterators.kebs.json.macros
 
 import pl.iterators.kebs.json.noflat
 import pl.iterators.kebs.macros.MacroUtils
-import spray.json.{JsonFormat, RootJsonFormat}
+import spray.json.{JsonFormat, JsonReader, JsonWriter, RootJsonFormat}
 
 import scala.collection.immutable.Seq
 import scala.reflect.macros._
@@ -12,33 +12,25 @@ class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
 
   private val noflatType            = typeOf[noflat]
   private val jsonFormat            = typeOf[JsonFormat[_]]
+  private val jsonReader            = typeOf[JsonReader[_]]
+  private val jsonWriter            = typeOf[JsonWriter[_]]
   private def jsonFormatOf(p: Type) = appliedType(jsonFormat, p)
-
-  private def materializeJsonFormat[T](T: Type, field: MethodSymbol) = {
-    val P           = resultType(field, T)
-    val jsonFormatP = jsonFormatOf(P)
-
-    def inferJsonFormat =
-      inferImplicitValue(jsonFormatP, s"To materialize JsonFormat for ${T.typeSymbol}, JsonFormat[$P] is needed")
-
-    val readerF = q"(json: _root_.spray.json.JsValue) => ${apply(T)}($inferJsonFormat.read(json))"
-    val writerF = q"(obj: $T) => $inferJsonFormat.write(obj.$field)"
-
-    c.Expr[JsonFormat[T]](q"${_this}.constructJsonFormat[$T]($readerF, $writerF)")
-  }
+  private def jsonReaderOf(p: Type) = appliedType(jsonReader, p)
+  private def jsonWriterOf(p: Type) = appliedType(jsonWriter, p)
 
   private def materializeJsonFormat0(T: Type) = q"${_this}.jsonFormat0[$T](() => ${T.termSymbol})"
 
-  private def extractFieldTypes(fields: List[MethodSymbol], in: Type)      = fields.map(resultType(_, in))
-  protected def extractFieldNames(fields: List[MethodSymbol]): Seq[String] = fields.map(_.name.decodedName.toString)
+  private def extractFieldTypes(fields: List[MethodSymbol], in: Type)          = fields.map(resultType(_, in))
+  private def extractFieldNames(fields: List[MethodSymbol])                    = fields.map(_.name.decodedName.toString)
+  protected def extractJsonFieldNames(fields: List[MethodSymbol]): Seq[String] = extractFieldNames(fields)
   private def materializeRootJsonFormat(T: Type, fields: List[MethodSymbol]) = {
     val Ps             = extractFieldTypes(fields, T)
-    val jsonFieldNames = extractFieldNames(fields)
+    val jsonFieldNames = extractJsonFieldNames(fields)
 
-    if (fields.size <= maxCaseClassFields) {
+    if (fields.lengthCompare(maxCaseClassFields) <= 0) {
       q"${_this}.jsonFormat[..$Ps, $T](${apply(T)}, ..$jsonFieldNames)"
     } else {
-      val classFieldNames = fields.map(_.name.decodedName.toString)
+      val classFieldNames = extractFieldNames(fields)
       val reader =
         q"""new _root_.spray.json.RootJsonReader[$T] {
               import _root_.spray.json._
@@ -47,7 +39,7 @@ class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
                   ${apply(T)}(
                     ..${(classFieldNames zip Ps zip jsonFieldNames).map {
           case ((classField, fieldType), jsonField) =>
-            q"${TermName(classField)} = json._kebs_getField[$fieldType]($jsonField)"
+            q"${TermName(classField)} = ${_this}._kebs_getField[$fieldType](json, $jsonField)"
         }}
                   )
                 case _ => deserializationError("JSON object expected")
@@ -61,23 +53,13 @@ class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
               def write(obj: $T): _root_.spray.json.JsValue =
                 _root_.spray.json.JsObject(_root_.scala.Predef.Map(
                   ..${(classFieldNames zip jsonFieldNames).map {
-          case (classField, jsonField) => q"$jsonField -> obj.${TermName(classField)}._kebs_toJson"
+          case (classField, jsonField) => q"$jsonField -> ${_this}._kebs_toJson(obj.${TermName(classField)})"
         }}
                 ))
             }
          """
 
       q"${_this}.rootJsonFormat[$T]($reader, $writer)"
-    }
-  }
-
-  final def materializeFlatFormat[T: c.WeakTypeTag]: c.Expr[JsonFormat[T]] = {
-    val T = weakTypeOf[T]
-    assertCaseClass(T, s"To materialize JsonFormat, ${T.typeSymbol} must be a case class")
-
-    T match {
-      case Product1(_1) => materializeJsonFormat[T](T, _1)
-      case _            => c.abort(c.enclosingPosition, "To materialize flat JsonFormat, case class must have arity == 1")
     }
   }
 
@@ -93,7 +75,8 @@ class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
     val jsonFormat = caseAccessors(T) match {
       case Nil => materializeJsonFormat0(T)
       case (_1 :: Nil) =>
-        if (preferFlat && isLookingFor(jsonFormatOf(T)) && !noflat(T)) c.abort(c.enclosingPosition, "Flat format preferred")
+        if (preferFlat && (isLookingFor(jsonFormatOf(T)) || isLookingFor(jsonWriterOf(T)) || isLookingFor(jsonReaderOf(T))) && !noflat(T))
+          c.abort(c.enclosingPosition, "Flat format preferred")
         else materializeRootJsonFormat(T, List(_1))
       case fields => materializeRootJsonFormat(T, fields)
     }
@@ -124,7 +107,7 @@ object KebsSprayMacros {
     import SnakifyVariant.snakify
     import c.universe._
 
-    override protected def extractFieldNames(fields: List[MethodSymbol]) = super.extractFieldNames(fields).map(snakify)
+    override protected def extractJsonFieldNames(fields: List[MethodSymbol]) = super.extractJsonFieldNames(fields).map(snakify)
   }
   object SnakifyVariant {
     private val PASS_1 = """([A-Z\d]+)([A-Z][a-z])""".r
