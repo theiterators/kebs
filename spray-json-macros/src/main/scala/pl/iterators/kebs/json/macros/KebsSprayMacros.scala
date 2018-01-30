@@ -23,43 +23,34 @@ class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
   private def extractFieldTypes(fields: List[MethodSymbol], in: Type)          = fields.map(resultType(_, in))
   private def extractFieldNames(fields: List[MethodSymbol])                    = fields.map(_.name.decodedName.toString)
   protected def extractJsonFieldNames(fields: List[MethodSymbol]): Seq[String] = extractFieldNames(fields)
+
   private def materializeRootJsonFormat(T: Type, fields: List[MethodSymbol]) = {
     val Ps             = extractFieldTypes(fields, T)
     val jsonFieldNames = extractJsonFieldNames(fields)
+    val jsonFormats =
+      Ps.map(P => inferImplicitValue(jsonFormatOf(P), s"To materialize RootJsonFormat for ${T.typeSymbol}, JsonFormat[$P] is needed"))
 
     if (fields.lengthCompare(maxCaseClassFields) <= 0) {
-      q"${_this}.jsonFormat[..$Ps, $T](${apply(T)}, ..$jsonFieldNames)"
+      q"${_this}.jsonFormat[..$Ps, $T](${apply(T)}, ..$jsonFieldNames)(..$jsonFormats)"
     } else {
-      val classFieldNames = extractFieldNames(fields)
-      val reader =
-        q"""new _root_.spray.json.RootJsonReader[$T] {
-              import _root_.spray.json._
-              def read(json: _root_.spray.json.JsValue): $T = json match {
-                case _: _root_.spray.json.JsObject =>
-                  ${apply(T)}(
-                    ..${(classFieldNames zip Ps zip jsonFieldNames).map {
-          case ((classField, fieldType), jsonField) =>
-            q"${TermName(classField)} = ${_this}._kebs_getField[$fieldType](json, $jsonField)"
-        }}
-                  )
-                case _ => deserializationError("JSON object expected")
-              }
-            }
-         """
+      val jsonFieldsWithFormats = jsonFieldNames zip jsonFormats
+      val jsonVar               = TermName("json")
+      val applyArgs = jsonFieldsWithFormats.map {
+        case (jsonField, jf) => q"${_this}._kebs_getField($jsonVar, $jsonField)($jf)"
+      }
 
-      val writer =
-        q"""new _root_.spray.json.RootJsonWriter[$T] {
-              import _root_.spray.json._
-              def write(obj: $T): _root_.spray.json.JsValue =
-                _root_.spray.json.JsObject(_root_.scala.Predef.Map(
-                  ..${(classFieldNames zip jsonFieldNames).map {
-          case (classField, jsonField) => q"$jsonField -> ${_this}._kebs_toJson(obj.${TermName(classField)})"
-        }}
-                ))
-            }
-         """
+      val reader = q"($jsonVar: _root_.spray.json.JsValue) => ${apply(T)}(..$applyArgs)"
 
-      q"${_this}.rootJsonFormat[$T]($reader, $writer)"
+      val classFieldNames = extractFieldNames(fields).map(TermName.apply)
+      val objVar          = TermName("obj")
+      val objMap = classFieldNames zip jsonFieldsWithFormats map {
+        case (classField, (jsonField, jf)) => q"($jsonField, $jf.write($objVar.$classField))"
+      }
+
+      val writer = q"($objVar: $T) => _root_.spray.json.JsObject(_root_.scala.Predef.Map(..$objMap))"
+
+      val jsonFormat = q"${_this}.jsonFormat[$T]($reader, $writer)"
+      q"${_this}.rootFormat[$T]($jsonFormat)"
     }
   }
 

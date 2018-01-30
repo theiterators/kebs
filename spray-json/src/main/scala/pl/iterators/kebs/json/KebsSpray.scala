@@ -16,8 +16,6 @@ trait KebsSpray { self: DefaultJsonProtocol =>
 
   @inline
   def _kebs_getField[T](value: JsValue, fieldName: String)(implicit reader: JsonReader[T]) = fromField[T](value, fieldName)
-  @inline
-  def _kebs_toJson[T](any: T)(implicit jf: JsonWriter[T]): JsValue = jf.write(any)
 
 }
 
