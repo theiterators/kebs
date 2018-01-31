@@ -1,3 +1,12 @@
+## Version 1.5.2
+
+> 31.01.2017
+
+* Fixed issue https://github.com/theiterators/kebs/issues/11
+* Most projects do not use custom macros anymore, relying on single `CaseClass1Rep` instead. Same thing has been done to `enumeratum` macros.
+This should lead to shorter compilation times
+* `kebs-spray` has been rewritten - generation of `Spray` formats should incur less allocations
+
 ## Version 1.5.1
 
 > 17.11.2017
