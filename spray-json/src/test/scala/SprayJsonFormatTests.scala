@@ -232,7 +232,7 @@ class SprayJsonFormatTests extends FunSuite with Matchers {
   )
 
   test("issue #21") {
-    """jsonFormatRec[Category]""" should compile
+    """implicit val categoryFormat = jsonFormatRec[Category]""" should compile
   }
 
 }
