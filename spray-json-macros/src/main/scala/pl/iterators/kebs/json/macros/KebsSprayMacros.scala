@@ -24,14 +24,17 @@ class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
   private def extractFieldNames(fields: List[MethodSymbol])                    = fields.map(_.name.decodedName.toString)
   protected def extractJsonFieldNames(fields: List[MethodSymbol]): Seq[String] = extractFieldNames(fields)
 
-  private def materializeRootJsonFormat(T: Type, fields: List[MethodSymbol]) = {
+  private def materializeRootJsonFormat(T: Type, fields: List[MethodSymbol], noInfer: Boolean = false) = {
     val Ps             = extractFieldTypes(fields, T)
     val jsonFieldNames = extractJsonFieldNames(fields)
-    val jsonFormats =
-      Ps.map(P => inferImplicitValue(jsonFormatOf(P), s"To materialize RootJsonFormat for ${T.typeSymbol}, JsonFormat[$P] is needed"))
+    val jsonFormats: List[Tree] =
+      if (noInfer) List.empty
+      else
+        Ps.map(P => inferImplicitValue(jsonFormatOf(P), s"To materialize RootJsonFormat for ${T.typeSymbol}, JsonFormat[$P] is needed"))
 
     if (fields.lengthCompare(maxCaseClassFields) <= 0) {
-      q"${_this}.jsonFormat[..$Ps, $T](${apply(T)}, ..$jsonFieldNames)(..$jsonFormats)"
+      val tree = q"${_this}.jsonFormat[..$Ps, $T](${apply(T)}, ..$jsonFieldNames)"
+      if (jsonFormats.isEmpty) tree else q"$tree(..$jsonFormats)"
     } else {
       val jsonFieldsWithFormats = jsonFieldNames zip jsonFormats
       val jsonVar               = TermName("json")
@@ -81,7 +84,7 @@ class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
     caseAccessors(T) match {
       case Nil => c.abort(c.enclosingPosition, s"${T.typeSymbol} is case object")
       case fields =>
-        val format = materializeRootJsonFormat(T, fields)
+        val format = materializeRootJsonFormat(T, fields, noInfer = true)
         c.Expr[RootJsonFormat[T]](q"""{
           implicit lazy val __jf: ${jsonFormatOf(T)} = ${_this}.lazyFormat($format)
           ${_this}.rootFormat(__jf)
