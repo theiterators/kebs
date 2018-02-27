@@ -1,6 +1,12 @@
+## Version 1.5.3
+
+> 27.02.2018
+
+* Fixed issue https://github.com/theiterators/kebs/issues/21
+
 ## Version 1.5.2
 
-> 31.01.2017
+> 31.01.2018
 
 * Fixed issue https://github.com/theiterators/kebs/issues/11
 * Most projects do not use custom macros anymore, relying on single `CaseClass1Rep` instead. Same thing has been done to `enumeratum` macros.
