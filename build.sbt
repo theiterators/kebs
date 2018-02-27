@@ -10,7 +10,7 @@ lazy val baseSettings = Seq(
   homepage := Some(url("https://github.com/theiterators/kebs")),
   scalaVersion := mainScalaVersion,
   scalacOptions := Seq("-deprecation", "-unchecked", "-feature", "-encoding", "utf8"),
-  scalafmtVersion := "1.2.0",
+  scalafmtVersion := "1.3.0",
   scalafmtOnCompile := true
 )
 
