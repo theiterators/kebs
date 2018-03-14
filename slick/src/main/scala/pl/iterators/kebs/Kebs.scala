@@ -4,6 +4,8 @@ import pl.iterators.kebs.macros.CaseClass1Rep
 import slick.ast.BaseTypedType
 import slick.lifted._
 
+import scala.language.implicitConversions
+
 trait KebsColumnExtensionMethods {
   implicit def stringValueColumnExt[CC](rep: Rep[CC])(implicit ev: CaseClass1Rep[CC, String]): StringColumnExtensionMethods[CC] =
     new StringColumnExtensionMethods[CC](rep)
