@@ -1,3 +1,9 @@
+## Version 1.5.4
+
+> 14.03.2018
+
+* Added support for `StringColumnExtensionMethods` so you can use eg. `toLowerCase` directly on columns mapped by a case-class
+
 ## Version 1.5.3
 
 > 27.02.2018
