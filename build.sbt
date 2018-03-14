@@ -65,9 +65,9 @@ def sv(scalaVersion: String, scala2_11Version: String, scala2_12Version: String)
       throw new IllegalArgumentException(s"Unsupported Scala version $scalaVersion")
   }
 
-val scalaTest = "org.scalatest"       %% "scalatest"  % "3.0.1"
-val slick     = "com.typesafe.slick"  %% "slick"      % "3.2.1"
-val slickPg   = "com.github.tminglei" %% "slick-pg"   % "0.15.4"
+val scalaTest = "org.scalatest"       %% "scalatest"  % "3.0.4"
+val slick     = "com.typesafe.slick"  %% "slick"      % "3.2.2"
+val slickPg   = "com.github.tminglei" %% "slick-pg"   % "0.16.0"
 val sprayJson = "io.spray"            %% "spray-json" % "1.3.3"
 val playJson  = "com.typesafe.play"   %% "play-json"  % "2.6.7"
 
