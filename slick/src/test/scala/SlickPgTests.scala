@@ -1,3 +1,5 @@
+import java.util.UUID
+
 import com.github.tminglei.slickpg.ExPostgresProfile
 import org.scalatest.{FunSuite, Matchers}
 
@@ -34,6 +36,34 @@ class SlickPgTests extends FunSuite with Matchers {
       |
       |      override def * : ProvenShape[ServiceLine] = (id, name) <> (ServiceLine.tupled, ServiceLine.unapply)
       |    }
+    """.stripMargin should compile
+  }
+
+  case class TestId(value: UUID)
+  case class TestString(value: String)
+  case class Test(id: TestId, string: TestString)
+
+  class Tests(tag: BaseTable.Tag) extends BaseTable[Test](tag, "test") {
+    import driver.api._
+
+    def id     = column[TestId]("id")
+    def string = column[TestString]("string")
+
+    override def * : ProvenShape[Test] = (id, string) <> ((Test.apply _).tupled, Test.unapply)
+  }
+
+  test("Column extension methods") {
+    """
+      |class TestRepository {
+      |  import PostgresDriver.api._
+      |
+      |  def toLowerCase(ilikeString: String): DBIOAction[Seq[TestString], NoStream, Effect.Read] =
+      |    tests.map(_.string.toLowerCase).result
+      |  def filter(ilikeString: String): DBIOAction[Seq[Test], NoStream, Effect.Read] =
+      |    tests.filter(_.string.toLowerCase.like(s"%$ilikeString%")).result
+      |
+      |  private val tests = TableQuery[Tests]
+      |}
     """.stripMargin should compile
   }
 }
