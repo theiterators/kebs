@@ -1,6 +1,6 @@
 import org.scalatest.{FunSuite, Matchers}
 import pl.iterators.kebs.tagged._
-import pl.iterators.kebs.tagged.slickSupport.SlickSupport
+import pl.iterators.kebs.tagged.slickSupport.{SlickSupport}
 
 class SlickTaggedColumnTypeTests extends FunSuite with Matchers with SlickSupport {
   import slick.jdbc.PostgresProfile.api._

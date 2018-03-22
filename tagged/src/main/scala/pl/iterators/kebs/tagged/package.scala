@@ -5,17 +5,13 @@ import scala.language.higherKinds
 package object tagged {
 
   /**
-    * Copy of
-    * https://gist.github.com/Tvaroh/a2fd772f7a66aaafc2ea48ce1fc3646d
-    */
-  /**
     * Adapted from
+    * https://gist.github.com/Tvaroh/a2fd772f7a66aaafc2ea48ce1fc3646d
+    * and
     * https://github.com/softwaremill/scala-common/blob/master/tagging/src/main/scala/com/softwaremill/tagging/package.scala
-    * with added tagging operators, function-first-style tagging, and explicit container-types tagging.
     */
-  type Tag[+U]        = { type Tag <: U }
-  type Tagged[+T, +U] = T with Tag[U]
-  type @@[+T, +U]     = Tagged[T, U]
+  trait Tagged[+T, +U]
+  type @@[+T, +U] = T with Tagged[T, U]
 
   implicit class TaggingExtensions[T](val t: T) extends AnyVal {
 
