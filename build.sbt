@@ -20,8 +20,8 @@ lazy val commonMacroSettings = baseSettings ++ Seq(
 )
 
 lazy val metaSettings = baseSettings ++ Seq(
-  addCompilerPlugin("org.scalameta" % "paradise" % "3.0.0-M10" cross CrossVersion.full),
-  scalacOptions in (Compile, console) ~= (_ filterNot (_ contains "paradise"))
+  addCompilerPlugin("org.scalameta"           % "paradise"   % "3.0.0-M10" cross CrossVersion.full),
+  libraryDependencies ++= Seq("org.scalameta" %% "scalameta" % "1.8.0" % Provided, scalaTest % "test")
 )
 
 lazy val publishToNexus = publishTo := {
@@ -151,9 +151,7 @@ lazy val benchmarkSettings = commonSettings ++ Seq(
   libraryDependencies ++= akkaHttpInBenchmarks
 )
 
-lazy val taggedMetaSettings = metaSettings ++ Seq(
-  libraryDependencies += "org.scalameta" %% "scalameta" % "1.8.0" % Provided
-)
+lazy val taggedMetaSettings = metaSettings
 
 lazy val macroUtils = project
   .in(file("macro-utils"))
