@@ -59,3 +59,6 @@ project/plugins/project/
 # ENSIME specific
 .ensime_cache/
 .ensime
+
+# macOS specific
+.DS_Store
