@@ -5,8 +5,8 @@ package pl.iterators.kebs
   * https://github.com/milessabin/shapeless/blob/master/core/src/main/scala/shapeless/typeoperators.scala
   */
 package object tag {
-  type Tag[+T, +U] = { type Raw <: T; type Tag <: U }
-  type @@[+T, +U]  = T with Tag[T, U]
+  trait Tagged[+T, +U]
+  type @@[+T, +U] = T with Tagged[T, U]
 
   implicit class Tagger[T](private val t: T) extends AnyVal {
     @inline def taggedWith[U]: T @@ U = t.asInstanceOf[T @@ U]

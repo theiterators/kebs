@@ -28,4 +28,6 @@ private[meta] object MetaUtils {
     }
   }
 
+  def invariant(params: immutable.Seq[Type.Param]) = params.map(_.copy(mods = List.empty))
+
 }

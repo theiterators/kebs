@@ -13,7 +13,7 @@ private[meta] object MetaModel {
     def taggedWith(argName: Term.Name, typeParams: immutable.Seq[Type.Param]): Term
   }
   object TagTypeRep {
-    private case class EmptyTrait(name: Type.Name) extends TagTypeRep {
+    case class EmptyTrait(name: Type.Name) extends TagTypeRep {
       val nameString = name.value
       override def matches(t: Type): Boolean = t match {
         case Type.Name(`nameString`) => true
@@ -22,7 +22,7 @@ private[meta] object MetaModel {
       override def taggedWith(argName: Term.Name, typeParams: immutable.Seq[Type.Param]) = q"$argName.taggedWith[$name]"
     }
 
-    private case class GenericTrait(name: Type.Name, typeParams: immutable.Seq[Type.Param]) extends TagTypeRep {
+    case class GenericTrait(name: Type.Name, typeParams: immutable.Seq[Type.Param]) extends TagTypeRep {
       require(typeParams.nonEmpty)
 
       val nameString           = name.value
@@ -33,7 +33,9 @@ private[meta] object MetaModel {
         case _                                            => false
       }
       override def taggedWith(argName: Term.Name, typeParams: immutable.Seq[Type.Param]) =
-        q"$argName.taggedWith[${applied(name, typeParams)}]"
+        q"$argName.taggedWith[${applied(typeParams)}]"
+
+      def applied(params: immutable.Seq[Type.Param]) = MetaUtils.applied(name, params)
     }
 
     def apply(name: Type.Name, typeParams: immutable.Seq[Type.Param]): TagTypeRep =
@@ -83,10 +85,13 @@ private[meta] object MetaModel {
 
       q"def apply[..$tparams](arg: $baseType) = $body"
     }
+
+    def applied(t: Type) = Type.ApplyInfix(baseType, Type.Name(TagTypeName), t)
+    def companionName    = Term.Name(name.value)
   }
+
   object TaggedType {
     val ValidationMethodName = "validate"
-    val TagTypeName          = "@@"
     val TagPackage           = importer"_root_.pl.iterators.kebs.tag._"
     val TagPackageImport     = q"import ..${List(TagPackage)}"
 
@@ -111,7 +116,8 @@ private[meta] object MetaModel {
     }
 
     //tagged types are aliases like type T = T @@ U where U is a tag (see below)
-    def findAll(stats: immutable.Seq[Stat], tagTypes: immutable.Seq[TagTypeRep]): immutable.Seq[TaggedType] =
+    def findAll(stats: immutable.Seq[Stat]): immutable.Seq[TaggedType] = {
+      val tagTypes = findTagTypes(stats)
       if (tagTypes.isEmpty) immutable.Seq.empty
       else
         stats.flatMap {
@@ -119,6 +125,7 @@ private[meta] object MetaModel {
             tagTypes.find(_.matches(tag)).map(tt => TaggedType(name, params, base, tt, findCompanion(stats, name)))
           case _ => None
         }
+    }
   }
 
   def findTagTypes(stats: immutable.Seq[Stat]): immutable.Seq[TagTypeRep] = stats.collect {
@@ -133,4 +140,7 @@ private[meta] object MetaModel {
     }
   }
 
+  case class TagTypeCompanion(tagTypeRep: TagTypeRep, companion: Option[Defn.Object])
+  def findTagCompanions(tags: immutable.Seq[TagTypeRep], stats: immutable.Seq[Stat]): immutable.Seq[TagTypeCompanion] =
+    tags.map(t => TagTypeCompanion(t, findCompanion(stats, t.name)))
 }

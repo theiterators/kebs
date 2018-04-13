@@ -8,8 +8,7 @@ class tagged extends StaticAnnotation {
     defn match {
       case Defn.Object(mods, name, body) =>
         body.stats.fold(defn) { statements =>
-          val tagTypes             = MetaModel.findTagTypes(statements)
-          val taggedTypes          = MetaModel.TaggedType.findAll(statements, tagTypes)
+          val taggedTypes          = MetaModel.TaggedType.findAll(statements)
           val taggedTypeCompanions = taggedTypes.flatMap(_.maybeCompanion)
           val generated =
             taggedTypes.foldLeft(statements diff taggedTypeCompanions)((code, taggedType) => taggedType.generateCompanion +: code)

@@ -151,7 +151,9 @@ lazy val benchmarkSettings = commonSettings ++ Seq(
   libraryDependencies ++= akkaHttpInBenchmarks
 )
 
-lazy val taggedMetaSettings = metaSettings
+lazy val taggedMetaSettings = metaSettings ++ Seq(
+  libraryDependencies += optional(sprayJson)
+)
 
 lazy val macroUtils = project
   .in(file("macro-utils"))
