@@ -29,40 +29,52 @@ class spray extends StaticAnnotation {
 }
 
 object spray {
-  private val JsValueType                  = t"_root_.spray.json.JsValue"
-  private val JsonReaderType               = t"_root_.spray.json.JsonReader"
-  private def JsonReader(T: Type)          = t"$JsonReaderType[$T]"
+  private val JsonFormatType               = t"_root_.spray.json.JsonFormat"
+  private def JsonFormat(T: Type)          = t"$JsonFormatType[$T]"
   private def implicitReader(T: Type)      = q"_root_.spray.json.jsonReader[$T]"
+  private def implicitWriter(T: Type)      = q"_root_.spray.json.jsonWriter[$T]"
   private val IllegalArgumentExceptionType = t"IllegalArgumentException"
 
   def generateImplicit(taggedType: MetaModel.TaggedType) = {
     def readFunction(applyM: Term, arg: Term.Name) = q"""try $applyM(${implicitReader(taggedType.baseType)}.read($arg))
           catch { case e: $IllegalArgumentExceptionType => _root_.spray.json.deserializationError(e.getMessage, e) }
        """
+    def writeFunction(arg: Term.Name) = q"""${implicitWriter(taggedType.baseType)}.write($arg)"""
 
-    def reader(rep: TagTypeRep.GenericTrait, params: immutable.Seq[Type.Param]) = {
+    def formatGeneric(rep: TagTypeRep.GenericTrait, params: immutable.Seq[Type.Param]) = {
       val jsonArg = Term.Name("json")
-      val anon    = ctor"_root_.spray.json.JsonReader[${taggedType.applied(rep.applied(params))}]"
+      val objArg = Term.Name("obj")
+      val t = taggedType.applied(rep.applied(params))
+      val anon    = ctor"_root_.spray.json.JsonFormat[$t]"
       q"""new $anon {
-            override def read(json: _root_.spray.json.JsValue) = 
+            override def read($jsonArg: _root_.spray.json.JsValue) =
               ${readFunction(Term.ApplyType(taggedType.companionName, MetaUtils.reified(params)), jsonArg)}
+            override def write($objArg: $t) = ${writeFunction(objArg)}
       }
        """
     }
 
-    def implicitName(rep: TagTypeRep)               = Term.Name(rep.termName.value + "JsonReader")
-    def implicitValType(rep: TagTypeRep.EmptyTrait) = JsonReader(taggedType.applied(rep.name))
+    def format(rep: TagTypeRep.EmptyTrait) = {
+      val jsonArg = Term.Name("json")
+      val objArg = Term.Name("obj")
+      val t = taggedType.applied(rep.name)
+
+      q"""implicit object ${implicitName(rep)} extends _root_.spray.json.JsonFormat[$t] {
+            override def read($jsonArg: _root_.spray.json.JsValue) = ${readFunction(taggedType.companionName, jsonArg)}
+            override def write($objArg: $t) = ${writeFunction(objArg)}
+      }
+       """
+    }
+
+    def implicitName(rep: TagTypeRep)               = Term.Name(rep.termName.value + "JsonFormat")
     def implicitDefType(rep: TagTypeRep.GenericTrait, params: immutable.Seq[Type.Param]) =
-      JsonReader(taggedType.applied(rep.applied(params)))
-    val jsonArg = Term.Name("json")
+      JsonFormat(taggedType.applied(rep.applied(params)))
 
     taggedType.tagType match {
-      case rep @ TagTypeRep.EmptyTrait(_) =>
-        q"""implicit val ${Pat.Var.Term(implicitName(rep))}: ${implicitValType(rep)} = ($jsonArg: $JsValueType) =>
-              ${readFunction(taggedType.companionName, jsonArg)}"""
+      case rep @ TagTypeRep.EmptyTrait(_) => format(rep)
       case rep @ TagTypeRep.GenericTrait(_, params) =>
         q"""implicit def ${implicitName(rep)}[..${MetaUtils.invariant(params)}]: ${implicitDefType(rep, params)} =
-              ${reader(rep, params)}"""
+              ${formatGeneric(rep, params)}"""
     }
 
   }

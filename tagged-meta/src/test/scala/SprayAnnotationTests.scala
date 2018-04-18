@@ -22,19 +22,28 @@ import _root_.spray.json._
 }
 
 class SprayAnnotationTests extends FunSuite with Matchers {
-  import SprayTestTags._
   test("spray implicits are generated") {
+    import SprayTestTags._
     implicitly[JsonReader[Name]].read(JsString("Joe")) shouldEqual "Joe"
   }
 
   test("spray implicits for generic tags are generated") {
+    import SprayTestTags._
     trait Marker
     implicitly[JsonReader[Id[Marker]]].read(JsNumber(10)) shouldEqual 10
   }
 
   test("generated implicits use validation") {
+    import SprayTestTags._
     val reader = implicitly[JsonReader[PositiveInt]]
     an[DeserializationException] shouldBe thrownBy(reader.read(JsNumber(-10)))
     reader.read(JsNumber(10)) shouldEqual 10
+  }
+
+  case class C(i: Int, j: SprayTestTags.PositiveInt)
+  test("Implicits are found from tag companion object") {
+    import DefaultJsonProtocol._
+    val format: JsonFormat[C] = jsonFormat2(C.apply)
+    format.read(JsObject("i" -> JsNumber(1), "j" -> JsNumber(2))).j shouldEqual 2
   }
 }
