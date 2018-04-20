@@ -1,5 +1,5 @@
 import org.scalatest.{FunSuite, Matchers}
-import pl.iterators.kebs.tagged.slickSupport.SlickSupport
+import pl.iterators.kebs.tagged.slick.SlickSupport
 import slick.lifted.Isomorphism
 
 class TaggedTypeIsomorphismTests extends FunSuite with Matchers with SlickSupport {

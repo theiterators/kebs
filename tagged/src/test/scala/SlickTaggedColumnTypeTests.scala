@@ -1,10 +1,9 @@
 import org.scalatest.{FunSuite, Matchers}
+import slick.jdbc.PostgresProfile.api._
 import pl.iterators.kebs.tagged._
-import pl.iterators.kebs.tagged.slickSupport.{SlickSupport}
+import pl.iterators.kebs.tagged.slick.{SlickSupport}
 
 class SlickTaggedColumnTypeTests extends FunSuite with Matchers with SlickSupport {
-  import slick.jdbc.PostgresProfile.api._
-
   trait IdTag
   type Id = Long @@ IdTag
 
@@ -20,5 +19,4 @@ class SlickTaggedColumnTypeTests extends FunSuite with Matchers with SlickSuppor
   test("MappedColumnType for tagged types (alias)") {
     "implicitly[BaseColumnType[Id]]" should compile
   }
-
 }

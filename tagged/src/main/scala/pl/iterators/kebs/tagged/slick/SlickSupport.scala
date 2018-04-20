@@ -1,10 +1,8 @@
-package pl.iterators.kebs.tagged.slickSupport
+package pl.iterators.kebs.tagged.slick
 
-import pl.iterators.kebs.tagged._
 import slick.lifted.Isomorphism
+import pl.iterators.kebs.tagged._
 
 trait SlickSupport {
   implicit def taggedColumnType[T, U]: Isomorphism[T @@ U, T] = new Isomorphism[T @@ U, T](identity, _.@@[U])
 }
-
-object SlickSupport extends SlickSupport
