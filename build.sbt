@@ -65,11 +65,12 @@ def sv(scalaVersion: String, scala2_11Version: String, scala2_12Version: String)
       throw new IllegalArgumentException(s"Unsupported Scala version $scalaVersion")
   }
 
-val scalaTest = "org.scalatest"       %% "scalatest"  % "3.0.4"
-val slick     = "com.typesafe.slick"  %% "slick"      % "3.2.2"
-val slickPg   = "com.github.tminglei" %% "slick-pg"   % "0.16.0"
-val sprayJson = "io.spray"            %% "spray-json" % "1.3.3"
-val playJson  = "com.typesafe.play"   %% "play-json"  % "2.6.7"
+val scalaTest     = "org.scalatest" %% "scalatest" % "3.0.4"
+val slick         = "com.typesafe.slick" %% "slick" % "3.2.2"
+val optionalSlick = optional(slick)
+val slickPg       = "com.github.tminglei" %% "slick-pg" % "0.16.0"
+val sprayJson     = "io.spray" %% "spray-json" % "1.3.3"
+val playJson      = "com.typesafe.play" %% "play-json" % "2.6.7"
 
 val enumeratumVersion = "1.5.12"
 val enumeratum        = "com.beachape" %% "enumeratum" % enumeratumVersion
@@ -127,6 +128,10 @@ lazy val akkaHttpSettings = commonSettings ++ Seq(
 
 lazy val avroSettings = commonSettings ++ Seq(
   libraryDependencies += avro
+)
+
+lazy val taggedSettings = commonSettings ++ Seq(
+  libraryDependencies += optionalSlick
 )
 
 lazy val examplesSettings = commonSettings ++ Seq(
@@ -224,6 +229,15 @@ lazy val avroSupport = project
     moduleName := "kebs-avro"
   )
 
+lazy val tagged = project
+  .in(file("tagged"))
+  .settings(taggedSettings: _*)
+  .settings(publishSettings: _*)
+  .settings(
+    name := "tagged",
+    moduleName := "kebs-tagged"
+  )
+
 lazy val examples = project
   .in(file("examples"))
   .dependsOn(slickSupport, sprayJsonSupport, playJsonSupport, akkaHttpSupport)
@@ -249,6 +263,7 @@ import ReleaseTransformations._
 lazy val kebs = project
   .in(file("."))
   .aggregate(
+    tagged,
     macroUtils,
     slickSupport,
     sprayJsonMacros,
