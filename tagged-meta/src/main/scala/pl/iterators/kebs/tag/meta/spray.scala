@@ -2,15 +2,15 @@ package pl.iterators.kebs.tag.meta
 
 import scala.annotation.StaticAnnotation
 import scala.meta._
-import MetaModel.{TagTypeCompanion, TagTypeRep}
+import MetaModel._
 
 import scala.collection.immutable
 
 class spray extends StaticAnnotation {
   inline def apply(defn: Any): Any = meta {
     defn match {
-      case Defn.Object(mods, name, body) =>
-        body.stats.fold(defn) { statements =>
+      case Claitect(annotated) =>
+        annotated.body.fold(defn) { statements =>
           val taggedTypes        = MetaModel.TaggedType.findAll(statements)
           val tagTypeCompanions  = MetaModel.findTagCompanions(taggedTypes.map(_.tagType), statements)
           val generatedImplicits = taggedTypes.map(spray.generateImplicit)
@@ -21,9 +21,10 @@ class spray extends StaticAnnotation {
               q"""..${obj.mods} object ${t.termName} extends _root_.spray.json.DefaultJsonProtocol { ..${implicitVal +: obj.templ.stats.toList.flatten} }"""
           }
           val existingCompanions = tagTypeCompanions.collect { case TagTypeCompanion(_, Some(obj)) => obj }
-          q"..$mods object $name { ..${(statements diff existingCompanions) ++ generatedCompanions} }"
+          val generated = (statements diff existingCompanions) ++ generatedCompanions
+          annotated.replaced(generated)
         }
-      case _ => abort(defn.pos, "@spray must be used on object")
+      case _ => abort(defn.pos, "@spray must be used on object, trait or a class")
     }
   }
 }

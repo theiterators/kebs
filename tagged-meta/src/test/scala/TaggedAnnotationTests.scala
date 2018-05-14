@@ -20,11 +20,36 @@ import pl.iterators.kebs.tag.meta.tagged
   }
 }
 
+@tagged trait TestTagsTrait {
+  trait OrdinaryTag
+  trait NegativeIntTag
+
+  type Ordinary = String @@ OrdinaryTag
+
+  type NegativeInt = Int @@ NegativeIntTag
+  object NegativeInt {
+    sealed trait Error
+    case object Positive extends Error
+    case object Zero     extends Error
+
+    def validate(i: Int) = if (i == 0) Left(Zero) else if (i > 0) Left(Positive) else Right(i)
+  }
+}
+
+object TestTagsFromTrait extends TestTagsTrait
+
 class TaggedAnnotationTests extends FunSuite with Matchers with EitherValues {
   import TestTags._
-  test("apply and from methods are generated") {
+  import TestTagsFromTrait._
+
+  test("apply and from methods are generated (object)") {
     Name.from("Someone") shouldEqual "Someone"
     Name("Someone") shouldEqual "Someone"
+  }
+
+  test("apply and from methods are generated (trait)") {
+    Ordinary.from("Someone") shouldEqual "Someone"
+    Ordinary("Someone") shouldEqual "Someone"
   }
 
   test("apply and from method can be generic") {
@@ -33,12 +58,21 @@ class TaggedAnnotationTests extends FunSuite with Matchers with EitherValues {
     Id[Marker](10) shouldEqual 10
   }
 
-  test("from method must use validation") {
+  test("from method must use validation (object)") {
     PositiveInt.from(10).right.value shouldEqual 10
     PositiveInt.from(0).left.value shouldEqual PositiveInt.Zero
   }
 
-  test("apply method must throw exception if validation failed") {
+  test("from method must use validation (trait)") {
+    NegativeInt.from(-10).right.value shouldEqual -10
+    NegativeInt.from(0).left.value shouldEqual NegativeInt.Zero
+  }
+
+  test("apply method must throw exception if validation failed (object)") {
     an[IllegalArgumentException] shouldBe thrownBy(PositiveInt(-10))
+  }
+
+  test("apply method must throw exception if validation failed (trait)") {
+    an[IllegalArgumentException] shouldBe thrownBy(NegativeInt(10))
   }
 }

@@ -143,4 +143,31 @@ private[meta] object MetaModel {
   case class TagTypeCompanion(tagTypeRep: TagTypeRep, companion: Option[Defn.Object])
   def findTagCompanions(tags: immutable.Seq[TagTypeRep], stats: immutable.Seq[Stat]): immutable.Seq[TagTypeCompanion] =
     tags.map(t => TagTypeCompanion(t, findCompanion(stats, t.name)))
+
+  //Class or trait or object :-)
+  sealed abstract class Claitect(val body: Option[immutable.Seq[Stat]]) {
+    def replaced(newBody: immutable.Seq[Stat]): Stat
+  }
+
+  object Claitect {
+    private class Object(mods: immutable.Seq[Mod], name: Term.Name, body: Template) extends Claitect(body.stats) {
+      override def replaced(newBody: immutable.Seq[Stat]) = q"..$mods object $name { ..$newBody }"
+    }
+    private class Trait(mods: immutable.Seq[Mod], name: Type.Name, tparams: immutable.Seq[Type.Param], ctor: Ctor.Primary, body: Template)
+        extends Claitect(body.stats) {
+      override def replaced(newBody: immutable.Seq[Stat]) = q"..$mods trait $name [..$tparams] { ..$newBody }"
+    }
+    private class Class(mods: immutable.Seq[Mod], name: Type.Name, tparams: immutable.Seq[Type.Param], ctor: Ctor.Primary, body: Template)
+        extends Claitect(body.stats) {
+      override def replaced(newBody: immutable.Seq[Stat]) = q"..$mods class $name [..$tparams] { ..$newBody }"
+    }
+
+    def unapply(defn: Any): Option[Claitect] = defn match {
+      case Defn.Object(mods, name, body)               => Some(new Object(mods, name, body))
+      case Defn.Trait(mods, name, tparams, ctor, body) => Some(new Trait(mods, name, tparams, ctor, body))
+      case Defn.Class(mods, name, tparams, ctor, body) => Some(new Class(mods, name, tparams, ctor, body))
+      case _                                           => None
+    }
+
+  }
 }

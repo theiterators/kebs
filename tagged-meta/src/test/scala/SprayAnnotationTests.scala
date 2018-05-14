@@ -21,10 +21,33 @@ import _root_.spray.json._
   }
 }
 
+@tagged @spray trait SprayTestTagsTrait {
+  trait OrdinaryTag
+  trait NegativeIntTag
+
+  type Ordinary = String @@ OrdinaryTag
+
+  type NegativeInt = Int @@ NegativeIntTag
+  object NegativeInt {
+    sealed trait Error
+    case object Positive extends Error
+    case object Zero     extends Error
+
+    def validate(i: Int) = if (i == 0) Left(Zero) else if (i > 0) Left(Positive) else Right(i)
+  }
+}
+
+object SprayTestTagsFromTrait extends SprayTestTagsTrait
+
 class SprayAnnotationTests extends FunSuite with Matchers {
-  test("spray implicits are generated") {
+  test("spray implicits are generated (object)") {
     import SprayTestTags._
     implicitly[JsonReader[Name]].read(JsString("Joe")) shouldEqual "Joe"
+  }
+
+  test("spray implicits are generated (trait)") {
+    import SprayTestTagsFromTrait._
+    implicitly[JsonReader[Ordinary]].read(JsString("Joe")) shouldEqual "Joe"
   }
 
   test("spray implicits for generic tags are generated") {
@@ -33,11 +56,18 @@ class SprayAnnotationTests extends FunSuite with Matchers {
     implicitly[JsonReader[Id[Marker]]].read(JsNumber(10)) shouldEqual 10
   }
 
-  test("generated implicits use validation") {
+  test("generated implicits use validation (object)") {
     import SprayTestTags._
     val reader = implicitly[JsonReader[PositiveInt]]
     an[DeserializationException] shouldBe thrownBy(reader.read(JsNumber(-10)))
     reader.read(JsNumber(10)) shouldEqual 10
+  }
+
+  test("generated implicits use validation (trait)") {
+    import SprayTestTagsFromTrait._
+    val reader = implicitly[JsonReader[NegativeInt]]
+    an[DeserializationException] shouldBe thrownBy(reader.read(JsNumber(10)))
+    reader.read(JsNumber(-10)) shouldEqual -10
   }
 
   case class C(i: Int, j: SprayTestTags.PositiveInt)

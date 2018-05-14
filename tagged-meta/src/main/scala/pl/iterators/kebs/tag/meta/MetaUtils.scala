@@ -1,7 +1,7 @@
 package pl.iterators.kebs.tag.meta
 
 import scala.collection.immutable
-import scala.meta.{Defn, Mod, Stat, Type}
+import scala.meta._
 
 private[meta] object MetaUtils {
 
