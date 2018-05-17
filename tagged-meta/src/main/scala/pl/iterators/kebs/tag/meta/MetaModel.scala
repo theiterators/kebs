@@ -92,7 +92,7 @@ private[meta] object MetaModel {
 
   object TaggedType {
     val ValidationMethodName = "validate"
-    val TagPackage           = importer"_root_.pl.iterators.kebs.tag._"
+    val TagPackage           = importer"_root_.pl.iterators.kebs.tagged._"
     val TagPackageImport     = q"import ..${List(TagPackage)}"
 
     object ValidationMethod {
