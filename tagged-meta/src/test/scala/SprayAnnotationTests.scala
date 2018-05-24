@@ -2,8 +2,9 @@ import org.scalatest.{FunSuite, Matchers}
 import pl.iterators.kebs.tagged.@@
 import pl.iterators.kebs.tag.meta._
 import _root_.spray.json._
+import pl.iterators.kebs.json.KebsSpray
 
-@tagged @spray object SprayTestTags {
+@tagged object SprayTestTags {
   trait NameTag
   trait IdTag[+A]
   trait PositiveIntTag
@@ -21,7 +22,7 @@ import _root_.spray.json._
   }
 }
 
-@tagged @spray trait SprayTestTagsTrait {
+@tagged trait SprayTestTagsTrait {
   trait OrdinaryTag
   trait NegativeIntTag
 
@@ -39,7 +40,7 @@ import _root_.spray.json._
 
 object SprayTestTagsFromTrait extends SprayTestTagsTrait
 
-class SprayAnnotationTests extends FunSuite with Matchers {
+class SprayAnnotationTests extends FunSuite with Matchers with KebsSpray with DefaultJsonProtocol {
   test("spray implicits are generated (object)") {
     import SprayTestTags._
     implicitly[JsonReader[Name]].read(JsString("Joe")) shouldEqual "Joe"
@@ -59,20 +60,19 @@ class SprayAnnotationTests extends FunSuite with Matchers {
   test("generated implicits use validation (object)") {
     import SprayTestTags._
     val reader = implicitly[JsonReader[PositiveInt]]
-    an[DeserializationException] shouldBe thrownBy(reader.read(JsNumber(-10)))
+    an[IllegalArgumentException] shouldBe thrownBy(reader.read(JsNumber(-10)))
     reader.read(JsNumber(10)) shouldEqual 10
   }
 
   test("generated implicits use validation (trait)") {
     import SprayTestTagsFromTrait._
     val reader = implicitly[JsonReader[NegativeInt]]
-    an[DeserializationException] shouldBe thrownBy(reader.read(JsNumber(10)))
+    an[IllegalArgumentException] shouldBe thrownBy(reader.read(JsNumber(10)))
     reader.read(JsNumber(-10)) shouldEqual -10
   }
 
   case class C(i: Int, j: SprayTestTags.PositiveInt)
   test("Implicits are found from tag companion object") {
-    import DefaultJsonProtocol._
     val format: JsonFormat[C] = jsonFormat2(C.apply)
     format.read(JsObject("i" -> JsNumber(1), "j" -> JsNumber(2))).j shouldEqual 2
   }

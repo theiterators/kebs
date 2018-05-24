@@ -7,13 +7,18 @@ private[meta] object MetaModel {
   import MetaUtils._
 
   sealed abstract class TagTypeRep {
+    import TaggedType.TagPackageImport
+
     def name: Type.Name
     final def termName = Term.Name(name.value)
+
+    def maybeCompanion: Option[Defn.Object]
+
     def matches(t: Type): Boolean
     def taggedWith(argName: Term.Name, typeParams: immutable.Seq[Type.Param]): Term
   }
   object TagTypeRep {
-    case class EmptyTrait(name: Type.Name) extends TagTypeRep {
+    case class EmptyTrait(name: Type.Name, maybeCompanion: Option[Defn.Object]) extends TagTypeRep {
       val nameString = name.value
       override def matches(t: Type): Boolean = t match {
         case Type.Name(`nameString`) => true
@@ -22,10 +27,12 @@ private[meta] object MetaModel {
       override def taggedWith(argName: Term.Name, typeParams: immutable.Seq[Type.Param]) = q"$argName.taggedWith[$name]"
     }
 
-    case class GenericTrait(name: Type.Name, typeParams: immutable.Seq[Type.Param]) extends TagTypeRep {
+    case class GenericTrait(name: Type.Name, typeParams: immutable.Seq[Type.Param], maybeCompanion: Option[Defn.Object])
+        extends TagTypeRep {
       require(typeParams.nonEmpty)
 
       val nameString           = name.value
+      val selfType             = applied(typeParams)
       private val paramsLength = typeParams.length
 
       override def matches(t: Type): Boolean = t match {
@@ -36,10 +43,12 @@ private[meta] object MetaModel {
         q"$argName.taggedWith[${applied(typeParams)}]"
 
       def applied(params: immutable.Seq[Type.Param]) = MetaUtils.applied(name, params)
+
     }
 
-    def apply(name: Type.Name, typeParams: immutable.Seq[Type.Param]): TagTypeRep =
-      if (typeParams.isEmpty) EmptyTrait(name) else GenericTrait(name, typeParams)
+    def apply(name: Type.Name, typeParams: immutable.Seq[Type.Param], maybeCompanion: Option[Defn.Object]): TagTypeRep =
+      if (typeParams.isEmpty) EmptyTrait(name, maybeCompanion) else GenericTrait(name, typeParams, maybeCompanion)
+
   }
 
   case class TaggedType(name: Type.Name,
@@ -48,6 +57,8 @@ private[meta] object MetaModel {
                         tagType: TagTypeRep,
                         maybeCompanion: Option[Defn.Object]) {
     import TaggedType._
+
+    val selfType = if (tparams.isEmpty) name else Type.Apply(name, reified(tparams))
 
     final def hasValidations: Boolean =
       maybeCompanion
@@ -63,6 +74,13 @@ private[meta] object MetaModel {
         q"..${companion.mods} object ${companion.name} { ..${List(TagPackageImport, generateApplyMethod, generateFromMethod) ++ companion.templ.stats
           .getOrElse(List.empty)} }"
       case None => q"object ${Term.Name(name.value)} { ..${List(TagPackageImport, generateApplyMethod, generateFromMethod)} }"
+    }
+
+    def generateTagCompanion: Defn.Object = tagType.maybeCompanion match {
+      case Some(companion) =>
+        q"..${companion.mods} object ${companion.name} { ..${List(TagPackageImport, generateCaseClass1RepImplicit) ++ companion.templ.stats
+          .getOrElse(List.empty)} }"
+      case None => q"object ${tagType.termName} { ..${List(TagPackageImport, generateCaseClass1RepImplicit)} }"
     }
 
     private def generateFromMethod = {
@@ -86,7 +104,10 @@ private[meta] object MetaModel {
       q"def apply[..$tparams](arg: $baseType) = $body"
     }
 
-    def applied(t: Type) = Type.ApplyInfix(baseType, Type.Name(TagTypeName), t)
+    private def generateCaseClass1RepImplicit =
+      q"implicit def ${Term.Name(companionName.value + "CaseClass1Rep")}[..${invariant(tparams)}] = new _root_.pl.iterators.kebs.macros.CaseClass1Rep[$selfType, $baseType]($companionName.apply(_), identity)"
+
+    def applied(t: Type) = Tag(baseType, t)
     def companionName    = Term.Name(name.value)
   }
 
@@ -129,7 +150,7 @@ private[meta] object MetaModel {
   }
 
   def findTagTypes(stats: immutable.Seq[Stat]): immutable.Seq[TagTypeRep] = stats.collect {
-    case Defn.Trait(_, tagName, tparams, _, body) if body.stats.isEmpty => TagTypeRep(tagName, tparams)
+    case Defn.Trait(_, tagName, tparams, _, body) if body.stats.isEmpty => TagTypeRep(tagName, tparams, findCompanion(stats, tagName))
   }
 
   val TagTypeName = "@@"
@@ -139,10 +160,7 @@ private[meta] object MetaModel {
       case _                                                                   => false
     }
   }
-
-  case class TagTypeCompanion(tagTypeRep: TagTypeRep, companion: Option[Defn.Object])
-  def findTagCompanions(tags: immutable.Seq[TagTypeRep], stats: immutable.Seq[Stat]): immutable.Seq[TagTypeCompanion] =
-    tags.map(t => TagTypeCompanion(t, findCompanion(stats, t.name)))
+  def Tag(base: Type, tag: Type) = Type.ApplyInfix(base, Type.Name(TagTypeName), tag)
 
   //Class or trait or object :-)
   sealed abstract class Claitect(val body: Option[immutable.Seq[Stat]]) {

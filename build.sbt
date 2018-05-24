@@ -19,7 +19,7 @@ lazy val commonMacroSettings = baseSettings ++ Seq(
   libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided"
 )
 
-lazy val metaSettings = baseSettings ++ Seq(
+lazy val metaSettings = commonSettings ++ Seq(
   addCompilerPlugin("org.scalameta"           % "paradise"   % "3.0.0-M10" cross CrossVersion.full),
   libraryDependencies ++= Seq("org.scalameta" %% "scalameta" % "1.8.0", scalaTest % "test")
 )
@@ -240,6 +240,7 @@ lazy val avroSupport = project
 
 lazy val tagged = project
   .in(file("tagged"))
+  .dependsOn(macroUtils)
   .settings(taggedSettings: _*)
   .settings(crossBuildSettings: _*)
   .settings(publishSettings: _*)
@@ -251,7 +252,7 @@ lazy val tagged = project
 
 lazy val taggedMeta = project
   .in(file("tagged-meta"))
-  .dependsOn(tagged)
+  .dependsOn(tagged, sprayJsonSupport % "test -> test")
   .settings(taggedMetaSettings: _*)
   .settings(crossBuildSettings: _*)
   .settings(publishSettings: _*)

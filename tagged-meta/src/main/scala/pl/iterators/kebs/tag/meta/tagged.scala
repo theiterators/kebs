@@ -12,8 +12,13 @@ class tagged extends StaticAnnotation {
         annotated.body.fold(defn) { statements =>
           val taggedTypes          = MetaModel.TaggedType.findAll(statements)
           val taggedTypeCompanions = taggedTypes.flatMap(_.maybeCompanion)
+          val tagTypes             = taggedTypes.map(_.tagType)
+          val tagTypeCompanions    = tagTypes.flatMap(_.maybeCompanion)
+          val allCompanions        = taggedTypeCompanions ++ tagTypeCompanions
+
           val generated =
-            taggedTypes.foldLeft(statements diff taggedTypeCompanions)((code, taggedType) => taggedType.generateCompanion +: code)
+            taggedTypes.foldLeft(statements diff allCompanions)((code, taggedType) =>
+              taggedType.generateCompanion +: taggedType.generateTagCompanion +: code)
           annotated.replaced(generated)
         }
       case _ => abort(defn.pos, "@tagged must be used on object, trait or a class")
