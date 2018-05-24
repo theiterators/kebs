@@ -27,7 +27,7 @@ trait KebsColumnExtensionMethods {
 }
 
 trait Kebs extends KebsColumnExtensionMethods {
-  implicit def valueColumnType[CC <: Product, B](implicit rep1: CaseClass1Rep[CC, B]): Isomorphism[CC, B] =
+  implicit def valueColumnType[CC, B](implicit rep1: CaseClass1Rep[CC, B]): Isomorphism[CC, B] =
     new Isomorphism[CC, B](rep1.unapply, rep1.apply)
   implicit def listValueColumnType[CC <: Product, B](implicit iso: Isomorphism[CC, B]): Isomorphism[List[CC], List[B]] =
     new Isomorphism[List[CC], List[B]](_.map(iso.map), _.map(iso.comap))

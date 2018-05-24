@@ -6,7 +6,7 @@ import spray.json.{DefaultJsonProtocol, JsValue, JsonFormat, JsonReader, JsonWri
 trait KebsSpray { self: DefaultJsonProtocol =>
   import macros.KebsSprayMacros
   implicit def jsonFormatN[T <: Product]: RootJsonFormat[T] = macro KebsSprayMacros.materializeRootFormat[T]
-  implicit def jsonFlatFormat[T <: Product, A](implicit rep: CaseClass1Rep[T, A], baseJsonFormat: JsonFormat[A]): JsonFormat[T] = {
+  implicit def jsonFlatFormat[T, A](implicit rep: CaseClass1Rep[T, A], baseJsonFormat: JsonFormat[A]): JsonFormat[T] = {
     val reader: JsValue => T = json => rep.apply(baseJsonFormat.read(json))
     val writer: T => JsValue = obj => baseJsonFormat.write(rep.unapply(obj))
     jsonFormat[T](reader, writer)
