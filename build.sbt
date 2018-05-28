@@ -19,6 +19,11 @@ lazy val commonMacroSettings = baseSettings ++ Seq(
   libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided"
 )
 
+lazy val metaSettings = commonSettings ++ Seq(
+  addCompilerPlugin("org.scalameta"           % "paradise"   % "3.0.0-M11" cross CrossVersion.full),
+  libraryDependencies ++= Seq("org.scalameta" %% "scalameta" % "1.8.0", scalaTest % "test")
+)
+
 lazy val publishToNexus = publishTo := {
   val nexus = "https://oss.sonatype.org/"
   if (isSnapshot.value)
@@ -146,6 +151,10 @@ lazy val benchmarkSettings = commonSettings ++ Seq(
   libraryDependencies ++= akkaHttpInBenchmarks
 )
 
+lazy val taggedMetaSettings = metaSettings ++ Seq(
+  libraryDependencies += optional(sprayJson)
+)
+
 lazy val macroUtils = project
   .in(file("macro-utils"))
   .settings(macroUtilsSettings: _*)
@@ -232,10 +241,24 @@ lazy val avroSupport = project
 lazy val tagged = project
   .in(file("tagged"))
   .settings(taggedSettings: _*)
+  .settings(crossBuildSettings: _*)
   .settings(publishSettings: _*)
   .settings(
     name := "tagged",
+    description := "Representation of tagged types",
     moduleName := "kebs-tagged"
+  )
+
+lazy val taggedMeta = project
+  .in(file("tagged-meta"))
+  .dependsOn(macroUtils, tagged, sprayJsonSupport % "test -> test")
+  .settings(taggedMetaSettings: _*)
+  .settings(crossBuildSettings: _*)
+  .settings(publishSettings: _*)
+  .settings(
+    name := "tagged-meta",
+    description := "Representation of tagged types - code generation based on scala-meta",
+    moduleName := "kebs-tagged-meta"
   )
 
 lazy val examples = project
@@ -271,6 +294,7 @@ lazy val kebs = project
     playJsonSupport,
     akkaHttpSupport,
     avroSupport,
+    taggedMeta,
     examples
   )
   .settings(baseSettings: _*)
