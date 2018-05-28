@@ -24,18 +24,20 @@ class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
   private def extractFieldNames(fields: List[MethodSymbol])                    = fields.map(_.name.decodedName.toString)
   protected def extractJsonFieldNames(fields: List[MethodSymbol]): Seq[String] = extractFieldNames(fields)
 
-  private def materializeRootJsonFormat(T: Type, fields: List[MethodSymbol], noInfer: Boolean = false) = {
+  private def inferFormats(ps: List[Type]) = ps.map(p => inferImplicitValue(jsonFormatOf(p), s"Cannot infer JsonFormat[$p]"))
+  private def isRecursiveSearch = c.enclosingImplicits match {
+    case Nil          => false
+    case head :: tail => tail.exists(_.pt =:= head.pt)
+  }
+  private def materializeRootJsonFormat(T: Type, fields: List[MethodSymbol]) = {
     val Ps             = extractFieldTypes(fields, T)
     val jsonFieldNames = extractJsonFieldNames(fields)
-    val jsonFormats: List[Tree] =
-      if (noInfer) List.empty
-      else
-        Ps.map(P => inferImplicitValue(jsonFormatOf(P), s"To materialize RootJsonFormat for ${T.typeSymbol}, JsonFormat[$P] is needed"))
 
     if (fields.lengthCompare(maxCaseClassFields) <= 0) {
       val tree = q"${_this}.jsonFormat[..$Ps, $T](${apply(T)}, ..$jsonFieldNames)"
-      if (jsonFormats.isEmpty) tree else q"$tree(..$jsonFormats)"
+      if (isRecursiveSearch) tree else q"$tree(..${inferFormats(Ps)})"
     } else {
+      val jsonFormats           = inferFormats(Ps)
       val jsonFieldsWithFormats = jsonFieldNames zip jsonFormats
       val jsonVar               = TermName("json")
       val applyArgs = jsonFieldsWithFormats.map {
@@ -84,7 +86,7 @@ class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
     caseAccessors(T) match {
       case Nil => c.abort(c.enclosingPosition, s"${T.typeSymbol} is case object")
       case fields =>
-        val format = materializeRootJsonFormat(T, fields, noInfer = true)
+        val format = materializeRootJsonFormat(T, fields)
         c.Expr[RootJsonFormat[T]](q"""{
           implicit lazy val __jf: ${jsonFormatOf(T)} = ${_this}.lazyFormat($format)
           ${_this}.rootFormat(__jf)

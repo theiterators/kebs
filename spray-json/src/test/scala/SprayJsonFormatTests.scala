@@ -226,13 +226,4 @@ class SprayJsonFormatTests extends FunSuite with Matchers {
     "implicitly[JsonFormat[Request]]" should compile
   }
 
-  case class Category(
-      name: String,
-      parent: Option[Category]
-  )
-
-  test("issue #21") {
-    """implicit val categoryFormat = jsonFormatRec[Category]""" should compile
-  }
-
 }
