@@ -104,8 +104,13 @@ private[meta] object MetaModel {
       q"def apply[..$tparams](arg: $baseType) = $body"
     }
 
-    private def generateCaseClass1RepImplicit =
-      q"implicit def ${Term.Name(companionName.value + "CaseClass1Rep")}[..${invariant(tparams)}] = new _root_.pl.iterators.kebs.macros.CaseClass1Rep[$selfType, $baseType]($companionName.apply(_), identity)"
+    private def generateCaseClass1RepImplicit = {
+      val caseClass1RepInstanceTree =
+        q"new _root_.pl.iterators.kebs.macros.CaseClass1Rep[$selfType, $baseType]($companionName.apply(_), identity)"
+      val implicitName = Term.Name(companionName.value + "CaseClass1Rep")
+      if (tparams.isEmpty) q"implicit val ${Pat.Var.Term(implicitName)} = $caseClass1RepInstanceTree"
+      else q"implicit def $implicitName[..${invariant(tparams)}] = $caseClass1RepInstanceTree"
+    }
 
     def applied(t: Type) = Tag(baseType, t)
     def companionName    = Term.Name(name.value)
