@@ -7,8 +7,6 @@ private[meta] object MetaModel {
   import MetaUtils._
 
   sealed abstract class TagTypeRep {
-    import TaggedType.TagPackageImport
-
     def name: Type.Name
     final def termName = Term.Name(name.value)
 
@@ -71,16 +69,16 @@ private[meta] object MetaModel {
     def generateCompanion: Defn.Object = maybeCompanion match {
       case Some(CompanionWithApply(companion)) => companion
       case Some(companion) =>
-        q"..${companion.mods} object ${companion.name} { ..${List(TagPackageImport, generateApplyMethod, generateFromMethod) ++ companion.templ.stats
+        q"..${companion.mods} object ${companion.name} { ..${List(generateApplyMethod, generateFromMethod) ++ companion.templ.stats
           .getOrElse(List.empty)} }"
-      case None => q"object ${Term.Name(name.value)} { ..${List(TagPackageImport, generateApplyMethod, generateFromMethod)} }"
+      case None => q"object ${Term.Name(name.value)} { ..${List(generateApplyMethod, generateFromMethod)} }"
     }
 
     def generateTagCompanion: Defn.Object = tagType.maybeCompanion match {
       case Some(companion) =>
-        q"..${companion.mods} object ${companion.name} { ..${List(TagPackageImport, generateCaseClass1RepImplicit) ++ companion.templ.stats
+        q"..${companion.mods} object ${companion.name} { ..${List(generateCaseClass1RepImplicit) ++ companion.templ.stats
           .getOrElse(List.empty)} }"
-      case None => q"object ${tagType.termName} { ..${List(TagPackageImport, generateCaseClass1RepImplicit)} }"
+      case None => q"object ${tagType.termName} { ..${List(generateCaseClass1RepImplicit)} }"
     }
 
     private def generateFromMethod = {

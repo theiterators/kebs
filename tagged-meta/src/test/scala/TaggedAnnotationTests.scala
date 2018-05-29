@@ -1,5 +1,5 @@
 import org.scalatest._
-import pl.iterators.kebs.tagged.@@
+import pl.iterators.kebs.tagged._
 import pl.iterators.kebs.tag.meta.tagged
 
 @tagged object TestTags {

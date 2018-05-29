@@ -1,5 +1,5 @@
 import org.scalatest.{FunSuite, Matchers}
-import pl.iterators.kebs.tagged.@@
+import pl.iterators.kebs.tagged._
 import pl.iterators.kebs.tag.meta._
 import _root_.spray.json._
 import pl.iterators.kebs.json.KebsSpray
