@@ -265,7 +265,7 @@ lazy val taggedMeta = project
 
 lazy val examples = project
   .in(file("examples"))
-  .dependsOn(slickSupport, sprayJsonSupport, playJsonSupport, akkaHttpSupport)
+  .dependsOn(slickSupport, sprayJsonSupport, playJsonSupport, akkaHttpSupport, taggedMeta)
   .settings(examplesSettings: _*)
   .settings(noPublishSettings: _*)
   .settings(

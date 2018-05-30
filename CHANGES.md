@@ -1,3 +1,11 @@
+## Version 1.6.0
+
+> 30.05.2018
+
+* Tagged types!
+* Fixed StackOverflowError when compiling recursive spray-formats under Scala 2.12.6 (once again issue https://github.com/theiterators/kebs/issues/21)
+
+
 ## Version 1.5.4
 
 > 14.03.2018
