@@ -55,6 +55,7 @@ lazy val noPublishSettings =
   Seq(
     publishToNexus /*must be set for sbt-release*/,
     publishArtifact := false,
+    releaseCrossBuild := false,
     releasePublishArtifactsAction := {
       val projectName = name.value
       streams.value.log.warn(s"Publishing for $projectName is turned off")
@@ -296,8 +297,7 @@ lazy val kebs = project
     playJsonSupport,
     akkaHttpSupport,
     avroSupport,
-    taggedMeta,
-    examples
+    taggedMeta
   )
   .settings(baseSettings: _*)
   .settings(noPublishSettings: _*)
