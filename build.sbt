@@ -63,7 +63,7 @@ lazy val noPublishSettings =
   )
 
 def optional(dependency: ModuleID) = dependency % "provided"
-def sv(scalaVersion: String, scala2_11Version: String, scala2_12Version: String) =
+def sv[A](scalaVersion: String, scala2_11Version: => A, scala2_12Version: => A) =
   CrossVersion.partialVersion(scalaVersion) match {
     case Some((2, 12)) => scala2_12Version
     case Some((2, 11)) => scala2_11Version
@@ -129,7 +129,7 @@ lazy val playJsonSettings = commonSettings ++ Seq(
 )
 
 lazy val akkaHttpSettings = commonSettings ++ Seq(
-  libraryDependencies += akkaHttp,
+  libraryDependencies ++= sv(scalaVersion.value, Seq(akkaStream, akkaHttp), Seq(akkaHttp)),
   libraryDependencies += akkaHttpTestkit % "test",
   libraryDependencies += optionalEnumeratum
 )

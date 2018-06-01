@@ -96,7 +96,7 @@ private[meta] object MetaModel {
       val fromCall = if (tparams.nonEmpty) q"from[..${reified(tparams)}]($arg)" else q"from($arg)"
       val body =
         if (hasValidations)
-          q"$fromCall.getOrElse(throw new IllegalArgumentException($arg.toString))"
+          q"$fromCall.fold(l => throw new IllegalArgumentException(l.toString), identity)"
         else fromCall
 
       q"def apply[..$tparams](arg: $baseType) = $body"
