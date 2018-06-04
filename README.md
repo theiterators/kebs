@@ -734,11 +734,11 @@ There are some conventions that are assumed during generation.
 * tags have to be empty traits (possibly generic)
 * tagged types have to be aliases in form of `type X = SomeType @@ Tag` (possibly generic)
 * validation methods for tagged type X have to be defined in `object X` and have to:
-** be public
-** be named `validate`
-** take no type parameters
-** take a single argument
-** return Either (this is not enforced though - you'll have a compilation error later)
+  * be public
+  * be named `validate`
+  * take no type parameters
+  * take a single argument
+  * return Either (this is not enforced though - you'll have a compilation error later)
 
 Also, `CaseClass1Rep` is generated for each tag meaning you will get a lot of `kebs` machinery for free eg. spray formats, avro serializers etc.
 
