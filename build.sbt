@@ -161,7 +161,6 @@ lazy val taggedMetaSettings = metaSettings ++ Seq(
 lazy val macroUtils = project
   .in(file("macro-utils"))
   .settings(macroUtilsSettings: _*)
-  .settings(crossBuildSettings: _*)
   .settings(publishSettings: _*)
   .settings(
     name := "macro-utils",
@@ -173,7 +172,6 @@ lazy val slickSupport = project
   .in(file("slick"))
   .dependsOn(macroUtils)
   .settings(slickSettings: _*)
-  .settings(crossBuildSettings: _*)
   .settings(publishSettings: _*)
   .settings(
     name := "slick",
@@ -185,7 +183,6 @@ lazy val sprayJsonMacros = project
   .in(file("spray-json-macros"))
   .dependsOn(macroUtils)
   .settings(sprayJsonMacroSettings: _*)
-  .settings(crossBuildSettings: _*)
   .settings(publishSettings: _*)
   .settings(
     name := "spray-json-macros",
@@ -197,7 +194,6 @@ lazy val sprayJsonSupport = project
   .in(file("spray-json"))
   .dependsOn(sprayJsonMacros)
   .settings(sprayJsonSettings: _*)
-  .settings(crossBuildSettings: _*)
   .settings(publishSettings: _*)
   .settings(
     name := "spray-json",
@@ -209,7 +205,6 @@ lazy val playJsonSupport = project
   .in(file("play-json"))
   .dependsOn(macroUtils)
   .settings(playJsonSettings: _*)
-  .settings(crossBuildSettings: _*)
   .settings(publishSettings: _*)
   .settings(
     name := "play-json",
@@ -221,7 +216,6 @@ lazy val akkaHttpSupport = project
   .in(file("akka-http"))
   .dependsOn(macroUtils)
   .settings(akkaHttpSettings: _*)
-  .settings(crossBuildSettings: _*)
   .settings(publishSettings: _*)
   .settings(
     name := "akka-http",
@@ -233,7 +227,6 @@ lazy val avroSupport = project
   .in(file("avro"))
   .dependsOn(macroUtils)
   .settings(avroSettings: _*)
-  .settings(crossBuildSettings: _*)
   .settings(publishSettings: _*)
   .settings(
     name := "avro",
@@ -244,7 +237,6 @@ lazy val avroSupport = project
 lazy val tagged = project
   .in(file("tagged"))
   .settings(taggedSettings: _*)
-  .settings(crossBuildSettings: _*)
   .settings(publishSettings: _*)
   .settings(
     name := "tagged",
@@ -256,7 +248,6 @@ lazy val taggedMeta = project
   .in(file("tagged-meta"))
   .dependsOn(macroUtils, tagged, sprayJsonSupport % "test -> test")
   .settings(taggedMetaSettings: _*)
-  .settings(crossBuildSettings: _*)
   .settings(publishSettings: _*)
   .settings(
     name := "tagged-meta",
@@ -285,7 +276,6 @@ lazy val benchmarks = project
     moduleName := "kebs-benchmarks"
   )
 
-import ReleaseTransformations._
 lazy val kebs = project
   .in(file("."))
   .aggregate(
@@ -300,22 +290,11 @@ lazy val kebs = project
     taggedMeta
   )
   .settings(baseSettings: _*)
-  .settings(noPublishSettings: _*)
   .settings(
     name := "kebs",
     description := "Library to eliminate the boilerplate code",
-    releaseCrossBuild := false /*to work with sbt-doge*/,
-    releaseProcess := Seq[ReleaseStep](
-      checkSnapshotDependencies,
-      inquireVersions,
-      runClean,
-      releaseStepCommandAndRemaining("+test"),
-      setReleaseVersion,
-      commitReleaseVersion,
-      tagRelease,
-      releaseStepCommandAndRemaining("+publishSigned"),
-      setNextVersion,
-      commitNextVersion,
-      pushChanges
-    )
+    publishToNexus, /*must be set for sbt-release*/
+    releaseCrossBuild := true,
+    publishArtifact := false,
+    crossScalaVersions := supportedScalaVersions
   )
