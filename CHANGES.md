@@ -1,3 +1,9 @@
+## Version 1.6.1
+
+> 04.06.2018
+
+This version si the same as 1.6.0 - it only exists to publish Scala 2.11.x builds (erroneously omitted)
+
 ## Version 1.6.0
 
 > 30.05.2018

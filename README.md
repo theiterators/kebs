@@ -26,31 +26,31 @@ Slick (`kebs-slick`), Spray (`kebs-spray-json`), Play (`kebs-play-json`), Akka H
 
 Support for `slick`
 
-`libraryDependencies += "pl.iterators" %% "kebs-slick" % "1.6.0"`
+`libraryDependencies += "pl.iterators" %% "kebs-slick" % "1.6.1"`
 
 Support for `spray-json`
 
-`libraryDependencies += "pl.iterators" %% "kebs-spray-json" % "1.6.0"`
+`libraryDependencies += "pl.iterators" %% "kebs-spray-json" % "1.6.1"`
 
 Support for `play-json`
 
-`libraryDependencies += "pl.iterators" %% "kebs-play-json" % "1.6.0"`
+`libraryDependencies += "pl.iterators" %% "kebs-play-json" % "1.6.1"`
 
 Support for `akka-http`
 
-`libraryDependencies += "pl.iterators" %% "kebs-akka-http" % "1.6.0"`
+`libraryDependencies += "pl.iterators" %% "kebs-akka-http" % "1.6.1"`
 
 Support for `avro4s`
 
-`libraryDependencies += "pl.iterators" %% "kebs-avro" % "1.6.0"`
+`libraryDependencies += "pl.iterators" %% "kebs-avro" % "1.6.1"`
 
 Support for `tagged types`
 
-`libraryDependencies += "pl.iterators" %% "kebs-tagged" % "1.6.0"`
+`libraryDependencies += "pl.iterators" %% "kebs-tagged" % "1.6.1"`
 
 or for tagged-types code generation support
 
-`libraryDependencies += "pl.iterators" %% "kebs-tagged-meta" % "1.6.0"`
+`libraryDependencies += "pl.iterators" %% "kebs-tagged-meta" % "1.6.1"`
 `addCompilerPlugin("org.scalameta" % "paradise" % "3.0.0-M11" cross CrossVersion.full)`
 
 Builds for Scala `2.11` and `2.12` are provided
