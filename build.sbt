@@ -77,6 +77,9 @@ val optionalSlick = optional(slick)
 val slickPg       = "com.github.tminglei" %% "slick-pg" % "0.16.0"
 val sprayJson     = "io.spray" %% "spray-json" % "1.3.4"
 val playJson      = "com.typesafe.play" %% "play-json" % "2.6.7"
+val circe         = "io.circe" %% "circe-core" % "0.9.3"
+val circeAuto     = "io.circe" %% "circe-generic" % "0.9.3"
+val circeParser   = "io.circe" %% "circe-parser" % "0.9.3"
 
 val enumeratumVersion = "1.5.12"
 val enumeratum        = "com.beachape" %% "enumeratum" % enumeratumVersion
@@ -128,6 +131,13 @@ lazy val playJsonSettings = commonSettings ++ Seq(
   libraryDependencies += playJson
 )
 
+lazy val circeSettings = commonSettings ++ Seq(
+  libraryDependencies += circe,
+  libraryDependencies += circeAuto,
+  libraryDependencies += optionalEnumeratum,
+  libraryDependencies += circeParser % "test"
+)
+
 lazy val akkaHttpSettings = commonSettings ++ Seq(
   libraryDependencies ++= sv(scalaVersion.value, Seq(akkaStream, akkaHttp), Seq(akkaHttp)),
   libraryDependencies += akkaHttpTestkit % "test",
@@ -155,7 +165,8 @@ lazy val benchmarkSettings = commonSettings ++ Seq(
 )
 
 lazy val taggedMetaSettings = metaSettings ++ Seq(
-  libraryDependencies += optional(sprayJson)
+  libraryDependencies += optional(sprayJson),
+  libraryDependencies += optional(circe)
 )
 
 lazy val macroUtils = project
@@ -212,6 +223,18 @@ lazy val playJsonSupport = project
     moduleName := "kebs-play-json"
   )
 
+lazy val circeSupport = project
+  .in(file("circe"))
+  .dependsOn(macroUtils)
+  .settings(circeSettings: _*)
+  .settings(crossBuildSettings: _*)
+  .settings(publishSettings: _*)
+  .settings(
+    name := "circe",
+    description := "Automatic generation of circe formats for case-classes",
+    moduleName := "kebs-circe"
+  )
+
 lazy val akkaHttpSupport = project
   .in(file("akka-http"))
   .dependsOn(macroUtils)
@@ -246,7 +269,7 @@ lazy val tagged = project
 
 lazy val taggedMeta = project
   .in(file("tagged-meta"))
-  .dependsOn(macroUtils, tagged, sprayJsonSupport % "test -> test")
+  .dependsOn(macroUtils, tagged, sprayJsonSupport, circeSupport % "test -> test")
   .settings(taggedMetaSettings: _*)
   .settings(publishSettings: _*)
   .settings(
@@ -285,6 +308,7 @@ lazy val kebs = project
     sprayJsonMacros,
     sprayJsonSupport,
     playJsonSupport,
+    circeSupport,
     akkaHttpSupport,
     avroSupport,
     taggedMeta
