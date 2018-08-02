@@ -1,5 +1,5 @@
 ## Kebs
-
+##### Scala library to eliminate boilerplate
 [![Maven Central](https://img.shields.io/maven-central/v/pl.iterators/kebs-slick_2.12.svg)]()
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/theiterators/kebs/master/COPYING)
 
@@ -19,7 +19,7 @@
 
 ### Why?
 
-`kebs` is for eliminating some common sources of boilerplate code that arise when you use 
+`kebs` is for eliminating some common sources of Scala boilerplate code that arise when you use 
 Slick (`kebs-slick`), Spray (`kebs-spray-json`), Play (`kebs-play-json`), Akka HTTP (`kebs-akka-http`) or Avro4s (`kebs-avro`).
 
 ### SBT
