@@ -41,20 +41,22 @@ class SlickPgTests extends FunSuite with Matchers {
 
   case class TestId(value: UUID)
   case class TestString(value: String)
-  case class Test(id: TestId, string: TestString)
+  case class TestNumeric(value: Int)
+  case class Test(id: TestId, string: TestString, num: TestNumeric)
 
   class Tests(tag: BaseTable.Tag) extends BaseTable[Test](tag, "test") {
     import driver.api._
 
     def id     = column[TestId]("id")
     def string = column[TestString]("string")
+    def num    = column[TestNumeric]("num")
 
-    override def * : ProvenShape[Test] = (id, string) <> ((Test.apply _).tupled, Test.unapply)
+    override def * : ProvenShape[Test] = (id, string, num) <> ((Test.apply _).tupled, Test.unapply)
   }
 
-  test("Column extension methods") {
+  test("String column extension methods") {
     """
-      |class TestRepository {
+      |class TestRepository1 {
       |  import PostgresDriver.api._
       |
       |  def toLowerCase(ilikeString: String): DBIOAction[Seq[TestString], NoStream, Effect.Read] =
@@ -65,5 +67,23 @@ class SlickPgTests extends FunSuite with Matchers {
       |  private val tests = TableQuery[Tests]
       |}
     """.stripMargin should compile
+  }
+
+  test("Numeric column extension methods") {
+    """
+      |class TestRepository2 {
+      |  import PostgresDriver.api._
+      |  def power: DBIOAction[Seq[TestNumeric], NoStream, Effect.Read] =
+      |    tests.map(t => t.num * t.num).result
+      |  def mult2: DBIOAction[Seq[TestNumeric], NoStream, Effect.Read] =
+      |    tests.map(_.num * 2).result
+      |  def lt0: DBIOAction[Seq[Boolean], NoStream, Effect.Read] =
+      |    tests.map(t => t.num <= 0).result
+      |  def abs: DBIOAction[Seq[TestNumeric], NoStream, Effect.Read] =
+      |    tests.map(t => t.num.abs).result
+      |
+      |  private val tests = TableQuery[Tests]
+      |}
+      """.stripMargin should compile
   }
 }

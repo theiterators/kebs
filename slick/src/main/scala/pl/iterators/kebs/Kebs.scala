@@ -1,7 +1,7 @@
 package pl.iterators.kebs
 
 import pl.iterators.kebs.macros.CaseClass1Rep
-import slick.ast.BaseTypedType
+import slick.ast.{BaseTypedType, NumericTypedType}
 import slick.lifted._
 
 import scala.language.implicitConversions
@@ -11,10 +11,19 @@ trait KebsColumnExtensionMethods {
     new StringColumnExtensionMethods[CC](rep)
   implicit def stringValueOptionColumnExt[CC](rep: Rep[Option[CC]])(
       implicit ev: CaseClass1Rep[CC, String]): StringColumnExtensionMethods[Option[CC]] = new StringColumnExtensionMethods[Option[CC]](rep)
+  implicit def numericValueColumnExt[CC, B](rep: Rep[CC])(
+      implicit ev1: CaseClass1Rep[CC, B],
+      ev2: BaseTypedType[B] with NumericTypedType): BaseNumericColumnExtensionMethods[CC] = new BaseNumericColumnExtensionMethods[CC](rep)
+  implicit def numericValueOptionColumnExt[CC, B](rep: Rep[Option[CC]])(
+      implicit ev1: CaseClass1Rep[CC, B],
+      ev2: BaseTypedType[B] with NumericTypedType): OptionNumericColumnExtensionMethods[CC] =
+    new OptionNumericColumnExtensionMethods[CC](rep)
 
-  @inline implicit def getCCOptionMapper2TT[B1, B2: BaseTypedType, BR, CC](
+  @inline implicit def getCCOptionMapper2TT_1[B1, B2: BaseTypedType, BR, CC](
       implicit ev: CaseClass1Rep[CC, B1]): OptionMapper2[B1, B2, BR, CC, B2, BR] =
     OptionMapper2.plain.asInstanceOf[OptionMapper2[B1, B2, BR, CC, B2, BR]]
+  @inline implicit def getCCOptionMapper2TT_2[B1, B2, BR, CC](implicit ev: CaseClass1Rep[CC, B2]): OptionMapper2[CC, CC, BR, CC, B2, BR] =
+    OptionMapper2.plain.asInstanceOf[OptionMapper2[CC, CC, BR, CC, B2, BR]]
   @inline implicit def getCCOptionMapper2TO[B1, B2: BaseTypedType, BR, CC](
       implicit ev: CaseClass1Rep[CC, B1]): OptionMapper2[B1, B2, BR, CC, Option[B2], Option[BR]] =
     OptionMapper2.option.asInstanceOf[OptionMapper2[B1, B2, BR, CC, Option[B2], Option[BR]]]
