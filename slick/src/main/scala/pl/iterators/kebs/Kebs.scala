@@ -18,6 +18,11 @@ trait KebsColumnExtensionMethods {
       implicit ev1: CaseClass1Rep[CC, B],
       ev2: BaseTypedType[B] with NumericTypedType): OptionNumericColumnExtensionMethods[CC] =
     new OptionNumericColumnExtensionMethods[CC](rep)
+  implicit def booleanValueColumnExt[CC](rep: Rep[CC])(implicit ev: CaseClass1Rep[CC, Boolean]): BooleanColumnExtensionMethods[CC] =
+    new BooleanColumnExtensionMethods[CC](rep)
+  implicit def booleanValueOptionColumnExt[CC](rep: Rep[Option[CC]])(
+      implicit ev: CaseClass1Rep[CC, Boolean]): BooleanColumnExtensionMethods[Option[CC]] =
+    new BooleanColumnExtensionMethods[Option[CC]](rep)
 
   @inline implicit def getCCOptionMapper2TT_1[B1, B2: BaseTypedType, BR, CC](
       implicit ev: CaseClass1Rep[CC, B1]): OptionMapper2[B1, B2, BR, CC, B2, BR] =

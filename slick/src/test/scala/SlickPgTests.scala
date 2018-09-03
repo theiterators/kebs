@@ -42,6 +42,7 @@ class SlickPgTests extends FunSuite with Matchers {
   case class TestId(value: UUID)
   case class TestString(value: String)
   case class TestNumeric(value: Int)
+  case class TestBool(value: Boolean)
   case class Test(id: TestId, string: TestString, num: TestNumeric)
 
   class Tests(tag: BaseTable.Tag) extends BaseTable[Test](tag, "test") {
@@ -50,6 +51,7 @@ class SlickPgTests extends FunSuite with Matchers {
     def id     = column[TestId]("id")
     def string = column[TestString]("string")
     def num    = column[TestNumeric]("num")
+    def flag   = column[TestBool]("flag")
 
     override def * : ProvenShape[Test] = (id, string, num) <> ((Test.apply _).tupled, Test.unapply)
   }
@@ -81,6 +83,20 @@ class SlickPgTests extends FunSuite with Matchers {
       |    tests.map(t => t.num <= 0).result
       |  def abs: DBIOAction[Seq[TestNumeric], NoStream, Effect.Read] =
       |    tests.map(t => t.num.abs).result
+      |
+      |  private val tests = TableQuery[Tests]
+      |}
+      """.stripMargin should compile
+  }
+
+  test("Boolean column extension methods") {
+    """
+      |class TestRepository2 {
+      |  import PostgresDriver.api._
+      |  def and: DBIOAction[Seq[Boolean], NoStream, Effect.Read] =
+      |    tests.map(t => t.flag && (t.num <= 0)).result
+      |  def or: DBIOAction[Seq[Boolean], NoStream, Effect.Read] =
+      |    tests.map(t => t.flag || (t.num > 0)).result
       |
       |  private val tests = TableQuery[Tests]
       |}
