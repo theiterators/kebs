@@ -100,7 +100,7 @@ def akkaHttpInExamples = {
 }
 def akkaHttpInBenchmarks = akkaHttpInExamples :+ akkaHttpTestkit
 
-val avroVersion = "1.7.0"
+val avroVersion = "1.9.0"
 val avro        = "com.sksamuel.avro4s" %% "avro4s-core" % avroVersion
 
 lazy val commonSettings = baseSettings ++ Seq(
