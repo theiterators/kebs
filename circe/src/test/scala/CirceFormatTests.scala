@@ -2,7 +2,7 @@ import java.time.ZonedDateTime
 
 import io.circe.{Decoder, Encoder, Json}
 import org.scalatest.{FunSuite, Matchers}
-import pl.iterators.kebs.circe.KebsCirce
+import pl.iterators.kebs.circe.{KebsCirce, noflat}
 
 class CirceFormatTests extends FunSuite with Matchers {
   object KebsProtocol extends KebsCirce
@@ -90,39 +90,37 @@ class CirceFormatTests extends FunSuite with Matchers {
       Seq("c" -> Json.fromInt(5), "d" -> Json.fromFields(Seq("i" -> Json.fromInt(10), "s" -> Json.fromString("abcd")))))
   }
 
-  test("Recursive format") {
-    val decoder = implicitly[Decoder[R]]
-    val encoder = implicitly[Encoder[R]]
-
-    decoder.apply(
-      Json
-        .fromFields(Seq("a" -> Json.fromInt(1), "rs" -> Json.arr(Json.fromFields(Seq("a" -> Json.fromInt(2), "rs" -> Json.arr())))))
-        .hcursor) shouldBe Right(R(1, Seq(R(2, Seq.empty[R]))))
-    encoder.apply(R(1, Seq(R(2, Seq.empty[R])))) shouldBe Json.fromFields(
-      Seq("a" -> Json.fromInt(1), "rs" -> Json.arr(Json.fromFields(Seq("a" -> Json.fromInt(2), "rs" -> Json.arr())))))
-  }
-
-  // TODO: provide @noflat annotation
-//  case class Book(name: String, chapters: List[Chapter])
-//  @noflat case class Chapter(name: String)
+//  test("Recursive format") {
+//    val decoder = implicitly[Decoder[R]]
+//    val encoder = implicitly[Encoder[R]]
 //
-//  test("work with nested single field objects") {
-//    val decoder = implicitly[Decoder[Book]]
-//    val json =
-//      """
-//        | {
-//        |   "name": "Functional Programming in Scala",
-//        |   "chapters": [{"name":"first"}, {"name":"second"}]
-//        | }
-//      """.stripMargin
-//    import io.circe.parser._
-//    decoder(parse(json).right.get.hcursor) shouldBe Right(
-//      Book(
-//        name = "Functional Programming in Scala",
-//        chapters = List(Chapter("first"), Chapter("second"))
-//      ))
+//    decoder.apply(
+//      Json
+//        .fromFields(Seq("a" -> Json.fromInt(1), "rs" -> Json.arr(Json.fromFields(Seq("a" -> Json.fromInt(2), "rs" -> Json.arr())))))
+//        .hcursor) shouldBe Right(R(1, Seq(R(2, Seq.empty[R]))))
+//    encoder.apply(R(1, Seq(R(2, Seq.empty[R])))) shouldBe Json.fromFields(
+//      Seq("a" -> Json.fromInt(1), "rs" -> Json.arr(Json.fromFields(Seq("a" -> Json.fromInt(2), "rs" -> Json.arr())))))
 //  }
-//
+
+  case class Book(name: String, chapters: List[Chapter])
+  @noflat case class Chapter(name: String)
+
+  test("work with nested single field objects") {
+    val decoder = implicitly[Decoder[Book]]
+    val json =
+      """
+        | {
+        |   "name": "Functional Programming in Scala",
+        |   "chapters": [{"name":"first"}, {"name":"second"}]
+        | }
+      """.stripMargin
+    import io.circe.parser._
+    decoder(parse(json).right.get.hcursor) shouldBe Right(
+      Book(
+        name = "Functional Programming in Scala",
+        chapters = List(Chapter("first"), Chapter("second"))
+      ))
+  }
 
   test("Format - case class with > 22 fields") {
     import model._

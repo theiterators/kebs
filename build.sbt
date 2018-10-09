@@ -78,7 +78,6 @@ val slickPg       = "com.github.tminglei" %% "slick-pg" % "0.16.0"
 val sprayJson     = "io.spray" %% "spray-json" % "1.3.4"
 val playJson      = "com.typesafe.play" %% "play-json" % "2.6.7"
 val circe         = "io.circe" %% "circe-core" % "0.9.3"
-val circeAuto     = "io.circe" %% "circe-generic" % "0.9.3"
 val circeParser   = "io.circe" %% "circe-parser" % "0.9.3"
 
 val enumeratumVersion = "1.5.12"
@@ -133,7 +132,6 @@ lazy val playJsonSettings = commonSettings ++ Seq(
 
 lazy val circeSettings = commonSettings ++ Seq(
   libraryDependencies += circe,
-  libraryDependencies += circeAuto,
   libraryDependencies += optionalEnumeratum,
   libraryDependencies += circeParser % "test"
 )
