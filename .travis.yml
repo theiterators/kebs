@@ -19,7 +19,7 @@ script: sbt ++$TRAVIS_SCALA_VERSION test
 notifications:
   email:
     recipients:
-       secure: lt23Ph1mmRuGk0VVwVOUzLiRnwFokyHBZrYxlzFuKd7wt2lvJkKaNZbao5p4B9aNzdNuoxomy59u1W35RADYDvMQge1MlKw5ap2HMFGgZD7uqY/cygcvqoSvG7UVaNO10JJksLNbsWmKKfPqauggALuyY0JhBB0blHXQY/Wh4nMWfWQmX3LJS72apMwPI8xslddz2NvohhAqj0iqw7C/Wsjx6uUBr2NMFYg1zG2Lue+4fC4pA9uRLTIKdwivQwvbS27luNshVrVdiV5nlntKeflBdN3LGhKhRxdLqmWIp7xrE17Wx7rqt+3WlhKWo81ljYIvKFnC0LabQECCHWaBy/4b8Y35tGTH3/YdEQHszddOLONYgBkrA+NxVdPUkcQpozyTkVDUWB+TgaYBJzIZSgWMMb7lxQ0YvjrxLPB8PL3i/Ol89JgtHHkoM3RSupxCthvIRq/ttiFm7bXVlVgpPt/DKRJ/3enjKnMrErsSIUsIb7/Sj9eE8iApfjFI2UW4Qp2u8oz2yJt5zaDqw3XQpZNMA8wIJ9tJqFoKxBHnViXmq/De3xpg02dpiTr7BIpfifk81kpYPMc7p0bPxZ9R1ATwRSo0+OhM7E7OjCKgROlBTtwc8AYkAOZDlO0DCVaZat8CG+JhmdapacQDF4vIVUM/MexETDzqQ4e5WRUiO7E=
+      - "mrzeznicki@iterato.rs"
   on_success: change
   on_failure: always
   on_error: always
