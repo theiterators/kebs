@@ -597,7 +597,7 @@ trait PurchaseId
 val userId: Int @@ UserId = 10.taggedWith[UserId] 
 val purchaseId: Int @@ PurchaseId = 10.@@[PurchaseId]
 
-val userIds: List[Int @@ UserId] = List(10, 15, 20).@@@[UserId]
+val userIds: List[Int @@ UserId] = List(10, 15, 20).@@[UserId]
 val purchaseIds: List[Int @@ PurchaseId] = List(10, 15, 20).taggedWithF[PurchaseId]
 ```
 
