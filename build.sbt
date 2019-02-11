@@ -1,5 +1,5 @@
 val scala_2_11             = "2.11.12"
-val scala_2_12             = "2.12.6"
+val scala_2_12             = "2.12.8"
 val mainScalaVersion       = scala_2_12
 val supportedScalaVersions = Seq(scala_2_11, scala_2_12)
 
@@ -71,14 +71,14 @@ def sv[A](scalaVersion: String, scala2_11Version: => A, scala2_12Version: => A) 
       throw new IllegalArgumentException(s"Unsupported Scala version $scalaVersion")
   }
 
-val scalaTest     = "org.scalatest" %% "scalatest" % "3.0.5"
-val slick         = "com.typesafe.slick" %% "slick" % "3.2.2"
+val scalaTest     = "org.scalatest" %% "scalatest" % "3.0.7"
+val slick         = "com.typesafe.slick" %% "slick" % "3.3.1"
 val optionalSlick = optional(slick)
-val slickPg       = "com.github.tminglei" %% "slick-pg" % "0.16.0"
-val sprayJson     = "io.spray" %% "spray-json" % "1.3.4"
-val playJson      = "com.typesafe.play" %% "play-json" % "2.6.7"
+val slickPg       = "com.github.tminglei" %% "slick-pg" % "0.17.3"
+val sprayJson     = "io.spray" %% "spray-json" % "1.3.5"
+val playJson      = "com.typesafe.play" %% "play-json" % "2.6.13"
 
-val enumeratumVersion = "1.5.12"
+val enumeratumVersion = "1.5.13"
 val enumeratum        = "com.beachape" %% "enumeratum" % enumeratumVersion
 def enumeratumInExamples = {
   val playJsonSupport = "com.beachape" %% "enumeratum-play-json" % enumeratumVersion
@@ -86,11 +86,12 @@ def enumeratumInExamples = {
 }
 val optionalEnumeratum = optional(enumeratum)
 
-val akkaVersion     = "2.5.12"
-val akkaHttpVersion = "10.1.1"
-val akkaStream      = "com.typesafe.akka" %% "akka-stream" % akkaVersion
-val akkaHttp        = "com.typesafe.akka" %% "akka-http" % akkaHttpVersion
-val akkaHttpTestkit = "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion
+val akkaVersion       = "2.5.23"
+val akkaHttpVersion   = "10.1.8"
+val akkaStream        = "com.typesafe.akka" %% "akka-stream" % akkaVersion
+val akkaStreamTestkit = "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion
+val akkaHttp          = "com.typesafe.akka" %% "akka-http" % akkaHttpVersion
+val akkaHttpTestkit   = "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion
 def akkaHttpInExamples = {
   val akkaHttpSprayJson = "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion
   Seq(akkaStream, akkaHttp, akkaHttpSprayJson)
@@ -130,7 +131,8 @@ lazy val playJsonSettings = commonSettings ++ Seq(
 
 lazy val akkaHttpSettings = commonSettings ++ Seq(
   libraryDependencies ++= sv(scalaVersion.value, Seq(akkaStream, akkaHttp), Seq(akkaHttp)),
-  libraryDependencies += akkaHttpTestkit % "test",
+  libraryDependencies += akkaStreamTestkit % "test",
+  libraryDependencies += akkaHttpTestkit   % "test",
   libraryDependencies += optionalEnumeratum
 )
 
