@@ -28,4 +28,9 @@ object KebsSpray {
     import macros.KebsSprayMacros
     implicit def noflat_jsonFormatN[T <: Product]: RootJsonFormat[T] = macro KebsSprayMacros.NoflatVariant.materializeRootFormat[T]
   }
+  trait Capitalized extends KebsSpray { self: DefaultJsonProtocol =>
+    import macros.KebsSprayMacros
+    implicit def capitalizedJsonFormatN[T <: Product]: RootJsonFormat[T] =
+      macro KebsSprayMacros.CapitalizedCamelCase.materializeRootFormat[T]
+  }
 }
