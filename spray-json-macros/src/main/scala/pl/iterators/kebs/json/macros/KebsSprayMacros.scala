@@ -121,4 +121,9 @@ object KebsSprayMacros {
       }
     }
   }
+  class CapitalizedCamelCase(context: whitebox.Context) extends KebsSprayMacros(context) {
+    import c.universe._
+
+    override protected def extractJsonFieldNames(fields: List[MethodSymbol]) = super.extractJsonFieldNames(fields).map(_.capitalize)
+  }
 }
