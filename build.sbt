@@ -1,7 +1,9 @@
-val scala_2_11             = "2.11.12"
-val scala_2_12             = "2.12.8"
-val mainScalaVersion       = scala_2_12
-val supportedScalaVersions = Seq(scala_2_11, scala_2_12)
+val scala_2_11                      = "2.11.12"
+val scala_2_12                      = "2.12.8"
+val scala_2_13                      = "2.13.0"
+val mainScalaVersion                = scala_2_12
+val fullySupportedScalaVersions     = Seq(scala_2_11, scala_2_12)
+val partiallySupportedScalaVersions = Seq(scala_2_11, scala_2_12, scala_2_13)
 
 lazy val baseSettings = Seq(
   organization := "pl.iterators",
@@ -32,8 +34,6 @@ lazy val publishToNexus = publishTo := {
     Some("releases" at nexus + "service/local/staging/deploy/maven2")
 }
 
-lazy val crossBuildSettings = Seq(crossScalaVersions := supportedScalaVersions, releaseCrossBuild := true)
-
 lazy val publishSettings = Seq(
   publishToNexus,
   publishMavenStyle := true,
@@ -47,9 +47,10 @@ lazy val publishSettings = Seq(
   scmInfo := Some(
     ScmInfo(browseUrl = url("https://github.com/theiterators/kebs"), connection = "scm:git:https://github.com/theiterators/kebs.git")),
   useGpg := true,
+  releaseCrossBuild := true,
   releasePublishArtifactsAction := PgpKeys.publishSigned.value,
   credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
-) ++ crossBuildSettings
+)
 
 lazy val noPublishSettings =
   Seq(
@@ -63,20 +64,21 @@ lazy val noPublishSettings =
   )
 
 def optional(dependency: ModuleID) = dependency % "provided"
-def sv[A](scalaVersion: String, scala2_11Version: => A, scala2_12Version: => A) =
+def sv[A](scalaVersion: String, scala2_11Version: => A, scala2_12Version: => A, scala2_13Version: => A) =
   CrossVersion.partialVersion(scalaVersion) match {
+    case Some((2, 13)) => scala2_13Version
     case Some((2, 12)) => scala2_12Version
     case Some((2, 11)) => scala2_11Version
     case _ =>
       throw new IllegalArgumentException(s"Unsupported Scala version $scalaVersion")
   }
 
-val scalaTest     = "org.scalatest" %% "scalatest" % "3.0.7"
-val slick         = "com.typesafe.slick" %% "slick" % "3.3.1"
+val scalaTest     = "org.scalatest" %% "scalatest" % "3.0.8"
+val slick         = "com.typesafe.slick" %% "slick" % "3.3.2"
 val optionalSlick = optional(slick)
 val slickPg       = "com.github.tminglei" %% "slick-pg" % "0.17.3"
 val sprayJson     = "io.spray" %% "spray-json" % "1.3.5"
-val playJson      = "com.typesafe.play" %% "play-json" % "2.6.13"
+val playJson      = "com.typesafe.play" %% "play-json" % "2.7.4"
 
 val enumeratumVersion = "1.5.13"
 val enumeratum        = "com.beachape" %% "enumeratum" % enumeratumVersion
@@ -108,39 +110,47 @@ lazy val commonSettings = baseSettings ++ Seq(
 )
 
 lazy val slickSettings = commonSettings ++ Seq(
+  crossScalaVersions := fullySupportedScalaVersions,
   libraryDependencies += slick,
   libraryDependencies += slickPg % "test",
   libraryDependencies += optionalEnumeratum
 )
 
 lazy val macroUtilsSettings = commonMacroSettings ++ Seq(
+  crossScalaVersions := partiallySupportedScalaVersions,
   libraryDependencies += optionalEnumeratum
 )
 
 lazy val sprayJsonMacroSettings = commonMacroSettings ++ Seq(
+  crossScalaVersions := partiallySupportedScalaVersions,
   libraryDependencies += sprayJson
 )
 
 lazy val sprayJsonSettings = commonSettings ++ Seq(
+  crossScalaVersions := partiallySupportedScalaVersions,
   libraryDependencies += optionalEnumeratum
 )
 
 lazy val playJsonSettings = commonSettings ++ Seq(
+  crossScalaVersions := partiallySupportedScalaVersions,
   libraryDependencies += playJson
 )
 
 lazy val akkaHttpSettings = commonSettings ++ Seq(
-  libraryDependencies ++= sv(scalaVersion.value, Seq(akkaStream, akkaHttp), Seq(akkaHttp)),
+  crossScalaVersions := partiallySupportedScalaVersions,
+  libraryDependencies ++= sv(scalaVersion.value, Seq(akkaStream, akkaHttp), Seq(akkaHttp), Seq(akkaHttp)),
   libraryDependencies += akkaStreamTestkit % "test",
   libraryDependencies += akkaHttpTestkit   % "test",
   libraryDependencies += optionalEnumeratum
 )
 
 lazy val avroSettings = commonSettings ++ Seq(
+  crossScalaVersions := fullySupportedScalaVersions,
   libraryDependencies += avro
 )
 
 lazy val taggedSettings = commonSettings ++ Seq(
+  crossScalaVersions := partiallySupportedScalaVersions,
   libraryDependencies += optionalSlick
 )
 
@@ -157,6 +167,7 @@ lazy val benchmarkSettings = commonSettings ++ Seq(
 )
 
 lazy val taggedMetaSettings = metaSettings ++ Seq(
+  crossScalaVersions := fullySupportedScalaVersions,
   libraryDependencies += optional(sprayJson)
 )
 
@@ -297,6 +308,5 @@ lazy val kebs = project
     description := "Library to eliminate the boilerplate code",
     publishToNexus, /*must be set for sbt-release*/
     releaseCrossBuild := true,
-    publishArtifact := false,
-    crossScalaVersions := supportedScalaVersions
+    publishArtifact := false
   )
