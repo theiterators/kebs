@@ -13,7 +13,7 @@ before_cache:
 - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
 - rm -f $HOME/.ivy2/.sbt.ivy.lock
 
-script: sbt +test
+script: sbt clean +test
 
 notifications:
   email:
