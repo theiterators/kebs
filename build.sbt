@@ -76,7 +76,7 @@ def sv[A](scalaVersion: String, scala2_11Version: => A, scala2_12Version: => A, 
 val scalaTest     = "org.scalatest" %% "scalatest" % "3.0.8"
 val slick         = "com.typesafe.slick" %% "slick" % "3.3.2"
 val optionalSlick = optional(slick)
-val slickPg       = "com.github.tminglei" %% "slick-pg" % "0.17.3"
+val slickPg       = "com.github.tminglei" %% "slick-pg" % "0.18.0"
 val sprayJson     = "io.spray" %% "spray-json" % "1.3.5"
 val playJson      = "com.typesafe.play" %% "play-json" % "2.7.4"
 
@@ -180,8 +180,7 @@ lazy val slickSupport = project
   .settings(
     name := "slick",
     description := "Library to eliminate the boilerplate code that comes with the use of Slick",
-    moduleName := "kebs-slick",
-    crossScalaVersions := supportedScalaVersions
+    moduleName := "kebs-slick"
   )
 
 lazy val sprayJsonMacros = project
