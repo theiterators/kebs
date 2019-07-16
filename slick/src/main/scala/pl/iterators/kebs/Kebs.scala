@@ -55,7 +55,7 @@ trait Kebs extends KebsColumnExtensionMethods {
     })
 
   private class StringMapIsomorphism[A](comap: String => A)
-      extends Isomorphism[Map[String, A], Map[String, String]](_.mapValues(_.toString), _.mapValues(comap))
+      extends Isomorphism[Map[String, A], Map[String, String]](_.map(kv => kv._1 -> kv._2.toString), _.map(kv => kv._1 -> comap(kv._2)))
   implicit final val intMapValueColumnType: Isomorphism[Map[String, Int], Map[String, String]]   = new StringMapIsomorphism[Int](_.toInt)
   implicit final val longMapValueColumnType: Isomorphism[Map[String, Long], Map[String, String]] = new StringMapIsomorphism[Long](_.toLong)
   implicit final val boolMapValueColumnType: Isomorphism[Map[String, Boolean], Map[String, String]] =

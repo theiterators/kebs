@@ -1,5 +1,6 @@
 val scala_2_11             = "2.11.12"
 val scala_2_12             = "2.12.8"
+val scala_2_13             = "2.13.0"
 val mainScalaVersion       = scala_2_12
 val supportedScalaVersions = Seq(scala_2_11, scala_2_12)
 
@@ -32,7 +33,7 @@ lazy val publishToNexus = publishTo := {
     Some("releases" at nexus + "service/local/staging/deploy/maven2")
 }
 
-lazy val crossBuildSettings = Seq(crossScalaVersions := supportedScalaVersions, releaseCrossBuild := true)
+lazy val crossBuildSettings = Seq(crossScalaVersions := scala_2_13 +: supportedScalaVersions, releaseCrossBuild := true)
 
 lazy val publishSettings = Seq(
   publishToNexus,
@@ -63,20 +64,21 @@ lazy val noPublishSettings =
   )
 
 def optional(dependency: ModuleID) = dependency % "provided"
-def sv[A](scalaVersion: String, scala2_11Version: => A, scala2_12Version: => A) =
+def sv[A](scalaVersion: String, scala2_11Version: => A, scala2_12Version: => A, scala2_13Version: => A) =
   CrossVersion.partialVersion(scalaVersion) match {
+    case Some((2, 13)) => scala2_13Version
     case Some((2, 12)) => scala2_12Version
     case Some((2, 11)) => scala2_11Version
     case _ =>
       throw new IllegalArgumentException(s"Unsupported Scala version $scalaVersion")
   }
 
-val scalaTest     = "org.scalatest" %% "scalatest" % "3.0.7"
-val slick         = "com.typesafe.slick" %% "slick" % "3.3.1"
+val scalaTest     = "org.scalatest" %% "scalatest" % "3.0.8"
+val slick         = "com.typesafe.slick" %% "slick" % "3.3.2"
 val optionalSlick = optional(slick)
-val slickPg       = "com.github.tminglei" %% "slick-pg" % "0.17.3"
+val slickPg       = "com.github.tminglei" %% "slick-pg" % "0.18.0"
 val sprayJson     = "io.spray" %% "spray-json" % "1.3.5"
-val playJson      = "com.typesafe.play" %% "play-json" % "2.6.13"
+val playJson      = "com.typesafe.play" %% "play-json" % "2.7.4"
 
 val enumeratumVersion = "1.5.13"
 val enumeratum        = "com.beachape" %% "enumeratum" % enumeratumVersion
@@ -130,7 +132,7 @@ lazy val playJsonSettings = commonSettings ++ Seq(
 )
 
 lazy val akkaHttpSettings = commonSettings ++ Seq(
-  libraryDependencies ++= sv(scalaVersion.value, Seq(akkaStream, akkaHttp), Seq(akkaHttp)),
+  libraryDependencies ++= sv(scalaVersion.value, Seq(akkaStream, akkaHttp), Seq(akkaHttp), Seq(akkaHttp)),
   libraryDependencies += akkaStreamTestkit % "test",
   libraryDependencies += akkaHttpTestkit   % "test",
   libraryDependencies += optionalEnumeratum
@@ -233,7 +235,8 @@ lazy val avroSupport = project
   .settings(
     name := "avro",
     description := "Automatic generation of avro4s custom mappings for 1-element case classes",
-    moduleName := "kebs-avro"
+    moduleName := "kebs-avro",
+    crossScalaVersions := supportedScalaVersions
   )
 
 lazy val tagged = project
@@ -254,7 +257,8 @@ lazy val taggedMeta = project
   .settings(
     name := "tagged-meta",
     description := "Representation of tagged types - code generation based on scala-meta",
-    moduleName := "kebs-tagged-meta"
+    moduleName := "kebs-tagged-meta",
+    crossScalaVersions := supportedScalaVersions
   )
 
 lazy val examples = project
@@ -296,7 +300,7 @@ lazy val kebs = project
     name := "kebs",
     description := "Library to eliminate the boilerplate code",
     publishToNexus, /*must be set for sbt-release*/
-    releaseCrossBuild := true,
+    releaseCrossBuild := false,
     publishArtifact := false,
-    crossScalaVersions := supportedScalaVersions
+    crossScalaVersions := Nil
   )

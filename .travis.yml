@@ -1,6 +1,10 @@
 sudo: false
 language: scala
-scala: 2.12.8
+scala:
+  - 2.11.12
+  - 2.12.8
+  - 2.13.0
+  
 jdk: openjdk8
 
 cache:
@@ -14,7 +18,7 @@ before_cache:
 - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
 - rm -f $HOME/.ivy2/.sbt.ivy.lock
 
-script: sbt ++$TRAVIS_SCALA_VERSION test
+script: sbt ";++2.12.8 publishLocal; ++$TRAVIS_SCALA_VERSION test"
 
 notifications:
   email:
