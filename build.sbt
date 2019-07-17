@@ -44,7 +44,9 @@ lazy val publishSettings = Seq(
     Developer(id = "mrzeznicki",
               name = "Marcin Rzeźnicki",
               email = "mrzeznicki@iterato.rs",
-              url = url("https://github.com/marcin-rzeznicki"))),
+              url = url("https://github.com/marcin-rzeznicki")),
+    Developer(id = "jborkowski", name = "Jonatan Borkowski", email = "jborkowski@iterato.rs", url = url("https://github.com/jborkowski"))
+  ),
   scmInfo := Some(
     ScmInfo(browseUrl = url("https://github.com/theiterators/kebs"), connection = "scm:git:https://github.com/theiterators/kebs.git")),
   useGpg := true,
@@ -282,6 +284,9 @@ lazy val benchmarks = project
     moduleName := "kebs-benchmarks"
   )
 
+import sbtrelease.ReleaseStateTransformations._
+import sbtrelease.ReleasePlugin.autoImport._
+
 lazy val kebs = project
   .in(file("."))
   .aggregate(
@@ -301,6 +306,20 @@ lazy val kebs = project
     description := "Library to eliminate the boilerplate code",
     publishToNexus, /*must be set for sbt-release*/
     releaseCrossBuild := false,
+    releaseProcess := Seq(
+      checkSnapshotDependencies,
+      inquireVersions,
+      releaseStepCommandAndRemaining("+publishLocalSigned"),
+      releaseStepCommandAndRemaining("+clean"),
+      releaseStepCommandAndRemaining("+test"),
+      setReleaseVersion,
+      commitReleaseVersion,
+      tagRelease,
+      releaseStepCommandAndRemaining("+publishSigned"),
+      setNextVersion,
+      commitNextVersion,
+      pushChanges
+    ),
     publishArtifact := false,
     crossScalaVersions := Nil
   )

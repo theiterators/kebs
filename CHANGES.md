@@ -1,3 +1,9 @@
+## Version 1.6.3
+
+> 17.07.2019
+
+* Bumped dependecies to patialy support Scala 2.13
+
 ## Version 1.6.2
 
 > 03.09.2018
