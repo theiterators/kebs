@@ -42,15 +42,15 @@ Support for `akka-http`
 
 Support for `avro4s`
 
-`libraryDependencies += "pl.iterators" %% "kebs-avro" % "1.6.3"`
+`libraryDependencies += "pl.iterators" %% "kebs-avro" % "1.6.2"`
 
 Support for `tagged types`
 
-`libraryDependencies += "pl.iterators" %% "kebs-tagged" % "1.6.3"`
+`libraryDependencies += "pl.iterators" %% "kebs-tagged" % "1.6.2"`
 
 or for tagged-types code generation support
 
-`libraryDependencies += "pl.iterators" %% "kebs-tagged-meta" % "1.6.3"`
+`libraryDependencies += "pl.iterators" %% "kebs-tagged-meta" % "1.6.2"`
 `addCompilerPlugin("org.scalameta" % "paradise" % "3.0.0-M11" cross CrossVersion.full)`
 
 Builds for Scala `2.11`, `2.12` and `2.13` are provided
