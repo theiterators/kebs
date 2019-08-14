@@ -21,8 +21,8 @@ lazy val commonMacroSettings = baseSettings ++ Seq(
 )
 
 lazy val metaSettings = commonSettings ++ Seq(
-  addCompilerPlugin("org.scalameta"           % "paradise"   % "3.0.0-M11" cross CrossVersion.full),
-  libraryDependencies ++= Seq("org.scalameta" %% "scalameta" % "1.8.0", scalaTest % "test")
+  scalacOptions ++= paradiseFlag(scalaVersion.value),
+  libraryDependencies ++= paradisePlugin(scalaVersion.value)
 )
 
 lazy val publishToNexus = publishTo := {
@@ -74,6 +74,18 @@ def sv[A](scalaVersion: String, scala2_11Version: => A, scala2_12Version: => A, 
     case _ =>
       throw new IllegalArgumentException(s"Unsupported Scala version $scalaVersion")
   }
+
+def paradiseFlag(scalaVersion: String): Seq[String] =
+  if (scalaVersion == scala_2_11 || scalaVersion == scala_2_12)
+    Seq.empty
+  else
+    Seq("-Ymacro-annotations")
+
+def paradisePlugin(scalaVersion: String): Seq[ModuleID] =
+  if (scalaVersion == scala_2_11 || scalaVersion == scala_2_12)
+    Seq(compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full))
+  else
+    Seq.empty
 
 val scalaTest     = "org.scalatest" %% "scalatest" % "3.0.8"
 val slick         = "com.typesafe.slick" %% "slick" % "3.3.2"
@@ -151,7 +163,9 @@ lazy val taggedSettings = commonSettings ++ Seq(
 lazy val examplesSettings = commonSettings ++ Seq(
   libraryDependencies += slickPg,
   libraryDependencies ++= enumeratumInExamples,
-  libraryDependencies ++= akkaHttpInExamples
+  libraryDependencies ++= akkaHttpInExamples,
+  libraryDependencies ++= paradisePlugin(scalaVersion.value),
+  scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
 lazy val benchmarkSettings = commonSettings ++ Seq(
