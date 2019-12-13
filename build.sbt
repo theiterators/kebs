@@ -114,9 +114,6 @@ def akkaHttpInExamples = {
 }
 def akkaHttpInBenchmarks = akkaHttpInExamples :+ akkaHttpTestkit
 
-val avroVersion = "1.9.0"
-val avro        = "com.sksamuel.avro4s" %% "avro4s-core" % avroVersion
-
 lazy val commonSettings = baseSettings ++ Seq(
   scalacOptions ++= Seq("-language:experimental.macros"),
   (scalacOptions in Test) ++= Seq("-Ymacro-debug-lite", "-Xlog-implicits"),
@@ -150,10 +147,6 @@ lazy val akkaHttpSettings = commonSettings ++ Seq(
   libraryDependencies += akkaStreamTestkit % "test",
   libraryDependencies += akkaHttpTestkit   % "test",
   libraryDependencies += optionalEnumeratum
-)
-
-lazy val avroSettings = commonSettings ++ Seq(
-  libraryDependencies += avro
 )
 
 lazy val taggedSettings = commonSettings ++ Seq(
@@ -243,18 +236,6 @@ lazy val akkaHttpSupport = project
     moduleName := "kebs-akka-http"
   )
 
-lazy val avroSupport = project
-  .in(file("avro"))
-  .dependsOn(macroUtils)
-  .settings(avroSettings: _*)
-  .settings(publishSettings: _*)
-  .settings(
-    name := "avro",
-    description := "Automatic generation of avro4s custom mappings for 1-element case classes",
-    moduleName := "kebs-avro",
-    crossScalaVersions := supportedScalaVersions
-  )
-
 lazy val tagged = project
   .in(file("tagged"))
   .settings(taggedSettings: _*)
@@ -311,7 +292,6 @@ lazy val kebs = project
     sprayJsonSupport,
     playJsonSupport,
     akkaHttpSupport,
-    avroSupport,
     taggedMeta
   )
   .settings(baseSettings: _*)
