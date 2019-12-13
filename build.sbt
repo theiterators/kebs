@@ -1,8 +1,8 @@
 val scala_2_11             = "2.11.12"
 val scala_2_12             = "2.12.8"
-val scala_2_13             = "2.13.0"
-val mainScalaVersion       = scala_2_12
-val supportedScalaVersions = Seq(scala_2_11, scala_2_12)
+val scala_2_13             = "2.13.1"
+val mainScalaVersion       = scala_2_13
+val supportedScalaVersions = Seq(scala_2_11, scala_2_12, scala_2_13)
 
 lazy val baseSettings = Seq(
   organization := "pl.iterators",
@@ -90,20 +90,21 @@ def paradisePlugin(scalaVersion: String): Seq[ModuleID] =
 val scalaTest     = "org.scalatest" %% "scalatest" % "3.0.8"
 val slick         = "com.typesafe.slick" %% "slick" % "3.3.2"
 val optionalSlick = optional(slick)
-val slickPg       = "com.github.tminglei" %% "slick-pg" % "0.18.0"
+val slickPg       = "com.github.tminglei" %% "slick-pg" % "0.18.1"
 val sprayJson     = "io.spray" %% "spray-json" % "1.3.5"
 val playJson      = "com.typesafe.play" %% "play-json" % "2.7.4"
 
-val enumeratumVersion = "1.5.13"
-val enumeratum        = "com.beachape" %% "enumeratum" % enumeratumVersion
+val enumeratumVersion         = "1.5.13"
+val enumeratumPlayJsonVersion = "1.5.16"
+val enumeratum                = "com.beachape" %% "enumeratum" % enumeratumVersion
 def enumeratumInExamples = {
-  val playJsonSupport = "com.beachape" %% "enumeratum-play-json" % enumeratumVersion
+  val playJsonSupport = "com.beachape" %% "enumeratum-play-json" % enumeratumPlayJsonVersion
   Seq(enumeratum, playJsonSupport)
 }
 val optionalEnumeratum = optional(enumeratum)
 
-val akkaVersion       = "2.5.23"
-val akkaHttpVersion   = "10.1.8"
+val akkaVersion       = "2.6.1"
+val akkaHttpVersion   = "10.1.11"
 val akkaStream        = "com.typesafe.akka" %% "akka-stream" % akkaVersion
 val akkaStreamTestkit = "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion
 val akkaHttp          = "com.typesafe.akka" %% "akka-http" % akkaHttpVersion
@@ -117,7 +118,8 @@ def akkaHttpInBenchmarks = akkaHttpInExamples :+ akkaHttpTestkit
 lazy val commonSettings = baseSettings ++ Seq(
   scalacOptions ++= Seq("-language:experimental.macros"),
   (scalacOptions in Test) ++= Seq("-Ymacro-debug-lite", "-Xlog-implicits"),
-  libraryDependencies += scalaTest % "test"
+  libraryDependencies += scalaTest % "test",
+  resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 )
 
 lazy val slickSettings = commonSettings ++ Seq(
@@ -279,8 +281,8 @@ lazy val benchmarks = project
     moduleName := "kebs-benchmarks"
   )
 
-import sbtrelease.ReleaseStateTransformations._
 import sbtrelease.ReleasePlugin.autoImport._
+import sbtrelease.ReleaseStateTransformations._
 
 lazy val kebs = project
   .in(file("."))
