@@ -309,20 +309,6 @@ lazy val kebs = project
     description := "Library to eliminate the boilerplate code",
     publishToNexus, /*must be set for sbt-release*/
     releaseCrossBuild := false,
-    releaseProcess := Seq(
-      checkSnapshotDependencies,
-      inquireVersions,
-      releaseStepCommandAndRemaining("+publishLocalSigned"),
-      releaseStepCommandAndRemaining("+clean"),
-      releaseStepCommandAndRemaining("+test"),
-      setReleaseVersion,
-      commitReleaseVersion,
-      tagRelease,
-      releaseStepCommandAndRemaining("+publishSigned"),
-      setNextVersion,
-      commitNextVersion,
-      pushChanges
-    ),
     publishArtifact := false,
     crossScalaVersions := Nil
   )
