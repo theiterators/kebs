@@ -180,7 +180,8 @@ lazy val macroUtils = project
   .settings(
     name := "macro-utils",
     description := "Macros supporting Kebs library",
-    moduleName := "kebs-macro-utils"
+    moduleName := "kebs-macro-utils",
+    crossScalaVersions := supportedScalaVersions
   )
 
 lazy val slickSupport = project
@@ -191,7 +192,8 @@ lazy val slickSupport = project
   .settings(
     name := "slick",
     description := "Library to eliminate the boilerplate code that comes with the use of Slick",
-    moduleName := "kebs-slick"
+    moduleName := "kebs-slick",
+    crossScalaVersions := supportedScalaVersions
   )
 
 lazy val sprayJsonMacros = project
@@ -202,7 +204,8 @@ lazy val sprayJsonMacros = project
   .settings(
     name := "spray-json-macros",
     description := "Automatic generation of Spray json formats for case-classes - macros",
-    moduleName := "kebs-spray-json-macros"
+    moduleName := "kebs-spray-json-macros",
+    crossScalaVersions := supportedScalaVersions
   )
 
 lazy val sprayJsonSupport = project
@@ -213,7 +216,8 @@ lazy val sprayJsonSupport = project
   .settings(
     name := "spray-json",
     description := "Automatic generation of Spray json formats for case-classes",
-    moduleName := "kebs-spray-json"
+    moduleName := "kebs-spray-json",
+    crossScalaVersions := supportedScalaVersions
   )
 
 lazy val playJsonSupport = project
@@ -224,7 +228,8 @@ lazy val playJsonSupport = project
   .settings(
     name := "play-json",
     description := "Automatic generation of Play json formats for case-classes",
-    moduleName := "kebs-play-json"
+    moduleName := "kebs-play-json",
+    crossScalaVersions := supportedScalaVersions
   )
 
 lazy val akkaHttpSupport = project
@@ -235,7 +240,8 @@ lazy val akkaHttpSupport = project
   .settings(
     name := "akka-http",
     description := "Automatic generation of akka-http deserializers for 1-element case classes",
-    moduleName := "kebs-akka-http"
+    moduleName := "kebs-akka-http",
+    crossScalaVersions := supportedScalaVersions
   )
 
 lazy val tagged = project
@@ -245,7 +251,8 @@ lazy val tagged = project
   .settings(
     name := "tagged",
     description := "Representation of tagged types",
-    moduleName := "kebs-tagged"
+    moduleName := "kebs-tagged",
+    crossScalaVersions := supportedScalaVersions
   )
 
 lazy val taggedMeta = project
