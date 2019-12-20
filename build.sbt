@@ -38,7 +38,7 @@ lazy val crossBuildSettings = Seq(crossScalaVersions := scala_2_13 +: supportedS
 lazy val publishSettings = Seq(
   publishToNexus,
   publishMavenStyle := true,
-  pomIncludeRepository := const(false),
+  pomIncludeRepository := const(true),
   licenses := Seq("MIT License" -> url("http://opensource.org/licenses/MIT")),
   developers := List(
     Developer(id = "mrzeznicki",
