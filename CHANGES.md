@@ -1,6 +1,6 @@
-## Version 1.7.0
+## Version 1.7.1
 
-> 13.12.2019
+> 02.01.2020
 
 * Bumped dependencies to fully support Scala 2.13
 * Removed `avro4s` support as version 3 supports value types out of the box
