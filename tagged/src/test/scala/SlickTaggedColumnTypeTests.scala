@@ -1,9 +1,11 @@
-import org.scalatest.{FunSuite, Matchers}
+
 import slick.jdbc.PostgresProfile.api._
 import pl.iterators.kebs.tagged._
 import pl.iterators.kebs.tagged.slick.{SlickSupport}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class SlickTaggedColumnTypeTests extends FunSuite with Matchers with SlickSupport {
+class SlickTaggedColumnTypeTests extends AnyFunSuite with Matchers with SlickSupport {
   trait IdTag
   type Id = Long @@ IdTag
 

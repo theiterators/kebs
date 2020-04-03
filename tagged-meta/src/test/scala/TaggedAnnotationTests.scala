@@ -1,6 +1,8 @@
 import org.scalatest._
 import pl.iterators.kebs.tagged._
 import pl.iterators.kebs.tag.meta.tagged
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
 @tagged object TestTags {
   trait NameTag
@@ -38,7 +40,7 @@ import pl.iterators.kebs.tag.meta.tagged
 
 object TestTagsFromTrait extends TestTagsTrait
 
-class TaggedAnnotationTests extends FunSuite with Matchers with EitherValues {
+class TaggedAnnotationTests extends AnyFunSuite with Matchers with EitherValues {
   import TestTags._
   import TestTagsFromTrait._
 
