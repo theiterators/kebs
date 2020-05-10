@@ -1,7 +1,8 @@
 import com.github.tminglei.slickpg._
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class SlickPgHstoreColumnTypeTests extends FunSuite with Matchers {
+class SlickPgHstoreColumnTypeTests extends AnyFunSuite with Matchers {
   case class CategoryName(name: String)
   case class CategoryImportance(value: Int)
 

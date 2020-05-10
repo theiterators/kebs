@@ -1,8 +1,9 @@
 import com.github.tminglei.slickpg._
 import enumeratum.{Enum, EnumEntry}
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class SlickPgArrayColumnTypeTests extends FunSuite with Matchers {
+class SlickPgArrayColumnTypeTests extends AnyFunSuite with Matchers {
   case class Institution(value: Long)
   case class MarketFinancialProduct(value: String)
 

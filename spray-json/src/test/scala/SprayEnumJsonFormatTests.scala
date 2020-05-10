@@ -1,9 +1,11 @@
-import org.scalatest.{FunSuite, Matchers}
+
 import enumeratum.{Enum, EnumEntry}
 import pl.iterators.kebs.json.{KebsEnumFormats, KebsSpray}
 import spray.json._
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class SprayEnumJsonFormatTests extends FunSuite with Matchers {
+class SprayEnumJsonFormatTests extends AnyFunSuite with Matchers {
   sealed trait Greeting extends EnumEntry
 
   object Greeting extends Enum[Greeting] {

@@ -1,9 +1,10 @@
 import java.util.UUID
 
 import com.github.tminglei.slickpg.ExPostgresProfile
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class SlickPgTests extends FunSuite with Matchers {
+class SlickPgTests extends AnyFunSuite with Matchers {
   import pl.iterators.kebs.Kebs
   import slick.lifted.ProvenShape
 
