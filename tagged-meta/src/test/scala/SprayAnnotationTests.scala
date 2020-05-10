@@ -1,8 +1,10 @@
-import org.scalatest.{FunSuite, Matchers}
+
 import pl.iterators.kebs.tagged._
 import pl.iterators.kebs.tag.meta._
 import _root_.spray.json._
 import pl.iterators.kebs.json.KebsSpray
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
 @tagged object SprayTestTags {
   trait NameTag
@@ -40,7 +42,7 @@ import pl.iterators.kebs.json.KebsSpray
 
 object SprayTestTagsFromTrait extends SprayTestTagsTrait
 
-class SprayAnnotationTests extends FunSuite with Matchers with KebsSpray with DefaultJsonProtocol {
+class SprayAnnotationTests extends AnyFunSuite with Matchers with KebsSpray with DefaultJsonProtocol {
   test("spray implicits are generated (object)") {
     import SprayTestTags._
     implicitly[JsonReader[Name]].read(JsString("Joe")) shouldEqual "Joe"

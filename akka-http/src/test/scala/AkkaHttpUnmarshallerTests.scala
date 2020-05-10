@@ -7,9 +7,10 @@ import akka.http.scaladsl.unmarshalling.Unmarshal
 import enumeratum._
 import enumeratum.values._
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class AkkaHttpUnmarshallerTests extends FunSuite with Matchers with ScalatestRouteTest with ScalaFutures {
+class AkkaHttpUnmarshallerTests extends AnyFunSuite with Matchers with ScalatestRouteTest with ScalaFutures {
   case class I(i: Int)
   case class S(s: String)
   case class P[A](a: A)
