@@ -8,7 +8,7 @@ import scala.reflect.macros.whitebox
 @compileTimeOnly("""
                    |Please enable the macro paradise. If you are using Scala 2.13, this can be done by enabling
                    |-Ymacro-annotations compiler flag. If you are using Scala 2.12 or earlier, you will need to add a compiler plugin
-                   |org.scalamacros.paradise. Using sbt: addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full)
+                   |org.scalamacros.paradise. Using sbt: addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
                  """.stripMargin('|'))
 class tagged extends StaticAnnotation {
   def macroTransform(annottees: Any*): Any = macro macroImpl.impl
