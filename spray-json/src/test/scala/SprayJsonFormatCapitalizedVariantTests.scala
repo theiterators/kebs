@@ -1,8 +1,10 @@
-import org.scalatest.{FunSuite, Matchers}
+
 import pl.iterators.kebs.json.KebsSpray
 import spray.json.{DefaultJsonProtocol, JsArray, JsBoolean, JsNull, JsNumber, JsObject, JsString, JsonFormat, RootJsonFormat}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class SprayJsonFormatCapitalizedVariantTests extends FunSuite with Matchers {
+class SprayJsonFormatCapitalizedVariantTests extends AnyFunSuite with Matchers {
   object KebsProtocol extends DefaultJsonProtocol with KebsSpray.Capitalized
   import KebsProtocol._
 

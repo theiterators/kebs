@@ -1,9 +1,10 @@
 import java.util.UUID
 
-import org.scalatest.{FunSuite, Matchers}
 import play.api.libs.json._
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class PlayJsonFormatTests extends FunSuite with Matchers {
+class PlayJsonFormatTests extends AnyFunSuite with Matchers {
   import pl.iterators.kebs.json._
 
   case class C(i: Int)

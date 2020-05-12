@@ -1,8 +1,9 @@
 import enumeratum.{Enum, EnumEntry}
-import org.scalatest.{FunSuite, Matchers}
 import slick.lifted.Isomorphism
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class EnumIsomorphismTests extends FunSuite with Matchers {
+class EnumIsomorphismTests extends AnyFunSuite with Matchers {
 
   sealed trait Greeting extends EnumEntry
 

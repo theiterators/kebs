@@ -1,8 +1,10 @@
-import org.scalatest.{FunSuite, Matchers}
+
 import pl.iterators.kebs.tagged.slick.SlickSupport
 import slick.lifted.Isomorphism
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class TaggedTypeIsomorphismTests extends FunSuite with Matchers with SlickSupport {
+class TaggedTypeIsomorphismTests extends AnyFunSuite with Matchers with SlickSupport {
   import pl.iterators.kebs.tagged._
 
   trait Tag1

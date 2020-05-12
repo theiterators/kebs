@@ -1,7 +1,8 @@
 import enumeratum.{Enum, EnumEntry}
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class SlickMappedEnumColumnTypeTests extends FunSuite with Matchers {
+class SlickMappedEnumColumnTypeTests extends AnyFunSuite with Matchers {
   import slick.jdbc.PostgresProfile.api._
   import pl.iterators.kebs.enums.lowercase._
 
