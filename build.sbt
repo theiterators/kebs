@@ -83,7 +83,7 @@ def paradiseFlag(scalaVersion: String): Seq[String] =
 
 def paradisePlugin(scalaVersion: String): Seq[ModuleID] =
   if (scalaVersion == scala_2_11 || scalaVersion == scala_2_12)
-    Seq(compilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full))
+    Seq(compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full))
   else
     Seq.empty
 
