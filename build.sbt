@@ -94,7 +94,7 @@ val slickPg       = "com.github.tminglei" %% "slick-pg" % "0.19.0"
 val sprayJson     = "io.spray" %% "spray-json" % "1.3.5"
 val playJson      = "com.typesafe.play" %% "play-json" % "2.7.4"
 
-val enumeratumVersion         = "1.6.0"
+val enumeratumVersion         = "1.6.1"
 val enumeratumPlayJsonVersion = "1.5.16"
 val enumeratum                = "com.beachape" %% "enumeratum" % enumeratumVersion
 def enumeratumInExamples = {
