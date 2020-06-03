@@ -1,3 +1,23 @@
+## Version 1.7.1
+
+> 02.01.2020
+
+* Bumped dependencies to fully support Scala 2.13
+* Removed `avro4s` support as version 3 supports value types out of the box
+
+## Version 1.6.3
+
+> 17.07.2019
+
+* Bumped dependencies to partially support Scala 2.13
+
+## Version 1.6.2
+
+> 03.09.2018
+
+* Bumped `avro4s` dependency to `1.9.0`
+* Added further Slick-extension methods: numeric and boolean. You can use numeric and boolean operators like `*` and `&&` on columns mapped by a case-class
+
 ## Version 1.6.1
 
 > 04.06.2018

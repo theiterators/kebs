@@ -1,10 +1,11 @@
 import java.util.UUID
 
-import org.scalatest.{FunSuite, Matchers}
 import pl.iterators.kebs.json.{KebsSpray, noflat}
 import spray.json._
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class SprayJsonFormatTests extends FunSuite with Matchers {
+class SprayJsonFormatTests extends AnyFunSuite with Matchers {
   object KebsProtocol extends DefaultJsonProtocol with KebsSpray
   import KebsProtocol._
 
@@ -216,14 +217,6 @@ class SprayJsonFormatTests extends FunSuite with Matchers {
 
     jf.write(obj) shouldBe json
     jf.read(json) shouldBe obj
-  }
-
-  case class Request(region: String, currency: String, date: String, code: String, items: List[RequestItem])
-  case class RequestItem(itemCode: String, language: String, answers: Option[List[Answer]], requirements: String, travellers: String)
-  case class Answer(answer: String)
-
-  test("issue #11") {
-    "implicitly[JsonFormat[Request]]" should compile
   }
 
 }

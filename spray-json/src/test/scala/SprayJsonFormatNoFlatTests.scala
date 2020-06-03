@@ -1,8 +1,10 @@
-import org.scalatest.{FunSuite, Matchers}
+
 import pl.iterators.kebs.json.KebsSpray
 import spray.json._
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class SprayJsonFormatNoFlatTests extends FunSuite with Matchers {
+class SprayJsonFormatNoFlatTests extends AnyFunSuite with Matchers {
   object KebsProtocol extends DefaultJsonProtocol with KebsSpray.NoFlat
   import KebsProtocol._
 

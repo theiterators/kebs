@@ -1,8 +1,8 @@
 ## Kebs
-
-[![Maven Central](https://img.shields.io/maven-central/v/pl.iterators/kebs-slick_2.12.svg)]()
+##### Scala library to eliminate boilerplate
+[![Maven Central](https://img.shields.io/maven-central/v/pl.iterators/kebs-slick_2.13.svg)]()
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/theiterators/kebs/master/COPYING)
-
+[![Build Status](https://travis-ci.org/theiterators/kebs.svg?branch=master)](https://travis-ci.org/theiterators/kebs)
 
 ![logo](https://raw.githubusercontent.com/theiterators/kebs/master/logo.png)
 
@@ -14,46 +14,41 @@
   * [spray-json](#--kebs-eliminates-spray-json-induced-boilerplate-kebs-spray-json)
   * [play-json](#--kebs-eliminates-play-json-induced-boilerplate-kebs-play-json)
   * [akka-http](#--kebs-generates-akka-http-unmarshaller-kebs-akka-http)
-  * [avro4s](#--kebs-generates-avro-schemasserializersdeserializers-for-value-types-kebs-avro)
 * [Tagged types](#tagged-types)
 
 ### Why?
 
-`kebs` is for eliminating some common sources of boilerplate code that arise when you use 
-Slick (`kebs-slick`), Spray (`kebs-spray-json`), Play (`kebs-play-json`), Akka HTTP (`kebs-akka-http`) or Avro4s (`kebs-avro`).
+`kebs` is for eliminating some common sources of Scala boilerplate code that arise when you use 
+Slick (`kebs-slick`), Spray (`kebs-spray-json`), Play (`kebs-play-json`), Akka HTTP (`kebs-akka-http`).
 
 ### SBT
 
 Support for `slick`
 
-`libraryDependencies += "pl.iterators" %% "kebs-slick" % "1.6.1"`
+`libraryDependencies += "pl.iterators" %% "kebs-slick" % "1.6.3"`
 
 Support for `spray-json`
 
-`libraryDependencies += "pl.iterators" %% "kebs-spray-json" % "1.6.1"`
+`libraryDependencies += "pl.iterators" %% "kebs-spray-json" % "1.6.3"`
 
 Support for `play-json`
 
-`libraryDependencies += "pl.iterators" %% "kebs-play-json" % "1.6.1"`
+`libraryDependencies += "pl.iterators" %% "kebs-play-json" % "1.6.3"`
 
 Support for `akka-http`
 
-`libraryDependencies += "pl.iterators" %% "kebs-akka-http" % "1.6.1"`
-
-Support for `avro4s`
-
-`libraryDependencies += "pl.iterators" %% "kebs-avro" % "1.6.1"`
+`libraryDependencies += "pl.iterators" %% "kebs-akka-http" % "1.6.3"`
 
 Support for `tagged types`
 
-`libraryDependencies += "pl.iterators" %% "kebs-tagged" % "1.6.1"`
+`libraryDependencies += "pl.iterators" %% "kebs-tagged" % "1.6.2"`
 
 or for tagged-types code generation support
 
-`libraryDependencies += "pl.iterators" %% "kebs-tagged-meta" % "1.6.1"`
+`libraryDependencies += "pl.iterators" %% "kebs-tagged-meta" % "1.6.2"`
 `addCompilerPlugin("org.scalameta" % "paradise" % "3.0.0-M11" cross CrossVersion.full)`
 
-Builds for Scala `2.11` and `2.12` are provided
+Builds for Scala `2.11`, `2.12` and `2.13` are provided
 
 ### Examples
 
@@ -522,60 +517,6 @@ val route = get {
 
 ```
 
-#### - kebs generates Avro schemas/serializers/deserializers for value types (kebs-avro)
-
-
-If you use _value types_ and `avro4s`, you might be disappointed to hear that `avro4s` generates avro _records_ even if your case-class extends from `AnyVal`. For example:
-
-```scala
-case class Ingredient(name: String) extends AnyVal
-case class Pizza(name: String, 
-                 ingredients: Seq[Ingredient], 
-                 vegetarian: Boolean, 
-                 vegan: Boolean, 
-                 calories: Int)
-
-AvroSchema[Pizza]
-
-```
-
-will generate
-
-```json
-{
-  "type":"record",
-  "name":"Pizza",
-  "namespace":"<empty>",
-  "fields":[{"name":"name",
-             "type":"string"},
-            {"name":"ingredients",
-             "type":{"type":"array",
-                     "items":{
-                              "type":"record",
-                              "name":"Ingredient",
-                              "fields":[{"name":"name","type":"string"}]
-                             }
-                    }
-            }, //...
-}
-
-```
-
-As you can see even though `Ingredient` is just a wrapper for a string value, it doesn't get reflected in the schema.
-With `kebs-avro` though, such case-classes will be represented as primitive types (just `import pl.iterators.kebs.avro._` )
-
-```json
-{
-  "type":"record",
-  "name":"Pizza",
-  "namespace":"<empty>",
-  "fields":[{"name":"name",
-             "type":"string"},
-            {"name":"ingredients",
-             "type":{"type":"array","items":"string"}}, //...
-}
-```
-
 ### Tagged types
 
 Starting with version 1.6.0, kebs contain an implementation of, so-called, `tagged types`. If you want to know what a `tagged type` is, please see eg.
@@ -740,6 +681,6 @@ There are some conventions that are assumed during generation.
   * take a single argument
   * return Either (this is not enforced though - you'll have a compilation error later)
 
-Also, `CaseClass1Rep` is generated for each tag meaning you will get a lot of `kebs` machinery for free eg. spray formats, avro serializers etc.
+Also, `CaseClass1Rep` is generated for each tag meaning you will get a lot of `kebs` machinery for free eg. spray formats etc.
 
 
