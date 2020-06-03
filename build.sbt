@@ -93,9 +93,9 @@ val optionalSlick = optional(slick)
 val slickPg       = "com.github.tminglei" %% "slick-pg" % "0.19.0"
 val sprayJson     = "io.spray" %% "spray-json" % "1.3.5"
 val playJson      = "com.typesafe.play" %% "play-json" % "2.7.4"
-val circe         = "io.circe" %% "circe-core" % "0.9.3"
-val circeAuto     = "io.circe" %% "circe-generic" % "0.9.3"
-val circeParser   = "io.circe" %% "circe-parser" % "0.9.3"
+val circe         = "io.circe" %% "circe-core" % "0.13.0"
+val circeAuto     = "io.circe" %% "circe-generic" % "0.13.0"
+val circeParser   = "io.circe" %% "circe-parser" % "0.13.0"
 
 val enumeratumVersion         = "1.6.1"
 val enumeratumPlayJsonVersion = "1.5.16"
