@@ -37,8 +37,8 @@ abstract class MacroUtils {
   }
   protected def resultType(method: MethodSymbol, in: Type) = method.typeSignatureIn(in).resultType
 
-  protected def isString(t: Type)                     = definitions.StringClass == t.typeSymbol
-  protected def isAnyVal(t: Type)                     = t <:< definitions.AnyValTpe
-  protected def assertAnyVal(t: Type, msg: => String) = if (!isAnyVal(t)) c.abort(c.enclosingPosition, msg)
-
+  protected def isString(t: Type)                                     = definitions.StringClass == t.typeSymbol
+  protected def isAnyVal(t: Type)                                     = t <:< definitions.AnyValTpe
+  protected def assertAnyVal(t: Type, msg: => String)                 = if (!isAnyVal(t)) c.abort(c.enclosingPosition, msg)
+  protected def unapplyFunction(caseClassType: Type): c.universe.Tree = q"${companion(caseClassType)}.unapply(_: $caseClassType).get"
 }

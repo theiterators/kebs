@@ -28,7 +28,7 @@ class CirceFormatNoFlatTests extends FunSuite with Matchers {
         |   "chapters": [{"name":"first"}, {"name":"second"}]
         | }
       """.stripMargin
-    import io.circe.parser._
+    import io.circe.parser.parse
     decoder(parse(json).right.get.hcursor) shouldBe Right(
       Book(
         name = "Functional Programming in Scala",
