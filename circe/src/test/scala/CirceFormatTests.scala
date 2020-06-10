@@ -102,28 +102,6 @@ class CirceFormatTests extends FunSuite with Matchers {
       Seq("a" -> Json.fromInt(1), "rs" -> Json.arr(Json.fromFields(Seq("a" -> Json.fromInt(2), "rs" -> Json.arr())))))
   }
 
-  // TODO: provide @noflat annotation
-//  case class Book(name: String, chapters: List[Chapter])
-//  @noflat case class Chapter(name: String)
-//
-//  test("work with nested single field objects") {
-//    val decoder = implicitly[Decoder[Book]]
-//    val json =
-//      """
-//        | {
-//        |   "name": "Functional Programming in Scala",
-//        |   "chapters": [{"name":"first"}, {"name":"second"}]
-//        | }
-//      """.stripMargin
-//    import io.circe.parser._
-//    decoder(parse(json).right.get.hcursor) shouldBe Right(
-//      Book(
-//        name = "Functional Programming in Scala",
-//        chapters = List(Chapter("first"), Chapter("second"))
-//      ))
-//  }
-//
-
   test("Format - case class with > 22 fields") {
     import model._
 
