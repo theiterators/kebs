@@ -34,7 +34,7 @@ class KebsCirceMacros(override val c: whitebox.Context) extends MacroUtils {
 
     if (fields.lengthCompare(maxCaseClassFields) <= 0) {
       val term = TermName(s"forProduct${fields.length}")
-      val tree = q"""_root_.io.circe.Decoder.$term[..$Ps, $T](..$jsonFieldNames)(${apply(T)})"""
+      val tree = q"""_root_.io.circe.Decoder.$term[$T, ..$Ps](..$jsonFieldNames)(${apply(T)})"""
       q"$tree(..${inferDecoderFormats(Ps)})"
     } else {
       q"""new _root_.io.circe.Decoder[$T] {
@@ -86,7 +86,7 @@ class KebsCirceMacros(override val c: whitebox.Context) extends MacroUtils {
 
     if (fields.lengthCompare(maxCaseClassFields) <= 0) {
       val term = TermName(s"forProduct${fields.length}")
-      val tree = q"""_root_.io.circe.Encoder.$term[..$Ps, $T](..$jsonFieldNames)(${unapplyFunction(T)})"""
+      val tree = q"""_root_.io.circe.Encoder.$term[$T, ..$Ps](..$jsonFieldNames)(${unapplyFunction(T)})"""
       q"$tree(..${inferEncoderFormats(Ps)})"
     } else {
       val jsonFormats           = inferEncoderFormats(Ps)
