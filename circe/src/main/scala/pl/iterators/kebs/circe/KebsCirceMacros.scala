@@ -43,25 +43,6 @@ class KebsCirceMacros(override val c: whitebox.Context) extends MacroUtils {
             }
          }
        """
-      //      val jsonFormats           = inferDecoderFormats(Ps)
-      //      val jsonFieldsWithFormats = jsonFieldNames zip jsonFormats
-      //      val jsonVar               = TermName("json")
-      //      val applyArgs = jsonFieldsWithFormats.map {
-      //        case (jsonField, jf) => q"${_this}._kebs_getField($jsonVar, $jsonField)($jf)"
-      //      }
-      //
-      //      val reader = q"($jsonVar: _root_.spray.json.JsValue) => ${apply(T)}(..$applyArgs)"
-      //
-      //      val classFieldNames = extractFieldNames(fields).map(TermName.apply)
-      //      val objVar          = TermName("obj")
-      //      val objMap = classFieldNames zip jsonFieldsWithFormats map {
-      //        case (classField, (jsonField, jf)) => q"($jsonField, $jf.write($objVar.$classField))"
-      //      }
-      //
-      //      val writer = q"($objVar: $T) => _root_.spray.json.JsObject(_root_.scala.Predef.Map(..$objMap))"
-      //
-      //      val jsonFormat = q"${_this}.jsonFormat[$T]($reader, $writer)"
-      //      q"${_this}.rootFormat[$T]($jsonFormat)"
     }
   }
 
