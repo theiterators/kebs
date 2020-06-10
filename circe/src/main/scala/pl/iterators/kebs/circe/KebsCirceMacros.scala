@@ -37,12 +37,7 @@ class KebsCirceMacros(override val c: whitebox.Context) extends MacroUtils {
       val tree = q"""_root_.io.circe.Decoder.$term[$T, ..$Ps](..$jsonFieldNames)(${apply(T)})"""
       q"$tree(..${inferDecoderFormats(Ps)})"
     } else {
-      q"""new _root_.io.circe.Decoder[$T] {
-            final def apply(c: _root_.io.circe.HCursor): _root_.io.circe.Decoder.Result[$T] = {
-              ???
-            }
-         }
-       """
+      q"""_root_.io.circe.Decoder[$T]"""
     }
   }
 
@@ -70,19 +65,7 @@ class KebsCirceMacros(override val c: whitebox.Context) extends MacroUtils {
       val tree = q"""_root_.io.circe.Encoder.$term[$T, ..$Ps](..$jsonFieldNames)(${unapplyFunction(T)})"""
       q"$tree(..${inferEncoderFormats(Ps)})"
     } else {
-      val jsonFormats           = inferEncoderFormats(Ps)
-      val jsonFieldsWithFormats = jsonFieldNames zip jsonFormats
-      val classFieldNames       = extractFieldNames(fields).map(TermName.apply)
-      val objVar                = TermName("a")
-      val objMap = classFieldNames zip jsonFieldsWithFormats map {
-        case (classField, (jsonField, jf)) => q"($jsonField, $jf.apply($objVar.$classField))"
-      }
-      val x = q"""
-         new _root_.io.circe.Encoder[$T] {
-          final def apply(a: $T): _root_.io.circe.Json = _root_.io.circe.Json.obj(..$objMap)
-         }
-       """
-      x
+      q"""_root_.io.circe.Encoder[$T]"""
     }
   }
 
