@@ -40,24 +40,16 @@ class KebsCirceMacros(override val c: whitebox.Context) extends MacroUtils {
     c.Expr[Encoder[T]](encoder)
   }
 
-  private val noflatType = typeOf[noflat]
-
-  private def isLookingFor(t: Type) = c.enclosingImplicits.headOption.exists(_.pt.typeSymbol == t.typeSymbol)
-
-  private def noflat(t: Type) = t.typeSymbol.annotations.exists(_.tree.tpe =:= noflatType)
-
-  private val decoderType = typeOf[Decoder[_]]
-  private val encoderType = typeOf[Encoder[_]]
-
-  private def decoderOf(p: Type) = appliedType(decoderType, p)
-
-  private def encoderOf(p: Type) = appliedType(encoderType, p)
-
-  private def extractFieldNames(fields: List[MethodSymbol]) = fields.map(_.name.decodedName.toString)
-
+  private val noflatType                                                       = typeOf[noflat]
+  private def isLookingFor(t: Type)                                            = c.enclosingImplicits.headOption.exists(_.pt.typeSymbol == t.typeSymbol)
+  private def noflat(t: Type)                                                  = t.typeSymbol.annotations.exists(_.tree.tpe =:= noflatType)
+  private val decoderType                                                      = typeOf[Decoder[_]]
+  private val encoderType                                                      = typeOf[Encoder[_]]
+  private def decoderOf(p: Type)                                               = appliedType(decoderType, p)
+  private def encoderOf(p: Type)                                               = appliedType(encoderType, p)
+  private def extractFieldNames(fields: List[MethodSymbol])                    = fields.map(_.name.decodedName.toString)
   protected def extractJsonFieldNames(fields: List[MethodSymbol]): Seq[String] = extractFieldNames(fields)
-
-  protected val preferFlat: Boolean = true
+  protected val preferFlat: Boolean                                            = true
 }
 
 object KebsCirceMacros {
