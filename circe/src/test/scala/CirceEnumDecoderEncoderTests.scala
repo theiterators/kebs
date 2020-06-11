@@ -1,9 +1,10 @@
 import enumeratum.{Enum, EnumEntry}
 import io.circe._
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.funsuite.AnyFunSuite
 import pl.iterators.kebs.circe.KebsEnumFormats
 
-class CirceEnumDecoderEncoderTests extends FunSuite with Matchers {
+class CirceEnumDecoderEncoderTests extends AnyFunSuite with Matchers  {
   sealed trait Greeting extends EnumEntry
 
   object Greeting extends Enum[Greeting] {

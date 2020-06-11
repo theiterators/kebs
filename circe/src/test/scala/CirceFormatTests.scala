@@ -1,10 +1,11 @@
 import java.time.ZonedDateTime
 
 import io.circe.{Decoder, Encoder, Json}
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
 import pl.iterators.kebs.circe.KebsCirce
+import org.scalatest.matchers.should.Matchers
 
-class CirceFormatTests extends FunSuite with Matchers {
+class CirceFormatTests extends AnyFunSuite with Matchers {
   object KebsProtocol extends KebsCirce
   import KebsProtocol._
 

@@ -1,8 +1,9 @@
 import io.circe.{Decoder, Encoder, Json}
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.circe.KebsCirce
 
-class CirceFormatNoFlatTests extends FunSuite with Matchers {
+class CirceFormatNoFlatTests extends AnyFunSuite with Matchers {
   object KebsProtocol extends KebsCirce with KebsCirce.NoFlat
   import KebsProtocol._
 
