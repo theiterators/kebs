@@ -4,7 +4,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.funsuite.AnyFunSuite
 import pl.iterators.kebs.circe.KebsEnumFormats
 
-class CirceEnumDecoderEncoderTests extends AnyFunSuite with Matchers  {
+class CirceEnumDecoderEncoderTests extends AnyFunSuite with Matchers {
   sealed trait Greeting extends EnumEntry
 
   object Greeting extends Enum[Greeting] {

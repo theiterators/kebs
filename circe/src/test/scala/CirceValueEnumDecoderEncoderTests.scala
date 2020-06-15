@@ -4,7 +4,7 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.circe.KebsEnumFormats
 
-class CirceValueEnumDecoderEncoderTests extends AnyFunSuite with Matchers  {
+class CirceValueEnumDecoderEncoderTests extends AnyFunSuite with Matchers {
   sealed abstract class LongGreeting(val value: Long) extends LongEnumEntry
 
   object LongGreeting extends LongEnum[LongGreeting] {

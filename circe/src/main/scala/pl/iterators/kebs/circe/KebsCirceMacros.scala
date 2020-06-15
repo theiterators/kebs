@@ -1,10 +1,13 @@
 package pl.iterators.kebs.circe
 
+import io.circe.generic.extras.Configuration
 import io.circe.{Decoder, Encoder}
 import pl.iterators.kebs.macros.MacroUtils
 
 import scala.collection.immutable.Seq
 import scala.reflect.macros.whitebox
+import io.circe.generic.extras.semiauto.deriveConfiguredDecoder
+import io.circe.generic.extras.semiauto._
 
 class KebsCirceMacros(override val c: whitebox.Context) extends MacroUtils {
 
@@ -20,7 +23,11 @@ class KebsCirceMacros(override val c: whitebox.Context) extends MacroUtils {
       case _ :: Nil if preferFlat && isLookingFor(decoderOf(T)) && !noflat(T) =>
         c.abort(c.enclosingPosition, "Flat format preferred")
       case _ =>
-        q"""_root_.io.circe.generic.auto.exportDecoder[$T].instance"""
+        q"""{
+           import _root_.io.circe.generic.extras.semiauto._
+           implicit lazy val __config: _root_.io.circe.generic.extras.Configuration = _root_.io.circe.generic.extras.Configuration.default.withSnakeCaseMemberNames
+           _root_.io.circe.generic.extras.semiauto.deriveConfiguredDecoder[$T]
+           }"""
     }
     c.Expr[Decoder[T]](decoder)
   }
@@ -34,7 +41,10 @@ class KebsCirceMacros(override val c: whitebox.Context) extends MacroUtils {
       case _ :: Nil if preferFlat && isLookingFor(encoderOf(T)) && !noflat(T) =>
         c.abort(c.enclosingPosition, "Flat format preferred")
       case _ =>
-        q"""_root_.io.circe.generic.auto.exportEncoder[$T].instance"""
+        q"""{
+           implicit lazy val __config: _root_.io.circe.generic.extras.Configuration = _root_.io.circe.generic.extras.Configuration.default.withSnakeCaseMemberNames
+           _root_.io.circe.generic.extras.semiauto.deriveConfiguredEncoder[$T]
+           }"""
 
     }
     c.Expr[Encoder[T]](encoder)
@@ -58,10 +68,18 @@ object KebsCirceMacros {
     override protected val preferFlat = false
   }
 
+  class CapitalizedCamelCase(context: whitebox.Context) extends KebsCirceMacros(context) {
+    import c.universe._
+
+    override protected def extractJsonFieldNames(fields: List[MethodSymbol]): Seq[String] =
+      super.extractJsonFieldNames(fields).map(_.capitalize)
+  }
+
   class SnakifyVariant(context: whitebox.Context) extends KebsCirceMacros(context) {
 
     import SnakifyVariant.snakify
     import c.universe._
+    import io.circe.generic.extras.semiauto._
 
     override protected def extractJsonFieldNames(fields: List[MethodSymbol]): Seq[String] =
       super.extractJsonFieldNames(fields).map(snakify)
