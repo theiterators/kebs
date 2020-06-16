@@ -27,13 +27,6 @@ class CirceFormatCapitalizedVariantTests extends AnyFunSuite with Matchers {
     encoder.apply(F) shouldBe Json.fromFields(Seq.empty[(String, Json)])
   }
 
-  test("Format 1 capitalized") {
-    val decoder = implicitly[Decoder[C]]
-    val encoder = implicitly[Encoder[C]]
-    decoder.apply(Json.fromFields(Seq("AnInteger" -> Json.fromInt(10))).hcursor).right.get shouldBe C(10)
-    encoder.apply(C(10)) shouldBe Json.fromFields(Seq("AnInteger" -> Json.fromInt(10)))
-  }
-
   test("Format 2 capitalized") {
     val decoder = implicitly[Decoder[D]]
     val encoder = implicitly[Encoder[D]]

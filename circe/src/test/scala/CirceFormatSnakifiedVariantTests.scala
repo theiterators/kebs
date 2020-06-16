@@ -27,17 +27,6 @@ class CirceFormatSnakifiedVariantTests extends AnyFunSuite with Matchers {
     encoder.apply(F) shouldBe Json.fromFields(Seq.empty[(String, Json)])
   }
 
-  test("format 1 snakified") {
-
-    import io.circe.generic.extras.Configuration
-    implicit val customConfig: Configuration = Configuration.default.withSnakeCaseMemberNames
-    val decoder                              = Decoder[C]
-    val encoder                              = Encoder[C]
-
-    decoder.apply(Json.fromFields(Seq("an_integer" -> Json.fromInt(10))).hcursor).right.get shouldBe C(10)
-    encoder.apply(C(10)) shouldBe Json.fromFields(Seq("an_integer" -> Json.fromInt(10)))
-  }
-
   test("format 2 snakified") {
     val decoder = implicitly[Decoder[D]]
     val encoder = implicitly[Encoder[D]]
