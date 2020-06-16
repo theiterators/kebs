@@ -1,3 +1,4 @@
+
 import slick.jdbc.PostgresProfile.api._
 import pl.iterators.kebs.tagged._
 import pl.iterators.kebs.tagged.slick.{SlickSupport}

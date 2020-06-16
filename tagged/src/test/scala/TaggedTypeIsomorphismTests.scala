@@ -1,3 +1,4 @@
+
 import pl.iterators.kebs.tagged.slick.SlickSupport
 import slick.lifted.Isomorphism
 import org.scalatest.funsuite.AnyFunSuite
