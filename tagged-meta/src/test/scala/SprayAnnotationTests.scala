@@ -1,4 +1,3 @@
-
 import pl.iterators.kebs.tagged._
 import pl.iterators.kebs.tag.meta._
 import _root_.spray.json._

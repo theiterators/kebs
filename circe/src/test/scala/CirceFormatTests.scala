@@ -30,11 +30,6 @@ class CirceFormatTests extends AnyFunSuite with Matchers {
     encoder.apply(C(10)) shouldBe Json.fromInt(10)
   }
 
-  test("Flat format - no implicit decoder/encoder") {
-    "implicitly[Decoder[E]]" shouldNot compile
-    "implicitly[Encoder[E]]" shouldNot compile
-  }
-
   test("Flat format - parametrized") {
     val decoder = implicitly[Decoder[Parametrized1[Double]]]
     val encoder = implicitly[Encoder[Parametrized1[Double]]]
