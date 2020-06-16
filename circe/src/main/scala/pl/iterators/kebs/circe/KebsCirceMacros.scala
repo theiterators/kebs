@@ -2,12 +2,11 @@ package pl.iterators.kebs.circe
 
 import io.circe.generic.extras.Configuration
 import io.circe.{Decoder, Encoder}
+import pl.iterators.kebs.circe.KebsCirceMacros.CapitalizedCamelCase
 import pl.iterators.kebs.macros.MacroUtils
 
 import scala.collection.immutable.Seq
 import scala.reflect.macros.whitebox
-import io.circe.generic.extras.semiauto.deriveConfiguredDecoder
-import io.circe.generic.extras.semiauto._
 
 class KebsCirceMacros(override val c: whitebox.Context) extends MacroUtils {
 
@@ -20,16 +19,30 @@ class KebsCirceMacros(override val c: whitebox.Context) extends MacroUtils {
     val decoder = caseAccessors(T) match {
       case Nil =>
         q"""_root_.io.circe.Decoder.decodeJsonObject.emap(obj => if(obj.isEmpty) Right(${T.termSymbol}) else Left("Empty JsonObject"))"""
-      case _ :: Nil if preferFlat && isLookingFor(decoderOf(T)) && !noflat(T) =>
-        c.abort(c.enclosingPosition, "Flat format preferred")
-      case _ =>
-        q"""{
-           import _root_.io.circe.generic.extras.semiauto._
-           implicit lazy val __config: _root_.io.circe.generic.extras.Configuration = _root_.io.circe.generic.extras.Configuration.default.withSnakeCaseMemberNames
+      case _1 :: Nil =>
+        if (preferFlat && (isLookingFor(decoderOf(T)) && !noflat(T)))
+          c.abort(c.enclosingPosition, "Flat format preferred")
+        else
+          _materializeDecoder(T, List(_1))
+      case fields => _materializeDecoder(T, fields)
+    }
+
+    c.Expr[Decoder[T]](decoder)
+  }
+
+  private def _materializeDecoder(T: Type, fields: List[MethodSymbol]) = {
+    if (fields.lengthCompare(maxCaseClassFields) <= 0) {
+      val Ps             = extractFieldTypes(fields, T)
+      val jsonFieldNames = extractJsonFieldNames(fields)
+      val term           = TermName(s"forProduct${fields.length}")
+      val tree           = q"""_root_.io.circe.Decoder.$term[$T, ..$Ps](..$jsonFieldNames)(${apply(T)})"""
+      q"$tree(..${inferDecoderFormats(Ps)})"
+    } else {
+      q"""{
+           $semiAutoNamingStrategy
            _root_.io.circe.generic.extras.semiauto.deriveConfiguredDecoder[$T]
            }"""
     }
-    c.Expr[Decoder[T]](decoder)
   }
 
   final def materializeEncoder[T: c.WeakTypeTag]: c.Expr[Encoder[T]] = {
@@ -38,16 +51,29 @@ class KebsCirceMacros(override val c: whitebox.Context) extends MacroUtils {
     val encoder = caseAccessors(T) match {
       case Nil =>
         q"""_root_.io.circe.Encoder.instance[${T.typeSymbol}](_ => _root_.io.circe.Json.fromJsonObject(_root_.io.circe.JsonObject.empty))"""
-      case _ :: Nil if preferFlat && isLookingFor(encoderOf(T)) && !noflat(T) =>
-        c.abort(c.enclosingPosition, "Flat format preferred")
-      case _ =>
-        q"""{
-           implicit lazy val __config: _root_.io.circe.generic.extras.Configuration = _root_.io.circe.generic.extras.Configuration.default.withSnakeCaseMemberNames
-           _root_.io.circe.generic.extras.semiauto.deriveConfiguredEncoder[$T]
-           }"""
-
+      case _1 :: Nil =>
+        if (preferFlat && (isLookingFor(encoderOf(T)) && !noflat(T)))
+          c.abort(c.enclosingPosition, "Flat format preferred")
+        else
+          _materializeEncoder(T, List(_1))
+      case fields => _materializeEncoder(T, fields)
     }
     c.Expr[Encoder[T]](encoder)
+  }
+
+  private def _materializeEncoder(T: Type, fields: List[MethodSymbol]): c.universe.Tree = {
+    if (fields.lengthCompare(maxCaseClassFields) <= 0) {
+      val Ps             = extractFieldTypes(fields, T)
+      val jsonFieldNames = extractJsonFieldNames(fields)
+      val term           = TermName(s"forProduct${fields.length}")
+      val tree           = q"""_root_.io.circe.Encoder.$term[$T, ..$Ps](..$jsonFieldNames)(${unapplyFunction(T)})"""
+      q"$tree(..${inferEncoderFormats(Ps)})"
+    } else {
+      q"""{
+           $semiAutoNamingStrategy
+           _root_.io.circe.generic.extras.semiauto.deriveConfiguredEncoder[$T]
+           }"""
+    }
   }
 
   private val noflatType                                                       = typeOf[noflat]
@@ -57,9 +83,14 @@ class KebsCirceMacros(override val c: whitebox.Context) extends MacroUtils {
   private val encoderType                                                      = typeOf[Encoder[_]]
   private def decoderOf(p: Type)                                               = appliedType(decoderType, p)
   private def encoderOf(p: Type)                                               = appliedType(encoderType, p)
+  private def extractFieldTypes(fields: List[MethodSymbol], in: Type)          = fields.map(resultType(_, in))
   private def extractFieldNames(fields: List[MethodSymbol])                    = fields.map(_.name.decodedName.toString)
+  private def inferDecoderFormats(ps: List[Type])                              = ps.map(p => inferImplicitValue(decoderOf(p), s"Cannot infer Decoder[$p]"))
+  private def inferEncoderFormats(ps: List[Type])                              = ps.map(p => inferImplicitValue(encoderOf(p), s"Cannot infer Encoder[$p]"))
   protected def extractJsonFieldNames(fields: List[MethodSymbol]): Seq[String] = extractFieldNames(fields)
   protected val preferFlat: Boolean                                            = true
+  protected val semiAutoNamingStrategy: Tree =
+    q"implicit lazy val __config: _root_.io.circe.generic.extras.Configuration = _root_.io.circe.generic.extras.Configuration.default"
 }
 
 object KebsCirceMacros {
@@ -71,6 +102,9 @@ object KebsCirceMacros {
   class CapitalizedCamelCase(context: whitebox.Context) extends KebsCirceMacros(context) {
     import c.universe._
 
+    protected override val semiAutoNamingStrategy: Tree =
+      q"implicit lazy val __config: _root_.io.circe.generic.extras.Configuration = _root_.io.circe.generic.extras.Configuration.default.copy(_.capitalize)"
+
     override protected def extractJsonFieldNames(fields: List[MethodSymbol]): Seq[String] =
       super.extractJsonFieldNames(fields).map(_.capitalize)
   }
@@ -79,7 +113,8 @@ object KebsCirceMacros {
 
     import SnakifyVariant.snakify
     import c.universe._
-    import io.circe.generic.extras.semiauto._
+    protected override val semiAutoNamingStrategy: Tree =
+      q"implicit lazy val __config: _root_.io.circe.generic.extras.Configuration = _root_.io.circe.generic.extras.Configuration.default.withSnakeCaseMemberNames"
 
     override protected def extractJsonFieldNames(fields: List[MethodSymbol]): Seq[String] =
       super.extractJsonFieldNames(fields).map(snakify)
