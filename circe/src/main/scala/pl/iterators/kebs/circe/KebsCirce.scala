@@ -1,13 +1,11 @@
 package pl.iterators.kebs.circe
 
 import io.circe.generic.AutoDerivation
-import io.circe.generic.extras.Configuration
 import io.circe.{Decoder, Encoder}
 import pl.iterators.kebs.macros.CaseClass1Rep
 
 import scala.language.experimental.macros
 import scala.util.Try
-import io.circe.generic.extras.semiauto._
 
 trait KebsCirce extends AutoDerivation {
   implicit def flatDecoder[T, A](implicit rep: CaseClass1Rep[T, A], decoder: Decoder[A]): Decoder[T] =
