@@ -1,4 +1,3 @@
-
 import enumeratum.{Enum, EnumEntry}
 import pl.iterators.kebs.json.{KebsEnumFormats, KebsSpray}
 import spray.json._

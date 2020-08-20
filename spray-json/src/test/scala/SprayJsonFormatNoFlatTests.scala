@@ -1,4 +1,3 @@
-
 import pl.iterators.kebs.json.KebsSpray
 import spray.json._
 import org.scalatest.funsuite.AnyFunSuite
