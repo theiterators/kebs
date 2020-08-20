@@ -141,8 +141,10 @@ final class macroImpl(val c: whitebox.Context) {
       maybeCompanion.toList
         .flatMap(_.impl.body)
         .exists(_.exists {
-          case q"${mods: Modifiers} def validate($_) = $_" if !mods.hasFlag(Flag.PRIVATE) && !mods.hasFlag(Flag.PROTECTED) => true
-          case _                                                                                                           => false
+          case DefDef((mods, TermName("validate"), Nil, List(_ :: Nil), _, _))
+              if !mods.hasFlag(Flag.PRIVATE) && !mods.hasFlag(Flag.PROTECTED) =>
+            true
+          case _ => false
         })
   }
 

@@ -19,7 +19,7 @@ import org.scalatest.matchers.should.Matchers
     case object Negative extends Error
     case object Zero     extends Error
 
-    def validate(i: Int) = if (i == 0) Left(Zero) else if (i < 0) Left(Negative) else Right(i)
+    def validate(i: Int): Either[Error, Int] = if (i == 0) Left(Zero) else if (i < 0) Left(Negative) else Right(i)
   }
 }
 
