@@ -219,4 +219,12 @@ class SprayJsonFormatTests extends AnyFunSuite with Matchers {
     jf.read(json) shouldBe obj
   }
 
+  case class Request(region: String, currency: String, date: String, code: String, items: List[RequestItem])
+  case class RequestItem(itemCode: String, language: String, answers: Option[List[Answer]], requirements: String, travellers: String)
+  case class Answer(answer: String)
+
+  test("issue #11") {
+    "implicitly[JsonFormat[Request]]" should compile
+  }
+
 }
