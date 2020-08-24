@@ -1,3 +1,9 @@
+## Version 1.8.0
+
+> 24.08.2020
+* Fixed issue https://github.com/theiterators/kebs/issues/67
+* Dropped support for Scala 2.11
+
 ## Version 1.7.1
 
 > 02.01.2020
