@@ -32,7 +32,7 @@ lazy val publishToNexus = publishTo := {
     Some("releases" at nexus + "service/local/staging/deploy/maven2")
 }
 
-lazy val crossBuildSettings = Seq(crossScalaVersions := scala_2_13 +: supportedScalaVersions, releaseCrossBuild := true)
+lazy val crossBuildSettings = Seq(crossScalaVersions := supportedScalaVersions, releaseCrossBuild := true)
 
 lazy val publishSettings = Seq(
   publishToNexus,
@@ -85,7 +85,7 @@ def paradisePlugin(scalaVersion: String): Seq[ModuleID] =
   else
     Seq.empty
 
-val scalaTest     = "org.scalatest" %% "scalatest" % "3.2.1"
+val scalaTest     = "org.scalatest" %% "scalatest" % "3.2.2"
 val slick         = "com.typesafe.slick" %% "slick" % "3.3.2"
 val optionalSlick = optional(slick)
 val slickPg       = "com.github.tminglei" %% "slick-pg" % "0.19.2"

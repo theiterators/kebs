@@ -20,9 +20,9 @@ class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
 
   private def materializeJsonFormat0(T: Type) = q"${_this}.jsonFormat0[$T](() => ${T.termSymbol})"
 
-  private def extractFieldTypes(fields: List[MethodSymbol], in: Type)          = fields.map(resultType(_, in))
-  private def extractFieldNames(fields: List[MethodSymbol])                    = fields.map(_.name.decodedName.toString)
-  protected def extractJsonFieldNames(fields: List[MethodSymbol]): Seq[String] = extractFieldNames(fields)
+  private def extractFieldTypes(fields: List[MethodSymbol], in: Type)           = fields.map(resultType(_, in))
+  private def extractFieldNames(fields: List[MethodSymbol])                     = fields.map(_.name.decodedName.toString)
+  protected def extractJsonFieldNames(fields: List[MethodSymbol]): List[String] = extractFieldNames(fields)
 
   private def inferFormats(ps: List[Type]) = ps.map(p => inferImplicitValue(jsonFormatOf(p), s"Cannot infer JsonFormat[$p]"))
   private def isRecursiveSearch = c.enclosingImplicits match {
@@ -46,13 +46,19 @@ class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
 
       val reader = q"($jsonVar: _root_.spray.json.JsValue) => ${apply(T)}(..$applyArgs)"
 
-      val classFieldNames = extractFieldNames(fields).map(TermName.apply)
-      val objVar          = TermName("obj")
-      val objMap = classFieldNames zip jsonFieldsWithFormats map {
-        case (classField, (jsonField, jf)) => q"($jsonField, $jf.write($objVar.$classField))"
-      }
+      val objVar    = TermName("obj")
+      val bufferVar = TermName("buffer")
 
-      val writer = q"($objVar: $T) => _root_.spray.json.JsObject(_root_.scala.Predef.Map(..$objMap))"
+      val jsonBuilderBlock =
+        q"val $bufferVar = new _root_.scala.collection.mutable.ListBuffer[(_root_.scala.Predef.String, _root_.spray.json.JsValue)]()" ::
+          q"$bufferVar.sizeHint(${fields.size * 24})" ::
+          jsonFieldsWithFormats.zipWithIndex.map {
+          case ((jsonField, jf), idx) => q"$bufferVar ++= ${_this}._kebs_productElement2Field($jsonField, $objVar, $idx)($jf)"
+        } :::
+          q"$bufferVar.toSeq" ::
+          Nil
+
+      val writer = q"($objVar: $T) => _root_.spray.json.JsObject({..$jsonBuilderBlock}: _*)"
 
       val jsonFormat = q"${_this}.jsonFormat[$T]($reader, $writer)"
       q"${_this}.rootFormat[$T]($jsonFormat)"
