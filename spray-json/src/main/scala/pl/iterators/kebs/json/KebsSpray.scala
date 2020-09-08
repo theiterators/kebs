@@ -1,7 +1,7 @@
 package pl.iterators.kebs.json
 
 import pl.iterators.kebs.macros.CaseClass1Rep
-import spray.json.{DefaultJsonProtocol, JsValue, JsonFormat, JsonReader, JsonWriter, RootJsonFormat}
+import spray.json.{DefaultJsonProtocol, JsField, JsValue, JsonFormat, JsonReader, JsonWriter, RootJsonFormat}
 
 trait KebsSpray { self: DefaultJsonProtocol =>
   import macros.KebsSprayMacros
@@ -16,7 +16,9 @@ trait KebsSpray { self: DefaultJsonProtocol =>
 
   @inline
   def _kebs_getField[T](value: JsValue, fieldName: String)(implicit reader: JsonReader[T]) = fromField[T](value, fieldName)
-
+  @inline
+  def _kebs_productElement2Field[T](fieldName: String, p: Product, ix: Int, rest: List[JsField] = Nil)(
+      implicit writer: JsonWriter[T]): List[JsField] = productElement2Field[T](fieldName, p, ix, rest)
 }
 
 object KebsSpray {
