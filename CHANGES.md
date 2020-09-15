@@ -1,3 +1,8 @@
+## Version 1.8.1
+> 15.09.2020
+
+* Fixed issue https://github.com/theiterators/kebs/issues/73
+
 ## Version 1.8.0
 
 > 24.08.2020
