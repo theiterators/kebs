@@ -88,7 +88,7 @@ def paradisePlugin(scalaVersion: String): Seq[ModuleID] =
 val scalaTest     = "org.scalatest" %% "scalatest" % "3.2.2"
 val slick         = "com.typesafe.slick" %% "slick" % "3.3.3"
 val optionalSlick = optional(slick)
-val slickPg       = "com.github.tminglei" %% "slick-pg" % "0.19.2"
+val slickPg       = "com.github.tminglei" %% "slick-pg" % "0.19.3"
 val sprayJson     = "io.spray" %% "spray-json" % "1.3.5"
 val playJson      = "com.typesafe.play" %% "play-json" % "2.8.1"
 
@@ -101,8 +101,8 @@ def enumeratumInExamples = {
 }
 val optionalEnumeratum = optional(enumeratum)
 
-val akkaVersion       = "2.5.31"
-val akkaHttpVersion   = "10.2.0"
+val akkaVersion       = "2.5.32"
+val akkaHttpVersion   = "10.2.1"
 val akkaStream        = "com.typesafe.akka" %% "akka-stream" % akkaVersion
 val akkaStreamTestkit = "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion
 val akkaHttp          = "com.typesafe.akka" %% "akka-http" % akkaHttpVersion
@@ -143,7 +143,7 @@ lazy val playJsonSettings = commonSettings ++ Seq(
 )
 
 lazy val akkaHttpSettings = commonSettings ++ Seq(
-  libraryDependencies ++= Seq(akkaStream, akkaHttp),
+  libraryDependencies += akkaHttp,
   libraryDependencies += akkaStreamTestkit % "test",
   libraryDependencies += akkaHttpTestkit   % "test",
   libraryDependencies += optionalEnumeratum
