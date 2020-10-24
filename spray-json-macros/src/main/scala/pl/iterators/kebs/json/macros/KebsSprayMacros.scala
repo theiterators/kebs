@@ -2,7 +2,7 @@ package pl.iterators.kebs.json.macros
 
 import pl.iterators.kebs.json.noflat
 import pl.iterators.kebs.macros.MacroUtils
-import spray.json.{JsonFormat, JsonReader, JsonWriter, RootJsonFormat}
+import spray.json.{JsonFormat, JsonReader, JsonWriter, NullOptions, RootJsonFormat}
 
 import scala.collection.immutable.Seq
 import scala.reflect.macros._
@@ -14,6 +14,7 @@ class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
   private val jsonFormat            = typeOf[JsonFormat[_]]
   private val jsonReader            = typeOf[JsonReader[_]]
   private val jsonWriter            = typeOf[JsonWriter[_]]
+  private val nullOptions           = typeOf[NullOptions]
   private def jsonFormatOf(p: Type) = appliedType(jsonFormat, p)
   private def jsonReaderOf(p: Type) = appliedType(jsonReader, p)
   private def jsonWriterOf(p: Type) = appliedType(jsonWriter, p)
@@ -46,19 +47,18 @@ class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
 
       val reader = q"($jsonVar: _root_.spray.json.JsValue) => ${apply(T)}(..$applyArgs)"
 
-      val objVar    = TermName("obj")
-      val bufferVar = TermName("buffer")
+      val classFieldNames = extractFieldNames(fields).map(TermName.apply)
+      val objVar          = TermName("obj")
+      val jsFieldList = classFieldNames zip jsonFieldsWithFormats map {
+        case (classField, (jsonField, jf)) => q"($jsonField, $jf.write($objVar.$classField))"
+      }
+      val objMap =
+        q"""_root_.scala.Predef.Map(..$jsFieldList).filter {
+            case (_, _root_.spray.json.JsNull) => ${_this.tpe <:< nullOptions}
+            case _ => true
+          }"""
 
-      val jsonBuilderBlock =
-        q"val $bufferVar = new _root_.scala.collection.mutable.ListBuffer[(_root_.scala.Predef.String, _root_.spray.json.JsValue)]()" ::
-          q"$bufferVar.sizeHint(${fields.size * 24})" ::
-          jsonFieldsWithFormats.zipWithIndex.map {
-          case ((jsonField, jf), idx) => q"$bufferVar ++= ${_this}._kebs_productElement2Field($jsonField, $objVar, $idx)($jf)"
-        } :::
-          q"$bufferVar.toSeq" ::
-          Nil
-
-      val writer = q"($objVar: $T) => _root_.spray.json.JsObject({..$jsonBuilderBlock}: _*)"
+      val writer = q"($objVar: $T) => _root_.spray.json.JsObject($objMap)"
 
       val jsonFormat = q"${_this}.jsonFormat[$T]($reader, $writer)"
       q"${_this}.rootFormat[$T]($jsonFormat)"
