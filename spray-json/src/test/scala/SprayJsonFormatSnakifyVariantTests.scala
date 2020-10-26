@@ -57,32 +57,8 @@ class SprayJsonFormatSnakifyVariantTests extends AnyFunSuite with Matchers {
   test("Root format snakified - case class with > 22 fields (issue #7)") {
     import model._
 
-    val jf = implicitly[JsonFormat[ClassWith23Fields]]
-    val obj = ClassWith23Fields(
-      F1("f1 value"),
-      2,
-      3L,
-      None,
-      Some("f5 value"),
-      "six",
-      List("f7 value 1", "f7 value 2"),
-      "f8 value",
-      "f9 value",
-      "f10 value",
-      "f11 value",
-      "f12 value",
-      "f13 value",
-      "f14 value",
-      "f15 value",
-      "f16 value",
-      "f17 value",
-      "f18 value",
-      "f19 value",
-      "f20 value",
-      "f21 value",
-      "f22 value",
-      true
-    )
+    val jf  = implicitly[JsonFormat[ClassWith23Fields]]
+    val obj = ClassWith23Fields.Example
     val json = JsObject(
       Map(
         "f1"               -> JsString("f1 value"),
@@ -114,37 +90,13 @@ class SprayJsonFormatSnakifyVariantTests extends AnyFunSuite with Matchers {
   }
 
   test("Root format snakified with NullOptions - case class with > 22 fields (issue #73)") {
-    object KebsProtocolNullOptions extends DefaultJsonProtocol with KebsSpray with NullOptions
+    object KebsProtocolNullOptions extends DefaultJsonProtocol with KebsSpray.Snakified with NullOptions
 
     import model._
     import KebsProtocolNullOptions._
 
-    val jf = implicitly[JsonFormat[ClassWith23Fields]]
-    val obj = ClassWith23Fields(
-      F1("f1 value"),
-      2,
-      3L,
-      None,
-      Some("f5 value"),
-      "six",
-      List("f7 value 1", "f7 value 2"),
-      "f8 value",
-      "f9 value",
-      "f10 value",
-      "f11 value",
-      "f12 value",
-      "f13 value",
-      "f14 value",
-      "f15 value",
-      "f16 value",
-      "f17 value",
-      "f18 value",
-      "f19 value",
-      "f20 value",
-      "f21 value",
-      "f22 value",
-      true
-    )
+    val jf  = implicitly[JsonFormat[ClassWith23Fields]]
+    val obj = ClassWith23Fields.Example
     val json = JsObject(
       Map(
         "f1"               -> JsString("f1 value"),
