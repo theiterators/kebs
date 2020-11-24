@@ -1,8 +1,7 @@
-val scala_2_11             = "2.11.12"
-val scala_2_12             = "2.12.8"
-val scala_2_13             = "2.13.1"
+val scala_2_12             = "2.12.12"
+val scala_2_13             = "2.13.3"
 val mainScalaVersion       = scala_2_13
-val supportedScalaVersions = Seq(scala_2_11, scala_2_12, scala_2_13)
+val supportedScalaVersions = Seq(scala_2_12, scala_2_13)
 
 lazy val baseSettings = Seq(
   organization := "pl.iterators",
@@ -33,7 +32,7 @@ lazy val publishToNexus = publishTo := {
     Some("releases" at nexus + "service/local/staging/deploy/maven2")
 }
 
-lazy val crossBuildSettings = Seq(crossScalaVersions := scala_2_13 +: supportedScalaVersions, releaseCrossBuild := true)
+lazy val crossBuildSettings = Seq(crossScalaVersions := supportedScalaVersions, releaseCrossBuild := true)
 
 lazy val publishSettings = Seq(
   publishToNexus,
@@ -66,33 +65,32 @@ lazy val noPublishSettings =
   )
 
 def optional(dependency: ModuleID) = dependency % "provided"
-def sv[A](scalaVersion: String, scala2_11Version: => A, scala2_12Version: => A, scala2_13Version: => A) =
+def sv[A](scalaVersion: String, scala2_12Version: => A, scala2_13Version: => A) =
   CrossVersion.partialVersion(scalaVersion) match {
     case Some((2, 13)) => scala2_13Version
     case Some((2, 12)) => scala2_12Version
-    case Some((2, 11)) => scala2_11Version
     case _ =>
       throw new IllegalArgumentException(s"Unsupported Scala version $scalaVersion")
   }
 
 def paradiseFlag(scalaVersion: String): Seq[String] =
-  if (scalaVersion == scala_2_11 || scalaVersion == scala_2_12)
+  if (scalaVersion == scala_2_12)
     Seq.empty
   else
     Seq("-Ymacro-annotations")
 
 def paradisePlugin(scalaVersion: String): Seq[ModuleID] =
-  if (scalaVersion == scala_2_11 || scalaVersion == scala_2_12)
-    Seq(compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full))
+  if (scalaVersion == scala_2_12)
+    Seq(compilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full))
   else
     Seq.empty
 
-val scalaTest       = "org.scalatest" %% "scalatest" % "3.1.2"
-val slick           = "com.typesafe.slick" %% "slick" % "3.3.2"
+val scalaTest       = "org.scalatest" %% "scalatest" % "3.2.2"
+val slick           = "com.typesafe.slick" %% "slick" % "3.3.3"
 val optionalSlick   = optional(slick)
-val slickPg         = "com.github.tminglei" %% "slick-pg" % "0.19.0"
+val slickPg         = "com.github.tminglei" %% "slick-pg" % "0.19.3"
 val sprayJson       = "io.spray" %% "spray-json" % "1.3.5"
-val playJson        = "com.typesafe.play" %% "play-json" % "2.7.4"
+val playJson        = "com.typesafe.play" %% "play-json" % "2.8.1"
 val circe           = "io.circe" %% "circe-core" % "0.14.0-M1"
 val circeAuto       = "io.circe" %% "circe-generic" % "0.14.0-M1"
 val circeAutoExtras = "io.circe" %% "circe-generic-extras" % "0.13.0"
@@ -107,8 +105,8 @@ def enumeratumInExamples = {
 }
 val optionalEnumeratum = optional(enumeratum)
 
-val akkaVersion       = "2.5.31"
-val akkaHttpVersion   = "10.1.12"
+val akkaVersion       = "2.5.32"
+val akkaHttpVersion   = "10.2.1"
 val akkaStream        = "com.typesafe.akka" %% "akka-stream" % akkaVersion
 val akkaStreamTestkit = "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion
 val akkaHttp          = "com.typesafe.akka" %% "akka-http" % akkaHttpVersion
@@ -157,7 +155,7 @@ lazy val circeSettings = commonSettings ++ Seq(
 )
 
 lazy val akkaHttpSettings = commonSettings ++ Seq(
-  libraryDependencies ++= sv(scalaVersion.value, Seq(akkaStream, akkaHttp), Seq(akkaHttp), Seq(akkaHttp)),
+  libraryDependencies += akkaHttp,
   libraryDependencies += akkaStreamTestkit % "test",
   libraryDependencies += akkaHttpTestkit   % "test",
   libraryDependencies += optionalEnumeratum

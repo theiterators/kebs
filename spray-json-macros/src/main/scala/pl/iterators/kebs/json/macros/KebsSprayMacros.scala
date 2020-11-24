@@ -2,7 +2,7 @@ package pl.iterators.kebs.json.macros
 
 import pl.iterators.kebs.json.noflat
 import pl.iterators.kebs.macros.MacroUtils
-import spray.json.{JsonFormat, JsonReader, JsonWriter, RootJsonFormat}
+import spray.json.{JsonFormat, JsonReader, JsonWriter, NullOptions, RootJsonFormat}
 
 import scala.collection.immutable.Seq
 import scala.reflect.macros._
@@ -14,15 +14,16 @@ class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
   private val jsonFormat            = typeOf[JsonFormat[_]]
   private val jsonReader            = typeOf[JsonReader[_]]
   private val jsonWriter            = typeOf[JsonWriter[_]]
+  private val nullOptions           = typeOf[NullOptions]
   private def jsonFormatOf(p: Type) = appliedType(jsonFormat, p)
   private def jsonReaderOf(p: Type) = appliedType(jsonReader, p)
   private def jsonWriterOf(p: Type) = appliedType(jsonWriter, p)
 
   private def materializeJsonFormat0(T: Type) = q"${_this}.jsonFormat0[$T](() => ${T.termSymbol})"
 
-  private def extractFieldTypes(fields: List[MethodSymbol], in: Type)          = fields.map(resultType(_, in))
-  private def extractFieldNames(fields: List[MethodSymbol])                    = fields.map(_.name.decodedName.toString)
-  protected def extractJsonFieldNames(fields: List[MethodSymbol]): Seq[String] = extractFieldNames(fields)
+  private def extractFieldTypes(fields: List[MethodSymbol], in: Type)           = fields.map(resultType(_, in))
+  private def extractFieldNames(fields: List[MethodSymbol])                     = fields.map(_.name.decodedName.toString)
+  protected def extractJsonFieldNames(fields: List[MethodSymbol]): List[String] = extractFieldNames(fields)
 
   private def inferFormats(ps: List[Type]) = ps.map(p => inferImplicitValue(jsonFormatOf(p), s"Cannot infer JsonFormat[$p]"))
   private def isRecursiveSearch = c.enclosingImplicits match {
@@ -48,11 +49,16 @@ class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
 
       val classFieldNames = extractFieldNames(fields).map(TermName.apply)
       val objVar          = TermName("obj")
-      val objMap = classFieldNames zip jsonFieldsWithFormats map {
+      val jsFieldList = classFieldNames zip jsonFieldsWithFormats map {
         case (classField, (jsonField, jf)) => q"($jsonField, $jf.write($objVar.$classField))"
       }
+      val objMap =
+        q"""_root_.scala.Predef.Map(..$jsFieldList).filter {
+            case (_, _root_.spray.json.JsNull) => ${_this.tpe <:< nullOptions}
+            case _ => true
+          }"""
 
-      val writer = q"($objVar: $T) => _root_.spray.json.JsObject(_root_.scala.Predef.Map(..$objMap))"
+      val writer = q"($objVar: $T) => _root_.spray.json.JsObject($objMap)"
 
       val jsonFormat = q"${_this}.jsonFormat[$T]($reader, $writer)"
       q"${_this}.rootFormat[$T]($jsonFormat)"
