@@ -95,6 +95,7 @@ val circe           = "io.circe" %% "circe-core" % "0.14.0-M1"
 val circeAuto       = "io.circe" %% "circe-generic" % "0.14.0-M1"
 val circeAutoExtras = "io.circe" %% "circe-generic-extras" % "0.13.0"
 val circeParser     = "io.circe" %% "circe-parser" % "0.14.0-M1"
+val optionalCirce   = optional(circe)
 
 val enumeratumVersion         = "1.6.1"
 val enumeratumPlayJsonVersion = "1.5.16"
@@ -162,7 +163,8 @@ lazy val akkaHttpSettings = commonSettings ++ Seq(
 )
 
 lazy val taggedSettings = commonSettings ++ Seq(
-  libraryDependencies += optionalSlick
+  libraryDependencies += optionalSlick,
+  libraryDependencies += optionalCirce
 )
 
 lazy val examplesSettings = commonSettings ++ Seq(
