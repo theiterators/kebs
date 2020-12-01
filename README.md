@@ -14,12 +14,13 @@
   * [spray-json](#--kebs-eliminates-spray-json-induced-boilerplate-kebs-spray-json)
   * [play-json](#--kebs-eliminates-play-json-induced-boilerplate-kebs-play-json)
   * [akka-http](#--kebs-generates-akka-http-unmarshaller-kebs-akka-http)
+  * [circe](#--kebs-eliminates-circe-induced-boilerplate-kebs-circe)
 * [Tagged types](#tagged-types)
 
 ### Why?
 
 `kebs` is for eliminating some common sources of Scala boilerplate code that arise when you use 
-Slick (`kebs-slick`), Spray (`kebs-spray-json`), Play (`kebs-play-json`), Akka HTTP (`kebs-akka-http`).
+Slick (`kebs-slick`), Spray (`kebs-spray-json`), Play (`kebs-play-json`), Circe (`kebs-circe`), Akka HTTP (`kebs-akka-http`).
 
 ### SBT
 
@@ -34,6 +35,10 @@ Support for `spray-json`
 Support for `play-json`
 
 `libraryDependencies += "pl.iterators" %% "kebs-play-json" % "1.8.1"`
+
+Support for `circe`
+
+`libraryDependencies += "pl.iterators" %% "kebs-circe" % "1.8.1"`
 
 Support for `akka-http`
 
@@ -476,6 +481,11 @@ implicit val createThingRequestJsonFormat = Json.format[ThingCreateRequest]
 implicit val thingJsonFormat              = Json.format[Thing]
 }
 ```
+
+
+#### - kebs eliminates Circe induced boilerplate (kebs-circe)
+**Still in experimental stage!**
+
 
 #### - kebs generates akka-http Unmarshaller (kebs-akka-http)
 

@@ -152,7 +152,7 @@ lazy val circeSettings = commonSettings ++ Seq(
   libraryDependencies += circeAuto,
   libraryDependencies += circeAutoExtras,
   libraryDependencies += optionalEnumeratum,
-  libraryDependencies += circeParser % "test"
+  libraryDependencies += circeParser
 )
 
 lazy val akkaHttpSettings = commonSettings ++ Seq(
@@ -294,7 +294,7 @@ lazy val taggedMeta = project
 
 lazy val examples = project
   .in(file("examples"))
-  .dependsOn(slickSupport, sprayJsonSupport, playJsonSupport, akkaHttpSupport, taggedMeta)
+  .dependsOn(slickSupport, sprayJsonSupport, playJsonSupport, akkaHttpSupport, taggedMeta, circeSupport)
   .settings(examplesSettings: _*)
   .settings(noPublishSettings: _*)
   .settings(
