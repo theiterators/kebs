@@ -91,10 +91,10 @@ val optionalSlick   = optional(slick)
 val slickPg         = "com.github.tminglei" %% "slick-pg" % "0.19.3"
 val sprayJson       = "io.spray" %% "spray-json" % "1.3.5"
 val playJson        = "com.typesafe.play" %% "play-json" % "2.8.1"
-val circe           = "io.circe" %% "circe-core" % "0.14.0-M1"
-val circeAuto       = "io.circe" %% "circe-generic" % "0.14.0-M1"
+val circe           = "io.circe" %% "circe-core" % "0.13.0"
+val circeAuto       = "io.circe" %% "circe-generic" % "0.13.0"
 val circeAutoExtras = "io.circe" %% "circe-generic-extras" % "0.13.0"
-val circeParser     = "io.circe" %% "circe-parser" % "0.14.0-M1"
+val circeParser     = "io.circe" %% "circe-parser" % "0.13.0"
 val optionalCirce   = optional(circe)
 
 val enumeratumVersion         = "1.6.1"
@@ -120,7 +120,7 @@ def akkaHttpInBenchmarks = akkaHttpInExamples :+ akkaHttpTestkit
 
 lazy val commonSettings = baseSettings ++ Seq(
   scalacOptions ++= Seq("-language:experimental.macros"),
-  (scalacOptions in Test) ++= Seq("-Ymacro-debug-lite", "-Xlog-implicits"),
+  (scalacOptions in Test) ++= Seq("-Ymacro-debug-lite"/*, "-Xlog-implicits"*/),
   libraryDependencies += scalaTest % "test",
   resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 )
