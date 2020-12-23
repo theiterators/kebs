@@ -12,7 +12,6 @@ class CirceFormatNoFlatTests extends AnyFunSuite with Matchers {
   test("No-flat format") {
     val decoder = implicitly[Decoder[C]]
     val encoder = implicitly[Encoder[C]]
-    println(decoder.apply(Json.fromFields(Seq("i" -> Json.fromInt(10))).hcursor))
     decoder.apply(Json.fromFields(Seq("i" -> Json.fromInt(10))).hcursor) shouldBe Right(C(10))
     encoder.apply(C(10)) shouldBe Json.fromFields(Seq("i" -> Json.fromInt(10)))
   }
