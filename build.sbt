@@ -152,7 +152,7 @@ lazy val circeSettings = commonSettings ++ Seq(
   libraryDependencies += circeAuto,
   libraryDependencies += circeAutoExtras,
   libraryDependencies += optionalEnumeratum,
-  libraryDependencies += circeParser
+  libraryDependencies += circeParser % "test"
 )
 
 lazy val akkaHttpSettings = commonSettings ++ Seq(
