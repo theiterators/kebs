@@ -1,8 +1,9 @@
 import io.circe.{CursorOp, Decoder, DecodingFailure, Json}
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
 import pl.iterators.kebs.tagged._
 import pl.iterators.kebs.tag.meta._
 import pl.iterators.kebs.circe.KebsCirce
+import org.scalatest.matchers.should.Matchers
 
 @tagged object CirceTestTags {
   trait NameTag
@@ -40,7 +41,7 @@ import pl.iterators.kebs.circe.KebsCirce
 
 object CirceTestTagsFromTrait extends CirceTestTagsTrait
 
-class CirceAnnotationTests extends FunSuite with Matchers with KebsCirce {
+class CirceAnnotationTests extends AnyFunSuite with Matchers with KebsCirce {
   test("circe implicits are generated (object)") {
     import CirceTestTags._
     implicitly[Decoder[Name]].apply(Json.fromString("Joe").hcursor) shouldEqual Right("Joe")

@@ -120,7 +120,7 @@ def akkaHttpInBenchmarks = akkaHttpInExamples :+ akkaHttpTestkit
 
 lazy val commonSettings = baseSettings ++ Seq(
   scalacOptions ++= Seq("-language:experimental.macros"),
-  (scalacOptions in Test) ++= Seq("-Ymacro-debug-lite"/*, "-Xlog-implicits"*/),
+  (scalacOptions in Test) ++= Seq("-Ymacro-debug-lite" /*, "-Xlog-implicits"*/ ),
   libraryDependencies += scalaTest % "test",
   resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 )
