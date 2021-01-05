@@ -3,6 +3,8 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.circe.KebsCirce
 
+import scala.Right
+
 class CirceFormatSnakifiedVariantTests extends AnyFunSuite with Matchers {
   object KebsProtocol extends KebsCirce with KebsCirce.Snakified
   import KebsProtocol._
@@ -31,9 +33,8 @@ class CirceFormatSnakifiedVariantTests extends AnyFunSuite with Matchers {
     val decoder = implicitly[Decoder[D]]
     val encoder = implicitly[Encoder[D]]
     decoder
-      .apply(Json.fromFields(Seq("int_field" -> Json.fromInt(10), "string_field" -> Json.fromString("abcd"))).hcursor)
-      .right
-      .get shouldBe D(10, "abcd")
+      .apply(Json.fromFields(Seq("int_field" -> Json.fromInt(10), "string_field" -> Json.fromString("abcd"))).hcursor) shouldBe Right(
+      D(10, "abcd"))
     encoder.apply(D(10, "abcd")) shouldBe Json.fromFields(Seq("int_field" -> Json.fromInt(10), "string_field" -> Json.fromString("abcd")))
   }
 
@@ -53,9 +54,7 @@ class CirceFormatSnakifiedVariantTests extends AnyFunSuite with Matchers {
               "d_field" -> Json.fromFields(Seq("int_field" -> Json.fromInt(10), "string_field" -> Json.fromString("abcd")))
             )
           )
-          .hcursor)
-      .right
-      .get shouldBe Compound(C(5), D(10, "abcd"))
+          .hcursor) shouldBe Right(Compound(C(5), D(10, "abcd")))
   }
 
   test("Format snakified - case class with > 22 fields") {

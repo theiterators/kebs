@@ -32,9 +32,8 @@ class CirceFormatCapitalizedVariantTests extends AnyFunSuite with Matchers {
     val decoder = implicitly[Decoder[D]]
     val encoder = implicitly[Encoder[D]]
     decoder
-      .apply(Json.fromFields(Seq("IntField" -> Json.fromInt(5), "StringField" -> Json.fromString("abcd"))).hcursor)
-      .right
-      .get shouldBe D(5, "abcd")
+      .apply(Json.fromFields(Seq("IntField" -> Json.fromInt(5), "StringField" -> Json.fromString("abcd"))).hcursor) shouldBe Right(
+      D(5, "abcd"))
     encoder.apply(D(5, "abcd")) shouldBe Json.fromFields(Seq("IntField" -> Json.fromInt(5), "StringField" -> Json.fromString("abcd")))
   }
 
@@ -54,9 +53,7 @@ class CirceFormatCapitalizedVariantTests extends AnyFunSuite with Matchers {
               "DField" -> Json.fromFields(Seq("IntField" -> Json.fromInt(10), "StringField" -> Json.fromString("abcd")))
             )
           )
-          .hcursor)
-      .right
-      .get shouldBe Compound(C(5), D(10, "abcd"))
+          .hcursor) shouldBe Right(Compound(C(5), D(10, "abcd")))
   }
 
   test("Format capitalized - case class with > 22 fields") {

@@ -2,6 +2,7 @@ import io.circe.{Decoder, Encoder, Json}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.circe.KebsCirce
+import io.circe.parser.parse
 
 class CirceFormatNoFlatTests extends AnyFunSuite with Matchers {
   object KebsProtocol extends KebsCirce with KebsCirce.NoFlat
@@ -28,8 +29,8 @@ class CirceFormatNoFlatTests extends AnyFunSuite with Matchers {
         |   "chapters": [{"name":"first"}, {"name":"second"}]
         | }
       """.stripMargin
-    import io.circe.parser.parse
-    decoder(parse(json).right.get.hcursor) shouldBe Right(
+    val Right(book) = parse(json)
+    decoder(book.hcursor) shouldBe Right(
       Book(
         name = "Functional Programming in Scala",
         chapters = List(Chapter("first"), Chapter("second"))
