@@ -110,30 +110,13 @@ object KebsCirceMacros {
 
   class SnakifyVariant(context: whitebox.Context) extends KebsCirceMacros(context) {
 
-    import SnakifyVariant.snakify
+    import pl.iterators.kebs.macros.namingconventions.SnakifyVariant.snakify
     import c.universe._
     protected override val semiAutoNamingStrategy: Tree =
       q"implicit lazy val __config: _root_.io.circe.generic.extras.Configuration = _root_.io.circe.generic.extras.Configuration.default.withSnakeCaseMemberNames"
 
     override protected def extractJsonFieldNames(fields: List[MethodSymbol]): Seq[String] =
       super.extractJsonFieldNames(fields).map(snakify)
-  }
-
-  object SnakifyVariant {
-    private val PASS_1 = """([A-Z\d]+)([A-Z][a-z])""".r
-    private val PASS_2 = """([a-z\d])([A-Z])""".r
-
-    private def isCamelCased(word: String) = word.exists(ch => ch == '-' || ch.isUpper)
-
-    def snakify(word: String): String = {
-      if (!isCamelCased(word)) word
-      else {
-        val afterPass1 = PASS_1.replaceAllIn(word, "$1_$2")
-        val afterPass2 = PASS_2.replaceAllIn(afterPass1, "$1_$2")
-
-        afterPass2.replace('-', '_').toLowerCase
-      }
-    }
   }
 
 }
