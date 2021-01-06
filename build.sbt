@@ -3,6 +3,9 @@ val scala_2_13             = "2.13.3"
 val mainScalaVersion       = scala_2_13
 val supportedScalaVersions = Seq(scala_2_12, scala_2_13)
 
+ThisBuild / crossScalaVersions := supportedScalaVersions
+ThisBuild / scalaVersion := scala_2_13
+
 lazy val baseSettings = Seq(
   organization := "pl.iterators",
   organizationName := "Iterators",
