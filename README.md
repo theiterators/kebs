@@ -14,12 +14,13 @@
   * [spray-json](#--kebs-eliminates-spray-json-induced-boilerplate-kebs-spray-json)
   * [play-json](#--kebs-eliminates-play-json-induced-boilerplate-kebs-play-json)
   * [akka-http](#--kebs-generates-akka-http-unmarshaller-kebs-akka-http)
+  * [circe](#--kebs-eliminates-circe-induced-boilerplate-kebs-circe)
 * [Tagged types](#tagged-types)
 
 ### Why?
 
 `kebs` is for eliminating some common sources of Scala boilerplate code that arise when you use 
-Slick (`kebs-slick`), Spray (`kebs-spray-json`), Play (`kebs-play-json`), Akka HTTP (`kebs-akka-http`).
+Slick (`kebs-slick`), Spray (`kebs-spray-json`), Play (`kebs-play-json`), Circe (`kebs-circe`), Akka HTTP (`kebs-akka-http`).
 
 ### SBT
 
@@ -34,6 +35,10 @@ Support for `spray-json`
 Support for `play-json`
 
 `libraryDependencies += "pl.iterators" %% "kebs-play-json" % "1.8.1"`
+
+Support for `circe`
+
+`libraryDependencies += "pl.iterators" %% "kebs-circe" % "1.8.1"`
 
 Support for `akka-http`
 
@@ -475,6 +480,81 @@ implicit val locationJsonFormat           = Json.format[Location]
 implicit val createThingRequestJsonFormat = Json.format[ThingCreateRequest]
 implicit val thingJsonFormat              = Json.format[Thing]
 }
+```
+
+
+#### - kebs eliminates Circe induced boilerplate (kebs-circe)
+**Still in experimental stage!**
+Circe might be a source of boilerplate depending on the type of derivation you use - if it's semi-auto derivation, you'll
+have to write a lot of encoders/decoders for your case classes:
+```scala
+object BeforeKebs {
+    object ThingProtocol extends CirceProtocol with CirceAkkaHttpSupport {
+      import io.circe._
+      import io.circe.generic.semiauto._
+      implicit val thingCreateRequestEncoder: Encoder[ThingCreateRequest] = deriveEncoder
+      implicit val thingCreateRequestDecoder: Decoder[ThingCreateRequest] = deriveDecoder
+      implicit val thingIdEncoder: Encoder[ThingId]                       = deriveEncoder
+      implicit val thingIdDecoder: Decoder[ThingId]                       = deriveDecoder
+      implicit val thingNameEncoder: Encoder[ThingName]                   = deriveEncoder
+      implicit val thingNameDecoder: Decoder[ThingName]                   = deriveDecoder
+      implicit val thingDescriptionEncoder: Encoder[ThingDescription]     = deriveEncoder
+      implicit val thingDescriptionDecoder: Decoder[ThingDescription]     = deriveDecoder
+      implicit val tagIdEncoder: Encoder[TagId]                           = deriveEncoder
+      implicit val tagIdDecoder: Decoder[TagId]                           = deriveDecoder
+      implicit val locationEncoder: Encoder[Location]                     = deriveEncoder
+      implicit val locationDecoder: Decoder[Location]                     = deriveDecoder
+      implicit val thingEncoder: Encoder[Thing]                           = deriveEncoder
+      implicit val thingDecoder: Decoder[Thing]                           = deriveDecoder
+      implicit val errorMessageDecoder: Decoder[ErrorMessage]             = deriveDecoder
+      implicit val errorMessageEncoder: Encoder[ErrorMessage]             = deriveEncoder
+    }
+    import ThingProtocol._
+    class ThingRouter(thingsService: ThingsService)(implicit ec: ExecutionContext) {
+
+      def createRoute: Route = (post & pathEndOrSingleSlash & entity(as[ThingCreateRequest])) { request =>
+        complete {
+          thingsService.create(request).map[ToResponseMarshallable] {
+            case ThingCreateResponse.Created(thing) => Created  -> thing
+            case ThingCreateResponse.AlreadyExists  => Conflict -> ErrorMessage("Already exists")
+          }
+        }
+      }
+    }
+  }
+```
+
+Kebs can get rid of this for you: 
+```scala
+object AfterKebs {
+    object ThingProtocol extends KebsCirce with CirceProtocol with CirceAkkaHttpSupport
+    import ThingProtocol._
+
+    class ThingRouter(thingsService: ThingsService)(implicit ec: ExecutionContext) {
+
+      def createRoute: Route = (post & pathEndOrSingleSlash & entity(as[ThingCreateRequest])) { request =>
+        complete {
+          thingsService.create(request).map[ToResponseMarshallable] {
+            case ThingCreateResponse.Created(thing) => Created  -> thing
+            case ThingCreateResponse.AlreadyExists  => Conflict -> ErrorMessage("Already exists")
+          }
+        }
+      }
+    }
+  }
+```
+If you want to disable flat formats, you can mix-in `KebsCirce.NoFlat`:
+```scala
+object KebsProtocol extends KebsCirce with KebsCirce.NoFlat
+```
+You can also support snake-case fields in JSON:
+```scala
+object KebsProtocol extends KebsCirce with KebsCirce.Snakified
+```
+
+And capitalized:
+```scala
+ object KebsProtocol extends KebsCirce with KebsCirce.Capitalized
 ```
 
 #### - kebs generates akka-http Unmarshaller (kebs-akka-http)
