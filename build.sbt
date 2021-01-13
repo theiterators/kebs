@@ -5,14 +5,13 @@ val supportedScalaVersions = Seq(scala_2_12, scala_2_13)
 
 ThisBuild / crossScalaVersions := supportedScalaVersions
 ThisBuild / githubWorkflowPublishTargetBranches := List()
-//ThisBuild / scalaVersion := scala_2_13
-//scalaBinaryVersion in ThisBuild := "2.13.3"
+ThisBuild / scalaVersion := mainScalaVersion
+
 lazy val baseSettings = Seq(
   organization := "pl.iterators",
   organizationName := "Iterators",
   organizationHomepage := Some(url("https://iterato.rs")),
   homepage := Some(url("https://github.com/theiterators/kebs")),
-//  scalaVersion := mainScalaVersion,
   scalacOptions := Seq("-deprecation", "-unchecked", "-feature", "-encoding", "utf8"),
   scalafmtVersion := "1.3.0",
   scalafmtOnCompile := true
@@ -207,8 +206,7 @@ lazy val sprayJsonMacros = project
     name := "spray-json-macros",
     description := "Automatic generation of Spray json formats for case-classes - macros",
     moduleName := "kebs-spray-json-macros",
-    crossScalaVersions := supportedScalaVersions,
-    crossVersion := CrossVersion.full
+    crossScalaVersions := supportedScalaVersions
   )
 
 lazy val sprayJsonSupport = project
