@@ -4,6 +4,7 @@ val mainScalaVersion       = scala_2_13
 val supportedScalaVersions = Seq(scala_2_12, scala_2_13)
 
 ThisBuild / crossScalaVersions := supportedScalaVersions
+ThisBuild / githubWorkflowPublishTargetBranches := List()
 //ThisBuild / scalaVersion := scala_2_13
 //scalaBinaryVersion in ThisBuild := "2.13.3"
 lazy val baseSettings = Seq(
