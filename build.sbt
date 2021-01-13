@@ -217,7 +217,8 @@ lazy val sprayJsonSupport = project
   .settings(
     name := "spray-json",
     description := "Automatic generation of Spray json formats for case-classes",
-    moduleName := "kebs-spray-json"
+    moduleName := "kebs-spray-json",
+    crossScalaVersions := supportedScalaVersions
   )
 
 lazy val playJsonSupport = project
