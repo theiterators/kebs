@@ -97,6 +97,8 @@ val circeAutoExtras = "io.circe" %% "circe-generic-extras" % "0.13.0"
 val circeParser     = "io.circe" %% "circe-parser" % "0.13.0"
 val optionalCirce   = optional(circe)
 
+val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.1"
+
 val enumeratumVersion         = "1.6.1"
 val enumeratumPlayJsonVersion = "1.5.16"
 val enumeratum                = "com.beachape" %% "enumeratum" % enumeratumVersion
@@ -160,6 +162,10 @@ lazy val akkaHttpSettings = commonSettings ++ Seq(
   libraryDependencies += akkaStreamTestkit % "test",
   libraryDependencies += akkaHttpTestkit   % "test",
   libraryDependencies += optionalEnumeratum
+)
+
+lazy val jsonschemaSettings = commonSettings ++ Seq(
+  libraryDependencies += jsonschema
 )
 
 lazy val taggedSettings = commonSettings ++ Seq(
@@ -269,6 +275,18 @@ lazy val akkaHttpSupport = project
     crossScalaVersions := supportedScalaVersions
   )
 
+lazy val jsonschemaSupport = project
+  .in(file("jsonschema"))
+  .dependsOn(macroUtils)
+  .settings(jsonschemaSettings: _*)
+  .settings(publishSettings: _*)
+  .settings(
+    name := "jsonschema",
+    description := "Automatic generation of JSON Schemas for case classes",
+    moduleName := "kebs-jsonschema",
+    crossScalaVersions := supportedScalaVersions
+  )
+
 lazy val tagged = project
   .in(file("tagged"))
   .settings(taggedSettings: _*)
@@ -282,7 +300,7 @@ lazy val tagged = project
 
 lazy val taggedMeta = project
   .in(file("tagged-meta"))
-  .dependsOn(macroUtils, tagged, sprayJsonSupport, circeSupport % "test -> test")
+  .dependsOn(macroUtils, tagged, sprayJsonSupport % "test -> test", circeSupport % "test -> test", jsonschemaSupport % "test -> test")
   .settings(taggedMetaSettings: _*)
   .settings(publishSettings: _*)
   .settings(
@@ -326,6 +344,7 @@ lazy val kebs = project
     sprayJsonSupport,
     playJsonSupport,
     circeSupport,
+    jsonschemaSupport,
     akkaHttpSupport,
     taggedMeta
   )
