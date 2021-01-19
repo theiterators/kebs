@@ -99,6 +99,10 @@ val optionalCirce   = optional(circe)
 
 val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.1"
 
+val scalacheck           = "org.scalacheck"             %% "scalacheck"                % "1.15.1" % "test"
+val scalacheckShapeless  = "com.github.alexarchambault" %% "scalacheck-shapeless_1.14" % "1.2.5"
+val scalacheckEnumeratum = "com.beachape"               %% "enumeratum-scalacheck"     % "1.6.1"
+
 val enumeratumVersion         = "1.6.1"
 val enumeratumPlayJsonVersion = "1.5.16"
 val enumeratum                = "com.beachape" %% "enumeratum" % enumeratumVersion
@@ -166,6 +170,12 @@ lazy val akkaHttpSettings = commonSettings ++ Seq(
 
 lazy val jsonschemaSettings = commonSettings ++ Seq(
   libraryDependencies += jsonschema
+)
+
+lazy val scalacheckSettings = commonSettings ++ Seq(
+  libraryDependencies += scalacheck,
+  libraryDependencies += scalacheckEnumeratum,
+  libraryDependencies += scalacheckShapeless
 )
 
 lazy val taggedSettings = commonSettings ++ Seq(
@@ -287,6 +297,18 @@ lazy val jsonschemaSupport = project
     crossScalaVersions := supportedScalaVersions
   )
 
+lazy val scalacheckSupport = project
+  .in(file("scalacheck"))
+  .dependsOn(macroUtils)
+  .settings(scalacheckSettings: _*)
+  .settings(publishSettings: _*)
+  .settings(
+    name := "scalacheck",
+    description := "Automatic generation of scalacheck generators for case classes",
+    moduleName := "kebs-scalacheck",
+    crossScalaVersions := supportedScalaVersions
+  )
+
 lazy val tagged = project
   .in(file("tagged"))
   .settings(taggedSettings: _*)
@@ -300,7 +322,14 @@ lazy val tagged = project
 
 lazy val taggedMeta = project
   .in(file("tagged-meta"))
-  .dependsOn(macroUtils, tagged, sprayJsonSupport % "test -> test", circeSupport % "test -> test", jsonschemaSupport % "test -> test")
+  .dependsOn(
+    macroUtils,
+    tagged,
+    sprayJsonSupport  % "test -> test",
+    circeSupport      % "test -> test",
+    jsonschemaSupport % "test -> test",
+    scalacheckSupport % "test -> test"
+  )
   .settings(taggedMetaSettings: _*)
   .settings(publishSettings: _*)
   .settings(
@@ -345,6 +374,7 @@ lazy val kebs = project
     playJsonSupport,
     circeSupport,
     jsonschemaSupport,
+    scalacheckSupport,
     akkaHttpSupport,
     taggedMeta
   )
