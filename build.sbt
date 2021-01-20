@@ -4,10 +4,6 @@ val mainScalaVersion       = scala_2_13
 val supportedScalaVersions = Seq(scala_2_12, scala_2_13)
 
 ThisBuild / crossScalaVersions := supportedScalaVersions
-ThisBuild / githubWorkflowPublishTargetBranches := List()
-
-ThisBuild / githubWorkflowJobSetup ++= List(
-  WorkflowStep.Use("fkirc", "skip-duplicate-actions", "v3.3.0", name = Some("Skip duplicate actions")))
 ThisBuild / scalaVersion := mainScalaVersion
 
 lazy val baseSettings = Seq(
