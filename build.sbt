@@ -87,11 +87,11 @@ def paradisePlugin(scalaVersion: String): Seq[ModuleID] =
   else
     Seq.empty
 
-val scalaTest       = "org.scalatest" %% "scalatest" % "3.2.2"
+val scalaTest       = "org.scalatest" %% "scalatest" % "3.2.3"
 val slick           = "com.typesafe.slick" %% "slick" % "3.3.3"
 val optionalSlick   = optional(slick)
 val slickPg         = "com.github.tminglei" %% "slick-pg" % "0.19.3"
-val sprayJson       = "io.spray" %% "spray-json" % "1.3.5"
+val sprayJson       = "io.spray" %% "spray-json" % "1.3.6"
 val playJson        = "com.typesafe.play" %% "play-json" % "2.8.1"
 val circe           = "io.circe" %% "circe-core" % "0.13.0"
 val circeAuto       = "io.circe" %% "circe-generic" % "0.13.0"
@@ -109,7 +109,7 @@ def enumeratumInExamples = {
 val optionalEnumeratum = optional(enumeratum)
 
 val akkaVersion       = "2.6.11"
-val akkaHttpVersion   = "10.2.1"
+val akkaHttpVersion   = "10.2.3"
 val akkaStream        = "com.typesafe.akka" %% "akka-stream" % akkaVersion
 val akkaStreamTestkit = "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion
 val akkaHttp          = "com.typesafe.akka" %% "akka-http" % akkaHttpVersion
