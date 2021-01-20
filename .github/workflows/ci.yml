@@ -2,6 +2,7 @@ name: Continuous Integration
 
 on:
   push:
+    branches: ['master']
   pull_request:
     branches: ['*']
 env:
@@ -16,7 +17,6 @@ jobs:
         scala: [2.12.12, 2.13.3]
         java: [adopt@1.8]
     runs-on: ${{ matrix.os }}
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != 'theiterators/kebs'
     steps:
       - name: Checkout current branch (full)
         uses: actions/checkout@v2
