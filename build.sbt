@@ -3,12 +3,14 @@ val scala_2_13             = "2.13.3"
 val mainScalaVersion       = scala_2_13
 val supportedScalaVersions = Seq(scala_2_12, scala_2_13)
 
+ThisBuild / crossScalaVersions := supportedScalaVersions
+ThisBuild / scalaVersion := mainScalaVersion
+
 lazy val baseSettings = Seq(
   organization := "pl.iterators",
   organizationName := "Iterators",
   organizationHomepage := Some(url("https://iterato.rs")),
   homepage := Some(url("https://github.com/theiterators/kebs")),
-  scalaVersion := mainScalaVersion,
   scalacOptions := Seq("-deprecation", "-unchecked", "-feature", "-encoding", "utf8"),
   scalafmtVersion := "1.3.0",
   scalafmtOnCompile := true
