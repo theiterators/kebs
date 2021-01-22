@@ -16,20 +16,32 @@ class KebsScalacheckGeneratorsMacro(override val c: whitebox.Context) extends Ma
          new pl.iterators.kebs.scalacheck.AllGenerators[$T] {
             import pl.iterators.kebs.scalacheck._
             import org.scalacheck.Arbitrary
-            import org.scalacheck.ScalacheckShapeless._
-            import enumeratum.scalacheck._
 
-            override val minimal: MinimalGenerator[$T] = new MinimalGenerator[$T] {
-              def ArbT = implicitly[Arbitrary[$T]]
+            trait GeneratorCreator extends CommonArbitrarySupport {
+              def create: Generator[$T]
             }
-
-            override val maximal: MaximalGenerator[$T] = new MaximalGenerator[$T] {
-              def ArbT = implicitly[Arbitrary[$T]]
+            
+            object MinimalGeneratorCreator extends GeneratorCreator with MinimalArbitrarySupport {
+              override def create = new Generator[$T] {
+                def ArbT = implicitly[Arbitrary[$T]]
+              }
             }
-
-            override val normal: Generator[$T] = new Generator[$T] {
-              def ArbT = implicitly[Arbitrary[$T]]
+        
+            object NormalGeneratorCreator extends GeneratorCreator {
+              override def create = new Generator[$T] {
+                def ArbT = implicitly[Arbitrary[$T]]
+              }
             }
+        
+            object MaximalGeneratorCreator extends GeneratorCreator with MaximalArbitrarySupport {
+              override def create = new Generator[$T] {
+                def ArbT = implicitly[Arbitrary[$T]]
+              }
+            }
+            
+            override val minimal: Generator[$T] = MinimalGeneratorCreator.create
+            override val maximal: Generator[$T] = MaximalGeneratorCreator.create
+            override val normal: Generator[$T] = NormalGeneratorCreator.create
           }
          }"""
     c.Expr[AllGenerators[T]](tree)

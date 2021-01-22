@@ -1,16 +1,16 @@
 package pl.iterators.kebs.scalacheck
 
-import org.scalacheck.ScalacheckShapeless._
-import enumeratum.scalacheck._
+import enumeratum.ScalacheckInstances
+import org.scalacheck.ScalacheckShapeless
 import org.scalacheck.{Arbitrary, Gen}
 import pl.iterators.kebs.macros.CaseClass1Rep
 
 import scala.util.Random
 
-trait CommonArbitrarySupport {
+trait CommonArbitrarySupport extends ScalacheckShapeless with ScalacheckInstances {
   implicit val arbString: Arbitrary[String] = Arbitrary(Gen.delay(Random.alphanumeric.take(20).mkString))
 
-  implicit def caseClass1RepJsonSchemaPredef[T, A](implicit rep: CaseClass1Rep[T, A], arbitrary: Arbitrary[A]): Arbitrary[T] =
+  implicit def caseClass1RepArbitraryPredef[T, A](implicit rep: CaseClass1Rep[T, A], arbitrary: Arbitrary[A]): Arbitrary[T] =
     arbitrary.asInstanceOf[Arbitrary[T]]
 }
 
@@ -32,23 +32,11 @@ trait Generator[T] extends CommonArbitrarySupport {
   def generate: T = ArbT.arbitrary.sample.get
 }
 
-trait MinimalGenerator[T] extends CommonArbitrarySupport with MinimalArbitrarySupport {
-  def ArbT: Arbitrary[T]
-
-  def generate: T = ArbT.arbitrary.sample.get
-}
-
-trait MaximalGenerator[T] extends CommonArbitrarySupport with MaximalArbitrarySupport {
-  def ArbT: Arbitrary[T]
-
-  def generate: T = ArbT.arbitrary.sample.get
-}
-
 trait AllGenerators[T] {
 
   val normal: Generator[T]
 
-  val minimal: MinimalGenerator[T]
+  val minimal: Generator[T]
 
-  val maximal: MaximalGenerator[T]
+  val maximal: Generator[T]
 }
