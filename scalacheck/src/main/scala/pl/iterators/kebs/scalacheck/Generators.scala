@@ -11,7 +11,7 @@ trait CommonArbitrarySupport extends ScalacheckShapeless with ScalacheckInstance
   implicit val arbString: Arbitrary[String] = Arbitrary(Gen.delay(Random.alphanumeric.take(20).mkString))
 
   implicit def caseClass1RepArbitraryPredef[T, A](implicit rep: CaseClass1Rep[T, A], arbitrary: Arbitrary[A]): Arbitrary[T] =
-    arbitrary.asInstanceOf[Arbitrary[T]]
+    Arbitrary(arbitrary.arbitrary.map(rep.apply(_)))
 }
 
 trait MinimalArbitrarySupport {
