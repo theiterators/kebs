@@ -6,6 +6,8 @@
 
 ![logo](https://raw.githubusercontent.com/theiterators/kebs/master/logo.png)
 
+A library maintained by [Iterators](https://www.iteratorshq.com).
+
 ### Table of contents
 * [Why?](#why)
 * [SBT](#sbt)
