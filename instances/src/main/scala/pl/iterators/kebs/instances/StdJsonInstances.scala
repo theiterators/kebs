@@ -1,29 +1,12 @@
 package pl.iterators.kebs.instances
 
-import java.net.{URI, URL}
-import java.time.{
-  DayOfWeek,
-  Duration,
-  Instant,
-  LocalDate,
-  LocalDateTime,
-  LocalTime,
-  Month,
-  MonthDay,
-  OffsetDateTime,
-  OffsetTime,
-  Period,
-  Year,
-  YearMonth,
-  ZoneId,
-  ZoneOffset,
-  ZonedDateTime
-}
-import java.util.{Currency, Locale, UUID}
-
 import pl.iterators.kebs.macros.CaseClass1Rep
 
-trait KebsInstances extends DateTimeFormat {
+import java.net.{URI, URL}
+import java.time._
+import java.util.{Currency, Locale, UUID}
+
+trait StdJsonInstances extends DateTimeFormat {
   implicit val uriClass1Rep: CaseClass1Rep[URI, String] =
     new CaseClass1Rep[URI, String](new URI(_), _.toString)
 

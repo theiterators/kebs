@@ -188,6 +188,8 @@ lazy val taggedMetaSettings = metaSettings ++ Seq(
   libraryDependencies += optional(circe)
 )
 
+lazy val instancesSettings = commonSettings
+
 lazy val macroUtils = project
   .in(file("macro-utils"))
   .settings(macroUtilsSettings: _*)
@@ -315,6 +317,18 @@ lazy val benchmarks = project
     moduleName := "kebs-benchmarks"
   )
 
+lazy val instances = project
+  .in(file("instances"))
+  .dependsOn(macroUtils)
+  .settings(instancesSettings: _*)
+  .settings(publishSettings: _*)
+  .settings(
+    name := "instances",
+    description := "Implicit conversion of types.",
+    moduleName := "kebs-instances",
+    crossScalaVersions := supportedScalaVersions
+  )
+
 import sbtrelease.ReleasePlugin.autoImport._
 import sbtrelease.ReleaseStateTransformations._
 
@@ -329,7 +343,8 @@ lazy val kebs = project
     playJsonSupport,
     circeSupport,
     akkaHttpSupport,
-    taggedMeta
+    taggedMeta,
+    instances
   )
   .settings(baseSettings: _*)
   .settings(
