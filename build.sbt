@@ -319,7 +319,7 @@ lazy val benchmarks = project
 
 lazy val instances = project
   .in(file("instances"))
-  .dependsOn(macroUtils)
+  .dependsOn(sprayJsonSupport)
   .settings(instancesSettings: _*)
   .settings(publishSettings: _*)
   .settings(
