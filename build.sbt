@@ -324,7 +324,7 @@ lazy val instances = project
   .settings(publishSettings: _*)
   .settings(
     name := "instances",
-    description := "Implicit conversion of types.",
+    description := "Standard Java types mappings",
     moduleName := "kebs-instances",
     crossScalaVersions := supportedScalaVersions
   )
