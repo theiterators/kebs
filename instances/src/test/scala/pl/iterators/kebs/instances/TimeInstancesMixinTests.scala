@@ -2,24 +2,31 @@ package pl.iterators.kebs.instances
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import pl.iterators.kebs.instances.TimeInstances.{DecodeError, Formatter}
 import pl.iterators.kebs.json.KebsSpray
 import spray.json._
 
 import java.time._
+import java.time.format.DateTimeFormatter
 
 class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
 
-  test("Duration nanos format") {
-    import TimeInstances.DurationNanos
-    object TimeInstancesProtocol extends DefaultJsonProtocol with KebsSpray with TimeInstances with DurationNanos
+  test("LocalDateTime custom format") {
+    object TimeInstancesProtocol extends DefaultJsonProtocol with KebsSpray with TimeInstances {
+      implicit val localDateTimeFormatter: Formatter[LocalDateTime, String] = new Formatter[LocalDateTime, String] {
+        override def encode(obj: LocalDateTime): String                        = obj.format(formatter)
+        override def decode(value: String): Either[DecodeError, LocalDateTime] = Right(LocalDateTime.parse(value, formatter))
+      }
+      val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")
+    }
     import TimeInstancesProtocol._
 
-    val jf    = implicitly[JsonFormat[Duration]]
-    val value = 123456789
-    val obj   = Duration.ofNanos(value)
+    val jf    = implicitly[JsonFormat[LocalDateTime]]
+    val value = "2007/12/03 10:30"
+    val obj   = LocalDateTime.parse(value, formatter)
 
-    jf.write(obj) shouldBe JsNumber(value)
-    jf.read(JsNumber(value)) shouldBe obj
+    jf.write(obj) shouldBe JsString(value)
+    jf.read(JsString(value)) shouldBe obj
   }
 
   test("Instant epoch milli format") {

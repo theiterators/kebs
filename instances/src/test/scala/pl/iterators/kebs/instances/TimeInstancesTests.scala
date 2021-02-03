@@ -2,13 +2,33 @@ package pl.iterators.kebs.instances
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import pl.iterators.kebs.instances.TimeInstances._
 import pl.iterators.kebs.json.KebsSpray
 import spray.json._
 
 import java.time._
-class TimeInstancesTests extends AnyFunSuite with Matchers {
-  object TimeInstancesProtocol extends DefaultJsonProtocol with KebsSpray with TimeInstances
-  import TimeInstancesProtocol._
+class TimeInstancesTests
+    extends AnyFunSuite
+    with Matchers
+    with DefaultJsonProtocol
+    with KebsSpray
+    with TimeInstances
+    with DurationString
+    with InstantString
+    with DayOfWeekNumber
+    with LocalDateTimeString
+    with LocalDateString
+    with LocalTimeString
+    with YearMonthString
+    with MonthNumber
+    with MonthDayString
+    with PeriodString
+    with OffsetDateTimeString
+    with OffsetTimeString
+    with YearString
+    with ZoneIdString
+    with ZoneOffsetString
+    with ZonedDateTimeString {
 
   test("DayOfWeek standard format") {
     val jf    = implicitly[JsonFormat[DayOfWeek]]
@@ -20,7 +40,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers {
   }
 
   test("DayOfWeek wrong format exception") {
-    import TimeInstances.{DayOfWeekFormat, FormatMsg}
+    import TimeInstances.{DayOfWeekFormat, exceptionMessage}
 
     val jf    = implicitly[JsonFormat[DayOfWeek]]
     val value = 8
@@ -28,8 +48,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers {
     val thrown = intercept[IllegalArgumentException] {
       jf.read(JsNumber(value))
     }
-
-    assert(thrown.getMessage === FormatMsg[DayOfWeek, Int](classOf[DayOfWeek], value, DayOfWeekFormat))
+    assert(thrown.getMessage === exceptionMessage[DayOfWeek, Int](classOf[DayOfWeek], value, DayOfWeekFormat))
   }
 
   test("Duration standard format") {
@@ -42,7 +61,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers {
   }
 
   test("Duration wrong format exception") {
-    import TimeInstances.{DurationFormat, FormatMsg}
+    import TimeInstances.{DurationFormat, exceptionMessage}
 
     val jf    = implicitly[JsonFormat[Duration]]
     val value = "NotADuration"
@@ -50,8 +69,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers {
     val thrown = intercept[IllegalArgumentException] {
       jf.read(JsString(value))
     }
-
-    assert(thrown.getMessage === FormatMsg[Duration, String](classOf[Duration], value, DurationFormat))
+    assert(thrown.getMessage === exceptionMessage[Duration, String](classOf[Duration], value, DurationFormat))
   }
 
   test("Instant standard format") {
@@ -64,15 +82,16 @@ class TimeInstancesTests extends AnyFunSuite with Matchers {
   }
 
   test("Instant wrong format exception") {
-    import TimeInstances.{FormatMsg, InstantFormat}
+    import TimeInstances.{InstantFormat, exceptionMessage}
 
-    val jf    = implicitly[JsonFormat[Instant]]
+    val jf = implicitly[JsonFormat[Instant]]
+
     val value = "NotAnInstant"
 
     val thrown = intercept[IllegalArgumentException] {
       jf.read(JsString(value))
     }
-    assert(thrown.getMessage === FormatMsg[Instant, String](classOf[Instant], value, InstantFormat))
+    assert(thrown.getMessage === exceptionMessage[Instant, String](classOf[Instant], value, InstantFormat))
   }
 
   test("LocalDate standard format") {
@@ -85,7 +104,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers {
   }
 
   test("LocalDate wrong format exception") {
-    import TimeInstances.{FormatMsg, LocalDateFormat}
+    import TimeInstances.{LocalDateFormat, exceptionMessage}
 
     val jf    = implicitly[JsonFormat[LocalDate]]
     val value = "NotALocalDate"
@@ -93,7 +112,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers {
     val thrown = intercept[IllegalArgumentException] {
       jf.read(JsString(value))
     }
-    assert(thrown.getMessage === FormatMsg[LocalDate, String](classOf[LocalDate], value, LocalDateFormat))
+    assert(thrown.getMessage === exceptionMessage[LocalDate, String](classOf[LocalDate], value, LocalDateFormat))
   }
 
   test("LocalDateTime standard format") {
@@ -106,7 +125,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers {
   }
 
   test("LocalDateTime wrong format exception") {
-    import TimeInstances.{FormatMsg, LocalDateTimeFormat}
+    import TimeInstances.{LocalDateTimeFormat, exceptionMessage}
 
     val jf    = implicitly[JsonFormat[LocalDateTime]]
     val value = "NotALocalDateTime"
@@ -114,7 +133,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers {
     val thrown = intercept[IllegalArgumentException] {
       jf.read(JsString(value))
     }
-    assert(thrown.getMessage === FormatMsg[LocalDateTime, String](classOf[LocalDateTime], value, LocalDateTimeFormat))
+    assert(thrown.getMessage === exceptionMessage[LocalDateTime, String](classOf[LocalDateTime], value, LocalDateTimeFormat))
   }
 
   test("LocalTime standard format") {
@@ -127,7 +146,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers {
   }
 
   test("LocalTime wrong format exception") {
-    import TimeInstances.{FormatMsg, LocalTimeFormat}
+    import TimeInstances.{LocalTimeFormat, exceptionMessage}
 
     val jf    = implicitly[JsonFormat[LocalTime]]
     val value = "NotALocalTime"
@@ -135,7 +154,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers {
     val thrown = intercept[IllegalArgumentException] {
       jf.read(JsString(value))
     }
-    assert(thrown.getMessage === FormatMsg[LocalTime, String](classOf[LocalTime], value, LocalTimeFormat))
+    assert(thrown.getMessage === exceptionMessage[LocalTime, String](classOf[LocalTime], value, LocalTimeFormat))
   }
 
   test("Month standard format") {
@@ -148,7 +167,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers {
   }
 
   test("Month wrong format exception") {
-    import TimeInstances.{FormatMsg, MonthFormat}
+    import TimeInstances.{MonthFormat, exceptionMessage}
 
     val jf    = implicitly[JsonFormat[Month]]
     val value = 13
@@ -156,7 +175,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers {
     val thrown = intercept[IllegalArgumentException] {
       jf.read(JsNumber(value))
     }
-    assert(thrown.getMessage === FormatMsg[Month, Int](classOf[Month], value, MonthFormat))
+    assert(thrown.getMessage === exceptionMessage[Month, Int](classOf[Month], value, MonthFormat))
   }
 
   test("MonthDay standard format") {
@@ -169,7 +188,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers {
   }
 
   test("MonthDay wrong format exception") {
-    import TimeInstances.{FormatMsg, MonthDayFormat}
+    import TimeInstances.{MonthDayFormat, exceptionMessage}
 
     val jf    = implicitly[JsonFormat[MonthDay]]
     val value = "NotAMonthDay"
@@ -177,7 +196,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers {
     val thrown = intercept[IllegalArgumentException] {
       jf.read(JsString(value))
     }
-    assert(thrown.getMessage === FormatMsg[MonthDay, String](classOf[MonthDay], value, MonthDayFormat))
+    assert(thrown.getMessage === exceptionMessage[MonthDay, String](classOf[MonthDay], value, MonthDayFormat))
   }
 
   test("OffsetDateTime standard format") {
@@ -190,7 +209,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers {
   }
 
   test("OffsetDateTime wrong format exception") {
-    import TimeInstances.{FormatMsg, OffsetDateTimeFormat}
+    import TimeInstances.{OffsetDateTimeFormat, exceptionMessage}
 
     val jf    = implicitly[JsonFormat[OffsetDateTime]]
     val value = "NotAnOffsetDateTime"
@@ -198,7 +217,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers {
     val thrown = intercept[IllegalArgumentException] {
       jf.read(JsString(value))
     }
-    assert(thrown.getMessage === FormatMsg[OffsetDateTime, String](classOf[OffsetDateTime], value, OffsetDateTimeFormat))
+    assert(thrown.getMessage === exceptionMessage[OffsetDateTime, String](classOf[OffsetDateTime], value, OffsetDateTimeFormat))
   }
 
   test("OffsetTime standard format") {
@@ -211,7 +230,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers {
   }
 
   test("OffsetTime wrong format exception") {
-    import TimeInstances.{FormatMsg, OffsetTimeFormat}
+    import TimeInstances.{OffsetTimeFormat, exceptionMessage}
 
     val jf    = implicitly[JsonFormat[OffsetTime]]
     val value = "NotAnOffsetTime"
@@ -219,7 +238,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers {
     val thrown = intercept[IllegalArgumentException] {
       jf.read(JsString(value))
     }
-    assert(thrown.getMessage === FormatMsg[OffsetTime, String](classOf[OffsetTime], value, OffsetTimeFormat))
+    assert(thrown.getMessage === exceptionMessage[OffsetTime, String](classOf[OffsetTime], value, OffsetTimeFormat))
   }
 
   test("Period standard format") {
@@ -232,7 +251,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers {
   }
 
   test("Period wrong format exception") {
-    import TimeInstances.{FormatMsg, PeriodFormat}
+    import TimeInstances.{PeriodFormat, exceptionMessage}
 
     val jf    = implicitly[JsonFormat[Period]]
     val value = "NotAPeriod"
@@ -240,7 +259,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers {
     val thrown = intercept[IllegalArgumentException] {
       jf.read(JsString(value))
     }
-    assert(thrown.getMessage === FormatMsg[Period, String](classOf[Period], value, PeriodFormat))
+    assert(thrown.getMessage === exceptionMessage[Period, String](classOf[Period], value, PeriodFormat))
   }
 
   test("Year standard format") {
@@ -253,7 +272,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers {
   }
 
   test("Year wrong format exception") {
-    import TimeInstances.{FormatMsg, YearFormat}
+    import TimeInstances.{YearFormat, exceptionMessage}
 
     val jf    = implicitly[JsonFormat[Year]]
     val value = "NotAYear"
@@ -261,7 +280,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers {
     val thrown = intercept[IllegalArgumentException] {
       jf.read(JsString(value))
     }
-    assert(thrown.getMessage === FormatMsg[Year, String](classOf[Year], value, YearFormat))
+    assert(thrown.getMessage === exceptionMessage[Year, String](classOf[Year], value, YearFormat))
   }
 
   test("YearMonth standard format") {
@@ -274,7 +293,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers {
   }
 
   test("YearMonth wrong format exception") {
-    import TimeInstances.{FormatMsg, YearMonthFormat}
+    import TimeInstances.{YearMonthFormat, exceptionMessage}
 
     val jf    = implicitly[JsonFormat[YearMonth]]
     val value = "NotAYearMonth"
@@ -282,7 +301,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers {
     val thrown = intercept[IllegalArgumentException] {
       jf.read(JsString(value))
     }
-    assert(thrown.getMessage === FormatMsg[YearMonth, String](classOf[YearMonth], value, YearMonthFormat))
+    assert(thrown.getMessage === exceptionMessage[YearMonth, String](classOf[YearMonth], value, YearMonthFormat))
   }
 
   test("ZoneId standard format") {
@@ -295,7 +314,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers {
   }
 
   test("ZoneId wrong format exception") {
-    import TimeInstances.{FormatMsg, ZoneIdFormat}
+    import TimeInstances.{ZoneIdFormat, exceptionMessage}
 
     val jf    = implicitly[JsonFormat[ZoneId]]
     val value = "NotAZoneId"
@@ -303,7 +322,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers {
     val thrown = intercept[IllegalArgumentException] {
       jf.read(JsString(value))
     }
-    assert(thrown.getMessage === FormatMsg[ZoneId, String](classOf[ZoneId], value, ZoneIdFormat))
+    assert(thrown.getMessage === exceptionMessage[ZoneId, String](classOf[ZoneId], value, ZoneIdFormat))
   }
 
   test("ZoneOffset standard format") {
@@ -316,7 +335,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers {
   }
 
   test("ZoneOffset wrong format exception") {
-    import TimeInstances.{FormatMsg, ZoneOffsetFormat}
+    import TimeInstances.{ZoneOffsetFormat, exceptionMessage}
 
     val jf    = implicitly[JsonFormat[ZoneOffset]]
     val value = "NotAZoneOffset"
@@ -324,7 +343,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers {
     val thrown = intercept[IllegalArgumentException] {
       jf.read(JsString(value))
     }
-    assert(thrown.getMessage === FormatMsg[ZoneOffset, String](classOf[ZoneOffset], value, ZoneOffsetFormat))
+    assert(thrown.getMessage === exceptionMessage[ZoneOffset, String](classOf[ZoneOffset], value, ZoneOffsetFormat))
   }
 
   test("ZonedDateTime standard format") {
@@ -337,7 +356,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers {
   }
 
   test("ZonedDateTime wrong format exception") {
-    import TimeInstances.{FormatMsg, ZonedDateTimeFormat}
+    import TimeInstances.{ZonedDateTimeFormat, exceptionMessage}
 
     val jf    = implicitly[JsonFormat[ZonedDateTime]]
     val value = "NotAZoneOffset"
@@ -345,7 +364,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers {
     val thrown = intercept[IllegalArgumentException] {
       jf.read(JsString(value))
     }
-    assert(thrown.getMessage === FormatMsg[ZonedDateTime, String](classOf[ZonedDateTime], value, ZonedDateTimeFormat))
+    assert(thrown.getMessage === exceptionMessage[ZonedDateTime, String](classOf[ZonedDateTime], value, ZonedDateTimeFormat))
   }
 
 }
