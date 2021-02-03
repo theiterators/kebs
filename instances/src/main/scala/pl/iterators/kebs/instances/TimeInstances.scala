@@ -146,7 +146,7 @@ object TimeInstances {
 
   trait LocalTimeString {
     implicit val localTimeFormatter: Formatter[LocalTime, String] = new Formatter[LocalTime, String] {
-      override def encode(obj: LocalTime): String = obj.toString
+      override def encode(obj: LocalTime): String = obj.format(formatter)
       override def decode(value: String): Either[DecodeError, LocalTime] =
         tryParse[LocalTime, String](LocalTime.parse(_, formatter), value, classOf[LocalTime], LocalTimeFormat)
     }
@@ -172,7 +172,7 @@ object TimeInstances {
 
   trait OffsetDateTimeString {
     implicit val offsetDateTimeFormatter: Formatter[OffsetDateTime, String] = new Formatter[OffsetDateTime, String] {
-      override def encode(obj: OffsetDateTime): String = obj.toString
+      override def encode(obj: OffsetDateTime): String = obj.format(formatter)
       override def decode(value: String): Either[DecodeError, OffsetDateTime] =
         tryParse[OffsetDateTime, String](OffsetDateTime.parse(_, formatter), value, classOf[OffsetDateTime], OffsetDateTimeFormat)
     }
@@ -181,7 +181,7 @@ object TimeInstances {
 
   trait OffsetTimeString {
     implicit val offsetTimeFormatter: Formatter[OffsetTime, String] = new Formatter[OffsetTime, String] {
-      override def encode(obj: OffsetTime): String = obj.toString
+      override def encode(obj: OffsetTime): String = obj.format(formatter)
       override def decode(value: String): Either[DecodeError, OffsetTime] =
         tryParse[OffsetTime, String](OffsetTime.parse(_, formatter), value, classOf[OffsetTime], OffsetTimeFormat)
     }
@@ -206,7 +206,7 @@ object TimeInstances {
 
   trait YearMonthString {
     implicit val yearMonthFormatter: Formatter[YearMonth, String] = new Formatter[YearMonth, String] {
-      override def encode(obj: YearMonth): String = obj.toString
+      override def encode(obj: YearMonth): String = obj.format(formatter)
       override def decode(value: String): Either[DecodeError, YearMonth] =
         tryParse[YearMonth, String](YearMonth.parse, value, classOf[YearMonth], YearMonthFormat)
     }
@@ -231,7 +231,7 @@ object TimeInstances {
 
   trait ZonedDateTimeString {
     implicit val zonedDateTimeFormatter: Formatter[ZonedDateTime, String] = new Formatter[ZonedDateTime, String] {
-      override def encode(obj: ZonedDateTime): String = obj.toString
+      override def encode(obj: ZonedDateTime): String = obj.format(formatter)
       override def decode(value: String): Either[DecodeError, ZonedDateTime] =
         tryParse[ZonedDateTime, String](ZonedDateTime.parse(_, formatter), value, classOf[ZonedDateTime], ZonedDateTimeFormat)
     }
