@@ -8,8 +8,8 @@ class SlickPgArrayColumnTypeTests extends AnyFunSuite with Matchers {
   case class MarketFinancialProduct(value: String)
 
   object MyPostgresProfile extends ExPostgresProfile with PgArraySupport {
-    override val api: API = new API {}
-    trait API extends super.API with ArrayImplicits
+    override val api: APIWithArrays = new APIWithArrays {}
+    trait APIWithArrays extends super.API with ArrayImplicits
   }
 
   import MyPostgresProfile.api._
