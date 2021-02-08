@@ -24,6 +24,9 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 
+# Build Server Protocol
+/.bsp/
+
 ### Linux template
 *~
 
