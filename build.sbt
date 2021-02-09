@@ -171,6 +171,7 @@ lazy val taggedSettings = commonSettings ++ Seq(
 
 lazy val examplesSettings = commonSettings ++ Seq(
   libraryDependencies += slickPg,
+  libraryDependencies += circeParser,
   libraryDependencies ++= enumeratumInExamples,
   libraryDependencies ++= akkaHttpInExamples,
   libraryDependencies ++= paradisePlugin(scalaVersion.value),
