@@ -11,11 +11,11 @@ object HStoreColumnType {
   case class CategoryImportance(importance: Int)
 
   object BeforeKebs {
-    import scala.collection.JavaConverters._
+    import scala.jdk.CollectionConverters._
 
     object MyPostgresProfile extends ExPostgresProfile with PgHStoreSupport {
-      override val api: API = new API {}
-      trait API extends super.API with HStoreImplicits {
+      override val api: APIWithHstore = new APIWithHstore {}
+      trait APIWithHstore extends super.API with HStoreImplicits {
         implicit val languageHStoreTypeMapper: JdbcType[Map[LanguageName, LanguageImportance]] =
           new GenericJdbcType[Map[LanguageName, LanguageImportance]](
             "hstore",
@@ -58,8 +58,8 @@ object HStoreColumnType {
 
   object AfterKebs {
     object MyPostgresProfile extends ExPostgresProfile with PgHStoreSupport {
-      override val api: API = new API {}
-      trait API extends super.API with HStoreImplicits {}
+      override val api: APIWithHstore = new APIWithHstore {}
+      trait APIWithHstore extends super.API with HStoreImplicits {}
     }
 
     import MyPostgresProfile.api._

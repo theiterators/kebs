@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        scala: [2.12.12, 2.13.3]
+        scala: [2.12.12, 2.13.4]
         java: [adopt@1.8]
     runs-on: ${{ matrix.os }}
     steps:
@@ -42,3 +42,6 @@ jobs:
 
       - name: Build project
         run: sbt ++${{ matrix.scala }} test
+
+      - name: Compile examples
+        run: sbt examples/compile
