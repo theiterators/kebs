@@ -314,6 +314,7 @@ lazy val scalacheckSupport = project
 
 lazy val tagged = project
   .in(file("tagged"))
+  .dependsOn(macroUtils)
   .settings(taggedSettings: _*)
   .settings(publishSettings: _*)
   .settings(
