@@ -4,18 +4,18 @@ import pl.iterators.kebs.macros.CaseClass1Rep
 
 trait NumericSupport {
 
-  implicit def numericImpl[T, A](implicit rep: CaseClass1Rep[T, A], n: Numeric[A]): Numeric[T] = {
-    new Numeric[T] {
-      override def plus(x: T, y: T): T                 = rep.apply(n.plus(rep.unapply(x), rep.unapply(y)))
-      override def minus(x: T, y: T): T                = rep.apply(n.minus(rep.unapply(x), rep.unapply(y)))
-      override def times(x: T, y: T): T                = rep.apply(n.times(rep.unapply(x), rep.unapply(y)))
-      override def negate(x: T): T                     = rep.apply(n.negate(rep.unapply(x)))
-      override def fromInt(x: Int): T                  = rep.apply(n.fromInt(x))
-      override def toInt(x: T): Int                    = n.toInt(rep.unapply(x))
-      override def toLong(x: T): Long                  = n.toLong(rep.unapply(x))
-      override def toFloat(x: T): Float                = n.toFloat(rep.unapply(x))
-      override def toDouble(x: T): Double              = n.toDouble(rep.unapply(x))
-      override def compare(x: T, y: T): Int            = n.compare(rep.unapply(x), rep.unapply(y))
+  implicit def numericImpl[A, Rep](implicit cc1Rep: CaseClass1Rep[A, Rep], numericRep: Numeric[Rep]): Numeric[A] = {
+    new Numeric[A] {
+      override def plus(x: A, y: A): A      = cc1Rep.apply(numericRep.plus(cc1Rep.unapply(x), cc1Rep.unapply(y)))
+      override def minus(x: A, y: A): A     = cc1Rep.apply(numericRep.minus(cc1Rep.unapply(x), cc1Rep.unapply(y)))
+      override def times(x: A, y: A): A     = cc1Rep.apply(numericRep.times(cc1Rep.unapply(x), cc1Rep.unapply(y)))
+      override def negate(x: A): A          = cc1Rep.apply(numericRep.negate(cc1Rep.unapply(x)))
+      override def fromInt(x: Int): A       = cc1Rep.apply(numericRep.fromInt(x))
+      override def toInt(x: A): Int         = numericRep.toInt(cc1Rep.unapply(x))
+      override def toLong(x: A): Long       = numericRep.toLong(cc1Rep.unapply(x))
+      override def toFloat(x: A): Float     = numericRep.toFloat(cc1Rep.unapply(x))
+      override def toDouble(x: A): Double   = numericRep.toDouble(cc1Rep.unapply(x))
+      override def compare(x: A, y: A): Int = numericRep.compare(cc1Rep.unapply(x), cc1Rep.unapply(y))
     }
   }
 
