@@ -1,15 +1,14 @@
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.macros.CaseClass1Rep
-import pl.iterators.kebs.tagged._
-import pl.iterators.kebs.tagged.implicits.NumericSupport
+import pl.iterators.kebs.support.NumericSupport
 
 class NumericSupportTests extends AnyFunSuite with Matchers with NumericSupport {
 
   trait Tag
-  type TaggedNumber = BigDecimal @@ Tag
+  type TaggedNumber = BigDecimal with Tag
   object TaggedNumber {
-    def apply(value: BigDecimal): TaggedNumber = value.@@[Tag]
+    def apply(value: BigDecimal): TaggedNumber = value.asInstanceOf[TaggedNumber]
   }
   object Tag {
     implicit val TaggedNumberCaseClass1Rep: CaseClass1Rep[TaggedNumber, BigDecimal] =

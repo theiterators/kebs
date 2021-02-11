@@ -140,6 +140,7 @@ lazy val slickSettings = commonSettings ++ Seq(
 )
 
 lazy val macroUtilsSettings = commonMacroSettings ++ Seq(
+  libraryDependencies += scalaTest,
   libraryDependencies += optionalEnumeratum
 )
 

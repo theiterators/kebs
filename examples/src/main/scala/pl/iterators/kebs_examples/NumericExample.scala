@@ -2,7 +2,7 @@ package pl.iterators.kebs_examples
 
 import pl.iterators.kebs.tag.meta.tagged
 import pl.iterators.kebs.tagged._
-import pl.iterators.kebs.tagged.implicits._
+import pl.iterators.kebs.support._
 
 @tagged trait NumericDomain {
   trait Tag1

@@ -1,4 +1,4 @@
-package pl.iterators.kebs.tagged.implicits
+package pl.iterators.kebs.support
 
 import pl.iterators.kebs.macros.CaseClass1Rep
 
