@@ -1,3 +1,8 @@
+## Version 1.9.0
+> 29.01.2021
+* Added experimental version of Circe support
+* Dependency updates
+
 ## Version 1.8.1
 > 15.09.2020
 

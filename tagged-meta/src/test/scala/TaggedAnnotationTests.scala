@@ -61,12 +61,12 @@ class TaggedAnnotationTests extends AnyFunSuite with Matchers with EitherValues 
   }
 
   test("from method must use validation (object)") {
-    PositiveInt.from(10).right.value shouldEqual 10
+    PositiveInt.from(10).value shouldEqual 10
     PositiveInt.from(0).left.value shouldEqual PositiveInt.Zero
   }
 
   test("from method must use validation (trait)") {
-    NegativeInt.from(-10).right.value shouldEqual -10
+    NegativeInt.from(-10).value shouldEqual -10
     NegativeInt.from(0).left.value shouldEqual NegativeInt.Zero
   }
 

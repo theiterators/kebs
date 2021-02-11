@@ -78,7 +78,7 @@ class AkkaHttpUnmarshallerTests extends AnyFunSuite with Matchers with Scalatest
   }
 
   test("Unmarshalling parameter") {
-    val testRoute = parameters('i.as[I]) { i =>
+    val testRoute = parameters(Symbol("i").as[I]) { i =>
       complete(i.toString)
     }
     Get("/?i=42") ~> testRoute ~> check {
@@ -87,7 +87,7 @@ class AkkaHttpUnmarshallerTests extends AnyFunSuite with Matchers with Scalatest
   }
 
   test("Unmarshalling optional parameter") {
-    val testRoute = parameters('i.as[I].?) { i =>
+    val testRoute = parameters(Symbol("i").as[I].?) { i =>
       complete(i.toString)
     }
     Get("/?i=42") ~> testRoute ~> check {
@@ -96,7 +96,7 @@ class AkkaHttpUnmarshallerTests extends AnyFunSuite with Matchers with Scalatest
   }
 
   test("Unmarshalling enum parameter") {
-    val testRoute = parameters('greeting.as[Greeting]) { greeting =>
+    val testRoute = parameters(Symbol("greeting").as[Greeting]) { greeting =>
       complete(greeting.toString)
     }
     Get("/?greeting=hi") ~> testRoute ~> check {
@@ -110,7 +110,7 @@ class AkkaHttpUnmarshallerTests extends AnyFunSuite with Matchers with Scalatest
   }
 
   test("Unmarshalling value enum parameter") {
-    val testRoute = parameters('libraryItem.as[LibraryItem]) { item =>
+    val testRoute = parameters(Symbol("libraryItem").as[LibraryItem]) { item =>
       complete(item.toString)
     }
     Get("/?libraryItem=1") ~> testRoute ~> check {
@@ -129,7 +129,7 @@ class AkkaHttpUnmarshallerTests extends AnyFunSuite with Matchers with Scalatest
   test("Case class extraction") {
     val route =
       path("color") {
-        parameters('red.as[Red], 'green.as[Green], 'blue.as[Blue]).as(Color) { color =>
+        parameters(Symbol("red").as[Red], Symbol("green").as[Green], Symbol("blue").as[Blue]).as(Color) { color =>
           complete(color.toString)
         }
       }
@@ -150,7 +150,7 @@ class AkkaHttpUnmarshallerTests extends AnyFunSuite with Matchers with Scalatest
   }
 
   test("Unmarshalling string value enum parameter") {
-    val testRoute = parameters('shirtSize.as[ShirtSize]) { shirtSize =>
+    val testRoute = parameters(Symbol("shirtSize").as[ShirtSize]) { shirtSize =>
       complete(shirtSize.toString)
     }
     Get("/?shirtSize=M") ~> testRoute ~> check {
@@ -172,7 +172,7 @@ class AkkaHttpUnmarshallerTests extends AnyFunSuite with Matchers with Scalatest
   test("bug: work with default enum values") {
     val route =
       path("test_enum") {
-        parameter('sort.as[SortOrder] ? (SortOrder.Desc: SortOrder)) { sort =>
+        parameter(Symbol("sort").as[SortOrder] ? (SortOrder.Desc: SortOrder)) { sort =>
           complete {
             s"Sort was $sort"
           }

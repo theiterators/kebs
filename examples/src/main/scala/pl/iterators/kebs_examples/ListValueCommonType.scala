@@ -8,8 +8,8 @@ object ListValueCommonType {
 
   object BeforeKebs {
     object MyPostgresProfile extends ExPostgresProfile with PgArraySupport {
-      override val api: API = new API {}
-      trait API extends super.API with ArrayImplicits {
+      override val api: APIWithArrays = new APIWithArrays {}
+      trait APIWithArrays extends super.API with ArrayImplicits {
         implicit val institutionListTypeWrapper =
           new SimpleArrayJdbcType[Long]("int8").mapTo[Institution](Institution, _.value).to(_.toList)
         implicit val marketFinancialProductWrapper =
@@ -30,8 +30,8 @@ object ListValueCommonType {
 
   object AfterKebs {
     object MyPostgresProfile extends ExPostgresProfile with PgArraySupport {
-      override val api: API = new API {}
-      trait API extends super.API with ArrayImplicits
+      override val api: APIWithArrays = new APIWithArrays {}
+      trait APIWithArrays extends super.API with ArrayImplicits
     }
 
     import MyPostgresProfile.api._
@@ -48,8 +48,8 @@ object ListValueCommonType {
   object AfterKebsTraitStyle {
     import pl.iterators.kebs.Kebs
     object MyPostgresProfile extends ExPostgresProfile with PgArraySupport {
-      override val api: API = new API {}
-      trait API extends super.API with ArrayImplicits with Kebs
+      override val api: APIWithArraysAndKebs = new APIWithArraysAndKebs {}
+      trait APIWithArraysAndKebs extends super.API with ArrayImplicits with Kebs
     }
 
     import MyPostgresProfile.api._

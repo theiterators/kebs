@@ -102,8 +102,8 @@ object EnumValueColumnType {
     import pl.iterators.kebs.enums.KebsEnums
 
     object MyPostgresProfile extends ExPostgresProfile {
-      override val api: API = new API {}
-      trait API extends super.API with Kebs with KebsEnums.Lowercase
+      override val api: APIWithKebsAndEnums = new APIWithKebsAndEnums {}
+      trait APIWithKebsAndEnums extends super.API with Kebs with KebsEnums.Lowercase
     }
 
     import MyPostgresProfile.api._

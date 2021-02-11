@@ -7,8 +7,8 @@ class SlickPgHstoreColumnTypeTests extends AnyFunSuite with Matchers {
   case class CategoryImportance(value: Int)
 
   object MyPostgresProfile extends ExPostgresProfile with PgHStoreSupport {
-    override val api: API = new API {}
-    trait API extends super.API with HStoreImplicits
+    override val api: APIWithHStore = new APIWithHStore {}
+    trait APIWithHStore extends super.API with HStoreImplicits
   }
 
   import MyPostgresProfile.api._

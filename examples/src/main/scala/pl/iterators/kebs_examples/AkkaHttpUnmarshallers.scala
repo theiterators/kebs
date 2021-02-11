@@ -55,7 +55,10 @@ object AkkaHttpUnmarshallers {
       : FromStringUnmarshaller[Column] = Unmarshaller.intFromStringUnmarshaller andThen valueEnumUnmarshaller(Column)
 
     val route = get {
-      parameters('sortBy.as[Column], 'order.as[SortOrder] ? (SortOrder.Desc: SortOrder), 'offset.as[Offset] ? Offset(0), 'limit.as[Limit])
+      parameters(Symbol("sortBy").as[Column],
+                 Symbol("order").as[SortOrder] ? (SortOrder.Desc: SortOrder),
+                 Symbol("offset").as[Offset] ? Offset(0),
+                 Symbol("limit").as[Limit])
         .as(PaginationQuery) { query =>
           complete(StatusCodes.OK)
         }
@@ -67,7 +70,10 @@ object AkkaHttpUnmarshallers {
     import enums._
 
     val route = get {
-      parameters('sortBy.as[Column], 'order.as[SortOrder] ? (SortOrder.Desc: SortOrder), 'offset.as[Offset] ? Offset(0), 'limit.as[Limit])
+      parameters(Symbol("sortBy").as[Column],
+                 Symbol("order").as[SortOrder] ? (SortOrder.Desc: SortOrder),
+                 Symbol("offset").as[Offset] ? Offset(0),
+                 Symbol("limit").as[Limit])
         .as(PaginationQuery) { query =>
           complete(StatusCodes.OK)
         }

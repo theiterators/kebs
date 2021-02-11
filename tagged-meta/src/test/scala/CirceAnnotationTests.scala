@@ -75,6 +75,6 @@ class CirceAnnotationTests extends AnyFunSuite with Matchers with KebsCirce {
   case class C(i: Int, j: CirceTestTags.PositiveInt)
   test("Implicits are found from tag companion object") {
     val decoder: Decoder[C] = implicitly[Decoder[C]]
-    decoder.apply(Json.fromFields(List("i" -> Json.fromInt(1), "j" -> Json.fromInt(2))).hcursor).right.map(_.j) shouldEqual Right(2)
+    decoder.apply(Json.fromFields(List("i" -> Json.fromInt(1), "j" -> Json.fromInt(2))).hcursor).map(_.j) shouldEqual Right(2)
   }
 }
