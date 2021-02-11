@@ -6,8 +6,6 @@ import java.net.{URI, URL}
 import java.time.ZonedDateTime
 
 trait KebsJsonSchemaPredefs {
-  implicit val jswUnit: JsonSchemaWrapper[Unit] = JsonSchemaWrapper[Unit](null)
-
   implicit val predefZonedDateTime: Predef[ZonedDateTime] = Predef(json.Schema.`string`[ZonedDateTime])
 
   implicit val predefUrl: Predef[URL] = Predef(json.Schema.`string`[URL])

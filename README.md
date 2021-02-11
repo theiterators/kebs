@@ -42,6 +42,14 @@ Support for `circe`
 
 `libraryDependencies += "pl.iterators" %% "kebs-circe" % "1.9.0"`
 
+Support for `json-schema`
+
+`libraryDependencies += "pl.iterators" %% "kebs-jsonschema" % "1.9.0"`
+
+Support for `scalacheck`
+
+`libraryDependencies += "pl.iterators" %% "kebs-scalacheck" % "1.9.0"`
+
 Support for `akka-http`
 
 `libraryDependencies += "pl.iterators" %% "kebs-akka-http" % "1.9.0"`
@@ -766,3 +774,93 @@ There are some conventions that are assumed during generation.
 Also, `CaseClass1Rep` is generated for each tag meaning you will get a lot of `kebs` machinery for free eg. spray formats etc.
 
 
+### JsonSchema support
+
+Starting from 1.9.0 kebs contains a macro, which generate wrapped jsonschema object of `https://github.com/andyglow/scala-jsonschema`.
+Kebs also provide proper implicits conversions for their tagged types and common Java types.
+To get your json schema you need to use import pl.iterators.kebs.jsonschema.KebsJsonSchema
+(together with pl.iterators.kebs.jsonschema.KebsJsonSchemaPredefs if you need support for more Java types).
+
+```scala
+import com.github.andyglow.json.JsonFormatter
+import com.github.andyglow.jsonschema.AsValue
+import json.schema.Version.Draft07
+import pl.iterators.kebs.jsonschema.{KebsJsonSchema, JsonSchemaWrapper}
+
+case class WrappedInt(int: Int)
+case class WrappedIntAnyVal(int: Int) extends AnyVal
+case class Sample(someNumber: Int,
+                  someText: String,
+                  arrayOfNumbers: List[Int],
+                  wrappedNumber: WrappedInt,
+                  wrappedNumberAnyVal: WrappedIntAnyVal)
+
+object Sample extends KebsJsonSchema {
+
+  object SchemaPrinter {
+    def printWrapper[T](id: String = "id")(implicit schemaWrapper: JsonSchemaWrapper[T]): String =
+      JsonFormatter.format(AsValue.schema(schemaWrapper.schema, Draft07(id)))
+  }
+
+  SchemaPrinter.printWrapper[Sample]()
+
+}
+
+```
+
+### Scalacheck support
+
+Starting from 1.9.0 kebs provide support to use tagged types in your Arbitrary from scalacheck.
+Along with this kebs provide support for Java types.
+Kebs also introduce term of minimal and maximal generator.
+The minimal generator is an generator which always generates empty collection of Option, Set, Map etc.
+The maximum - in the opposite - always generate non-empty collections.
+Kebs provide an useful trait called AllGenerators which binds minimal, normal and maximal generator all together,
+so you can get easy generate the representation you currently need for tests.
+
+```scala
+import pl.iterators.kebs.scalacheck.{KebsArbitraryPredefs, KebsScalacheckGenerators}
+import java.net.{URI, URL}
+import java.time.{Duration, Instant, LocalDate, LocalDateTime, LocalTime, ZonedDateTime}
+
+case class WrappedInt(int: Int)
+case class WrappedIntAnyVal(int: Int) extends AnyVal
+case class BasicSample(
+    someNumber: Int,
+    someText: String,
+    wrappedNumber: WrappedInt,
+    wrappedNumberAnyVal: WrappedIntAnyVal,
+)
+
+case class CollectionsSample(
+    listOfNumbers: List[Int],
+    arrayOfNumbers: Array[Int],
+    setOfNumbers: Set[Int],
+    vectorOfNumbers: Vector[Int],
+    optionOfNumber: Option[Int],
+    mapOfNumberString: Map[Int, String],
+)
+
+case class JavaTypesSample(
+    instant: Instant,
+    zonedDateTime: ZonedDateTime,
+    localDateTime: LocalDateTime,
+    localDate: LocalDate,
+    localTime: LocalTime,
+    duration: Duration,
+    url: URL,
+    uri: URI
+)
+
+object Sample extends KebsScalacheckGenerators with KebsArbitraryPredefs {
+
+    val basic = allGenerators[BasicSample].normal.generate
+
+    val minimalCollections = allGenerators[CollectionsSample].minimal.generate
+    val maximalCollections = allGenerators[CollectionsSample].maximal.generate
+
+    val javaTypes =  allGenerators[JavaTypesSample].normal.generate
+
+}
+
+```
