@@ -85,9 +85,8 @@ trait KebsArbitraryPredefs {
     Arbitrary(Gen.calendar.map(_.toInstant.atZone(ZoneId.systemDefault())))
 
   implicit val arbDuration: Arbitrary[Duration] = Arbitrary(Gen.duration.map { duration =>
-    if (duration.length == 0) Duration.ZERO
-    else if (duration == scala.concurrent.duration.Duration.Inf) ChronoUnit.FOREVER.getDuration
-    else if (duration == scala.concurrent.duration.Duration.MinusInf) ChronoUnit.FOREVER.getDuration
+    if (!duration.isFinite) ChronoUnit.FOREVER.getDuration
+    else if (duration.length == 0) Duration.ZERO
     else
       duration.unit match {
         case TimeUnit.NANOSECONDS  => Duration.ofNanos(duration.length)
