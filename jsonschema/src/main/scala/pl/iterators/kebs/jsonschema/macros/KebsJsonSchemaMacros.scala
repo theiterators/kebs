@@ -13,8 +13,8 @@ class KebsJsonSchemaMacros(override val c: whitebox.Context) extends MacroUtils 
     val T = weakTypeOf[T]
     val tree =
       q"""{
-         val schema = json.Json.schema[$T]
-         pl.iterators.kebs.jsonschema.JsonSchemaWrapper(schema)
+         val schema = _root_.json.Json.schema[$T]
+         _root_.pl.iterators.kebs.jsonschema.JsonSchemaWrapper(schema)
          }"""
     c.Expr[JsonSchemaWrapper[T]](tree)
   }

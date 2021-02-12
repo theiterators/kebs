@@ -778,8 +778,8 @@ Also, `CaseClass1Rep` is generated for each tag meaning you will get a lot of `k
 
 ### JsonSchema support
 
-Starting from 1.9.0 kebs contains a macro, which generate wrapped jsonschema object of `https://github.com/andyglow/scala-jsonschema`.
-Kebs also provide proper implicits conversions for their tagged types and common Java types.
+Kebs contains a macro, which generate wrapped jsonschema object of `https://github.com/andyglow/scala-jsonschema`.
+Kebs also provides proper implicits conversions for their tagged types and common Java types.
 To get your json schema you need to use import pl.iterators.kebs.jsonschema.KebsJsonSchema
 (together with pl.iterators.kebs.jsonschema.KebsJsonSchemaPredefs if you need support for more Java types).
 
@@ -812,12 +812,12 @@ object Sample extends KebsJsonSchema {
 
 ### Scalacheck support
 
-Starting from 1.9.0 kebs provide support to use tagged types in your Arbitrary from scalacheck.
-Along with this kebs provide support for Java types.
-Kebs also introduce term of minimal and maximal generator.
+Kebs provides support to use tagged types in your Arbitrary from scalacheck.
+Along with this kebs provides support for Java types.
+Kebs also introduces term of minimal and maximal generator.
 The minimal generator is an generator which always generates empty collection of Option, Set, Map etc.
 The maximum - in the opposite - always generate non-empty collections.
-Kebs provide an useful trait called AllGenerators which binds minimal, normal and maximal generator all together,
+Kebs provides an useful trait called AllGenerators which binds minimal, normal and maximal generator all together,
 so you can get easy generate the representation you currently need for tests.
 
 ```scala
