@@ -4,7 +4,7 @@ import pl.iterators.kebs.macros.CaseClass1Rep
 
 trait NumericSupport {
 
-  implicit def numericImpl[A, Rep](implicit cc1Rep: CaseClass1Rep[A, Rep], numericRep: Numeric[Rep]): Numeric[A] = {
+  implicit def numericFromCaseClass1Rep[A, Rep](implicit cc1Rep: CaseClass1Rep[A, Rep], numericRep: Numeric[Rep]): Numeric[A] = {
     new Numeric[A] {
       override def plus(x: A, y: A): A                 = cc1Rep.apply(numericRep.plus(cc1Rep.unapply(x), cc1Rep.unapply(y)))
       override def minus(x: A, y: A): A                = cc1Rep.apply(numericRep.minus(cc1Rep.unapply(x), cc1Rep.unapply(y)))
