@@ -11,7 +11,6 @@ class KebsJsonSchemaMacros(override val c: whitebox.Context) extends MacroUtils 
 
   final def materializeSchema[T: c.WeakTypeTag]: c.Expr[JsonSchemaWrapper[T]] = {
     val T = weakTypeOf[T]
-    //assertCaseClass(T, s"To materialize json.Schema[T], ${T.typeSymbol} must be a case class")
     val tree =
       q"""{
          val schema = json.Json.schema[$T]

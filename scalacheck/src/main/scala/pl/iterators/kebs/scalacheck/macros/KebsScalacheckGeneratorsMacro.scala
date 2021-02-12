@@ -10,7 +10,6 @@ class KebsScalacheckGeneratorsMacro(override val c: whitebox.Context) extends Ma
 
   final def materializeGenerators[T: c.WeakTypeTag]: c.Expr[AllGenerators[T]] = {
     val T = weakTypeOf[T]
-    //assertCaseClass(T, s"To materialize json.Schema[T], ${T.typeSymbol} must be a case class")
     val tree =
       q"""{
          new pl.iterators.kebs.scalacheck.AllGenerators[$T] {

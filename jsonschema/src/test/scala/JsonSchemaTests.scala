@@ -23,7 +23,6 @@ class JsonSchemaTests extends AnyFunSuite with Matchers {
 
   test("Basic test") {
     import KebsProtocol._
-    print(SchemaPrinter.printWrapper[Sample]())
-    1 shouldBe 1
+    "implicitly[JsonSchemaWrapper[Sample]]" should compile
   }
 }

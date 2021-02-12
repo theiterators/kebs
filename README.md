@@ -18,6 +18,8 @@ A library maintained by [Iterators](https://www.iteratorshq.com).
   * [akka-http](#--kebs-generates-akka-http-unmarshaller-kebs-akka-http)
   * [circe](#--kebs-eliminates-circe-induced-boilerplate-kebs-circe)
 * [Tagged types](#tagged-types)
+* [JsonSchema support](#jsonschema-support)
+* [Scalacheck support](#scalachec-support)
 
 ### Why?
 
