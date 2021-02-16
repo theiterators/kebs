@@ -19,7 +19,7 @@ A library maintained by [Iterators](https://www.iteratorshq.com).
   * [circe](#--kebs-eliminates-circe-induced-boilerplate-kebs-circe)
 * [Tagged types](#tagged-types)
 * [JsonSchema support](#jsonschema-support)
-* [Scalacheck support](#scalachec-support)
+* [Scalacheck support](#scalacheck-support)
 * [Kebs for IntelliJ](#kebs-for-intellij)
 
 ### Why?
