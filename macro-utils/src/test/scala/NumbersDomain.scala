@@ -33,5 +33,4 @@ object NumbersDomain {
     implicit val BoxedIntCaseClass1Rep: CaseClass1Rep[BoxedInt, Int] =
       new CaseClass1Rep[BoxedInt, Int](BoxedInt.apply, _.value)
   }
-
 }

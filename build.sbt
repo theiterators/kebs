@@ -88,6 +88,7 @@ def paradisePlugin(scalaVersion: String): Seq[ModuleID] =
     Seq.empty
 
 val scalaTest       = "org.scalatest" %% "scalatest" % "3.2.5"
+val scalaCheck      = "org.scalacheck" %% "scalacheck" % "1.15.3"
 val slick           = "com.typesafe.slick" %% "slick" % "3.3.3"
 val optionalSlick   = optional(slick)
 val playJson        = "com.typesafe.play" %% "play-json" % "2.9.2"
@@ -140,7 +141,7 @@ lazy val slickSettings = commonSettings ++ Seq(
 )
 
 lazy val macroUtilsSettings = commonMacroSettings ++ Seq(
-  libraryDependencies += scalaTest,
+  libraryDependencies += scalaCheck % "test",
   libraryDependencies += optionalEnumeratum
 )
 
