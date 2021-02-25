@@ -1,68 +1,60 @@
 package pl.iterators.kebs.instances
 
-import pl.iterators.kebs.instances.TimeInstances.DecodeError
 import pl.iterators.kebs.macros.CaseClass1Rep
 
 import java.time._
 import java.time.format.DateTimeFormatter
 
-trait TimeInstances {
-  import TimeInstances.Formatter
+trait TimeInstances extends Instances {
 
-  implicit def dayOfWeekRep[T](implicit f: Formatter[DayOfWeek, T]): CaseClass1Rep[DayOfWeek, T] =
+  implicit def dayOfWeekRep[T](implicit f: InstancesFormatter[DayOfWeek, T]): CaseClass1Rep[DayOfWeek, T] =
     new CaseClass1Rep[DayOfWeek, T](decodeObject[DayOfWeek, T](f.decode), f.encode)
 
-  implicit def durationRep[T](implicit f: Formatter[Duration, T]): CaseClass1Rep[Duration, T] =
+  implicit def durationRep[T](implicit f: InstancesFormatter[Duration, T]): CaseClass1Rep[Duration, T] =
     new CaseClass1Rep[Duration, T](decodeObject[Duration, T](f.decode), f.encode)
 
-  implicit def instantRep[T](implicit f: Formatter[Instant, T]): CaseClass1Rep[Instant, T] =
+  implicit def instantRep[T](implicit f: InstancesFormatter[Instant, T]): CaseClass1Rep[Instant, T] =
     new CaseClass1Rep[Instant, T](decodeObject[Instant, T](f.decode), f.encode)
 
-  implicit def localDateRep[T](implicit f: Formatter[LocalDate, T]): CaseClass1Rep[LocalDate, T] =
+  implicit def localDateRep[T](implicit f: InstancesFormatter[LocalDate, T]): CaseClass1Rep[LocalDate, T] =
     new CaseClass1Rep[LocalDate, T](decodeObject[LocalDate, T](f.decode), f.encode)
 
-  implicit def localDateTimeRep[T](implicit f: Formatter[LocalDateTime, T]): CaseClass1Rep[LocalDateTime, T] =
+  implicit def localDateTimeRep[T](implicit f: InstancesFormatter[LocalDateTime, T]): CaseClass1Rep[LocalDateTime, T] =
     new CaseClass1Rep[LocalDateTime, T](decodeObject[LocalDateTime, T](f.decode), f.encode)
 
-  implicit def localTimeRep[T](implicit f: Formatter[LocalTime, T]): CaseClass1Rep[LocalTime, T] =
+  implicit def localTimeRep[T](implicit f: InstancesFormatter[LocalTime, T]): CaseClass1Rep[LocalTime, T] =
     new CaseClass1Rep[LocalTime, T](decodeObject[LocalTime, T](f.decode), f.encode)
 
-  implicit def monthRep[T](implicit f: Formatter[Month, T]): CaseClass1Rep[Month, T] =
+  implicit def monthRep[T](implicit f: InstancesFormatter[Month, T]): CaseClass1Rep[Month, T] =
     new CaseClass1Rep[Month, T](decodeObject[Month, T](f.decode), f.encode)
 
-  implicit def monthDayRep[T](implicit f: Formatter[MonthDay, T]): CaseClass1Rep[MonthDay, T] =
+  implicit def monthDayRep[T](implicit f: InstancesFormatter[MonthDay, T]): CaseClass1Rep[MonthDay, T] =
     new CaseClass1Rep[MonthDay, T](decodeObject[MonthDay, T](f.decode), f.encode)
 
-  implicit def offsetDateTimeRep[T](implicit f: Formatter[OffsetDateTime, T]): CaseClass1Rep[OffsetDateTime, T] =
+  implicit def offsetDateTimeRep[T](implicit f: InstancesFormatter[OffsetDateTime, T]): CaseClass1Rep[OffsetDateTime, T] =
     new CaseClass1Rep[OffsetDateTime, T](decodeObject[OffsetDateTime, T](f.decode), f.encode)
 
-  implicit def offsetTimeRep[T](implicit f: Formatter[OffsetTime, T]): CaseClass1Rep[OffsetTime, T] =
+  implicit def offsetTimeRep[T](implicit f: InstancesFormatter[OffsetTime, T]): CaseClass1Rep[OffsetTime, T] =
     new CaseClass1Rep[OffsetTime, T](decodeObject[OffsetTime, T](f.decode), f.encode)
 
-  implicit def periodRep[T](implicit f: Formatter[Period, T]): CaseClass1Rep[Period, T] =
+  implicit def periodRep[T](implicit f: InstancesFormatter[Period, T]): CaseClass1Rep[Period, T] =
     new CaseClass1Rep[Period, T](decodeObject[Period, T](f.decode), f.encode)
 
-  implicit def yearRep[T](implicit f: Formatter[Year, T]): CaseClass1Rep[Year, T] =
+  implicit def yearRep[T](implicit f: InstancesFormatter[Year, T]): CaseClass1Rep[Year, T] =
     new CaseClass1Rep[Year, T](decodeObject[Year, T](f.decode), f.encode)
 
-  implicit def yearMonthRep[T](implicit f: Formatter[YearMonth, T]): CaseClass1Rep[YearMonth, T] =
+  implicit def yearMonthRep[T](implicit f: InstancesFormatter[YearMonth, T]): CaseClass1Rep[YearMonth, T] =
     new CaseClass1Rep[YearMonth, T](decodeObject[YearMonth, T](f.decode), f.encode)
 
-  implicit def zoneIdRep[T](implicit f: Formatter[ZoneId, T]): CaseClass1Rep[ZoneId, T] =
+  implicit def zoneIdRep[T](implicit f: InstancesFormatter[ZoneId, T]): CaseClass1Rep[ZoneId, T] =
     new CaseClass1Rep[ZoneId, T](decodeObject[ZoneId, T](f.decode), f.encode)
 
-  implicit def zoneOffsetRep[T](implicit f: Formatter[ZoneOffset, T]): CaseClass1Rep[ZoneOffset, T] =
+  implicit def zoneOffsetRep[T](implicit f: InstancesFormatter[ZoneOffset, T]): CaseClass1Rep[ZoneOffset, T] =
     new CaseClass1Rep[ZoneOffset, T](decodeObject[ZoneOffset, T](f.decode), f.encode)
 
-  implicit def zonedDateTimeRep[T](implicit f: Formatter[ZonedDateTime, T]): CaseClass1Rep[ZonedDateTime, T] =
+  implicit def zonedDateTimeRep[T](implicit f: InstancesFormatter[ZonedDateTime, T]): CaseClass1Rep[ZonedDateTime, T] =
     new CaseClass1Rep[ZonedDateTime, T](decodeObject[ZonedDateTime, T](f.decode), f.encode)
 
-  private def decodeObject[Obj, Val](decode: Val => Either[DecodeError, Obj])(value: Val): Obj = {
-    decode(value) match {
-      case Left(DecodeError(msg, e)) => throw new IllegalArgumentException(msg, e)
-      case Right(value)              => value
-    }
-  }
 }
 
 object TimeInstances {
@@ -83,51 +75,33 @@ object TimeInstances {
   private[instances] val ZonedDateTimeFormat  = "ISO-8601 standard format extended with zone e.g. 2011-12-03T10:15:30+01:00[Europe/Warsaw]"
   private[instances] val ZoneIdFormat         = "IANA standard format e.g. Europe/Warsaw"
 
-  private[instances] def exceptionMessage[Obj, Val](clazz: Class[Obj], value: Val, format: String): String =
-    s"${clazz.getName} cannot be parsed from $value – should be in format $format"
-
-  case class DecodeError(msg: String, e: Throwable)
-
-  trait Formatter[Obj, Val] {
-    def encode(obj: Obj): Val
-    def decode(value: Val): Either[DecodeError, Obj]
-  }
-
-  private def tryParse[Obj, Val](parse: Val => Obj, value: Val, clazz: Class[Obj], format: String) = {
-    try {
-      Right(parse(value))
-    } catch {
-      case e: DateTimeException => Left(DecodeError(exceptionMessage(clazz, value, format), e))
-      case e: Throwable         => throw e
-    }
-  }
-
-  trait DayOfWeekNumber {
-    implicit val dayOfWeekFormatter: Formatter[DayOfWeek, Int] = new Formatter[DayOfWeek, Int] {
+  /** Standard formats */
+  trait DayOfWeekNumber extends TimeInstances {
+    implicit val dayOfWeekFormatter: InstancesFormatter[DayOfWeek, Int] = new InstancesFormatter[DayOfWeek, Int] {
       override def encode(obj: DayOfWeek): Int = obj.getValue
       override def decode(value: Int): Either[DecodeError, DayOfWeek] =
         tryParse[DayOfWeek, Int](DayOfWeek.of, value, classOf[DayOfWeek], DayOfWeekFormat)
     }
   }
 
-  trait InstantString {
-    implicit val instantFormatter: Formatter[Instant, String] = new Formatter[Instant, String] {
+  trait InstantString extends TimeInstances {
+    implicit val instantFormatter: InstancesFormatter[Instant, String] = new InstancesFormatter[Instant, String] {
       override def encode(obj: Instant): String = obj.toString
       override def decode(value: String): Either[DecodeError, Instant] =
         tryParse[Instant, String](Instant.parse, value, classOf[Instant], InstantFormat)
     }
   }
 
-  trait DurationString {
-    implicit val durationFormatter: Formatter[Duration, String] = new Formatter[Duration, String] {
+  trait DurationString extends TimeInstances {
+    implicit val durationFormatter: InstancesFormatter[Duration, String] = new InstancesFormatter[Duration, String] {
       override def encode(obj: Duration): String = obj.toString
       override def decode(value: String): Either[DecodeError, Duration] =
         tryParse[Duration, String](Duration.parse, value, classOf[Duration], DurationFormat)
     }
   }
 
-  trait LocalDateString {
-    implicit val localDateFormatter: Formatter[LocalDate, String] = new Formatter[LocalDate, String] {
+  trait LocalDateString extends TimeInstances {
+    implicit val localDateFormatter: InstancesFormatter[LocalDate, String] = new InstancesFormatter[LocalDate, String] {
       override def encode(obj: LocalDate): String = obj.format(formatter)
       override def decode(value: String): Either[DecodeError, LocalDate] =
         tryParse[LocalDate, String](LocalDate.parse(_, formatter), value, classOf[LocalDate], LocalDateFormat)
@@ -135,8 +109,8 @@ object TimeInstances {
     private val formatter = DateTimeFormatter.ISO_LOCAL_DATE
   }
 
-  trait LocalDateTimeString {
-    implicit val localDateTimeFormatter: Formatter[LocalDateTime, String] = new Formatter[LocalDateTime, String] {
+  trait LocalDateTimeString extends TimeInstances {
+    implicit val localDateTimeFormatter: InstancesFormatter[LocalDateTime, String] = new InstancesFormatter[LocalDateTime, String] {
       override def encode(obj: LocalDateTime): String = obj.format(formatter)
       override def decode(value: String): Either[DecodeError, LocalDateTime] =
         tryParse[LocalDateTime, String](LocalDateTime.parse(_, formatter), value, classOf[LocalDateTime], LocalDateTimeFormat)
@@ -144,8 +118,8 @@ object TimeInstances {
     private val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
   }
 
-  trait LocalTimeString {
-    implicit val localTimeFormatter: Formatter[LocalTime, String] = new Formatter[LocalTime, String] {
+  trait LocalTimeString extends TimeInstances {
+    implicit val localTimeFormatter: InstancesFormatter[LocalTime, String] = new InstancesFormatter[LocalTime, String] {
       override def encode(obj: LocalTime): String = obj.format(formatter)
       override def decode(value: String): Either[DecodeError, LocalTime] =
         tryParse[LocalTime, String](LocalTime.parse(_, formatter), value, classOf[LocalTime], LocalTimeFormat)
@@ -153,16 +127,16 @@ object TimeInstances {
     private val formatter = DateTimeFormatter.ISO_LOCAL_TIME
   }
 
-  trait MonthNumber {
-    implicit val monthFormatter: Formatter[Month, Int] = new Formatter[Month, Int] {
+  trait MonthNumber extends TimeInstances {
+    implicit val monthFormatter: InstancesFormatter[Month, Int] = new InstancesFormatter[Month, Int] {
       override def encode(obj: Month): Int = obj.getValue
       override def decode(value: Int): Either[DecodeError, Month] =
         tryParse[Month, Int](Month.of, value, classOf[Month], MonthFormat)
     }
   }
 
-  trait MonthDayString {
-    implicit val monthDayFormatter: Formatter[MonthDay, String] = new Formatter[MonthDay, String] {
+  trait MonthDayString extends TimeInstances {
+    implicit val monthDayFormatter: InstancesFormatter[MonthDay, String] = new InstancesFormatter[MonthDay, String] {
       override def encode(obj: MonthDay): String = obj.format(formatter)
       override def decode(value: String): Either[DecodeError, MonthDay] =
         tryParse[MonthDay, String](MonthDay.parse(_, formatter), value, classOf[MonthDay], MonthDayFormat)
@@ -170,8 +144,8 @@ object TimeInstances {
     private val formatter = DateTimeFormatter.ofPattern("--MM-dd")
   }
 
-  trait OffsetDateTimeString {
-    implicit val offsetDateTimeFormatter: Formatter[OffsetDateTime, String] = new Formatter[OffsetDateTime, String] {
+  trait OffsetDateTimeString extends TimeInstances {
+    implicit val offsetDateTimeFormatter: InstancesFormatter[OffsetDateTime, String] = new InstancesFormatter[OffsetDateTime, String] {
       override def encode(obj: OffsetDateTime): String = obj.format(formatter)
       override def decode(value: String): Either[DecodeError, OffsetDateTime] =
         tryParse[OffsetDateTime, String](OffsetDateTime.parse(_, formatter), value, classOf[OffsetDateTime], OffsetDateTimeFormat)
@@ -179,8 +153,8 @@ object TimeInstances {
     private val formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
   }
 
-  trait OffsetTimeString {
-    implicit val offsetTimeFormatter: Formatter[OffsetTime, String] = new Formatter[OffsetTime, String] {
+  trait OffsetTimeString extends TimeInstances {
+    implicit val offsetTimeFormatter: InstancesFormatter[OffsetTime, String] = new InstancesFormatter[OffsetTime, String] {
       override def encode(obj: OffsetTime): String = obj.format(formatter)
       override def decode(value: String): Either[DecodeError, OffsetTime] =
         tryParse[OffsetTime, String](OffsetTime.parse(_, formatter), value, classOf[OffsetTime], OffsetTimeFormat)
@@ -188,24 +162,24 @@ object TimeInstances {
     private val formatter = DateTimeFormatter.ISO_OFFSET_TIME
   }
 
-  trait PeriodString {
-    implicit val periodFormatter: Formatter[Period, String] = new Formatter[Period, String] {
+  trait PeriodString extends TimeInstances {
+    implicit val periodFormatter: InstancesFormatter[Period, String] = new InstancesFormatter[Period, String] {
       override def encode(obj: Period): String = obj.toString
       override def decode(value: String): Either[DecodeError, Period] =
         tryParse[Period, String](Period.parse, value, classOf[Period], PeriodFormat)
     }
   }
 
-  trait YearString {
-    implicit val yearFormatter: Formatter[Year, String] = new Formatter[Year, String] {
+  trait YearString extends TimeInstances {
+    implicit val yearFormatter: InstancesFormatter[Year, String] = new InstancesFormatter[Year, String] {
       override def encode(obj: Year): String = obj.toString
       override def decode(value: String): Either[DecodeError, Year] =
         tryParse[Year, String](Year.parse, value, classOf[Year], YearFormat)
     }
   }
 
-  trait YearMonthString {
-    implicit val yearMonthFormatter: Formatter[YearMonth, String] = new Formatter[YearMonth, String] {
+  trait YearMonthString extends TimeInstances {
+    implicit val yearMonthFormatter: InstancesFormatter[YearMonth, String] = new InstancesFormatter[YearMonth, String] {
       override def encode(obj: YearMonth): String = obj.format(formatter)
       override def decode(value: String): Either[DecodeError, YearMonth] =
         tryParse[YearMonth, String](YearMonth.parse, value, classOf[YearMonth], YearMonthFormat)
@@ -213,24 +187,24 @@ object TimeInstances {
     private val formatter = DateTimeFormatter.ofPattern("uuuu-MM")
   }
 
-  trait ZoneIdString {
-    implicit val zoneIdFormatter: Formatter[ZoneId, String] = new Formatter[ZoneId, String] {
+  trait ZoneIdString extends TimeInstances {
+    implicit val zoneIdFormatter: InstancesFormatter[ZoneId, String] = new InstancesFormatter[ZoneId, String] {
       override def encode(obj: ZoneId): String = obj.toString
       override def decode(value: String): Either[DecodeError, ZoneId] =
         tryParse[ZoneId, String](ZoneId.of, value, classOf[ZoneId], ZoneIdFormat)
     }
   }
 
-  trait ZoneOffsetString {
-    implicit val zoneOffsetFormatter: Formatter[ZoneOffset, String] = new Formatter[ZoneOffset, String] {
+  trait ZoneOffsetString extends TimeInstances {
+    implicit val zoneOffsetFormatter: InstancesFormatter[ZoneOffset, String] = new InstancesFormatter[ZoneOffset, String] {
       override def encode(obj: ZoneOffset): String = obj.toString
       override def decode(value: String): Either[DecodeError, ZoneOffset] =
         tryParse[ZoneOffset, String](ZoneOffset.of, value, classOf[ZoneOffset], ZoneOffsetFormat)
     }
   }
 
-  trait ZonedDateTimeString {
-    implicit val zonedDateTimeFormatter: Formatter[ZonedDateTime, String] = new Formatter[ZonedDateTime, String] {
+  trait ZonedDateTimeString extends TimeInstances {
+    implicit val zonedDateTimeFormatter: InstancesFormatter[ZonedDateTime, String] = new InstancesFormatter[ZonedDateTime, String] {
       override def encode(obj: ZonedDateTime): String = obj.format(formatter)
       override def decode(value: String): Either[DecodeError, ZonedDateTime] =
         tryParse[ZonedDateTime, String](ZonedDateTime.parse(_, formatter), value, classOf[ZonedDateTime], ZonedDateTimeFormat)
@@ -238,48 +212,51 @@ object TimeInstances {
     private val formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME
   }
 
-  trait DurationMinutes extends TimeInstances {
-    implicit val durationMinutesRep: CaseClass1Rep[Duration, Long] =
-      new CaseClass1Rep[Duration, Long](Duration.ofMinutes, _.toMinutes)
+  /** [[java.time.Duration]] mixins */
+  trait DurationMinutesLong extends TimeInstances {
+    implicit val durationMinutesFormatter: InstancesFormatter[Duration, Long] =
+      InstancesFormatter.apply[Duration, Long](_.toMinutes, (value: Long) => Right(Duration.ofMinutes(value)))
   }
 
-  trait DurationSeconds extends TimeInstances {
-    implicit val durationMinutesRep: CaseClass1Rep[Duration, Long] =
-      new CaseClass1Rep[Duration, Long](Duration.ofSeconds, _.getSeconds)
+  trait DurationSecondsLong extends TimeInstances {
+    implicit val durationMinutesFormatter: InstancesFormatter[Duration, Long] =
+      InstancesFormatter.apply[Duration, Long](_.getSeconds, (value: Long) => Right(Duration.ofSeconds(value)))
   }
 
-  trait DurationMillis extends TimeInstances {
-    implicit val durationMillisRep: CaseClass1Rep[Duration, Long] =
-      new CaseClass1Rep[Duration, Long](Duration.ofMillis, _.toMillis)
+  trait DurationMillisLong extends TimeInstances {
+    implicit val durationMillisFormatter: InstancesFormatter[Duration, Long] =
+      InstancesFormatter.apply[Duration, Long](_.toMillis, (value: Long) => Right(Duration.ofMillis(value)))
   }
 
-  trait DurationNanos extends TimeInstances {
-    implicit val durationNanosRep: CaseClass1Rep[Duration, Long] =
-      new CaseClass1Rep[Duration, Long](Duration.ofNanos, _.toNanos)
+  trait DurationNanosLong extends TimeInstances {
+    implicit val durationNanosFormatter: InstancesFormatter[Duration, Long] =
+      InstancesFormatter.apply[Duration, Long](_.toNanos, (value: Long) => Right(Duration.ofNanos(value)))
   }
 
-  trait InstantEpochSecond extends TimeInstances {
-    implicit val instantEpochSecondRep: CaseClass1Rep[Instant, Long] =
-      new CaseClass1Rep[Instant, Long](Instant.ofEpochSecond, _.getEpochSecond)
+  /** [[java.time.Instant]] mixins */
+  trait InstantEpochSecondLong extends TimeInstances {
+    implicit val instantEpochSecondFormatter: InstancesFormatter[Instant, Long] =
+      InstancesFormatter.apply[Instant, Long](_.getEpochSecond, (value: Long) => Right(Instant.ofEpochSecond(value)))
   }
 
-  trait InstantEpochMilli extends TimeInstances {
-    implicit val instantEpochMilliRep: CaseClass1Rep[Instant, Long] =
-      new CaseClass1Rep[Instant, Long](Instant.ofEpochMilli, _.toEpochMilli)
+  trait InstantEpochMilliLong extends TimeInstances {
+    implicit val instantEpochMilliFormatter: InstancesFormatter[Instant, Long] =
+      InstancesFormatter.apply[Instant, Long](_.toEpochMilli, (value: Long) => Right(Instant.ofEpochMilli(value)))
   }
 
-  trait PeriodYears extends TimeInstances {
-    implicit val periodYearsRep: CaseClass1Rep[Period, Int] =
-      new CaseClass1Rep[Period, Int](Period.ofYears, _.getYears)
+  /** [[java.time.Period]] mixins */
+  trait PeriodYearsInt extends TimeInstances {
+    implicit val periodYearsFormatter: InstancesFormatter[Period, Int] =
+      InstancesFormatter.apply[Period, Int](_.getYears, (value: Int) => Right(Period.ofYears(value)))
   }
 
-  trait PeriodMonths extends TimeInstances {
-    implicit val periodMonthsRep: CaseClass1Rep[Period, Int] =
-      new CaseClass1Rep[Period, Int](Period.ofMonths, _.getMonths)
+  trait PeriodMonthsInt extends TimeInstances {
+    implicit val periodMonthsFormatter: InstancesFormatter[Period, Int] =
+      InstancesFormatter.apply[Period, Int](_.getMonths, (value: Int) => Right(Period.ofMonths(value)))
   }
 
   trait PeriodDays extends TimeInstances {
-    implicit val periodDaysRep: CaseClass1Rep[Period, Int] =
-      new CaseClass1Rep[Period, Int](Period.ofDays, _.getDays)
+    implicit val periodDaysFormatter: InstancesFormatter[Period, Int] =
+      InstancesFormatter.apply[Period, Int](_.getDays, (value: Int) => Right(Period.ofDays(value)))
   }
 }

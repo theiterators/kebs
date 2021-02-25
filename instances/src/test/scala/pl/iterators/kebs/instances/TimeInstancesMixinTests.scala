@@ -2,7 +2,6 @@ package pl.iterators.kebs.instances
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.instances.TimeInstances.{DecodeError, Formatter}
 import pl.iterators.kebs.json.KebsSpray
 import spray.json._
 
@@ -11,27 +10,9 @@ import java.time.format.DateTimeFormatter
 
 class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
 
-  test("LocalDateTime custom format") {
-    object TimeInstancesProtocol extends DefaultJsonProtocol with KebsSpray with TimeInstances {
-      implicit val localDateTimeFormatter: Formatter[LocalDateTime, String] = new Formatter[LocalDateTime, String] {
-        override def encode(obj: LocalDateTime): String                        = obj.format(formatter)
-        override def decode(value: String): Either[DecodeError, LocalDateTime] = Right(LocalDateTime.parse(value, formatter))
-      }
-      val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")
-    }
-    import TimeInstancesProtocol._
-
-    val jf    = implicitly[JsonFormat[LocalDateTime]]
-    val value = "2007/12/03 10:30"
-    val obj   = LocalDateTime.parse(value, formatter)
-
-    jf.write(obj) shouldBe JsString(value)
-    jf.read(JsString(value)) shouldBe obj
-  }
-
   test("Instant epoch milli format") {
-    import TimeInstances.InstantEpochMilli
-    object TimeInstancesProtocol extends DefaultJsonProtocol with KebsSpray with TimeInstances with InstantEpochMilli
+    import TimeInstances.InstantEpochMilliLong
+    object TimeInstancesProtocol extends DefaultJsonProtocol with KebsSpray with TimeInstances with InstantEpochMilliLong
     import TimeInstancesProtocol._
 
     val jf    = implicitly[JsonFormat[Instant]]
@@ -43,8 +24,13 @@ class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
   }
 
   test("Duration nanos format, Instant epoch milli format") {
-    import TimeInstances.{DurationNanos, InstantEpochMilli}
-    object TimeInstancesProtocol extends DefaultJsonProtocol with KebsSpray with TimeInstances with DurationNanos with InstantEpochMilli
+    import TimeInstances.{DurationNanosLong, InstantEpochMilliLong}
+    object TimeInstancesProtocol
+        extends DefaultJsonProtocol
+        with KebsSpray
+        with TimeInstances
+        with DurationNanosLong
+        with InstantEpochMilliLong
     import TimeInstancesProtocol._
 
     val jf_duration    = implicitly[JsonFormat[Duration]]
@@ -62,4 +48,48 @@ class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
     jf_instant.read(JsNumber(value_instant)) shouldBe obj_instant
   }
 
+  test("LocalDateTime custom format using companion object") {
+    object TimeInstancesProtocol extends DefaultJsonProtocol with KebsSpray with TimeInstances {
+      val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")
+
+      implicit val localDateTimeFormatter: InstancesFormatter[LocalDateTime, String] =
+        InstancesFormatter.apply[LocalDateTime, String](_.format(formatter),
+                                                        (value: String) => Right(LocalDateTime.parse(value, formatter)))
+    }
+    import TimeInstancesProtocol._
+
+    val jf    = implicitly[JsonFormat[LocalDateTime]]
+    val value = "2007/12/03 10:30"
+    val obj   = LocalDateTime.parse(value, formatter)
+
+    jf.write(obj) shouldBe JsString(value)
+    jf.read(JsString(value)) shouldBe obj
+  }
+
+  test("LocalDateTime custom format with error handling") {
+    object TimeInstancesProtocol extends DefaultJsonProtocol with KebsSpray with TimeInstances {
+      val pattern                      = "yyyy/MM/dd HH:mm"
+      val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern(pattern)
+
+      implicit val localDateTimeFormatter: InstancesFormatter[LocalDateTime, String] = new InstancesFormatter[LocalDateTime, String] {
+        override def encode(obj: LocalDateTime): String = obj.format(formatter)
+        override def decode(value: String): Either[DecodeError, LocalDateTime] =
+          try {
+            Right(LocalDateTime.parse(value, formatter))
+          } catch {
+            case e: DateTimeException =>
+              Left(DecodeError(s"${classOf[LocalDateTime]} cannot be parsed from $value – should be in format $pattern", e))
+            case e: Throwable => throw e
+          }
+      }
+    }
+    import TimeInstancesProtocol._
+
+    val jf    = implicitly[JsonFormat[LocalDateTime]]
+    val value = "2007/12/03 10:30"
+    val obj   = LocalDateTime.parse(value, formatter)
+
+    jf.write(obj) shouldBe JsString(value)
+    jf.read(JsString(value)) shouldBe obj
+  }
 }

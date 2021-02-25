@@ -40,7 +40,7 @@ class TimeInstancesTests
   }
 
   test("DayOfWeek wrong format exception") {
-    import TimeInstances.{DayOfWeekFormat, exceptionMessage}
+    import TimeInstances.DayOfWeekFormat
 
     val jf    = implicitly[JsonFormat[DayOfWeek]]
     val value = 8
@@ -48,7 +48,7 @@ class TimeInstancesTests
     val thrown = intercept[IllegalArgumentException] {
       jf.read(JsNumber(value))
     }
-    assert(thrown.getMessage === exceptionMessage[DayOfWeek, Int](classOf[DayOfWeek], value, DayOfWeekFormat))
+    assert(thrown.getMessage === errorMessage[DayOfWeek, Int](classOf[DayOfWeek], value, DayOfWeekFormat))
   }
 
   test("Duration standard format") {
@@ -61,7 +61,7 @@ class TimeInstancesTests
   }
 
   test("Duration wrong format exception") {
-    import TimeInstances.{DurationFormat, exceptionMessage}
+    import TimeInstances.DurationFormat
 
     val jf    = implicitly[JsonFormat[Duration]]
     val value = "NotADuration"
@@ -69,7 +69,7 @@ class TimeInstancesTests
     val thrown = intercept[IllegalArgumentException] {
       jf.read(JsString(value))
     }
-    assert(thrown.getMessage === exceptionMessage[Duration, String](classOf[Duration], value, DurationFormat))
+    assert(thrown.getMessage === errorMessage[Duration, String](classOf[Duration], value, DurationFormat))
   }
 
   test("Instant standard format") {
@@ -82,7 +82,7 @@ class TimeInstancesTests
   }
 
   test("Instant wrong format exception") {
-    import TimeInstances.{InstantFormat, exceptionMessage}
+    import TimeInstances.InstantFormat
 
     val jf = implicitly[JsonFormat[Instant]]
 
@@ -91,7 +91,7 @@ class TimeInstancesTests
     val thrown = intercept[IllegalArgumentException] {
       jf.read(JsString(value))
     }
-    assert(thrown.getMessage === exceptionMessage[Instant, String](classOf[Instant], value, InstantFormat))
+    assert(thrown.getMessage === errorMessage[Instant, String](classOf[Instant], value, InstantFormat))
   }
 
   test("LocalDate standard format") {
@@ -104,7 +104,7 @@ class TimeInstancesTests
   }
 
   test("LocalDate wrong format exception") {
-    import TimeInstances.{LocalDateFormat, exceptionMessage}
+    import TimeInstances.LocalDateFormat
 
     val jf    = implicitly[JsonFormat[LocalDate]]
     val value = "NotALocalDate"
@@ -112,7 +112,7 @@ class TimeInstancesTests
     val thrown = intercept[IllegalArgumentException] {
       jf.read(JsString(value))
     }
-    assert(thrown.getMessage === exceptionMessage[LocalDate, String](classOf[LocalDate], value, LocalDateFormat))
+    assert(thrown.getMessage === errorMessage[LocalDate, String](classOf[LocalDate], value, LocalDateFormat))
   }
 
   test("LocalDateTime standard format") {
@@ -125,7 +125,7 @@ class TimeInstancesTests
   }
 
   test("LocalDateTime wrong format exception") {
-    import TimeInstances.{LocalDateTimeFormat, exceptionMessage}
+    import TimeInstances.LocalDateTimeFormat
 
     val jf    = implicitly[JsonFormat[LocalDateTime]]
     val value = "NotALocalDateTime"
@@ -133,7 +133,7 @@ class TimeInstancesTests
     val thrown = intercept[IllegalArgumentException] {
       jf.read(JsString(value))
     }
-    assert(thrown.getMessage === exceptionMessage[LocalDateTime, String](classOf[LocalDateTime], value, LocalDateTimeFormat))
+    assert(thrown.getMessage === errorMessage[LocalDateTime, String](classOf[LocalDateTime], value, LocalDateTimeFormat))
   }
 
   test("LocalTime standard format") {
@@ -146,7 +146,7 @@ class TimeInstancesTests
   }
 
   test("LocalTime wrong format exception") {
-    import TimeInstances.{LocalTimeFormat, exceptionMessage}
+    import TimeInstances.LocalTimeFormat
 
     val jf    = implicitly[JsonFormat[LocalTime]]
     val value = "NotALocalTime"
@@ -154,7 +154,7 @@ class TimeInstancesTests
     val thrown = intercept[IllegalArgumentException] {
       jf.read(JsString(value))
     }
-    assert(thrown.getMessage === exceptionMessage[LocalTime, String](classOf[LocalTime], value, LocalTimeFormat))
+    assert(thrown.getMessage === errorMessage[LocalTime, String](classOf[LocalTime], value, LocalTimeFormat))
   }
 
   test("Month standard format") {
@@ -167,7 +167,7 @@ class TimeInstancesTests
   }
 
   test("Month wrong format exception") {
-    import TimeInstances.{MonthFormat, exceptionMessage}
+    import TimeInstances.MonthFormat
 
     val jf    = implicitly[JsonFormat[Month]]
     val value = 13
@@ -175,7 +175,7 @@ class TimeInstancesTests
     val thrown = intercept[IllegalArgumentException] {
       jf.read(JsNumber(value))
     }
-    assert(thrown.getMessage === exceptionMessage[Month, Int](classOf[Month], value, MonthFormat))
+    assert(thrown.getMessage === errorMessage[Month, Int](classOf[Month], value, MonthFormat))
   }
 
   test("MonthDay standard format") {
@@ -188,7 +188,7 @@ class TimeInstancesTests
   }
 
   test("MonthDay wrong format exception") {
-    import TimeInstances.{MonthDayFormat, exceptionMessage}
+    import TimeInstances.MonthDayFormat
 
     val jf    = implicitly[JsonFormat[MonthDay]]
     val value = "NotAMonthDay"
@@ -196,7 +196,7 @@ class TimeInstancesTests
     val thrown = intercept[IllegalArgumentException] {
       jf.read(JsString(value))
     }
-    assert(thrown.getMessage === exceptionMessage[MonthDay, String](classOf[MonthDay], value, MonthDayFormat))
+    assert(thrown.getMessage === errorMessage[MonthDay, String](classOf[MonthDay], value, MonthDayFormat))
   }
 
   test("OffsetDateTime standard format") {
@@ -209,7 +209,7 @@ class TimeInstancesTests
   }
 
   test("OffsetDateTime wrong format exception") {
-    import TimeInstances.{OffsetDateTimeFormat, exceptionMessage}
+    import TimeInstances.OffsetDateTimeFormat
 
     val jf    = implicitly[JsonFormat[OffsetDateTime]]
     val value = "NotAnOffsetDateTime"
@@ -217,7 +217,7 @@ class TimeInstancesTests
     val thrown = intercept[IllegalArgumentException] {
       jf.read(JsString(value))
     }
-    assert(thrown.getMessage === exceptionMessage[OffsetDateTime, String](classOf[OffsetDateTime], value, OffsetDateTimeFormat))
+    assert(thrown.getMessage === errorMessage[OffsetDateTime, String](classOf[OffsetDateTime], value, OffsetDateTimeFormat))
   }
 
   test("OffsetTime standard format") {
@@ -230,7 +230,7 @@ class TimeInstancesTests
   }
 
   test("OffsetTime wrong format exception") {
-    import TimeInstances.{OffsetTimeFormat, exceptionMessage}
+    import TimeInstances.OffsetTimeFormat
 
     val jf    = implicitly[JsonFormat[OffsetTime]]
     val value = "NotAnOffsetTime"
@@ -238,7 +238,7 @@ class TimeInstancesTests
     val thrown = intercept[IllegalArgumentException] {
       jf.read(JsString(value))
     }
-    assert(thrown.getMessage === exceptionMessage[OffsetTime, String](classOf[OffsetTime], value, OffsetTimeFormat))
+    assert(thrown.getMessage === errorMessage[OffsetTime, String](classOf[OffsetTime], value, OffsetTimeFormat))
   }
 
   test("Period standard format") {
@@ -251,7 +251,7 @@ class TimeInstancesTests
   }
 
   test("Period wrong format exception") {
-    import TimeInstances.{PeriodFormat, exceptionMessage}
+    import TimeInstances.PeriodFormat
 
     val jf    = implicitly[JsonFormat[Period]]
     val value = "NotAPeriod"
@@ -259,7 +259,7 @@ class TimeInstancesTests
     val thrown = intercept[IllegalArgumentException] {
       jf.read(JsString(value))
     }
-    assert(thrown.getMessage === exceptionMessage[Period, String](classOf[Period], value, PeriodFormat))
+    assert(thrown.getMessage === errorMessage[Period, String](classOf[Period], value, PeriodFormat))
   }
 
   test("Year standard format") {
@@ -272,7 +272,7 @@ class TimeInstancesTests
   }
 
   test("Year wrong format exception") {
-    import TimeInstances.{YearFormat, exceptionMessage}
+    import TimeInstances.YearFormat
 
     val jf    = implicitly[JsonFormat[Year]]
     val value = "NotAYear"
@@ -280,7 +280,7 @@ class TimeInstancesTests
     val thrown = intercept[IllegalArgumentException] {
       jf.read(JsString(value))
     }
-    assert(thrown.getMessage === exceptionMessage[Year, String](classOf[Year], value, YearFormat))
+    assert(thrown.getMessage === errorMessage[Year, String](classOf[Year], value, YearFormat))
   }
 
   test("YearMonth standard format") {
@@ -293,7 +293,7 @@ class TimeInstancesTests
   }
 
   test("YearMonth wrong format exception") {
-    import TimeInstances.{YearMonthFormat, exceptionMessage}
+    import TimeInstances.YearMonthFormat
 
     val jf    = implicitly[JsonFormat[YearMonth]]
     val value = "NotAYearMonth"
@@ -301,7 +301,7 @@ class TimeInstancesTests
     val thrown = intercept[IllegalArgumentException] {
       jf.read(JsString(value))
     }
-    assert(thrown.getMessage === exceptionMessage[YearMonth, String](classOf[YearMonth], value, YearMonthFormat))
+    assert(thrown.getMessage === errorMessage[YearMonth, String](classOf[YearMonth], value, YearMonthFormat))
   }
 
   test("ZoneId standard format") {
@@ -314,7 +314,7 @@ class TimeInstancesTests
   }
 
   test("ZoneId wrong format exception") {
-    import TimeInstances.{ZoneIdFormat, exceptionMessage}
+    import TimeInstances.ZoneIdFormat
 
     val jf    = implicitly[JsonFormat[ZoneId]]
     val value = "NotAZoneId"
@@ -322,7 +322,7 @@ class TimeInstancesTests
     val thrown = intercept[IllegalArgumentException] {
       jf.read(JsString(value))
     }
-    assert(thrown.getMessage === exceptionMessage[ZoneId, String](classOf[ZoneId], value, ZoneIdFormat))
+    assert(thrown.getMessage === errorMessage[ZoneId, String](classOf[ZoneId], value, ZoneIdFormat))
   }
 
   test("ZoneOffset standard format") {
@@ -335,7 +335,7 @@ class TimeInstancesTests
   }
 
   test("ZoneOffset wrong format exception") {
-    import TimeInstances.{ZoneOffsetFormat, exceptionMessage}
+    import TimeInstances.ZoneOffsetFormat
 
     val jf    = implicitly[JsonFormat[ZoneOffset]]
     val value = "NotAZoneOffset"
@@ -343,7 +343,7 @@ class TimeInstancesTests
     val thrown = intercept[IllegalArgumentException] {
       jf.read(JsString(value))
     }
-    assert(thrown.getMessage === exceptionMessage[ZoneOffset, String](classOf[ZoneOffset], value, ZoneOffsetFormat))
+    assert(thrown.getMessage === errorMessage[ZoneOffset, String](classOf[ZoneOffset], value, ZoneOffsetFormat))
   }
 
   test("ZonedDateTime standard format") {
@@ -356,7 +356,7 @@ class TimeInstancesTests
   }
 
   test("ZonedDateTime wrong format exception") {
-    import TimeInstances.{ZonedDateTimeFormat, exceptionMessage}
+    import TimeInstances.ZonedDateTimeFormat
 
     val jf    = implicitly[JsonFormat[ZonedDateTime]]
     val value = "NotAZoneOffset"
@@ -364,7 +364,7 @@ class TimeInstancesTests
     val thrown = intercept[IllegalArgumentException] {
       jf.read(JsString(value))
     }
-    assert(thrown.getMessage === exceptionMessage[ZonedDateTime, String](classOf[ZonedDateTime], value, ZonedDateTimeFormat))
+    assert(thrown.getMessage === errorMessage[ZonedDateTime, String](classOf[ZonedDateTime], value, ZonedDateTimeFormat))
   }
 
 }
