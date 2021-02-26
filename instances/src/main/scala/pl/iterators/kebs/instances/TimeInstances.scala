@@ -4,7 +4,6 @@ import pl.iterators.kebs.macros.CaseClass1Rep
 
 import java.time._
 import java.time.format.DateTimeFormatter
-import scala.util.control.NonFatal
 
 trait TimeInstances extends Instances {
 
