@@ -17,8 +17,8 @@ trait UtilInstances extends Instances {
 }
 
 object UtilInstances {
-  private[instances] val CurrencyFormat = "ISO-4217 standard format e.g. PLN"
-  private[instances] val LocaleFormat   = "IETF BCP 47 standard format e.g. pl-PL"
+  private[instances] val CurrencyFormat = "ISO-4217 standard format e.g. USD"
+  private[instances] val LocaleFormat   = "IETF BCP 47 standard format e.g. en-US"
   private[instances] val UUIDFormat     = "128-bit number e.g. 123e4567-e89b-12d3-a456-426614174000"
 
   trait CurrencyString extends UtilInstances {

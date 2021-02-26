@@ -78,7 +78,7 @@ class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
             Right(LocalDateTime.parse(value, formatter))
           } catch {
             case e: DateTimeException =>
-              Left(DecodeError(s"${classOf[LocalDateTime]} cannot be parsed from $value – should be in format $pattern", e))
+              Left(DecodeError(s"${classOf[LocalDateTime]} cannot be parsed from $value – should be in format $pattern", Some(e)))
             case e: Throwable => throw e
           }
       }

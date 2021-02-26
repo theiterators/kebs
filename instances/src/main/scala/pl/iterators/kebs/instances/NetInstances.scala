@@ -24,5 +24,4 @@ object NetInstances {
         tryDecode[URI, String](new URI(_), value, classOf[URI], URIFormat)
     }
   }
-
 }
