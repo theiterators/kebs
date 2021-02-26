@@ -2,6 +2,7 @@ package pl.iterators.kebs.instances
 
 import java.net.URISyntaxException
 import java.time.DateTimeException
+import scala.util.control.NonFatal
 
 trait Instances {
 
@@ -17,7 +18,7 @@ trait Instances {
       }
   }
 
-  case class DecodeError(msg: String, exception: Throwable)
+  private[instances] case class DecodeError(msg: String, exception: Throwable)
 
   private[instances] def decodeObject[Obj, Val](decode: Val => Either[DecodeError, Obj])(value: Val): Obj = {
     decode(value) match {
@@ -26,16 +27,18 @@ trait Instances {
     }
   }
 
-  // TODO (25/02/21) better handling of specific exceptions, for example UnknownHostException and SecurityException for NetInstances?
-  private[instances] def tryParse[Obj, Val](parse: Val => Obj, value: Val, clazz: Class[Obj], format: String): Either[DecodeError, Obj] = {
+  private[instances] def tryDecode[Obj, Val](decode: Val => Obj,
+                                             value: Val,
+                                             clazz: Class[Obj],
+                                             format: String): Either[DecodeError, Obj] = {
     try {
-      Right(parse(value))
+      Right(decode(value))
     } catch {
       case e: IllegalArgumentException => Left(DecodeError(errorMessage(clazz, value, format), e))
       case e: NullPointerException     => Left(DecodeError(errorMessage(clazz, value, format), e))
       case e: URISyntaxException       => Left(DecodeError(errorMessage(clazz, value, format), e))
       case e: DateTimeException        => Left(DecodeError(errorMessage(clazz, value, format), e))
-      case e: Throwable                => throw e
+      case NonFatal(e)                 => Left(DecodeError(s"Non fatal exception occurred when decoding $value to $clazz", e))
     }
   }
 

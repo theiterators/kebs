@@ -4,6 +4,7 @@ import pl.iterators.kebs.macros.CaseClass1Rep
 
 import java.time._
 import java.time.format.DateTimeFormatter
+import scala.util.control.NonFatal
 
 trait TimeInstances extends Instances {
 
@@ -80,7 +81,7 @@ object TimeInstances {
     implicit val dayOfWeekFormatter: InstancesFormatter[DayOfWeek, Int] = new InstancesFormatter[DayOfWeek, Int] {
       override def encode(obj: DayOfWeek): Int = obj.getValue
       override def decode(value: Int): Either[DecodeError, DayOfWeek] =
-        tryParse[DayOfWeek, Int](DayOfWeek.of, value, classOf[DayOfWeek], DayOfWeekFormat)
+        tryDecode[DayOfWeek, Int](DayOfWeek.of, value, classOf[DayOfWeek], DayOfWeekFormat)
     }
   }
 
@@ -88,7 +89,7 @@ object TimeInstances {
     implicit val instantFormatter: InstancesFormatter[Instant, String] = new InstancesFormatter[Instant, String] {
       override def encode(obj: Instant): String = obj.toString
       override def decode(value: String): Either[DecodeError, Instant] =
-        tryParse[Instant, String](Instant.parse, value, classOf[Instant], InstantFormat)
+        tryDecode[Instant, String](Instant.parse, value, classOf[Instant], InstantFormat)
     }
   }
 
@@ -96,7 +97,7 @@ object TimeInstances {
     implicit val durationFormatter: InstancesFormatter[Duration, String] = new InstancesFormatter[Duration, String] {
       override def encode(obj: Duration): String = obj.toString
       override def decode(value: String): Either[DecodeError, Duration] =
-        tryParse[Duration, String](Duration.parse, value, classOf[Duration], DurationFormat)
+        tryDecode[Duration, String](Duration.parse, value, classOf[Duration], DurationFormat)
     }
   }
 
@@ -104,7 +105,7 @@ object TimeInstances {
     implicit val localDateFormatter: InstancesFormatter[LocalDate, String] = new InstancesFormatter[LocalDate, String] {
       override def encode(obj: LocalDate): String = obj.format(formatter)
       override def decode(value: String): Either[DecodeError, LocalDate] =
-        tryParse[LocalDate, String](LocalDate.parse(_, formatter), value, classOf[LocalDate], LocalDateFormat)
+        tryDecode[LocalDate, String](LocalDate.parse(_, formatter), value, classOf[LocalDate], LocalDateFormat)
     }
     private val formatter = DateTimeFormatter.ISO_LOCAL_DATE
   }
@@ -113,7 +114,7 @@ object TimeInstances {
     implicit val localDateTimeFormatter: InstancesFormatter[LocalDateTime, String] = new InstancesFormatter[LocalDateTime, String] {
       override def encode(obj: LocalDateTime): String = obj.format(formatter)
       override def decode(value: String): Either[DecodeError, LocalDateTime] =
-        tryParse[LocalDateTime, String](LocalDateTime.parse(_, formatter), value, classOf[LocalDateTime], LocalDateTimeFormat)
+        tryDecode[LocalDateTime, String](LocalDateTime.parse(_, formatter), value, classOf[LocalDateTime], LocalDateTimeFormat)
     }
     private val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
   }
@@ -122,7 +123,7 @@ object TimeInstances {
     implicit val localTimeFormatter: InstancesFormatter[LocalTime, String] = new InstancesFormatter[LocalTime, String] {
       override def encode(obj: LocalTime): String = obj.format(formatter)
       override def decode(value: String): Either[DecodeError, LocalTime] =
-        tryParse[LocalTime, String](LocalTime.parse(_, formatter), value, classOf[LocalTime], LocalTimeFormat)
+        tryDecode[LocalTime, String](LocalTime.parse(_, formatter), value, classOf[LocalTime], LocalTimeFormat)
     }
     private val formatter = DateTimeFormatter.ISO_LOCAL_TIME
   }
@@ -131,7 +132,7 @@ object TimeInstances {
     implicit val monthFormatter: InstancesFormatter[Month, Int] = new InstancesFormatter[Month, Int] {
       override def encode(obj: Month): Int = obj.getValue
       override def decode(value: Int): Either[DecodeError, Month] =
-        tryParse[Month, Int](Month.of, value, classOf[Month], MonthFormat)
+        tryDecode[Month, Int](Month.of, value, classOf[Month], MonthFormat)
     }
   }
 
@@ -139,7 +140,7 @@ object TimeInstances {
     implicit val monthDayFormatter: InstancesFormatter[MonthDay, String] = new InstancesFormatter[MonthDay, String] {
       override def encode(obj: MonthDay): String = obj.format(formatter)
       override def decode(value: String): Either[DecodeError, MonthDay] =
-        tryParse[MonthDay, String](MonthDay.parse(_, formatter), value, classOf[MonthDay], MonthDayFormat)
+        tryDecode[MonthDay, String](MonthDay.parse(_, formatter), value, classOf[MonthDay], MonthDayFormat)
     }
     private val formatter = DateTimeFormatter.ofPattern("--MM-dd")
   }
@@ -148,7 +149,7 @@ object TimeInstances {
     implicit val offsetDateTimeFormatter: InstancesFormatter[OffsetDateTime, String] = new InstancesFormatter[OffsetDateTime, String] {
       override def encode(obj: OffsetDateTime): String = obj.format(formatter)
       override def decode(value: String): Either[DecodeError, OffsetDateTime] =
-        tryParse[OffsetDateTime, String](OffsetDateTime.parse(_, formatter), value, classOf[OffsetDateTime], OffsetDateTimeFormat)
+        tryDecode[OffsetDateTime, String](OffsetDateTime.parse(_, formatter), value, classOf[OffsetDateTime], OffsetDateTimeFormat)
     }
     private val formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
   }
@@ -157,7 +158,7 @@ object TimeInstances {
     implicit val offsetTimeFormatter: InstancesFormatter[OffsetTime, String] = new InstancesFormatter[OffsetTime, String] {
       override def encode(obj: OffsetTime): String = obj.format(formatter)
       override def decode(value: String): Either[DecodeError, OffsetTime] =
-        tryParse[OffsetTime, String](OffsetTime.parse(_, formatter), value, classOf[OffsetTime], OffsetTimeFormat)
+        tryDecode[OffsetTime, String](OffsetTime.parse(_, formatter), value, classOf[OffsetTime], OffsetTimeFormat)
     }
     private val formatter = DateTimeFormatter.ISO_OFFSET_TIME
   }
@@ -166,7 +167,7 @@ object TimeInstances {
     implicit val periodFormatter: InstancesFormatter[Period, String] = new InstancesFormatter[Period, String] {
       override def encode(obj: Period): String = obj.toString
       override def decode(value: String): Either[DecodeError, Period] =
-        tryParse[Period, String](Period.parse, value, classOf[Period], PeriodFormat)
+        tryDecode[Period, String](Period.parse, value, classOf[Period], PeriodFormat)
     }
   }
 
@@ -174,7 +175,7 @@ object TimeInstances {
     implicit val yearFormatter: InstancesFormatter[Year, String] = new InstancesFormatter[Year, String] {
       override def encode(obj: Year): String = obj.toString
       override def decode(value: String): Either[DecodeError, Year] =
-        tryParse[Year, String](Year.parse, value, classOf[Year], YearFormat)
+        tryDecode[Year, String](Year.parse, value, classOf[Year], YearFormat)
     }
   }
 
@@ -182,7 +183,7 @@ object TimeInstances {
     implicit val yearMonthFormatter: InstancesFormatter[YearMonth, String] = new InstancesFormatter[YearMonth, String] {
       override def encode(obj: YearMonth): String = obj.format(formatter)
       override def decode(value: String): Either[DecodeError, YearMonth] =
-        tryParse[YearMonth, String](YearMonth.parse, value, classOf[YearMonth], YearMonthFormat)
+        tryDecode[YearMonth, String](YearMonth.parse, value, classOf[YearMonth], YearMonthFormat)
     }
     private val formatter = DateTimeFormatter.ofPattern("uuuu-MM")
   }
@@ -191,7 +192,7 @@ object TimeInstances {
     implicit val zoneIdFormatter: InstancesFormatter[ZoneId, String] = new InstancesFormatter[ZoneId, String] {
       override def encode(obj: ZoneId): String = obj.toString
       override def decode(value: String): Either[DecodeError, ZoneId] =
-        tryParse[ZoneId, String](ZoneId.of, value, classOf[ZoneId], ZoneIdFormat)
+        tryDecode[ZoneId, String](ZoneId.of, value, classOf[ZoneId], ZoneIdFormat)
     }
   }
 
@@ -199,7 +200,7 @@ object TimeInstances {
     implicit val zoneOffsetFormatter: InstancesFormatter[ZoneOffset, String] = new InstancesFormatter[ZoneOffset, String] {
       override def encode(obj: ZoneOffset): String = obj.toString
       override def decode(value: String): Either[DecodeError, ZoneOffset] =
-        tryParse[ZoneOffset, String](ZoneOffset.of, value, classOf[ZoneOffset], ZoneOffsetFormat)
+        tryDecode[ZoneOffset, String](ZoneOffset.of, value, classOf[ZoneOffset], ZoneOffsetFormat)
     }
   }
 
@@ -207,7 +208,7 @@ object TimeInstances {
     implicit val zonedDateTimeFormatter: InstancesFormatter[ZonedDateTime, String] = new InstancesFormatter[ZonedDateTime, String] {
       override def encode(obj: ZonedDateTime): String = obj.format(formatter)
       override def decode(value: String): Either[DecodeError, ZonedDateTime] =
-        tryParse[ZonedDateTime, String](ZonedDateTime.parse(_, formatter), value, classOf[ZonedDateTime], ZonedDateTimeFormat)
+        tryDecode[ZonedDateTime, String](ZonedDateTime.parse(_, formatter), value, classOf[ZonedDateTime], ZonedDateTimeFormat)
     }
     private val formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME
   }

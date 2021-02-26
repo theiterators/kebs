@@ -18,14 +18,14 @@ trait UtilInstances extends Instances {
 
 object UtilInstances {
   private[instances] val CurrencyFormat = "ISO-4217 standard format e.g. PLN"
-  private[instances] val LocaleFormat   = "IETF BCP 47 standard format e.g. pl-PL" // Note: Locale.toString() does not throw
+  private[instances] val LocaleFormat   = "IETF BCP 47 standard format e.g. pl-PL"
   private[instances] val UUIDFormat     = "128-bit number e.g. 123e4567-e89b-12d3-a456-426614174000"
 
   trait CurrencyString extends UtilInstances {
     implicit val currencyFormatter: InstancesFormatter[Currency, String] = new InstancesFormatter[Currency, String] {
       override def encode(obj: Currency): String = obj.toString
       override def decode(value: String): Either[DecodeError, Currency] =
-        tryParse[Currency, String](Currency.getInstance, value, classOf[Currency], CurrencyFormat)
+        tryDecode[Currency, String](Currency.getInstance, value, classOf[Currency], CurrencyFormat)
     }
   }
 
@@ -33,7 +33,7 @@ object UtilInstances {
     implicit val localeFormatter: InstancesFormatter[Locale, String] = new InstancesFormatter[Locale, String] {
       override def encode(obj: Locale): String = obj.toLanguageTag
       override def decode(value: String): Either[DecodeError, Locale] =
-        tryParse[Locale, String](Locale.forLanguageTag, value, classOf[Locale], LocaleFormat)
+        tryDecode[Locale, String](Locale.forLanguageTag, value, classOf[Locale], LocaleFormat)
     }
   }
 
@@ -41,7 +41,7 @@ object UtilInstances {
     implicit val uuidFormatter: InstancesFormatter[UUID, String] = new InstancesFormatter[UUID, String] {
       override def encode(obj: UUID): String = obj.toString
       override def decode(value: String): Either[DecodeError, UUID] =
-        tryParse[UUID, String](UUID.fromString, value, classOf[UUID], UUIDFormat)
+        tryDecode[UUID, String](UUID.fromString, value, classOf[UUID], UUIDFormat)
     }
   }
 }

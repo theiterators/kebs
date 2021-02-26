@@ -21,7 +21,7 @@ object NetInstances {
     implicit val uriFormatter: InstancesFormatter[URI, String] = new InstancesFormatter[URI, String] {
       override def encode(obj: URI): String = obj.toString
       override def decode(value: String): Either[DecodeError, URI] =
-        tryParse[URI, String](new URI(_), value, classOf[URI], URIFormat)
+        tryDecode[URI, String](new URI(_), value, classOf[URI], URIFormat)
     }
   }
 
