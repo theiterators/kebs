@@ -1,6 +1,6 @@
 package pl.iterators.kebs.instances
 
-import java.net.UnknownHostException
+import java.net.URISyntaxException
 import java.time.DateTimeException
 
 trait Instances {
@@ -33,8 +33,7 @@ trait Instances {
     } catch {
       case e: IllegalArgumentException => Left(DecodeError(errorMessage(clazz, value, format), e))
       case e: NullPointerException     => Left(DecodeError(errorMessage(clazz, value, format), e))
-      case e: UnknownHostException     => Left(DecodeError(errorMessage(clazz, value, format), e))
-      case e: SecurityException        => Left(DecodeError(errorMessage(clazz, value, format), e))
+      case e: URISyntaxException       => Left(DecodeError(errorMessage(clazz, value, format), e))
       case e: DateTimeException        => Left(DecodeError(errorMessage(clazz, value, format), e))
       case e: Throwable                => throw e
     }

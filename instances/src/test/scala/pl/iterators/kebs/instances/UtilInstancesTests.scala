@@ -31,7 +31,7 @@ class UtilInstancesTests
     import UtilInstances.CurrencyFormat
 
     val jf    = implicitly[JsonFormat[Currency]]
-    val value = "NotACurrency"
+    val value = "not a Currency"
 
     val thrown = intercept[IllegalArgumentException] {
       jf.read(JsString(value))
@@ -61,7 +61,7 @@ class UtilInstancesTests
     import UtilInstances.UUIDFormat
 
     val jf    = implicitly[JsonFormat[UUID]]
-    val value = "NotAnUUID"
+    val value = "not an UUID"
 
     val thrown = intercept[IllegalArgumentException] {
       jf.read(JsString(value))
