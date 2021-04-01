@@ -12,7 +12,7 @@ pull_request_rules:
       - base=master
       - author=scala-steward
       - status-success=Build and Test (ubuntu-latest, 2.12.13, adopt@1.8)
-      - status-success=Build and Test (ubuntu-latest, 2.13.4, adopt@1.8)
+      - status-success=Build and Test (ubuntu-latest, 2.13.5, adopt@1.8)
     actions:
       merge:
         method: squash
