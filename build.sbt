@@ -1,4 +1,4 @@
-val scala_2_12             = "2.12.12"
+val scala_2_12             = "2.12.13"
 val scala_2_13             = "2.13.5"
 val mainScalaVersion       = scala_2_13
 val supportedScalaVersions = Seq(scala_2_12, scala_2_13)
@@ -87,7 +87,7 @@ def paradisePlugin(scalaVersion: String): Seq[ModuleID] =
   else
     Seq.empty
 
-val scalaTest       = "org.scalatest" %% "scalatest" % "3.2.5"
+val scalaTest       = "org.scalatest" %% "scalatest" % "3.2.7"
 val scalaCheck      = "org.scalacheck" %% "scalacheck" % "1.15.3"
 val slick           = "com.typesafe.slick" %% "slick" % "3.3.3"
 val optionalSlick   = optional(slick)
@@ -206,6 +206,8 @@ lazy val taggedMetaSettings = metaSettings ++ Seq(
   libraryDependencies += optional(sprayJson),
   libraryDependencies += optional(circe)
 )
+
+lazy val instancesSettings = commonSettings
 
 lazy val macroUtils = project
   .in(file("macro-utils"))
@@ -347,7 +349,7 @@ lazy val taggedMeta = project
 
 lazy val examples = project
   .in(file("examples"))
-  .dependsOn(slickSupport, sprayJsonSupport, playJsonSupport, akkaHttpSupport, taggedMeta, circeSupport)
+  .dependsOn(slickSupport, sprayJsonSupport, playJsonSupport, akkaHttpSupport, taggedMeta, circeSupport, instances)
   .settings(examplesSettings: _*)
   .settings(noPublishSettings: _*)
   .settings(
@@ -366,6 +368,18 @@ lazy val benchmarks = project
     moduleName := "kebs-benchmarks"
   )
 
+lazy val instances = project
+  .in(file("instances"))
+  .dependsOn(macroUtils, sprayJsonSupport % "test -> test")
+  .settings(instancesSettings: _*)
+  .settings(publishSettings: _*)
+  .settings(
+    name := "instances",
+    description := "Standard Java types mappings",
+    moduleName := "kebs-instances",
+    crossScalaVersions := supportedScalaVersions
+  )
+
 import sbtrelease.ReleasePlugin.autoImport._
 import sbtrelease.ReleaseStateTransformations._
 
@@ -382,7 +396,8 @@ lazy val kebs = project
     jsonschemaSupport,
     scalacheckSupport,
     akkaHttpSupport,
-    taggedMeta
+    taggedMeta,
+    instances
   )
   .settings(baseSettings: _*)
   .settings(

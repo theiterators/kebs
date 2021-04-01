@@ -1,45 +1,45 @@
 package pl.iterators.kebs_examples
 
-import java.net.URL
-import java.util.UUID
-
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.marshalling.ToResponseMarshallable
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.server.Directives._
+import pl.iterators.kebs.instances.NetInstances.URIString
+import pl.iterators.kebs.instances.UtilInstances.UUIDString
 import pl.iterators.kebs.json.KebsSpray
 import spray.json._
 
+import java.net.URI
+import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
 object SprayJsonFormat {
-
-  trait JsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
-    implicit val urlJsonFormat = new JsonFormat[URL] {
-      override def read(json: JsValue): URL = json match {
-        case JsString(url) => Try(new URL(url)).getOrElse(deserializationError("Invalid URL format"))
-        case _             => deserializationError("URL should be string")
-      }
-
-      override def write(obj: URL): JsValue = JsString(obj.toString)
-    }
-
-    implicit val uuidFormat = new JsonFormat[UUID] {
-      override def write(obj: UUID): JsValue = JsString(obj.toString)
-
-      override def read(json: JsValue): UUID = json match {
-        case JsString(uuid) => Try(UUID.fromString(uuid)).getOrElse(deserializationError("Expected UUID format"))
-        case _              => deserializationError("Expected UUID format")
-      }
-    }
-  }
 
   trait ThingsService {
     def create(request: ThingCreateRequest): Future[ThingCreateResponse]
   }
 
   object BeforeKebs {
+    trait JsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
+      implicit val urlJsonFormat = new JsonFormat[URI] {
+        override def read(json: JsValue): URI = json match {
+          case JsString(uri) => Try(new URI(uri)).getOrElse(deserializationError("Invalid URI format"))
+          case _             => deserializationError("URL should be string")
+        }
+
+        override def write(obj: URI): JsValue = JsString(obj.toString)
+      }
+
+      implicit val uuidFormat = new JsonFormat[UUID] {
+        override def write(obj: UUID): JsValue = JsString(obj.toString)
+
+        override def read(json: JsValue): UUID = json match {
+          case JsString(uuid) => Try(UUID.fromString(uuid)).getOrElse(deserializationError("Expected UUID format"))
+          case _              => deserializationError("Expected UUID format")
+        }
+      }
+    }
     object ThingProtocol extends JsonProtocol {
       def jsonFlatFormat[P, T <: Product](construct: P => T)(implicit jw: JsonWriter[P], jr: JsonReader[P]): JsonFormat[T] =
         new JsonFormat[T] {
@@ -71,7 +71,7 @@ object SprayJsonFormat {
   }
 
   object AfterKebs {
-    object ThingProtocol extends JsonProtocol with KebsSpray
+    object ThingProtocol extends DefaultJsonProtocol with SprayJsonSupport with KebsSpray with URIString with UUIDString
 
     class ThingRouter(thingsService: ThingsService)(implicit ec: ExecutionContext) {
       import ThingProtocol._
@@ -92,11 +92,11 @@ object SprayJsonFormat {
   case class TagId(id: String)
   case class Location(latitude: Double, longitude: Double)
 
-  case class Thing(id: ThingId, name: ThingName, description: ThingDescription, pictureUrl: URL, tags: List[TagId], location: Location)
+  case class Thing(id: ThingId, name: ThingName, description: ThingDescription, pictureUri: URI, tags: List[TagId], location: Location)
 
   case class ThingCreateRequest(name: ThingName,
                                 description: ThingDescription,
-                                pictureUrl: Option[URL],
+                                pictureUrl: Option[URI],
                                 tags: List[TagId],
                                 location: Location)
   sealed abstract class ThingCreateResponse
