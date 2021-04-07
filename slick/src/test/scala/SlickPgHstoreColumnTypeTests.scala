@@ -24,4 +24,17 @@ class SlickPgHstoreColumnTypeTests extends AnyFunSuite with Matchers {
       |}
     """.stripMargin should compile
   }
+
+  test("Standard types to HStore mapping") {
+    import java.time.YearMonth
+    import pl.iterators.kebs.instances.TimeInstances.YearMonthString
+    """
+      | class HStoreTestTable(tag: Tag) extends Table[(Long, Map[YearMonth, Boolean])](tag, "HStoreTestTable") with YearMonthString {
+      |   def id = column[Long]("id", O.AutoInc, O.PrimaryKey)
+      |   def history: Rep[Map[YearMonth, Boolean]] = column[Map[YearMonth, Boolean]]("history")
+      |
+      |   def * = (id, history)
+      |}
+    """.stripMargin should compile
+  }
 }

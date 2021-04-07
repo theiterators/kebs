@@ -50,9 +50,10 @@ trait Kebs extends KebsColumnExtensionMethods {
   }
   implicit def mapValueColumnType[CC1 <: Product, CC2 <: Product, A, B](implicit iso1: Isomorphism[CC1, A],
                                                                         iso2: Isomorphism[CC2, B]): Isomorphism[Map[CC1, CC2], Map[A, B]] =
-    new Isomorphism[Map[CC1, CC2], Map[A, B]](_.map { case (cc1, cc2) => (iso1.map(cc1), iso2.map(cc2)) }, _.map {
-      case (a, b)                                                     => (iso1.comap(a), iso2.comap(b))
-    })
+    new Isomorphism[Map[CC1, CC2], Map[A, B]](
+      _.map { case (cc1, cc2) => (iso1.map(cc1), iso2.map(cc2)) },
+      _.map { case (a, b)     => (iso1.comap(a), iso2.comap(b)) }
+    )
 
   private class StringMapIsomorphism[A](comap: String => A)
       extends Isomorphism[Map[String, A], Map[String, String]](_.map(kv => kv._1 -> kv._2.toString), _.map(kv => kv._1 -> comap(kv._2)))
@@ -64,6 +65,16 @@ trait Kebs extends KebsColumnExtensionMethods {
   implicit def hstoreColumnType[CC1 <: Product, CC2 <: Product, A](
       implicit iso1: Isomorphism[Map[CC1, CC2], Map[String, A]],
       iso2: Isomorphism[Map[String, A], Map[String, String]]): Isomorphism[Map[CC1, CC2], Map[String, String]] =
-    new Isomorphism[Map[CC1, CC2], Map[String, String]](iso1.map andThen iso2.map, iso2.comap andThen iso1.comap)
+    new Isomorphism[Map[CC1, CC2], Map[String, String]](
+      iso1.map andThen iso2.map,
+      iso2.comap andThen iso1.comap
+    )
+
+  implicit def hstoreColumnBooleanValue[A](implicit iso1: Isomorphism[A, String]): Isomorphism[Map[A, Boolean], Map[String, Boolean]] = {
+    new Isomorphism[Map[A, Boolean], Map[String, Boolean]](
+      _.map { case (a, bool)   => (iso1.map(a), bool) },
+      _.map { case (str, bool) => (iso1.comap(str), bool) }
+    )
+  }
 
 }
