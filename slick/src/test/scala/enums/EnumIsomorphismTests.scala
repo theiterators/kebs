@@ -15,7 +15,7 @@ class EnumIsomorphismTests extends AnyFunSuite with Matchers {
     case object Hi      extends Greeting
     case object Bye     extends Greeting
 
-    val values: IndexedSeq[Greeting] = findValues
+    val values = findValues
   }
 
   import Greeting._

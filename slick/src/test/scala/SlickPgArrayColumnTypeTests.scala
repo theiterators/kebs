@@ -43,7 +43,7 @@ class SlickPgArrayColumnTypeTests extends AnyFunSuite with Matchers {
     case object Soomething    extends AnEnum
     case object SomethingElse extends AnEnum
 
-    override val values: IndexedSeq[AnEnum] = findValues
+    override val values = findValues
   }
   import enums._
 
