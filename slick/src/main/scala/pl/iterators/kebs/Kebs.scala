@@ -91,21 +91,21 @@ trait Kebs extends KebsColumnExtensionMethods {
       _.map { case (str1, str2) => (iso1.comap(str1), str2) }
     )
 
-  implicit def hstoreColumnIntValue[A](implicit iso1: Isomorphism[A, String]): Isomorphism[Map[A, Int], Map[String, Int]] =
-    new Isomorphism[Map[A, Int], Map[String, Int]](
-      _.map { case (a, int)   => (iso1.map(a), int) },
-      _.map { case (str, int) => (iso1.comap(str), int) }
+  implicit def hstoreColumnIntValue[A](implicit iso1: Isomorphism[A, String]): Isomorphism[Map[A, Int], Map[String, String]] =
+    new Isomorphism[Map[A, Int], Map[String, String]](
+      _.map { case (a, int)     => (iso1.map(a), int.toString) },
+      _.map { case (str1, str2) => (iso1.comap(str1), str2.toInt) }
     )
 
-  implicit def hstoreColumnLongValue[A](implicit iso1: Isomorphism[A, String]): Isomorphism[Map[A, Long], Map[String, Long]] =
-    new Isomorphism[Map[A, Long], Map[String, Long]](
-      _.map { case (a, long)   => (iso1.map(a), long) },
-      _.map { case (str, long) => (iso1.comap(str), long) }
+  implicit def hstoreColumnLongValue[A](implicit iso1: Isomorphism[A, String]): Isomorphism[Map[A, Long], Map[String, String]] =
+    new Isomorphism[Map[A, Long], Map[String, String]](
+      _.map { case (a, long)    => (iso1.map(a), long.toString) },
+      _.map { case (str1, str2) => (iso1.comap(str1), str2.toLong) }
     )
 
-  implicit def hstoreColumnBooleanValue[A](implicit iso1: Isomorphism[A, String]): Isomorphism[Map[A, Boolean], Map[String, Boolean]] =
-    new Isomorphism[Map[A, Boolean], Map[String, Boolean]](
-      _.map { case (a, bool)   => (iso1.map(a), bool) },
-      _.map { case (str, bool) => (iso1.comap(str), bool) }
+  implicit def hstoreColumnBooleanValue[A](implicit iso1: Isomorphism[A, String]): Isomorphism[Map[A, Boolean], Map[String, String]] =
+    new Isomorphism[Map[A, Boolean], Map[String, String]](
+      _.map { case (a, bool)    => (iso1.map(a), bool.toString) },
+      _.map { case (str1, str2) => (iso1.comap(str1), str2.toBoolean) }
     )
 }

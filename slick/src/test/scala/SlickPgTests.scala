@@ -1,8 +1,10 @@
-import java.util.UUID
-
-import com.github.tminglei.slickpg.ExPostgresProfile
+import com.github.tminglei.slickpg._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import pl.iterators.kebs.instances.TimeInstances.YearMonthString
+
+import java.time.YearMonth
+import java.util.UUID
 
 class SlickPgTests extends AnyFunSuite with Matchers {
   import pl.iterators.kebs.Kebs
@@ -12,10 +14,9 @@ class SlickPgTests extends AnyFunSuite with Matchers {
   case class Id(id: Int)
   case class ServiceLine(id: Id, name: ServiceLineName)
 
-  trait PostgresDriver extends ExPostgresProfile {
-    override val api = PostgresApi
-
-    object PostgresApi extends API with Kebs
+  trait PostgresDriver extends ExPostgresProfile with PgHStoreSupport {
+    override val api: APIWithHStore = new APIWithHStore {}
+    trait APIWithHStore extends API with Kebs with HStoreImplicits
   }
   object PostgresDriver extends PostgresDriver
 
@@ -44,17 +45,19 @@ class SlickPgTests extends AnyFunSuite with Matchers {
   case class TestString(value: String)
   case class TestNumeric(value: Int)
   case class TestBool(value: Boolean)
-  case class Test(id: TestId, string: TestString, num: TestNumeric)
+  case class Test(id: TestId, string: TestString, num: TestNumeric, history: Map[YearMonth, Boolean])
 
-  class Tests(tag: BaseTable.Tag) extends BaseTable[Test](tag, "test") {
+  class Tests(tag: BaseTable.Tag) extends BaseTable[Test](tag, "test") with YearMonthString {
     import driver.api._
 
-    def id     = column[TestId]("id")
-    def string = column[TestString]("string")
-    def num    = column[TestNumeric]("num")
-    def flag   = column[TestBool]("flag")
+    def id      = column[TestId]("id")
+    def string  = column[TestString]("string")
+    def num     = column[TestNumeric]("num")
+    def history = column[Map[YearMonth, Boolean]]("history")
 
-    override def * : ProvenShape[Test] = (id, string, num) <> ((Test.apply _).tupled, Test.unapply)
+    def flag = column[TestBool]("flag")
+
+    override def * : ProvenShape[Test] = (id, string, num, history) <> ((Test.apply _).tupled, Test.unapply)
   }
 
   test("String column extension methods") {
@@ -102,5 +105,17 @@ class SlickPgTests extends AnyFunSuite with Matchers {
       |  private val tests = TableQuery[Tests]
       |}
       """.stripMargin should compile
+  }
+
+  test("Hstore methods") {
+    """
+      |class TestRepositoryHstore {
+      |  import PostgresDriver.api._
+      |
+      |  def getValueForKey(yearMonth: YearMonth): DBIOAction[Seq[Option[Boolean], NoStream, Effect.Read] =
+      |    tests.map(_.history +> yearMonth).result
+      |
+      |  private val tests = TableQuery[Tests]
+      |}""".stripMargin
   }
 }
