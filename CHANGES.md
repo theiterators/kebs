@@ -1,3 +1,14 @@
+## Version 1.9.1
+> 8.04.2021
+* Added Mergify
+* Dependency updates
+* Added ScalaCheck generators
+* Added json-schema support  
+* Added Numeric instances for tagged types using CaseClass1Rep
+* Fixed `examples` module not compiling on CI
+* Removed compiler warnings
+* Provide mappings for all standard Java types
+
 ## Version 1.9.0
 > 29.01.2021
 * Added experimental version of Circe support
