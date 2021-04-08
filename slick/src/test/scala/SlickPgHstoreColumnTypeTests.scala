@@ -13,6 +13,8 @@ class SlickPgHstoreColumnTypeTests extends AnyFunSuite with Matchers {
 
   import MyPostgresProfile.api._
   import pl.iterators.kebs._
+  import java.time.YearMonth
+  import pl.iterators.kebs.instances.TimeInstances.YearMonthString
 
   test("Value classes to HStore mapping") {
     """
@@ -25,9 +27,40 @@ class SlickPgHstoreColumnTypeTests extends AnyFunSuite with Matchers {
     """.stripMargin should compile
   }
 
-  test("Standard types to HStore mapping") {
-    import java.time.YearMonth
-    import pl.iterators.kebs.instances.TimeInstances.YearMonthString
+  test("String value to HStore mapping") {
+    """
+      | class HStoreTestTable(tag: Tag) extends Table[(Long, Map[YearMonth, String])](tag, "HStoreTestTable") with YearMonthString {
+      |   def id = column[Long]("id", O.AutoInc, O.PrimaryKey)
+      |   def history: Rep[Map[YearMonth, String]] = column[Map[YearMonth, String]]("history")
+      |
+      |   def * = (id, history)
+      |}
+    """.stripMargin should compile
+  }
+
+  test("Int value to HStore mapping") {
+    """
+      | class HStoreTestTable(tag: Tag) extends Table[(Long, Map[YearMonth, Int])](tag, "HStoreTestTable") with YearMonthString {
+      |   def id = column[Long]("id", O.AutoInc, O.PrimaryKey)
+      |   def history: Rep[Map[YearMonth, Int]] = column[Map[YearMonth, Int]]("history")
+      |
+      |   def * = (id, history)
+      |}
+    """.stripMargin should compile
+  }
+
+  test("Long value to HStore mapping") {
+    """
+      | class HStoreTestTable(tag: Tag) extends Table[(Long, Map[YearMonth, Long])](tag, "HStoreTestTable") with YearMonthString {
+      |   def id = column[Long]("id", O.AutoInc, O.PrimaryKey)
+      |   def history: Rep[Map[YearMonth, Long]] = column[Map[YearMonth, Long]]("history")
+      |
+      |   def * = (id, history)
+      |}
+    """.stripMargin should compile
+  }
+
+  test("Boolean value to HStore mapping") {
     """
       | class HStoreTestTable(tag: Tag) extends Table[(Long, Map[YearMonth, Boolean])](tag, "HStoreTestTable") with YearMonthString {
       |   def id = column[Long]("id", O.AutoInc, O.PrimaryKey)
@@ -37,4 +70,5 @@ class SlickPgHstoreColumnTypeTests extends AnyFunSuite with Matchers {
       |}
     """.stripMargin should compile
   }
+
 }

@@ -15,7 +15,7 @@ class SlickMappedValueEnumColumnTypeTests extends AnyFunSuite with Matchers {
     override val values = findValues
   }
 
-  test("MappedColumnType for value enum entires") {
+  test("MappedColumnType for value enum entries") {
     "implicitly[BaseColumnType[WorkerAccountStatusInt]]" should compile
   }
 

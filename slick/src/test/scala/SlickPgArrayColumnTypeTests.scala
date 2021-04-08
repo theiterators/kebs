@@ -14,7 +14,7 @@ class SlickPgArrayColumnTypeTests extends AnyFunSuite with Matchers {
 
   import MyPostgresProfile.api._
   import pl.iterators.kebs._
-  test("Array mapping") {
+  test("List column type") {
     """
       |    class ArrayTestTable(tag: Tag) extends Table[(Long, List[Institution], Option[List[MarketFinancialProduct]])](tag, "ArrayTest") {
       |      def id = column[Long]("id", O.AutoInc, O.PrimaryKey)
@@ -26,7 +26,7 @@ class SlickPgArrayColumnTypeTests extends AnyFunSuite with Matchers {
     """.stripMargin should compile
   }
 
-  test("seqValueColumnType") {
+  test("Seq column type") {
     """
       |    class SeqTestTable(tag: Tag) extends Table[(Long, Seq[Institution], Option[List[MarketFinancialProduct]])](tag, "SeqTest") {
       |      def id = column[Long]("id", O.AutoInc, O.PrimaryKey)
@@ -43,11 +43,11 @@ class SlickPgArrayColumnTypeTests extends AnyFunSuite with Matchers {
     case object Soomething    extends AnEnum
     case object SomethingElse extends AnEnum
 
-    override val values = findValues
+    override val values: IndexedSeq[AnEnum] = findValues
   }
   import enums._
 
-  test("seqValueColumnType with enums") {
+  test("Seq column type with enums") {
     """
       |    class EnumSeqTestTable(tag: Tag) extends Table[(Long, Seq[AnEnum])](tag, "EnumSeqTest") {
       |      def id = column[Long]("id", O.AutoInc, O.PrimaryKey)
@@ -58,7 +58,7 @@ class SlickPgArrayColumnTypeTests extends AnyFunSuite with Matchers {
     """.stripMargin should compile
   }
 
-  test("seqValueColumnType with enums and not enums") {
+  test("Seq column type with enums and not enums") {
     """
       |    class EnumSeqTestTable(tag: Tag) extends Table[(Long, Seq[Institution], Seq[AnEnum])](tag, "EnumSeqTest") {
       |      def id = column[Long]("id", O.AutoInc, O.PrimaryKey)
