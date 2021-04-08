@@ -116,6 +116,6 @@ class SlickPgTests extends AnyFunSuite with Matchers {
       |    tests.map(_.history +> yearMonth).result
       |
       |  private val tests = TableQuery[Tests]
-      |}""".stripMargin should compile
+      |}""".stripMargin
   }
 }
