@@ -136,7 +136,7 @@ lazy val commonSettings = baseSettings ++ Seq(
 
 lazy val slickSettings = commonSettings ++ Seq(
   libraryDependencies += slick,
-  libraryDependencies += slickPg % "test",
+  libraryDependencies += slickPg,
   libraryDependencies += optionalEnumeratum
 )
 
