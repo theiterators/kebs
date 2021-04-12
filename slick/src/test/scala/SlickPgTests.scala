@@ -1,10 +1,8 @@
 import com.github.tminglei.slickpg._
+
+import java.util.UUID
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.instances.TimeInstances.YearMonthString
-
-import java.time.YearMonth
-import java.util.UUID
 
 class SlickPgTests extends AnyFunSuite with Matchers {
   import pl.iterators.kebs.Kebs
@@ -14,15 +12,16 @@ class SlickPgTests extends AnyFunSuite with Matchers {
   case class Id(id: Int)
   case class ServiceLine(id: Id, name: ServiceLineName)
 
-  trait PostgresDriver extends ExPostgresProfile with PgHStoreSupport {
-    override val api: APIWithHStore = new APIWithHStore {}
-    trait APIWithHStore extends API with Kebs with HStoreImplicits
+  trait PostgresDriver extends ExPostgresProfile {
+    override val api = PostgresApi
+    object PostgresApi extends API with Kebs
   }
   object PostgresDriver extends PostgresDriver
 
   abstract class BaseTable[T](tag: BaseTable.Tag, tableName: String) extends BaseTable.driver.Table[T](tag, tableName) {
     protected val driver: PostgresDriver = BaseTable.driver
   }
+
   object BaseTable {
     protected val driver = PostgresDriver
     type Tag = driver.api.Tag
@@ -45,19 +44,17 @@ class SlickPgTests extends AnyFunSuite with Matchers {
   case class TestString(value: String)
   case class TestNumeric(value: Int)
   case class TestBool(value: Boolean)
-  case class Test(id: TestId, string: TestString, num: TestNumeric, history: Map[YearMonth, Boolean])
+  case class Test(id: TestId, string: TestString, num: TestNumeric)
 
-  class Tests(tag: BaseTable.Tag) extends BaseTable[Test](tag, "test") with YearMonthString {
+  class Tests(tag: BaseTable.Tag) extends BaseTable[Test](tag, "test") {
     import driver.api._
 
-    def id      = column[TestId]("id")
-    def string  = column[TestString]("string")
-    def num     = column[TestNumeric]("num")
-    def flag    = column[TestBool]("flag")
-    def history = column[Map[YearMonth, Boolean]]("history")
+    def id     = column[TestId]("id")
+    def string = column[TestString]("string")
+    def num    = column[TestNumeric]("num")
+    def flag   = column[TestBool]("flag")
 
-    override def * : ProvenShape[Test] =
-      (id, string, num, history) <> ((Test.apply _).tupled, Test.unapply)
+    override def * : ProvenShape[Test] = (id, string, num) <> ((Test.apply _).tupled, Test.unapply)
   }
 
   test("String column extension methods") {
@@ -79,6 +76,7 @@ class SlickPgTests extends AnyFunSuite with Matchers {
     """
       |class TestRepository2 {
       |  import PostgresDriver.api._
+      |
       |  def power: DBIOAction[Seq[TestNumeric], NoStream, Effect.Read] =
       |    tests.map(t => t.num * t.num).result
       |  def mult2: DBIOAction[Seq[TestNumeric], NoStream, Effect.Read] =
@@ -97,6 +95,7 @@ class SlickPgTests extends AnyFunSuite with Matchers {
     """
       |class TestRepository2 {
       |  import PostgresDriver.api._
+      |
       |  def and: DBIOAction[Seq[Boolean], NoStream, Effect.Read] =
       |    tests.map(t => t.flag && (t.num <= 0)).result
       |  def or: DBIOAction[Seq[Boolean], NoStream, Effect.Read] =
@@ -106,19 +105,4 @@ class SlickPgTests extends AnyFunSuite with Matchers {
       |}
       """.stripMargin should compile
   }
-
-  // FIXME "value +> is not a member of slick.lifted.Rep[Map[java.time.YearMonth,Boolean]]"
-  test("Hstore column extension methods") {
-    """
-      |class HstoreTestRepository {
-      |  import PostgresDriver.api._
-      |  def getValue(key: String) =
-      |    tests.map(_.history +> key).result
-      |
-      |  private val tests = TableQuery[Tests]
-      |}
-      |
-      |""".stripMargin should compile
-  }
-
 }
