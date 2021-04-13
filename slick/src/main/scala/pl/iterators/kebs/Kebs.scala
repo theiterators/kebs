@@ -1,13 +1,11 @@
 package pl.iterators.kebs
 
 import pl.iterators.kebs.hstore.KebsHStoreColumnExtensionMethods
-import pl.iterators.kebs.instances.TimeInstances.YearMonthString
 import pl.iterators.kebs.macros.CaseClass1Rep
 import slick.ast.{BaseTypedType, NumericTypedType}
 import slick.jdbc.JdbcType
 import slick.lifted._
 
-import java.time.YearMonth
 import scala.language.implicitConversions
 
 trait KebsColumnExtensionMethods {
@@ -30,15 +28,16 @@ trait KebsColumnExtensionMethods {
       implicit ev: CaseClass1Rep[CC, Boolean]): BooleanColumnExtensionMethods[Option[CC]] =
     new BooleanColumnExtensionMethods[Option[CC]](rep)
 
-  // TODO
-  implicit def objectValueHstoreColumnExt(rep: Rep[Map[YearMonth, String]])(
-      implicit tm: JdbcType[Map[YearMonth, String]],
-      tl: JdbcType[List[YearMonth]],
-      tl1: JdbcType[List[String]],
-      ti: CaseClass1Rep[YearMonth, String]
-  ): KebsHStoreColumnExtensionMethods[Map[YearMonth, String]] =
-    new KebsHStoreColumnExtensionMethods[Map[YearMonth, String]](rep)
-
+  // TODO: make more generic, for testing purposes only
+  implicit def hstoreStringToIntColumnExt(c: Rep[Map[String, Int]])(
+      implicit tm0: JdbcType[String],
+      tm1: JdbcType[Int],
+      tm2: JdbcType[List[String]],
+      tm3: JdbcType[List[Int]],
+      tm4: JdbcType[Map[String, Int]]
+  ): KebsHStoreColumnExtensionMethods[String, Int, Map[String, Int]] = {
+    new KebsHStoreColumnExtensionMethods[String, Int, Map[String, Int]](c)
+  }
   @inline implicit def getCCOptionMapper2TT_1[B1, B2: BaseTypedType, BR, CC](
       implicit ev: CaseClass1Rep[CC, B1]): OptionMapper2[B1, B2, BR, CC, B2, BR] =
     OptionMapper2.plain.asInstanceOf[OptionMapper2[B1, B2, BR, CC, B2, BR]]

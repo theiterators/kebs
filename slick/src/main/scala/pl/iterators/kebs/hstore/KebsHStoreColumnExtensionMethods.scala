@@ -1,21 +1,20 @@
 package pl.iterators.kebs.hstore
 
-import pl.iterators.kebs.macros.CaseClass1Rep
-import slick.ast.Library._
+import slick.ast.Library.{SqlFunction, SqlOperator}
 import slick.ast.ScalaBaseType.booleanType
 import slick.ast.TypedType
 import slick.jdbc.JdbcType
 import slick.lifted.{ExtensionMethods, Rep}
 
-import java.time.YearMonth
+class KebsHStoreColumnExtensionMethods[KEY, VALUE, P1](val c: Rep[P1])(
+    implicit tm0: JdbcType[KEY],
+    tm1: JdbcType[VALUE],
+    tm2: JdbcType[List[KEY]],
+    tm3: JdbcType[List[VALUE]],
+    tm4: JdbcType[Map[KEY, VALUE]]
+) extends ExtensionMethods[Map[KEY, VALUE], P1] {
 
-/** Extension methods for hstore Columns */
-class KebsHStoreColumnExtensionMethods[P1](val c: Rep[P1])(
-    implicit tm: JdbcType[Map[YearMonth, String]],
-    tl: JdbcType[List[YearMonth]],
-    tl1: JdbcType[List[String]],
-    ti: CaseClass1Rep[YearMonth, String]
-) extends ExtensionMethods[Map[YearMonth, String], P1] {
+  protected implicit def b1Type: TypedType[Map[KEY, VALUE]] = implicitly[TypedType[Map[KEY, VALUE]]]
 
   val On          = new SqlOperator("->")
   val Exist       = new SqlOperator("??")
@@ -29,51 +28,7 @@ class KebsHStoreColumnExtensionMethods[P1](val c: Rep[P1])(
   val Delete      = new SqlOperator("-")
   val Slice       = new SqlFunction("slice")
 
-  protected implicit def b1Type: TypedType[Map[YearMonth, String]] = implicitly[TypedType[Map[YearMonth, String]]]
-
-  def ??[P2, R](k: Rep[P2])(implicit om: o#arg[YearMonth, P2]#to[Boolean, R]) = {
+  def ??[P2, R](k: Rep[P2])(implicit om: o#arg[KEY, P2]#to[Boolean, R]) = {
     om.column(Exist, n, k.toNode)
   }
-  /*
-    def +>[P2, R](k: Rep[P2])(implicit om: o#arg[String, P2]#to[String, R]) = {
-        HStoreLibrary.On.column[Option[String]](n, k.toNode)
-    }
-
-    def >>[T: JdbcType](k: Rep[String]) = {
-      Library.Cast.column[T](On.column[String](n, k.toNode).toNode)
-    }
-    def ??[P2, R](k: Rep[P2])(implicit om: o#arg[String, P2]#to[Boolean, R]) = {
-      om.column(Exist, n, k.toNode)
-    }
-    def ?*[P2, R](k: Rep[P2])(implicit om: o#arg[String, P2]#to[Boolean, R]) = {
-      om.column(Defined, n, k.toNode)
-    }
-    def ?|[P2, R](k: Rep[P2])(implicit om: o#arg[List[String], P2]#to[Boolean, R]) = {
-      om.column(ExistAny, n, k.toNode)
-    }
-    def ?&[P2, R](k: Rep[P2])(implicit om: o#arg[List[String], P2]#to[Boolean, R]) = {
-      om.column(ExistAll, n, k.toNode)
-    }
-    def @>[P2, R](c2: Rep[P2])(implicit om: o#arg[Map[String, String], P2]#to[Boolean, R]) = {
-      om.column(Contains, n, c2.toNode)
-    }
-    def <@:[P2, R](c2: Rep[P2])(implicit om: o#arg[Map[String, String], P2]#to[Boolean, R]) = {
-      om.column(ContainedBy, c2.toNode, n)
-    }
-
-    def @+[P2, R](c2: Rep[P2])(implicit om: o#arg[Map[String, String], P2]#to[Map[String, String], R]) = {
-      om.column(Concatenate, n, c2.toNode)
-    }
-    def @-[P2, R](c2: Rep[P2])(implicit om: o#arg[Map[String, String], P2]#to[Map[String, String], R]) = {
-      om.column(Delete, n, c2.toNode)
-    }
-    def --[P2, R](c2: Rep[P2])(implicit om: o#arg[List[String], P2]#to[Map[String, String], R]) = {
-      om.column(Delete, n, c2.toNode)
-    }
-    def -/[P2, R](c2: Rep[P2])(implicit om: o#arg[String, P2]#to[Map[String, String], R]) = {
-      om.column(Delete, n, c2.toNode)
-    }
-    def slice[P2, R](c2: Rep[P2])(implicit om: o#arg[List[String], P2]#to[Map[String, String], R]) = {
-      om.column(Slice, n, c2.toNode)
-    }*/
 }

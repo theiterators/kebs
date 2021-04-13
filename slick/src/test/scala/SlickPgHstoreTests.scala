@@ -1,10 +1,8 @@
 import com.github.tminglei.slickpg.{ExPostgresProfile, PgArraySupport, PgHStoreSupport}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.instances.TimeInstances.YearMonthString
-import slick.lifted.{ProvenShape, Rep}
+import slick.lifted.ProvenShape
 
-import java.time.YearMonth
 import java.util.UUID
 
 class SlickPgHstoreTests extends AnyFunSuite with Matchers {
@@ -25,25 +23,26 @@ class SlickPgHstoreTests extends AnyFunSuite with Matchers {
     type Tag = driver.api.Tag
   }
 
-  case class Test(id: UUID, history: Map[YearMonth, String])
+  case class Test(id: UUID, history: Map[String, Int])
 
-  class Tests(tag: BaseTable.Tag) extends BaseTable[Test](tag, "test") with YearMonthString {
+  class Tests(tag: BaseTable.Tag) extends BaseTable[Test](tag, "test") {
     import driver.api._
 
-    def id: Rep[UUID]                        = column[UUID]("id")
-    def history: Rep[Map[YearMonth, String]] = column[Map[YearMonth, String]]("history")
+    def id: Rep[UUID]                  = column[UUID]("id")
+    def history: Rep[Map[String, Int]] = column[Map[String, Int]]("history")
 
     override def * : ProvenShape[Test] = (id, history) <> ((Test.apply _).tupled, Test.unapply)
   }
 
   test("Hstore extension methods") {
-    class TestRepository1 {
-      import PostgresDriver.api._
-
-      def exists(key: YearMonth) =
-        tests.map(_.history ?? key).result
-
-      private val tests = TableQuery[Tests]
-    }
+    """
+      |class TestRepository1 {
+      |      import PostgresDriver.api._
+      |
+      |      def exists(key: String) =
+      |        tests.map(_.history ?? key).result
+      |
+      |      private val tests = TableQuery[Tests]
+      |}""".stripMargin should compile
   }
 }
