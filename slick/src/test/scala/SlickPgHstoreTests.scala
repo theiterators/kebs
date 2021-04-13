@@ -1,16 +1,18 @@
 import com.github.tminglei.slickpg.{ExPostgresProfile, PgArraySupport, PgHStoreSupport}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import slick.lifted.ProvenShape
+import pl.iterators.kebs.instances.TimeInstances.YearMonthString
+import slick.lifted.{ProvenShape, Rep}
 
+import java.time.YearMonth
 import java.util.UUID
 
 class SlickPgHstoreTests extends AnyFunSuite with Matchers {
-  import pl.iterators.kebs.hstore.KebsPgHStoreSupport
+  import pl.iterators.kebs.Kebs
 
-  trait PostgresDriver extends ExPostgresProfile with PgArraySupport with KebsPgHStoreSupport {
+  trait PostgresDriver extends ExPostgresProfile with PgArraySupport with PgHStoreSupport {
     override val api: HstoreAPI = new HstoreAPI {}
-    trait HstoreAPI extends super.API with ArrayImplicits with HStoreImplicits
+    trait HstoreAPI extends super.API with ArrayImplicits with HStoreImplicits with Kebs
   }
   object PostgresDriver extends PostgresDriver
 
@@ -23,24 +25,23 @@ class SlickPgHstoreTests extends AnyFunSuite with Matchers {
     type Tag = driver.api.Tag
   }
 
-  case class Test(id: UUID, history: Map[String, String])
+  case class Test(id: UUID, history: Map[YearMonth, String])
 
-  class Tests(tag: BaseTable.Tag) extends BaseTable[Test](tag, "test") {
+  class Tests(tag: BaseTable.Tag) extends BaseTable[Test](tag, "test") with YearMonthString {
     import driver.api._
 
-    def id: Rep[UUID]                     = column[UUID]("id")
-    def history: Rep[Map[String, String]] = column[Map[String, String]]("history")
+    def id: Rep[UUID]                        = column[UUID]("id")
+    def history: Rep[Map[YearMonth, String]] = column[Map[YearMonth, String]]("history")
 
-    override def * : ProvenShape[Test] =
-      (id, history) <> ((Test.apply _).tupled, Test.unapply)
+    override def * : ProvenShape[Test] = (id, history) <> ((Test.apply _).tupled, Test.unapply)
   }
 
-  test("String column extension methods") {
+  test("Hstore extension methods") {
     class TestRepository1 {
       import PostgresDriver.api._
 
-      def getValueFromKey(key: String) =
-        tests.map(_.history +> key).result
+      def exists(key: YearMonth) =
+        tests.map(_.history ?? key).result
 
       private val tests = TableQuery[Tests]
     }
