@@ -1,6 +1,6 @@
 package hstore
 
-import com.github.tminglei.slickpg.{ExPostgresProfile, PgArraySupport, PgHStoreSupport}
+import com.github.tminglei.slickpg._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.instances.TimeInstances.YearMonthString
@@ -46,33 +46,79 @@ class SlickPgHstoreTests extends AnyFunSuite with Matchers {
       |class TestRepository1 {
       |      import PostgresDriver.api._
       |
-      |      def exists(key: TestKey) =
+      |      def getValueForKey(key: TestKey) =
+      |        tests.map(_.hstoreMap +> key).result
+      |      def exist(key: TestKey) =
       |        tests.map(_.hstoreMap ?? key).result
+      |      def defined(key: TestKey) =
+      |        tests.map(_.hstoreMap ?* key).result
+      |      def existAny(keys: List[TestKey]) =
+      |        tests.map(_.hstoreMap ?| keys).result
+      |      def existAll(keys: List[TestKey]) =
+      |        tests.map(_.hstoreMap ?& keys).result
+      |      def contains(submap: Map[TestKey, TestValue]) =
+      |        tests.map(_.hstoreMap @> submap).result
+      |      def containedBy(supermap: Map[TestKey, TestValue]) =
+      |        tests.map(_.hstoreMap.<@:(supermap)).result
+      |      def concatenate(map: Map[TestKey, TestValue]) =
+      |        tests.map(_.hstoreMap @+ map).result
+      |      def deleteMap(map: Map[TestKey, TestValue]) =
+      |        tests.map(_.hstoreMap @- map).result
+      |      def deleteKeys(keys: List[TestKey]) =
+      |        tests.map(_.hstoreMap -- keys).result
+      |      def deleteKey(key: TestKey) =
+      |        tests.map(_.hstoreMap -/ key).result
+      |      def slice(keys: List[TestKey]) =
+      |        tests.map(_.hstoreMap slice keys).result
       |
       |      private val tests = TableQuery[Tests]
       |}""".stripMargin should compile
   }
 
-  case class ObjectTest(id: TestId, hstoreMap: Map[YearMonth, String])
+  case class StdTypeTest(id: TestId, hstoreMap: Map[YearMonth, String])
 
-  class ObjectTests(tag: BaseTable.Tag) extends BaseTable[ObjectTest](tag, "test") with YearMonthString {
+  class StdTypeTests(tag: BaseTable.Tag) extends BaseTable[StdTypeTest](tag, "test") with YearMonthString {
     import driver.api._
 
     def id: Rep[TestId]                        = column[TestId]("id")
     def hstoreMap: Rep[Map[YearMonth, String]] = column[Map[YearMonth, String]]("hstore_map")
 
-    override def * : ProvenShape[ObjectTest] = (id, hstoreMap) <> ((ObjectTest.apply _).tupled, ObjectTest.unapply)
+    override def * : ProvenShape[StdTypeTest] = (id, hstoreMap) <> ((StdTypeTest.apply _).tupled, StdTypeTest.unapply)
   }
 
-  test("Year month hstore extension methods") {
+  test("Standard Java type hstore extension methods") {
     """
       |class TestRepository1 extends YearMonthString {
+      |
       |      import PostgresDriver.api._
       |
-      |      def exists(key: YearMonth) =
+      |      def getValueForKey(key: YearMonth) =
+      |        tests.map(_.hstoreMap +> key).result
+      |      def exist(key: YearMonth) =
       |        tests.map(_.hstoreMap ?? key).result
+      |      def defined(key: YearMonth) =
+      |        tests.map(_.hstoreMap ?* key).result
+      |      def existAny(keys: List[YearMonth]) =
+      |        tests.map(_.hstoreMap ?| keys).result
+      |      def existAll(keys: List[YearMonth]) =
+      |        tests.map(_.hstoreMap ?& keys).result
+      |      def contains(submap: Map[YearMonth, String]) =
+      |        tests.map(_.hstoreMap @> submap).result
+      |      def containedBy(supermap: Map[YearMonth, String]) =
+      |        tests.map(_.hstoreMap.<@:(supermap)).result
+      |      def concatenate(map: Map[YearMonth, String]) =
+      |        tests.map(_.hstoreMap @+ map).result
+      |      def deleteMap(map: Map[YearMonth, String]) =
+      |        tests.map(_.hstoreMap @- map).result
+      |      def deleteKeys(keys: List[YearMonth]) =
+      |        tests.map(_.hstoreMap -- keys).result
+      |      def deleteKey(key: YearMonth) =
+      |        tests.map(_.hstoreMap -/ key).result
+      |      def slice(keys: List[YearMonth]) =
+      |        tests.map(_.hstoreMap slice keys).result
       |
-      |      private val tests = TableQuery[ObjectTests]
-      |}""".stripMargin should compile
+      |      private val tests = TableQuery[StdTypeTests]
+      |}
+      |""".stripMargin should compile
   }
 }

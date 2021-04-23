@@ -28,13 +28,13 @@ trait KebsColumnExtensionMethods {
       implicit ev: CaseClass1Rep[CC, Boolean]): BooleanColumnExtensionMethods[Option[CC]] =
     new BooleanColumnExtensionMethods[Option[CC]](rep)
 
-  implicit def simpleHstoreColumnExtensionMethods[KEY, VALUE](c: Rep[Map[KEY, VALUE]])(
+  implicit def hstoreColumnExt[KEY, VALUE](c: Rep[Map[KEY, VALUE]])(
       implicit tm0: JdbcType[KEY],
       tm1: JdbcType[VALUE],
       tm2: JdbcType[List[KEY]],
       tm3: JdbcType[List[VALUE]],
       tm4: JdbcType[Map[KEY, VALUE]]
-  ) = new KebsHStoreColumnExtensionMethods[KEY, VALUE, Map[KEY, VALUE]](c)
+  ): KebsHStoreColumnExtensionMethods[KEY, VALUE, Map[KEY, VALUE]] = new KebsHStoreColumnExtensionMethods[KEY, VALUE, Map[KEY, VALUE]](c)
 
   @inline implicit def getCCOptionMapper2TT_1[B1, B2: BaseTypedType, BR, CC](
       implicit ev: CaseClass1Rep[CC, B1]): OptionMapper2[B1, B2, BR, CC, B2, BR] =
@@ -59,29 +59,29 @@ trait Kebs extends KebsColumnExtensionMethods {
     new Isomorphism[CC, B](rep1.unapply, rep1.apply)
 
   /** List isomorphisms */
-  implicit def listStringValueColumnType[A](implicit iso: Isomorphism[A, String]): Isomorphism[List[A], List[String]] = {
+  implicit def listStringColumnType[A](implicit iso: Isomorphism[A, String]): Isomorphism[List[A], List[String]] = {
     new Isomorphism[List[A], List[String]](_.map(iso.map), _.map(iso.comap))
   }
 
-  implicit def listBooleanValueColumnType[A](implicit iso: Isomorphism[A, Boolean]): Isomorphism[List[A], List[Boolean]] = {
-    new Isomorphism[List[A], List[Boolean]](_.map(iso.map), _.map(iso.comap))
-  }
-
-  implicit def listIntValueColumnType[A, Int](implicit iso: Isomorphism[A, Int]): Isomorphism[List[A], List[Int]] = {
+  implicit def listIntColumnType[A, Int](implicit iso: Isomorphism[A, Int]): Isomorphism[List[A], List[Int]] = {
     new Isomorphism[List[A], List[Int]](_.map(iso.map), _.map(iso.comap))
   }
 
-  implicit def listLongValueColumnType[A, Int](implicit iso: Isomorphism[A, Long]): Isomorphism[List[A], List[Long]] = {
+  implicit def listLongColumnType[A, Int](implicit iso: Isomorphism[A, Long]): Isomorphism[List[A], List[Long]] = {
     new Isomorphism[List[A], List[Long]](_.map(iso.map), _.map(iso.comap))
   }
 
+  implicit def listBooleanColumnType[A](implicit iso: Isomorphism[A, Boolean]): Isomorphism[List[A], List[Boolean]] = {
+    new Isomorphism[List[A], List[Boolean]](_.map(iso.map), _.map(iso.comap))
+  }
+
   /** Seq isomorphism */
-  implicit def seqValueColumnType[CC <: Product, B](implicit iso: Isomorphism[CC, B]): Isomorphism[Seq[CC], List[B]] = {
+  implicit def seqColumnType[CC <: Product, B](implicit iso: Isomorphism[CC, B]): Isomorphism[Seq[CC], List[B]] = {
     new Isomorphism[Seq[CC], List[B]](_.map(iso.map).toList, _.map(iso.comap))
   }
 
   /** Map isomorphisms */
-  implicit def mapValueColumnType[CC1 <: Product, CC2 <: Product, A, B](
+  implicit def mapColumnType[CC1 <: Product, CC2 <: Product, A, B](
       implicit iso1: Isomorphism[CC1, A],
       iso2: Isomorphism[CC2, B]
   ): Isomorphism[Map[CC1, CC2], Map[A, B]] =
@@ -109,25 +109,25 @@ trait Kebs extends KebsColumnExtensionMethods {
       iso2.comap andThen iso1.comap
     )
 
-  implicit def hstoreColumnStringValue[A](implicit iso1: Isomorphism[A, String]): Isomorphism[Map[A, String], Map[String, String]] =
+  implicit def hstoreStringColumnType[A](implicit iso1: Isomorphism[A, String]): Isomorphism[Map[A, String], Map[String, String]] =
     new Isomorphism[Map[A, String], Map[String, String]](
       _.map { case (a, str)     => (iso1.map(a), str) },
       _.map { case (str1, str2) => (iso1.comap(str1), str2) }
     )
 
-  implicit def hstoreColumnIntValue[A](implicit iso1: Isomorphism[A, String]): Isomorphism[Map[A, Int], Map[String, Int]] =
+  implicit def hstoreIntColumnType[A](implicit iso1: Isomorphism[A, String]): Isomorphism[Map[A, Int], Map[String, Int]] =
     new Isomorphism[Map[A, Int], Map[String, Int]](
       _.map { case (a, int)   => (iso1.map(a), int) },
       _.map { case (str, int) => (iso1.comap(str), int) }
     )
 
-  implicit def hstoreColumnLongValue[A](implicit iso1: Isomorphism[A, String]): Isomorphism[Map[A, Long], Map[String, Long]] =
+  implicit def hstoreLongColumnType[A](implicit iso1: Isomorphism[A, String]): Isomorphism[Map[A, Long], Map[String, Long]] =
     new Isomorphism[Map[A, Long], Map[String, Long]](
       _.map { case (a, long)   => (iso1.map(a), long) },
       _.map { case (str, long) => (iso1.comap(str), long) }
     )
 
-  implicit def hstoreColumnBooleanValue[A](implicit iso1: Isomorphism[A, String]): Isomorphism[Map[A, Boolean], Map[String, Boolean]] =
+  implicit def hstoreBooleanColumnType[A](implicit iso1: Isomorphism[A, String]): Isomorphism[Map[A, Boolean], Map[String, Boolean]] =
     new Isomorphism[Map[A, Boolean], Map[String, Boolean]](
       _.map { case (a, bool)   => (iso1.map(a), bool) },
       _.map { case (str, bool) => (iso1.comap(str), bool) }
