@@ -1,3 +1,5 @@
+package hstore
+
 import com.github.tminglei.slickpg._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers

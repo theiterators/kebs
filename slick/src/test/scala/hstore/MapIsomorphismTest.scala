@@ -1,6 +1,8 @@
-import slick.lifted.Isomorphism
+package hstore
+
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import slick.lifted.Isomorphism
 
 class MapIsomorphismTest extends AnyFunSuite with Matchers {
   import pl.iterators.kebs._

@@ -1,8 +1,10 @@
-import slick.lifted.Isomorphism
+package caseclasses
+
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
 class CaseClassIsomorphismTests extends AnyFunSuite with Matchers {
+  import slick.lifted.Isomorphism
   import pl.iterators.kebs._
 
   case class Simple1(a: Int)

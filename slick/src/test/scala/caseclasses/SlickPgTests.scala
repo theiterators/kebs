@@ -1,8 +1,10 @@
-import com.github.tminglei.slickpg._
+package caseclasses
 
-import java.util.UUID
+import com.github.tminglei.slickpg._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+
+import java.util.UUID
 
 class SlickPgTests extends AnyFunSuite with Matchers {
   import pl.iterators.kebs.Kebs

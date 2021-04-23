@@ -1,3 +1,5 @@
+package hstore
+
 import com.github.tminglei.slickpg.{ExPostgresProfile, PgArraySupport, PgHStoreSupport}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
@@ -23,24 +25,27 @@ class SlickPgHstoreTests extends AnyFunSuite with Matchers {
     type Tag = driver.api.Tag
   }
 
-  case class Test(id: UUID, history: Map[String, Int])
+  case class TestId(value: UUID)
+  case class TestKey(value: String)
+  case class TestValue(value: String)
+  case class Test(id: TestId, hstoreMap: Map[TestKey, TestValue])
 
   class Tests(tag: BaseTable.Tag) extends BaseTable[Test](tag, "test") {
     import driver.api._
 
-    def id: Rep[UUID]                  = column[UUID]("id")
-    def history: Rep[Map[String, Int]] = column[Map[String, Int]]("history")
+    def id: Rep[TestId]                         = column[TestId]("id")
+    def hstoreMap: Rep[Map[TestKey, TestValue]] = column[Map[TestKey, TestValue]]("hstore_map")
 
-    override def * : ProvenShape[Test] = (id, history) <> ((Test.apply _).tupled, Test.unapply)
+    override def * : ProvenShape[Test] = (id, hstoreMap) <> ((Test.apply _).tupled, Test.unapply)
   }
 
-  test("Hstore extension methods") {
+  test("Case class hstore extension methods") {
     """
       |class TestRepository1 {
       |      import PostgresDriver.api._
       |
-      |      def exists(key: String) =
-      |        tests.map(_.history ?? key).result
+      |      def exists(key: TestKey) =
+      |        tests.map(_.hstoreMap ?? key).result
       |
       |      private val tests = TableQuery[Tests]
       |}""".stripMargin should compile

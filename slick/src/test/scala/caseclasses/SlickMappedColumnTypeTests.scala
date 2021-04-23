@@ -1,8 +1,10 @@
-import slick.lifted.ProvenShape
+package caseclasses
+
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
 class SlickMappedColumnTypeTests extends AnyFunSuite with Matchers {
+  import slick.lifted.ProvenShape
   import slick.jdbc.PostgresProfile.api._
   import pl.iterators.kebs._
 

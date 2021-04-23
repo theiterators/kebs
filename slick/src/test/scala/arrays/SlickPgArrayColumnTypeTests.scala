@@ -1,3 +1,5 @@
+package arrays
+
 import com.github.tminglei.slickpg._
 import enumeratum.{Enum, EnumEntry}
 import org.scalatest.funsuite.AnyFunSuite
