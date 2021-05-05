@@ -34,7 +34,8 @@ trait KebsColumnExtensionMethods {
       tm2: JdbcType[List[KEY]],
       tm3: JdbcType[List[VALUE]],
       tm4: JdbcType[Map[KEY, VALUE]]
-  ): KebsHStoreColumnExtensionMethods[KEY, VALUE, Map[KEY, VALUE]] = new KebsHStoreColumnExtensionMethods[KEY, VALUE, Map[KEY, VALUE]](c)
+  ): KebsHStoreColumnExtensionMethods[KEY, VALUE, Map[KEY, VALUE]] =
+    new KebsHStoreColumnExtensionMethods[KEY, VALUE, Map[KEY, VALUE]](c)
 
   @inline implicit def getCCOptionMapper2TT_1[B1, B2: BaseTypedType, BR, CC](
       implicit ev: CaseClass1Rep[CC, B1]): OptionMapper2[B1, B2, BR, CC, B2, BR] =
@@ -58,30 +59,16 @@ trait Kebs extends KebsColumnExtensionMethods {
   implicit def valueColumnType[CC, B](implicit rep1: CaseClass1Rep[CC, B]): Isomorphism[CC, B] =
     new Isomorphism[CC, B](rep1.unapply, rep1.apply)
 
-  /** List isomorphisms */
-  implicit def listStringColumnType[A](implicit iso: Isomorphism[A, String]): Isomorphism[List[A], List[String]] = {
-    new Isomorphism[List[A], List[String]](_.map(iso.map), _.map(iso.comap))
-  }
-
-  implicit def listIntColumnType[A, Int](implicit iso: Isomorphism[A, Int]): Isomorphism[List[A], List[Int]] = {
-    new Isomorphism[List[A], List[Int]](_.map(iso.map), _.map(iso.comap))
-  }
-
-  implicit def listLongColumnType[A, Int](implicit iso: Isomorphism[A, Long]): Isomorphism[List[A], List[Long]] = {
-    new Isomorphism[List[A], List[Long]](_.map(iso.map), _.map(iso.comap))
-  }
-
-  implicit def listBooleanColumnType[A](implicit iso: Isomorphism[A, Boolean]): Isomorphism[List[A], List[Boolean]] = {
-    new Isomorphism[List[A], List[Boolean]](_.map(iso.map), _.map(iso.comap))
-  }
+  /** List isomorphism */
+  implicit def listValueColumnType[CC, B](implicit iso: Isomorphism[CC, B]): Isomorphism[List[CC], List[B]] =
+    new Isomorphism[List[CC], List[B]](_.map(iso.map), _.map(iso.comap))
 
   /** Seq isomorphism */
-  implicit def seqColumnType[CC <: Product, B](implicit iso: Isomorphism[CC, B]): Isomorphism[Seq[CC], List[B]] = {
+  implicit def seqValueColumnType[CC, B](implicit iso: Isomorphism[CC, B]): Isomorphism[Seq[CC], List[B]] =
     new Isomorphism[Seq[CC], List[B]](_.map(iso.map).toList, _.map(iso.comap))
-  }
 
   /** Map isomorphisms */
-  implicit def mapColumnType[CC1 <: Product, CC2 <: Product, A, B](
+  implicit def mapColumnType[CC1, CC2, A, B](
       implicit iso1: Isomorphism[CC1, A],
       iso2: Isomorphism[CC2, B]
   ): Isomorphism[Map[CC1, CC2], Map[A, B]] =
@@ -90,46 +77,53 @@ trait Kebs extends KebsColumnExtensionMethods {
       _.map { case (a, b)     => (iso1.comap(a), iso2.comap(b)) }
     )
 
-  private class StringMapIsomorphism[A](comap: String => A)
+  implicit def mapColumnType1[CC, A](
+      implicit iso1: Isomorphism[CC, A]
+  ): Isomorphism[Map[CC, A], Map[A, A]] =
+    new Isomorphism[Map[CC, A], Map[A, A]](
+      _.map { case (cc1, a) => (iso1.map(cc1), a) },
+      _.map { case (a1, a2) => (iso1.comap(a1), a2) }
+    )
+
+  implicit def mapColumnType2[CC, A](
+      implicit iso1: Isomorphism[CC, A]
+  ): Isomorphism[Map[A, CC], Map[A, A]] =
+    new Isomorphism[Map[A, CC], Map[A, A]](
+      _.map { case (a, cc)  => (a, iso1.map(cc)) },
+      _.map { case (a1, a2) => (a1, iso1.comap(a2)) }
+    )
+
+  implicit def mapColumnType3[CC, A, B](
+      implicit iso1: Isomorphism[CC, A]
+  ): Isomorphism[Map[CC, B], Map[A, B]] =
+    new Isomorphism[Map[CC, B], Map[A, B]](
+      _.map { case (cc, b) => (iso1.map(cc), b) },
+      _.map { case (a, b)  => (iso1.comap(a), b) }
+    )
+
+  private class StringMapKeyIsomorphism[A](comap: String => A)
       extends Isomorphism[Map[String, A], Map[String, String]](
         _.map { case (str, a)     => (str, a.toString) },
         _.map { case (str1, str2) => (str1, comap(str2)) }
       )
-  implicit final val intMapValueColumnType: Isomorphism[Map[String, Int], Map[String, String]]   = new StringMapIsomorphism[Int](_.toInt)
-  implicit final val longMapValueColumnType: Isomorphism[Map[String, Long], Map[String, String]] = new StringMapIsomorphism[Long](_.toLong)
+
+  implicit final val intMapValueColumnType: Isomorphism[Map[String, Int], Map[String, String]] =
+    new StringMapKeyIsomorphism[Int](_.toInt)
+  implicit final val longMapValueColumnType: Isomorphism[Map[String, Long], Map[String, String]] =
+    new StringMapKeyIsomorphism[Long](_.toLong)
   implicit final val boolMapValueColumnType: Isomorphism[Map[String, Boolean], Map[String, String]] =
-    new StringMapIsomorphism[Boolean](_.toBoolean)
+    new StringMapKeyIsomorphism[Boolean](_.toBoolean)
 
-  /** Hstore isomorphisms */
-  implicit def hstoreColumnType[CC1 <: Product, CC2 <: Product, A](
-      implicit iso1: Isomorphism[Map[CC1, CC2], Map[String, A]],
-      iso2: Isomorphism[Map[String, A], Map[String, String]]): Isomorphism[Map[CC1, CC2], Map[String, String]] =
-    new Isomorphism[Map[CC1, CC2], Map[String, String]](
-      iso1.map andThen iso2.map,
-      iso2.comap andThen iso1.comap
-    )
+  private class StringMapValueIsomorphism[A](comap: String => A)
+      extends Isomorphism[Map[A, String], Map[String, String]](
+        _.map { case (a, str)     => (a.toString, str) },
+        _.map { case (str1, str2) => (comap(str1), str2) }
+      )
 
-  implicit def hstoreStringColumnType[A](implicit iso1: Isomorphism[A, String]): Isomorphism[Map[A, String], Map[String, String]] =
-    new Isomorphism[Map[A, String], Map[String, String]](
-      _.map { case (a, str)     => (iso1.map(a), str) },
-      _.map { case (str1, str2) => (iso1.comap(str1), str2) }
-    )
-
-  implicit def hstoreIntColumnType[A](implicit iso1: Isomorphism[A, String]): Isomorphism[Map[A, Int], Map[String, Int]] =
-    new Isomorphism[Map[A, Int], Map[String, Int]](
-      _.map { case (a, int)   => (iso1.map(a), int) },
-      _.map { case (str, int) => (iso1.comap(str), int) }
-    )
-
-  implicit def hstoreLongColumnType[A](implicit iso1: Isomorphism[A, String]): Isomorphism[Map[A, Long], Map[String, Long]] =
-    new Isomorphism[Map[A, Long], Map[String, Long]](
-      _.map { case (a, long)   => (iso1.map(a), long) },
-      _.map { case (str, long) => (iso1.comap(str), long) }
-    )
-
-  implicit def hstoreBooleanColumnType[A](implicit iso1: Isomorphism[A, String]): Isomorphism[Map[A, Boolean], Map[String, Boolean]] =
-    new Isomorphism[Map[A, Boolean], Map[String, Boolean]](
-      _.map { case (a, bool)   => (iso1.map(a), bool) },
-      _.map { case (str, bool) => (iso1.comap(str), bool) }
-    )
+  implicit final val intMapKeyValueColumnType: Isomorphism[Map[Int, String], Map[String, String]] =
+    new StringMapValueIsomorphism[Int](_.toInt)
+  implicit final val longMapKeyValueColumnType: Isomorphism[Map[Long, String], Map[String, String]] =
+    new StringMapValueIsomorphism[Long](_.toLong)
+  implicit final val boolMapKeyValueColumnType: Isomorphism[Map[Boolean, String], Map[String, String]] =
+    new StringMapValueIsomorphism[Boolean](_.toBoolean)
 }

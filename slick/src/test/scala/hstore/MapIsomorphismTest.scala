@@ -15,10 +15,4 @@ class MapIsomorphismTest extends AnyFunSuite with Matchers {
     iso.map(Map(Key("a") -> Value(0), Key("b") -> Value(1))) shouldBe Map("a" -> 0, "b"             -> 1)
     iso.comap(Map("a"    -> 0, "b"             -> 1)) shouldBe Map(Key("a")   -> Value(0), Key("b") -> Value(1))
   }
-
-  test("Case classes isomorphisms implies string to string map isomorphism") {
-    val iso = implicitly[Isomorphism[Map[Key, Value], Map[String, String]]]
-    iso.map(Map(Key("a") -> Value(0), Key("b") -> Value(1))) shouldBe Map("a" -> "0", "b"           -> "1")
-    iso.comap(Map("a"    -> "0", "b"           -> "1")) shouldBe Map(Key("a") -> Value(0), Key("b") -> Value(1))
-  }
 }

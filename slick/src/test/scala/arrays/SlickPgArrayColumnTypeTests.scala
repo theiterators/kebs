@@ -9,13 +9,15 @@ class SlickPgArrayColumnTypeTests extends AnyFunSuite with Matchers {
   case class Institution(value: Long)
   case class MarketFinancialProduct(value: String)
 
+  import pl.iterators.kebs.Kebs
+  import pl.iterators.kebs.enums.KebsEnums
+
   object MyPostgresProfile extends ExPostgresProfile with PgArraySupport {
     override val api: APIWithArrays = new APIWithArrays {}
-    trait APIWithArrays extends super.API with ArrayImplicits
+    trait APIWithArrays extends super.API with ArrayImplicits with Kebs with KebsEnums
   }
 
   import MyPostgresProfile.api._
-  import pl.iterators.kebs._
   test("List column type") {
     """
       |    class ArrayTestTable(tag: Tag) extends Table[(Long, List[Institution], Option[List[MarketFinancialProduct]])](tag, "ArrayTest") {
@@ -42,7 +44,7 @@ class SlickPgArrayColumnTypeTests extends AnyFunSuite with Matchers {
 
   sealed trait AnEnum extends EnumEntry
   object AnEnum extends Enum[AnEnum] {
-    case object Soomething    extends AnEnum
+    case object Something     extends AnEnum
     case object SomethingElse extends AnEnum
 
     override val values = findValues
@@ -52,7 +54,7 @@ class SlickPgArrayColumnTypeTests extends AnyFunSuite with Matchers {
   test("Seq column type with enums") {
     """
       |    class EnumSeqTestTable(tag: Tag) extends Table[(Long, Seq[AnEnum])](tag, "EnumSeqTest") {
-      |      def id = column[Long]("id", O.AutoInc, O.PrimaryKey)
+      |      def id    = column[Long]("id", O.AutoInc, O.PrimaryKey)
       |      def enums = column[Seq[AnEnum]]("enums")
       |
       |      def * = (id, enums)

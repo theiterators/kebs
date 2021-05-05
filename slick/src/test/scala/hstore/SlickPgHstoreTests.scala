@@ -43,7 +43,7 @@ class SlickPgHstoreTests extends AnyFunSuite with Matchers {
 
   test("Case class hstore extension methods") {
     """
-      |class TestRepository1 {
+      |    class TestRepository1 {
       |      import PostgresDriver.api._
       |
       |      def getValueForKey(key: TestKey) =
@@ -72,7 +72,8 @@ class SlickPgHstoreTests extends AnyFunSuite with Matchers {
       |        tests.map(_.hstoreMap slice keys).result
       |
       |      private val tests = TableQuery[Tests]
-      |}""".stripMargin should compile
+      |    }
+      |""".stripMargin should compile
   }
 
   case class StdTypeTest(id: TestId, hstoreMap: Map[YearMonth, String])
@@ -88,7 +89,7 @@ class SlickPgHstoreTests extends AnyFunSuite with Matchers {
 
   test("Standard Java type hstore extension methods") {
     """
-      |class TestRepository1 extends YearMonthString {
+      |    class TestRepository1 extends YearMonthString {
       |
       |      import PostgresDriver.api._
       |
@@ -118,7 +119,7 @@ class SlickPgHstoreTests extends AnyFunSuite with Matchers {
       |        tests.map(_.hstoreMap slice keys).result
       |
       |      private val tests = TableQuery[StdTypeTests]
-      |}
+      |    }
       |""".stripMargin should compile
   }
 }
