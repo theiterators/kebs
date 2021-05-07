@@ -6,8 +6,6 @@ import pl.iterators.kebs.macros.enums.{EnumOf, ValueEnumOf}
 import slick.lifted.Isomorphism
 
 trait SlickEnum {
-
-  /** Enum isomorphisms */
   def enumIsomorphism[E <: EnumEntry](enum: Enum[E]): Isomorphism[E, String] = new Isomorphism[E, String](_.entryName, enum.withName)
   def uppercaseEnumIsomorphism[E <: EnumEntry](enum: Enum[E]): Isomorphism[E, String] =
     new Isomorphism[E, String](_.entryName.toUpperCase, enum.withNameUppercaseOnly)
@@ -21,8 +19,6 @@ trait SlickEnum {
 }
 
 trait SlickValueEnum {
-
-  /** Value enum isomorphism */
   def valueEnumIsomorphism[V, E <: ValueEnumEntry[V]](enum: ValueEnum[V, E]): Isomorphism[E, V] =
     new Isomorphism[E, V](_.value, enum.withValue)
 }

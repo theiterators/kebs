@@ -24,9 +24,11 @@ class ListIsomorphismTest extends AnyFunSuite with Matchers with YearMonthString
 
   import java.time.YearMonth
 
-  test("Year month isomorphism implies seq to list isomorphism") {
-    val iso = implicitly[Isomorphism[List[YearMonth], List[String]]]
-    iso.map(List(YearMonth.of(2021, 5), YearMonth.of(2020, 4))) shouldBe List("2021-05", "2020-04")
-    iso.comap(List("2021-05", "2020-04")) shouldBe List(YearMonth.of(2021, 5), YearMonth.of(2020, 4))
+  test("List[Obj[String]] <-> List[String]") {
+    """val iso = implicitly[Isomorphism[List[YearMonth], List[String]]]""".stripMargin should compile
+  }
+
+  test("Seq[Obj[String]] <-> List[String]") {
+    """val iso = implicitly[Isomorphism[Seq[YearMonth], List[String]]]""".stripMargin should compile
   }
 }

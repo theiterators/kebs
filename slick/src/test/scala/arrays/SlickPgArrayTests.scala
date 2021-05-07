@@ -53,18 +53,18 @@ class SlickPgArrayTests extends AnyFunSuite with Matchers {
       |""".stripMargin should compile
   }
 
-  case class ObjTest(id: TestId, objList: List[YearMonth])
+  case class ObjectTest(id: TestId, objList: List[YearMonth])
 
-  class ObjectTests(tag: BaseTable.Tag) extends BaseTable[ObjTest](tag, "test") with YearMonthString {
+  class ObjectTests(tag: BaseTable.Tag) extends BaseTable[ObjectTest](tag, "test") with YearMonthString {
     import driver.api._
 
     def id      = column[TestId]("id")
     def objList = column[List[YearMonth]]("obj_list")
 
-    override def * : ProvenShape[ObjTest] = (id, objList) <> ((ObjTest.apply _).tupled, ObjTest.unapply)
+    override def * : ProvenShape[ObjectTest] = (id, objList) <> ((ObjectTest.apply _).tupled, ObjectTest.unapply)
   }
 
-  test("Year month list extension methods") {
+  test("Object list extension methods") {
     """
       |class TestRepository1 extends YearMonthString {
       |      import PostgresDriver.api._

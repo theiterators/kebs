@@ -29,7 +29,7 @@ class SlickPgHstoreTests extends AnyFunSuite with Matchers {
 
   case class TestId(value: UUID)
   case class TestKey(value: String)
-  case class TestValue(value: String)
+  case class TestValue(value: Int)
   case class Test(id: TestId, hstoreMap: Map[TestKey, TestValue])
 
   class Tests(tag: BaseTable.Tag) extends BaseTable[Test](tag, "test") {
@@ -76,21 +76,20 @@ class SlickPgHstoreTests extends AnyFunSuite with Matchers {
       |""".stripMargin should compile
   }
 
-  case class StdTypeTest(id: TestId, hstoreMap: Map[YearMonth, String])
+  case class ObjectTest(id: TestId, hstoreMap: Map[YearMonth, String])
 
-  class StdTypeTests(tag: BaseTable.Tag) extends BaseTable[StdTypeTest](tag, "test") with YearMonthString {
+  class ObjectTests(tag: BaseTable.Tag) extends BaseTable[ObjectTest](tag, "test") with YearMonthString {
     import driver.api._
 
     def id: Rep[TestId]                        = column[TestId]("id")
     def hstoreMap: Rep[Map[YearMonth, String]] = column[Map[YearMonth, String]]("hstore_map")
 
-    override def * : ProvenShape[StdTypeTest] = (id, hstoreMap) <> ((StdTypeTest.apply _).tupled, StdTypeTest.unapply)
+    override def * : ProvenShape[ObjectTest] = (id, hstoreMap) <> ((ObjectTest.apply _).tupled, ObjectTest.unapply)
   }
 
   test("Standard Java type hstore extension methods") {
     """
       |    class TestRepository1 extends YearMonthString {
-      |
       |      import PostgresDriver.api._
       |
       |      def getValueForKey(key: YearMonth) =
@@ -118,7 +117,7 @@ class SlickPgHstoreTests extends AnyFunSuite with Matchers {
       |      def slice(keys: List[YearMonth]) =
       |        tests.map(_.hstoreMap slice keys).result
       |
-      |      private val tests = TableQuery[StdTypeTests]
+      |      private val tests = TableQuery[ObjectTests]
       |    }
       |""".stripMargin should compile
   }
