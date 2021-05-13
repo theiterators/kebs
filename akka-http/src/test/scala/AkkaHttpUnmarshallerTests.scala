@@ -9,8 +9,11 @@ import enumeratum.values._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import pl.iterators.kebs.instances.TimeInstances.YearMonthString
 
-class AkkaHttpUnmarshallerTests extends AnyFunSuite with Matchers with ScalatestRouteTest with ScalaFutures {
+import java.time.YearMonth
+
+class AkkaHttpUnmarshallerTests extends AnyFunSuite with Matchers with ScalatestRouteTest with ScalaFutures with YearMonthString {
   case class I(i: Int)
   case class S(s: String)
   case class P[A](a: A)
@@ -135,6 +138,17 @@ class AkkaHttpUnmarshallerTests extends AnyFunSuite with Matchers with Scalatest
       }
     Get("/color?red=1&green=2&blue=3") ~> route ~> check { responseAs[String] shouldEqual "Color(Red(1),Green(2),Blue(3))" }
 
+  }
+
+  test("Unmarshalling instances") {
+    val testRoute = path("instances") {
+      parameters(Symbol("year").as[YearMonth]) { year =>
+        complete(year.toString)
+      }
+    }
+    Get("/instances?year=2021-05") ~> testRoute ~> check {
+      responseAs[String] shouldEqual YearMonth.of(2021, 5)
+    }
   }
 
   sealed abstract class ShirtSize(val value: String) extends StringEnumEntry
