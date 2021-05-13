@@ -3,7 +3,6 @@ package hstore
 import com.github.tminglei.slickpg._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.instances.TimeInstances.YearMonthString
 import slick.lifted.ProvenShape
 
 import java.time.YearMonth
@@ -11,10 +10,11 @@ import java.util.UUID
 
 class SlickPgHstoreTests extends AnyFunSuite with Matchers {
   import pl.iterators.kebs.Kebs
+  import pl.iterators.kebs.instances.TimeInstances.YearMonthString
 
   trait PostgresDriver extends ExPostgresProfile with PgArraySupport with PgHStoreSupport {
     override val api: HstoreAPI = new HstoreAPI {}
-    trait HstoreAPI extends super.API with ArrayImplicits with HStoreImplicits with Kebs
+    trait HstoreAPI extends super.API with ArrayImplicits with HStoreImplicits with Kebs with YearMonthString
   }
   object PostgresDriver extends PostgresDriver
 
@@ -78,7 +78,7 @@ class SlickPgHstoreTests extends AnyFunSuite with Matchers {
 
   case class ObjectTest(id: TestId, hstoreMap: Map[YearMonth, String])
 
-  class ObjectTests(tag: BaseTable.Tag) extends BaseTable[ObjectTest](tag, "test") with YearMonthString {
+  class ObjectTests(tag: BaseTable.Tag) extends BaseTable[ObjectTest](tag, "test") {
     import driver.api._
 
     def id: Rep[TestId]                        = column[TestId]("id")
@@ -89,7 +89,7 @@ class SlickPgHstoreTests extends AnyFunSuite with Matchers {
 
   test("Standard Java type hstore extension methods") {
     """
-      |    class TestRepository1 extends YearMonthString {
+      |    class TestRepository1 {
       |      import PostgresDriver.api._
       |
       |      def getValueForKey(key: YearMonth) =

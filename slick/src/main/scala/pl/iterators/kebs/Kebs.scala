@@ -113,19 +113,19 @@ trait Kebs extends KebsColumnExtensionMethods {
 
   implicit def cc1repIsoObj2Str[Obj](implicit cc1rep: CaseClass1Rep[Obj, String]): Isomorphism[Map[Obj, String], Map[String, String]] =
     cc1repIsoMapVal[Obj, String, String](identity[String], identity[String])
-  implicit def cc1repIsoObj2Str2[Obj](implicit cc1rep: CaseClass1Rep[Obj, String]): Isomorphism[Map[String, Obj], Map[String, String]] =
+  implicit def cc1repIsoObj2Str1[Obj](implicit cc1rep: CaseClass1Rep[Obj, String]): Isomorphism[Map[String, Obj], Map[String, String]] =
     cc1repIsoMapKey[Obj, String, String](identity[String], identity[String])
-  implicit def cc1repIsoObj2Str3[Obj](implicit cc1rep: CaseClass1Rep[Obj, String]): Isomorphism[Map[Obj, Int], Map[String, String]] =
+  implicit def cc1repIsoObj2Str2[Obj](implicit cc1rep: CaseClass1Rep[Obj, String]): Isomorphism[Map[Obj, Int], Map[String, String]] =
     cc1repIsoMapVal[Obj, String, Int](identity[String], _.toInt)
-  implicit def cc1repIsoObj2Str4[Obj](implicit cc1rep: CaseClass1Rep[Obj, String]): Isomorphism[Map[Int, Obj], Map[String, String]] =
+  implicit def cc1repIsoObj2Str3[Obj](implicit cc1rep: CaseClass1Rep[Obj, String]): Isomorphism[Map[Int, Obj], Map[String, String]] =
     cc1repIsoMapKey[Obj, String, Int](identity[String], _.toInt)
-  implicit def cc1repIsoObj2Str5[Obj](implicit cc1rep: CaseClass1Rep[Obj, String]): Isomorphism[Map[Obj, Long], Map[String, String]] =
+  implicit def cc1repIsoObj2Str4[Obj](implicit cc1rep: CaseClass1Rep[Obj, String]): Isomorphism[Map[Obj, Long], Map[String, String]] =
     cc1repIsoMapVal[Obj, String, Long](identity[String], _.toLong)
-  implicit def cc1repIsoObj2Str6[Obj](implicit cc1rep: CaseClass1Rep[Obj, String]): Isomorphism[Map[Long, Obj], Map[String, String]] =
+  implicit def cc1repIsoObj2Str5[Obj](implicit cc1rep: CaseClass1Rep[Obj, String]): Isomorphism[Map[Long, Obj], Map[String, String]] =
     cc1repIsoMapKey[Obj, String, Long](identity[String], _.toLong)
-  implicit def cc1repIsoObj2Str7[Obj](implicit cc1rep: CaseClass1Rep[Obj, String]): Isomorphism[Map[Obj, Boolean], Map[String, String]] =
+  implicit def cc1repIsoObj2Str6[Obj](implicit cc1rep: CaseClass1Rep[Obj, String]): Isomorphism[Map[Obj, Boolean], Map[String, String]] =
     cc1repIsoMapVal[Obj, String, Boolean](identity[String], _.toBoolean)
-  implicit def cc1repIsoObj2Str8[Obj](implicit cc1rep: CaseClass1Rep[Obj, String]): Isomorphism[Map[Boolean, Obj], Map[String, String]] =
+  implicit def cc1repIsoObj2Str7[Obj](implicit cc1rep: CaseClass1Rep[Obj, String]): Isomorphism[Map[Boolean, Obj], Map[String, String]] =
     cc1repIsoMapKey[Obj, String, Boolean](identity[String], _.toBoolean)
 
   implicit def cc1repIsoObj2Int[Obj](implicit cc1rep: CaseClass1Rep[Obj, Int]): Isomorphism[Map[Obj, String], Map[String, String]] =
