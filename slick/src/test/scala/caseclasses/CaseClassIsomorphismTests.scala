@@ -48,7 +48,7 @@ class CaseClassIsomorphismTests extends AnyFunSuite with Matchers {
     iso.comap(10) shouldBe Parametrized(10)
   }
 
-  test("Implicit isomorphism for parametrized case class of arity 1 - undefined type parameter") {
+  test("Implicit isomorphism for parametrized case class of arity 1 - unrefined type parameter") {
     def iso[P]: Isomorphism[Parametrized[P], P] = implicitly[Isomorphism[Parametrized[P], P]]
     iso[Int].map(Parametrized(10)) shouldBe 10
     iso[Option[Int]].comap(Some(10)) shouldBe Parametrized(Some(10))

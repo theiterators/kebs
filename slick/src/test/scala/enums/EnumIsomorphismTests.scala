@@ -20,7 +20,7 @@ class EnumIsomorphismTests extends AnyFunSuite with Matchers {
 
   import Greeting._
 
-  test("Implicit isomorphism from EnumEntry") {
+  test("Implicit isomorphism for EnumEntry") {
     import pl.iterators.kebs.enums._
 
     val iso = implicitly[Isomorphism[Greeting, String]]
@@ -28,7 +28,7 @@ class EnumIsomorphismTests extends AnyFunSuite with Matchers {
     iso.comap("Hello") shouldBe Hello
   }
 
-  test("Implicit isomorphism from EnumEntry - lowercase") {
+  test("Implicit isomorphism for EnumEntry - lowercase") {
     import pl.iterators.kebs.enums.lowercase._
 
     val iso = implicitly[Isomorphism[Greeting, String]]
@@ -36,7 +36,7 @@ class EnumIsomorphismTests extends AnyFunSuite with Matchers {
     iso.comap("goodbye") shouldBe GoodBye
   }
 
-  test("Implicit isomorphism from EnumEntry - uppercase") {
+  test("Implicit isomorphism for EnumEntry - uppercase") {
     import pl.iterators.kebs.enums.uppercase._
 
     val iso = implicitly[Isomorphism[Greeting, String]]

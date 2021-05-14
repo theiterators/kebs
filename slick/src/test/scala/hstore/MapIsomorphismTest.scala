@@ -29,7 +29,7 @@ class MapIsomorphismTest extends AnyFunSuite with Matchers with YearMonthString 
     iso.comap(Map(0         -> "a", 1                        -> "b")) shouldBe Map(IntValue(0)    -> StringValue("a"), IntValue(1) -> StringValue("b"))
   }
 
-  test("Case classes isomorphisms implies string to string 2 map isomorphism") {
+  test("Case classes isomorphisms implies string to string map isomorphism 2") {
     val iso = implicitly[Isomorphism[Map[IntValue, StringValue], Map[String, String]]]
     iso.map(Map(IntValue(0) -> StringValue("a"), IntValue(1) -> StringValue("b"))) shouldBe Map("0" -> "a", "1"                      -> "b")
     iso.comap(Map("0"       -> "a", "1"                      -> "b")) shouldBe Map(IntValue(0)      -> StringValue("a"), IntValue(1) -> StringValue("b"))

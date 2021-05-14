@@ -3,7 +3,6 @@ package arrays
 import com.github.tminglei.slickpg._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.instances.TimeInstances.YearMonthString
 import slick.lifted.ProvenShape
 
 import java.time.YearMonth
@@ -11,10 +10,11 @@ import java.util.UUID
 
 class SlickPgArrayTests extends AnyFunSuite with Matchers {
   import pl.iterators.kebs.Kebs
+  import pl.iterators.kebs.instances.TimeInstances.YearMonthString
 
   trait PostgresDriver extends ExPostgresProfile with PgArraySupport {
     override val api: ArrayAPI = new ArrayAPI {}
-    trait ArrayAPI extends super.API with ArrayImplicits with Kebs
+    trait ArrayAPI extends super.API with ArrayImplicits with Kebs with YearMonthString
   }
   object PostgresDriver extends PostgresDriver
 
@@ -55,7 +55,7 @@ class SlickPgArrayTests extends AnyFunSuite with Matchers {
 
   case class ObjectTest(id: TestId, objList: List[YearMonth])
 
-  class ObjectTests(tag: BaseTable.Tag) extends BaseTable[ObjectTest](tag, "test") with YearMonthString {
+  class ObjectTests(tag: BaseTable.Tag) extends BaseTable[ObjectTest](tag, "test") {
     import driver.api._
 
     def id      = column[TestId]("id")
@@ -66,7 +66,7 @@ class SlickPgArrayTests extends AnyFunSuite with Matchers {
 
   test("Object list extension methods") {
     """
-      |class TestRepository1 extends YearMonthString {
+      |class TestRepository1 {
       |      import PostgresDriver.api._
       |
       |      def contains(arr: List[YearMonth]) =

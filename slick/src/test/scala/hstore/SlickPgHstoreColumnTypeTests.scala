@@ -35,6 +35,7 @@ class SlickPgHstoreColumnTypeTests extends AnyFunSuite with Matchers {
       |    }
       |""".stripMargin should compile
   }
+
   /* CaseClass1Rep[Obj, String] */
   test("Map[Obj[String], String] column type") {
     """
