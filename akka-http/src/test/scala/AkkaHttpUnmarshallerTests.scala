@@ -1,7 +1,4 @@
-import akka.http.scaladsl.server.MalformedQueryParamRejection
-import akka.http.scaladsl.server.directives.ParameterDirectives._
-import akka.http.scaladsl.server.directives.PathDirectives.path
-import akka.http.scaladsl.server.directives.RouteDirectives.complete
+import akka.http.scaladsl.server.{Directives, MalformedQueryParamRejection}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import enumeratum._
@@ -13,7 +10,13 @@ import pl.iterators.kebs.instances.TimeInstances.YearMonthString
 
 import java.time.YearMonth
 
-class AkkaHttpUnmarshallerTests extends AnyFunSuite with Matchers with ScalatestRouteTest with ScalaFutures with YearMonthString {
+class AkkaHttpUnmarshallerTests
+    extends AnyFunSuite
+    with Matchers
+    with ScalatestRouteTest
+    with ScalaFutures
+    with Directives
+    with YearMonthString {
   case class I(i: Int)
   case class S(s: String)
   case class P[A](a: A)
@@ -140,14 +143,14 @@ class AkkaHttpUnmarshallerTests extends AnyFunSuite with Matchers with Scalatest
 
   }
 
-  test("Unmarshalling instances") {
+  test("Unmarshalling instances parameter") {
     val testRoute = path("instances") {
       parameters(Symbol("year").as[YearMonth]) { year =>
         complete(year.toString)
       }
     }
     Get("/instances?year=2021-05") ~> testRoute ~> check {
-      responseAs[String] shouldEqual YearMonth.of(2021, 5)
+      responseAs[String] shouldEqual "2021-05"
     }
   }
 
