@@ -20,7 +20,7 @@ class AkkaHttpMatchersTests
     with DayOfWeekNumber {
 
   test("Extract String instance") {
-    val testRoute = path("test" / Segment.asString[ZonedDateTime]) { zdt: ZonedDateTime =>
+    val testRoute = path("test" / Segment.as[ZonedDateTime]) { zdt =>
       complete(zdt.toString)
     }
     Get("/test/2011-12-03T10:15:30+01:00") ~> testRoute ~> check {
@@ -29,7 +29,7 @@ class AkkaHttpMatchersTests
   }
 
   test("Extract Int instance ") {
-    val testRoute = path("test" / Segment.asInt[DayOfWeek]) { dayOfWeek: DayOfWeek =>
+    val testRoute = path("test" / IntNumber.as[DayOfWeek]) { dayOfWeek =>
       complete(dayOfWeek.getValue.toString)
     }
     Get("/test/1") ~> testRoute ~> check {
@@ -60,7 +60,7 @@ class AkkaHttpMatchersTests
   type Id = Long @@ IdTag
 
   test("Extract tagged instance") {
-    val testRoute = path("test" / Segment.asLongT[Id]) { id =>
+    val testRoute = path("test" / LongNumber.asTagged[Id]) { id =>
       complete(id.toString)
     }
     Get("/test/123456") ~> testRoute ~> check {

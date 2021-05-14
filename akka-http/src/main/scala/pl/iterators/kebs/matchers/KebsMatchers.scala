@@ -9,25 +9,29 @@ import scala.reflect.ClassTag
 
 trait KebsMatchers extends PathMatchers {
   implicit class CustomSegment(segment: PathMatcher1[String]) {
-    def asString[T](implicit rep: CaseClass1Rep[T, String]): PathMatcher1[T] =
+    def as[T](implicit rep: CaseClass1Rep[T, String]): PathMatcher1[T] =
       segment.map(rep.apply)
-
-    def asInt[T](implicit rep: CaseClass1Rep[T, Int]): PathMatcher1[T] =
-      segment.map(str => rep.apply(str.toInt))
-
-    def asLong[T](implicit rep: CaseClass1Rep[T, Long]): PathMatcher1[T] =
-      segment.map(str => rep.apply(str.toLong))
 
     def asEnum[T <: EnumEntry: ClassTag](e: Enum[T]): PathMatcher1[T] =
       segment.map(e.withNameInsensitive)
 
-    def asStringT[T]: PathMatcher1[String @@ T] =
-      Segment.map(str => str.taggedWith[T])
+    def asTagged[T]: PathMatcher1[String @@ T] =
+      segment.map(_.taggedWith[T])
+  }
 
-    def asIntT[T]: PathMatcher1[Int @@ T] =
-      Segment.map(str => str.toInt.taggedWith[T])
+  implicit class IntSegment(segment: PathMatcher1[Int]) {
+    def as[T](implicit rep: CaseClass1Rep[T, Int]): PathMatcher1[T] =
+      segment.map(rep.apply)
 
-    def asLongT[T]: PathMatcher1[Long @@ T] =
-      Segment.map(str => str.toLong.taggedWith[T])
+    def asTagged[T]: PathMatcher1[Int @@ T] =
+      segment.map(_.taggedWith[T])
+  }
+
+  implicit class LongSegment(segment: PathMatcher1[Long]) {
+    def as[T](implicit rep: CaseClass1Rep[T, Long]): PathMatcher1[T] =
+      segment.map(rep.apply)
+
+    def asTagged[T]: PathMatcher1[Long @@ T] =
+      segment.map(_.taggedWith[T])
   }
 }
