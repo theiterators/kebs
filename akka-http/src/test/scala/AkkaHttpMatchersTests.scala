@@ -10,11 +10,23 @@ import pl.iterators.kebs.tag.meta.tagged
 import pl.iterators.kebs.tagged._
 
 import java.time.{DayOfWeek, ZonedDateTime}
+import java.util.UUID
 
 @tagged trait Tags {
   trait IdTag
   type Id = Long @@ IdTag
+
+  trait TestIdTag
+  type TestId = UUIDId @@ TestIdTag
+
+  type UUIDId = UUID
+  object UUIDId {
+    def generate[T]: UUIDId @@ T = UUID.randomUUID().taggedWith[T]
+    def fromString[T](str: String): UUIDId @@ T =
+      UUID.fromString(str).taggedWith[T]
+  }
 }
+
 object Domain extends Tags
 
 class AkkaHttpMatchersTests
@@ -64,12 +76,21 @@ class AkkaHttpMatchersTests
   }
 
   import Domain._
-  test("Extract tagged instance") {
+  test("Extract tagged primitive instance") {
     val testRoute = path("test" / Segment.asLong[Id]) { id =>
       complete(id.toString)
     }
     Get("/test/123456") ~> testRoute ~> check {
       responseAs[String] shouldEqual "123456"
+    }
+  }
+
+  test("Extract tagged UUID instance") {
+    val testRoute = path("test" / Segment.asUUID[TestId]) { id =>
+      complete(id.toString)
+    }
+    Get("/test/ce7a7cf1-8c00-49a9-a963-9fd119dd0642") ~> testRoute ~> check {
+      responseAs[String] shouldEqual "ce7a7cf1-8c00-49a9-a963-9fd119dd0642"
     }
   }
 }
