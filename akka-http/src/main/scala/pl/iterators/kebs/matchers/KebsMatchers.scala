@@ -8,15 +8,20 @@ import java.util.UUID
 
 trait KebsMatchers extends PathMatchers {
 
-  implicit class CustomSegment(segment: PathMatcher1[String]) {
-    def asString[T](implicit rep: CaseClass1Rep[T, String]): PathMatcher1[T] = segment.map(rep.apply)
-    def asInt[T](implicit rep: CaseClass1Rep[T, Int]): PathMatcher1[T]       = segment.map(str => rep.apply(str.toInt))
-    def asLong[T](implicit rep: CaseClass1Rep[T, Long]): PathMatcher1[T]     = segment.map(str => rep.apply(str.toLong))
-    def asUUID[T](implicit rep: CaseClass1Rep[T, UUID]): PathMatcher1[T]     = segment.map(str => rep.apply(UUID.fromString(str)))
+  abstract class CustomSegment[U](segment: PathMatcher1[U]) {
+    def as[T](implicit rep: CaseClass1Rep[T, U]): PathMatcher1[T] = segment.map(rep.apply)
+  }
 
-    def asEnum[T <: EnumEntry: Enum]: PathMatcher1[T] = {
+  implicit class StringSegment(segment: PathMatcher1[String]) extends CustomSegment[String](segment)
+  implicit class IntSegment(segment: PathMatcher1[Int])       extends CustomSegment[Int](segment)
+  implicit class LongSegment(segment: PathMatcher1[Long])     extends CustomSegment[Long](segment)
+  implicit class DoubleSegment(segment: PathMatcher1[Double]) extends CustomSegment[Double](segment)
+  implicit class UUIDSegment(segment: PathMatcher1[UUID])     extends CustomSegment[UUID](segment)
+
+  object EnumSegment {
+    def as[T <: EnumEntry: Enum]: PathMatcher1[T] = {
       val enumCompanion = implicitly[Enum[T]]
-      segment.map(enumCompanion.withNameInsensitive)
+      Segment.map(enumCompanion.withNameInsensitive)
     }
   }
 }
