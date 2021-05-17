@@ -76,7 +76,7 @@ object TimeInstances {
   private[instances] val ZoneIdFormat         = "IANA standard format e.g. Europe/Warsaw"
 
   /** Standard formats */
-  trait DayOfWeekNumber extends TimeInstances {
+  trait DayOfWeekInt extends TimeInstances {
     implicit val dayOfWeekFormatter: InstancesFormatter[DayOfWeek, Int] = new InstancesFormatter[DayOfWeek, Int] {
       override def encode(obj: DayOfWeek): Int = obj.getValue
       override def decode(value: Int): Either[DecodeError, DayOfWeek] =
@@ -127,7 +127,7 @@ object TimeInstances {
     private val formatter = DateTimeFormatter.ISO_LOCAL_TIME
   }
 
-  trait MonthNumber extends TimeInstances {
+  trait MonthInt extends TimeInstances {
     implicit val monthFormatter: InstancesFormatter[Month, Int] = new InstancesFormatter[Month, Int] {
       override def encode(obj: Month): Int = obj.getValue
       override def decode(value: Int): Either[DecodeError, Month] =
