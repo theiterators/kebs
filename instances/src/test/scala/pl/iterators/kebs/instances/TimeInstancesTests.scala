@@ -15,12 +15,12 @@ class TimeInstancesTests
     with TimeInstances
     with DurationString
     with InstantString
-    with DayOfWeekNumber
+    with DayOfWeekInt
     with LocalDateTimeString
     with LocalDateString
     with LocalTimeString
     with YearMonthString
-    with MonthNumber
+    with MonthInt
     with MonthDayString
     with PeriodString
     with OffsetDateTimeString

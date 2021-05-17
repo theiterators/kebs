@@ -87,12 +87,12 @@ def paradisePlugin(scalaVersion: String): Seq[ModuleID] =
   else
     Seq.empty
 
-val scalaTest       = "org.scalatest" %% "scalatest" % "3.2.7"
-val scalaCheck      = "org.scalacheck" %% "scalacheck" % "1.15.3"
+val scalaTest       = "org.scalatest" %% "scalatest" % "3.2.9"
+val scalaCheck      = "org.scalacheck" %% "scalacheck" % "1.15.4"
 val slick           = "com.typesafe.slick" %% "slick" % "3.3.3"
 val optionalSlick   = optional(slick)
 val playJson        = "com.typesafe.play" %% "play-json" % "2.9.2"
-val slickPg         = "com.github.tminglei" %% "slick-pg" % "0.19.5"
+val slickPg         = "com.github.tminglei" %% "slick-pg" % "0.19.6"
 val sprayJson       = "io.spray" %% "spray-json" % "1.3.6"
 val circe           = "io.circe" %% "circe-core" % "0.13.0"
 val circeAuto       = "io.circe" %% "circe-generic" % "0.13.0"
@@ -100,9 +100,9 @@ val circeAutoExtras = "io.circe" %% "circe-generic-extras" % "0.13.0"
 val circeParser     = "io.circe" %% "circe-parser" % "0.13.0"
 val optionalCirce   = optional(circe)
 
-val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.1"
+val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.2"
 
-val scalacheck           = "org.scalacheck"             %% "scalacheck"                % "1.15.3" % "test"
+val scalacheck           = "org.scalacheck"             %% "scalacheck"                % "1.15.4" % "test"
 val scalacheckShapeless  = "com.github.alexarchambault" %% "scalacheck-shapeless_1.14" % "1.2.5"
 val scalacheckEnumeratum = "com.beachape"               %% "enumeratum-scalacheck"     % "1.6.1"
 
@@ -115,7 +115,7 @@ def enumeratumInExamples = {
 }
 val optionalEnumeratum = optional(enumeratum)
 
-val akkaVersion       = "2.6.13"
+val akkaVersion       = "2.6.14"
 val akkaHttpVersion   = "10.2.4"
 val akkaStream        = "com.typesafe.akka" %% "akka-stream" % akkaVersion
 val akkaStreamTestkit = "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion

@@ -31,44 +31,44 @@ Slick (`kebs-slick`), Spray (`kebs-spray-json`), Play (`kebs-play-json`), Circe 
 
 Support for `slick`
 
-`libraryDependencies += "pl.iterators" %% "kebs-slick" % "1.9.0"`
+`libraryDependencies += "pl.iterators" %% "kebs-slick" % "1.9.1"`
 
 Support for `spray-json`
 
-`libraryDependencies += "pl.iterators" %% "kebs-spray-json" % "1.9.0"`
+`libraryDependencies += "pl.iterators" %% "kebs-spray-json" % "1.9.1"`
 
 Support for `play-json`
 
-`libraryDependencies += "pl.iterators" %% "kebs-play-json" % "1.9.0"`
+`libraryDependencies += "pl.iterators" %% "kebs-play-json" % "1.9.1"`
 
 Support for `circe`
 
-`libraryDependencies += "pl.iterators" %% "kebs-circe" % "1.9.0"`
+`libraryDependencies += "pl.iterators" %% "kebs-circe" % "1.9.1"`
 
 Support for `json-schema`
 
-`libraryDependencies += "pl.iterators" %% "kebs-jsonschema" % "1.9.0"`
+`libraryDependencies += "pl.iterators" %% "kebs-jsonschema" % "1.9.1"`
 
 Support for `scalacheck`
 
-`libraryDependencies += "pl.iterators" %% "kebs-scalacheck" % "1.9.0"`
+`libraryDependencies += "pl.iterators" %% "kebs-scalacheck" % "1.9.1"`
 
 Support for `akka-http`
 
-`libraryDependencies += "pl.iterators" %% "kebs-akka-http" % "1.9.0"`
+`libraryDependencies += "pl.iterators" %% "kebs-akka-http" % "1.9.1"`
 
 Support for `tagged types`
 
-`libraryDependencies += "pl.iterators" %% "kebs-tagged" % "1.9.0"`
+`libraryDependencies += "pl.iterators" %% "kebs-tagged" % "1.9.1"`
 
 or for tagged-types code generation support
 
-`libraryDependencies += "pl.iterators" %% "kebs-tagged-meta" % "1.9.0"`
+`libraryDependencies += "pl.iterators" %% "kebs-tagged-meta" % "1.9.1"`
 `addCompilerPlugin("org.scalameta" % "paradise" % "3.0.0-M11" cross CrossVersion.full)`
 
 Support for `instances`
 
-`libraryDependencies += "pl.iterators" %% "kebs-instances" % "1.9.0"`
+`libraryDependencies += "pl.iterators" %% "kebs-instances" % "1.9.1"`
 
 Builds for Scala `2.12` and `2.13` are provided.
 
@@ -859,7 +859,9 @@ Also, `CaseClass1Rep` is generated for each tag meaning you will get a lot of `k
 
 ### JsonSchema support
 
-Kebs contains a macro, which generate wrapped jsonschema object of `https://github.com/andyglow/scala-jsonschema`.
+**Still at experimental stage.**
+
+Kebs contains a macro which generates wrapped Json Schema object of `https://github.com/andyglow/scala-jsonschema`.
 Kebs also provides proper implicits conversions for their tagged types and common Java types.
 To get your json schema you need to use import pl.iterators.kebs.jsonschema.KebsJsonSchema
 (together with pl.iterators.kebs.jsonschema.KebsJsonSchemaPredefs if you need support for more Java types).
@@ -893,13 +895,15 @@ object Sample extends KebsJsonSchema {
 
 ### Scalacheck support
 
-Kebs provides support to use tagged types in your Arbitrary from scalacheck.
-Along with this kebs provides support for Java types.
+**Still at experimental stage.**
+
+Kebs provides support to use tagged types in your Arbitrary instances from ScalaCheck.
+Additionally, Kebs provides support for Java types.
 Kebs also introduces term of minimal and maximal generator.
-The minimal generator is an generator which always generates empty collection of Option, Set, Map etc.
-The maximum - in the opposite - always generate non-empty collections.
+The minimal generator is a generator which always generates empty collection of Option, Set, Map etc.
+The maximum - in the opposite - always generates non-empty collections.
 Kebs provides an useful trait called AllGenerators which binds minimal, normal and maximal generator all together,
-so you can get easy generate the representation you currently need for tests.
+so you can easily generate the representation you currently need for tests.
 
 ```scala
 import pl.iterators.kebs.scalacheck.{KebsArbitraryPredefs, KebsScalacheckGenerators}
