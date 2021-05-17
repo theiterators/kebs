@@ -6,9 +6,16 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.instances.TimeInstances.{DayOfWeekNumber, ZonedDateTimeString}
 import pl.iterators.kebs.matchers._
+import pl.iterators.kebs.tag.meta.tagged
 import pl.iterators.kebs.tagged._
 
 import java.time.{DayOfWeek, ZonedDateTime}
+
+@tagged trait Tags {
+  trait IdTag
+  type Id = Long @@ IdTag
+}
+object Domain extends Tags
 
 class AkkaHttpMatchersTests
     extends AnyFunSuite
@@ -20,7 +27,7 @@ class AkkaHttpMatchersTests
     with DayOfWeekNumber {
 
   test("Extract String instance") {
-    val testRoute = path("test" / Segment.as[ZonedDateTime]) { zdt =>
+    val testRoute = path("test" / Segment.asString[ZonedDateTime]) { zdt =>
       complete(zdt.toString)
     }
     Get("/test/2011-12-03T10:15:30+01:00") ~> testRoute ~> check {
@@ -29,7 +36,7 @@ class AkkaHttpMatchersTests
   }
 
   test("Extract Int instance ") {
-    val testRoute = path("test" / IntNumber.as[DayOfWeek]) { dayOfWeek =>
+    val testRoute = path("test" / Segment.asInt[DayOfWeek]) { dayOfWeek =>
       complete(dayOfWeek.getValue.toString)
     }
     Get("/test/1") ~> testRoute ~> check {
@@ -48,7 +55,7 @@ class AkkaHttpMatchersTests
   }
 
   test("Extract Enum instance") {
-    val testRoute = path("test" / Segment.asEnum[Greeting](Greeting)) { greeting =>
+    val testRoute = path("test" / Segment.asEnum[Greeting]) { greeting =>
       complete(greeting.toString)
     }
     Get("/test/hello") ~> testRoute ~> check {
@@ -56,11 +63,9 @@ class AkkaHttpMatchersTests
     }
   }
 
-  trait IdTag
-  type Id = Long @@ IdTag
-
+  import Domain._
   test("Extract tagged instance") {
-    val testRoute = path("test" / LongNumber.asTagged[Id]) { id =>
+    val testRoute = path("test" / Segment.asLong[Id]) { id =>
       complete(id.toString)
     }
     Get("/test/123456") ~> testRoute ~> check {
