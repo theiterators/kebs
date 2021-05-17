@@ -1,8 +1,10 @@
-import java.util.UUID
+package caseclasses
 
-import com.github.tminglei.slickpg.ExPostgresProfile
+import com.github.tminglei.slickpg._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+
+import java.util.UUID
 
 class SlickPgTests extends AnyFunSuite with Matchers {
   import pl.iterators.kebs.Kebs
@@ -14,7 +16,6 @@ class SlickPgTests extends AnyFunSuite with Matchers {
 
   trait PostgresDriver extends ExPostgresProfile {
     override val api = PostgresApi
-
     object PostgresApi extends API with Kebs
   }
   object PostgresDriver extends PostgresDriver
@@ -22,6 +23,7 @@ class SlickPgTests extends AnyFunSuite with Matchers {
   abstract class BaseTable[T](tag: BaseTable.Tag, tableName: String) extends BaseTable.driver.Table[T](tag, tableName) {
     protected val driver: PostgresDriver = BaseTable.driver
   }
+
   object BaseTable {
     protected val driver = PostgresDriver
     type Tag = driver.api.Tag
@@ -76,6 +78,7 @@ class SlickPgTests extends AnyFunSuite with Matchers {
     """
       |class TestRepository2 {
       |  import PostgresDriver.api._
+      |
       |  def power: DBIOAction[Seq[TestNumeric], NoStream, Effect.Read] =
       |    tests.map(t => t.num * t.num).result
       |  def mult2: DBIOAction[Seq[TestNumeric], NoStream, Effect.Read] =
@@ -94,6 +97,7 @@ class SlickPgTests extends AnyFunSuite with Matchers {
     """
       |class TestRepository2 {
       |  import PostgresDriver.api._
+      |
       |  def and: DBIOAction[Seq[Boolean], NoStream, Effect.Read] =
       |    tests.map(t => t.flag && (t.num <= 0)).result
       |  def or: DBIOAction[Seq[Boolean], NoStream, Effect.Read] =

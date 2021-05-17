@@ -6,11 +6,11 @@ import pl.iterators.kebs.macros.enums.{EnumOf, ValueEnumOf}
 import slick.lifted.Isomorphism
 
 trait SlickEnum {
-  def enumIsomorphism[E <: EnumEntry](enum: Enum[E]): Isomorphism[E, String] = new Isomorphism[E, String](_.entryName, enum.withName(_))
+  def enumIsomorphism[E <: EnumEntry](enum: Enum[E]): Isomorphism[E, String] = new Isomorphism[E, String](_.entryName, enum.withName)
   def uppercaseEnumIsomorphism[E <: EnumEntry](enum: Enum[E]): Isomorphism[E, String] =
-    new Isomorphism[E, String](_.entryName.toUpperCase, enum.withNameUppercaseOnly(_))
+    new Isomorphism[E, String](_.entryName.toUpperCase, enum.withNameUppercaseOnly)
   def lowercaseEnumIsomorphism[E <: EnumEntry](enum: Enum[E]): Isomorphism[E, String] =
-    new Isomorphism[E, String](_.entryName.toLowerCase, enum.withNameLowercaseOnly(_))
+    new Isomorphism[E, String](_.entryName.toLowerCase, enum.withNameLowercaseOnly)
 
   implicit def enumListColumnType[E <: EnumEntry](implicit iso: Isomorphism[E, String]): Isomorphism[List[E], List[String]] =
     new Isomorphism[List[E], List[String]](_.map(iso.map), _.map(iso.comap))
@@ -20,7 +20,7 @@ trait SlickEnum {
 
 trait SlickValueEnum {
   def valueEnumIsomorphism[V, E <: ValueEnumEntry[V]](enum: ValueEnum[V, E]): Isomorphism[E, V] =
-    new Isomorphism[E, V](_.value, enum.withValue(_))
+    new Isomorphism[E, V](_.value, enum.withValue)
 }
 
 trait KebsEnums extends SlickEnum with SlickValueEnum {

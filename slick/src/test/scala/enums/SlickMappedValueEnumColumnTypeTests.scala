@@ -1,3 +1,5 @@
+package enums
+
 import enumeratum.values.{IntEnum, IntEnumEntry}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
@@ -15,7 +17,7 @@ class SlickMappedValueEnumColumnTypeTests extends AnyFunSuite with Matchers {
     override val values = findValues
   }
 
-  test("MappedColumnType for value enum entires") {
+  test("MappedColumnType for value enum entries") {
     "implicitly[BaseColumnType[WorkerAccountStatusInt]]" should compile
   }
 

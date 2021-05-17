@@ -213,6 +213,76 @@ class ArrayTestTable(tag: Tag) extends Table[(Long, List[Institution], Option[Li
 
 ```
 
+**`kebs-slick` supports Postgres HSTORE type**
+
+Instead of writing this:
+```scala
+
+object MyPostgresProfile extends ExPostgresProfile with PgHStoreSupport {
+  override val api: APIWithHstore = new APIWithHstore {}
+  trait APIWithHstore extends super.API with HStoreImplicits {
+    val yearMonthIso: Isomorphism[YearMonth, String] = new Isomorphism(_.toString, YearMonth.parse)
+  }
+}
+
+import MyPostgresProfile.api._
+class HStoreTestTable(tag: Tag) extends Table[(Long, Map[YearMonth, Boolean])](tag, "HStoreTest") {
+  def id                                = column[Long]("id")
+  def history: Rep[Map[String, String]] = column[Map[String, String]]("history")
+
+  def historyMapped: MappedProjection[Map[YearMonth, Boolean], Map[String, String]] =
+    history.<>(h => h.map(kv => yearMonthIso.comap(kv._1) -> kv._2.toBoolean),
+               h => Option(h.map(kv => yearMonthIso.map(kv._1) -> kv._2.toString)))
+
+  def * = (id, historyMapped)
+}
+
+class HstoreRepository(implicit ec: ExecutionContext) {
+  def get(id: Long, yearMonth: YearMonth): DBIO[Option[Boolean]] =
+    byIdQuery(id)
+            .map(_.history +> yearMonthIso.map(yearMonth).asColumnOf[Option[String]])
+            .result
+            .map(_.headOption.flatMap(_.map(_.toBoolean)))
+
+  private def byIdQuery(id: Long) = testTable.filter(_.id === id)
+
+  private val testTable = TableQuery[HStoreTestTable]
+}
+
+```
+you can write this:
+
+```scala
+
+object MyPostgresProfile extends ExPostgresProfile with PgHStoreSupport {
+  override val api: APIWithHstore = new APIWithHstore {}
+  trait APIWithHstore extends super.API with HStoreImplicits with Kebs with YearMonthString
+}
+
+import MyPostgresProfile.api._
+class HStoreTestTable(tag: Tag) extends Table[(Long, Map[YearMonth, Boolean])](tag, "HStoreTest") {
+  def id                                    = column[Long]("id")
+  def history: Rep[Map[YearMonth, Boolean]] = column[Map[YearMonth, Boolean]]("history")
+
+  def * = (id, history)
+}
+
+class HstoreRepository(implicit ec: ExecutionContext) {
+  def get(id: Long, yearMonth: YearMonth): DBIO[Option[Boolean]] =
+    byIdQuery(id)
+            .map(_.history +> yearMonth)
+            .result
+            .map(_.headOption.flatten)
+
+  private def byIdQuery(id: Long) = testTable.filter(_.id === id)
+  
+  private val testTable = TableQuery[HStoreTestTable]
+}
+
+```
+Make sure to mix in correct mapping from `instances`, in this case `YearMonthString`.
+
+
 **`kebs` also supports `Enumeratum`**
 Let's go back to the previous example. If you wanted to add a column of type `EnumEntry`, then you would have to write mapping for it:
 

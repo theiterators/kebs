@@ -1,8 +1,11 @@
-import slick.lifted.Isomorphism
+package arrays
+
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import pl.iterators.kebs.instances.TimeInstances.YearMonthString
+import slick.lifted.Isomorphism
 
-class ListIsomorphismTest extends AnyFunSuite with Matchers {
+class ListIsomorphismTest extends AnyFunSuite with Matchers with YearMonthString {
   import pl.iterators.kebs._
 
   case class C(a: String)
@@ -17,5 +20,15 @@ class ListIsomorphismTest extends AnyFunSuite with Matchers {
     val iso = implicitly[Isomorphism[Seq[C], List[String]]]
     iso.map(Seq(C("a"), C("b"))) shouldBe List("a", "b")
     iso.comap(List("a", "b")) shouldBe Seq(C("a"), C("b"))
+  }
+
+  import java.time.YearMonth
+
+  test("List[Obj[String]] <-> List[String]") {
+    """val iso = implicitly[Isomorphism[List[YearMonth], List[String]]]""".stripMargin should compile
+  }
+
+  test("Seq[Obj[String]] <-> List[String]") {
+    """val iso = implicitly[Isomorphism[Seq[YearMonth], List[String]]]""".stripMargin should compile
   }
 }

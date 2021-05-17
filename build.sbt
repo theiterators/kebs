@@ -136,7 +136,7 @@ lazy val commonSettings = baseSettings ++ Seq(
 
 lazy val slickSettings = commonSettings ++ Seq(
   libraryDependencies += slick,
-  libraryDependencies += slickPg % "test",
+  libraryDependencies += slickPg,
   libraryDependencies += optionalEnumeratum
 )
 
@@ -222,7 +222,7 @@ lazy val macroUtils = project
 
 lazy val slickSupport = project
   .in(file("slick"))
-  .dependsOn(macroUtils)
+  .dependsOn(macroUtils, instances % "test -> test")
   .settings(slickSettings: _*)
   .settings(publishSettings: _*)
   .settings(
