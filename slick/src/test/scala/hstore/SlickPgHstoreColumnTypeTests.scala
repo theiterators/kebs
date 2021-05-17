@@ -6,18 +6,12 @@ import org.scalatest.matchers.should.Matchers
 
 class SlickPgHstoreColumnTypeTests extends AnyFunSuite with Matchers {
   import pl.iterators.kebs.Kebs
-  import pl.iterators.kebs.instances.TimeInstances.{DayOfWeekNumber, YearMonthString, InstantEpochMilliLong}
+  import pl.iterators.kebs.instances.TimeInstances.{DayOfWeekInt, YearMonthString, InstantEpochMilliLong}
   import java.time.{DayOfWeek, YearMonth, Instant}
 
   object MyPostgresProfile extends ExPostgresProfile with PgHStoreSupport {
     override val api: APIWithHStore = new APIWithHStore {}
-    trait APIWithHStore
-        extends super.API
-        with HStoreImplicits
-        with Kebs
-        with YearMonthString
-        with DayOfWeekNumber
-        with InstantEpochMilliLong
+    trait APIWithHStore extends super.API with HStoreImplicits with Kebs with YearMonthString with DayOfWeekInt with InstantEpochMilliLong
   }
 
   case class CategoryName(name: String)

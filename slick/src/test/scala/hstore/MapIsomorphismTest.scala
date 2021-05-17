@@ -2,10 +2,10 @@ package hstore
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.instances.TimeInstances.{DayOfWeekNumber, YearMonthString, InstantEpochMilliLong}
+import pl.iterators.kebs.instances.TimeInstances.{DayOfWeekInt, YearMonthString, InstantEpochMilliLong}
 import slick.lifted.Isomorphism
 
-class MapIsomorphismTest extends AnyFunSuite with Matchers with YearMonthString with DayOfWeekNumber with InstantEpochMilliLong {
+class MapIsomorphismTest extends AnyFunSuite with Matchers with YearMonthString with DayOfWeekInt with InstantEpochMilliLong {
   import pl.iterators.kebs._
 
   case class StringValue(value: String)
