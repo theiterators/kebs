@@ -1,5 +1,5 @@
 val scala_2_12             = "2.12.13"
-val scala_2_13             = "2.13.5"
+val scala_2_13             = "2.13.6"
 val mainScalaVersion       = scala_2_13
 val supportedScalaVersions = Seq(scala_2_12, scala_2_13)
 
