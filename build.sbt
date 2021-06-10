@@ -115,7 +115,7 @@ def enumeratumInExamples = {
 }
 val optionalEnumeratum = optional(enumeratum)
 
-val akkaVersion       = "2.6.14"
+val akkaVersion       = "2.6.15"
 val akkaHttpVersion   = "10.2.4"
 val akkaStream        = "com.typesafe.akka" %% "akka-stream" % akkaVersion
 val akkaStreamTestkit = "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion
