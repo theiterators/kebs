@@ -1,6 +1,7 @@
 val scala_2_12             = "2.12.13"
 val scala_2_13             = "2.13.5"
-val mainScalaVersion       = scala_2_13
+val dotty                  = "3.0.0-RC3"
+val mainScalaVersion       = dotty
 val supportedScalaVersions = Seq(scala_2_12, scala_2_13)
 
 ThisBuild / crossScalaVersions := supportedScalaVersions
@@ -17,8 +18,8 @@ lazy val baseSettings = Seq(
 )
 
 lazy val commonMacroSettings = baseSettings ++ Seq(
-  libraryDependencies += "org.scala-lang" % "scala-reflect"  % scalaVersion.value,
-  libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided"
+  libraryDependencies ++= (if (scalaVersion.value.startsWith("3")) Nil
+                           else Seq("org.scala-lang" %% "scala-compiler" % scalaVersion.value % "provided"))
 )
 
 lazy val metaSettings = commonSettings ++ Seq(
@@ -87,18 +88,19 @@ def paradisePlugin(scalaVersion: String): Seq[ModuleID] =
   else
     Seq.empty
 
-val scalaTest       = "org.scalatest" %% "scalatest" % "3.2.7"
-val scalaCheck      = "org.scalacheck" %% "scalacheck" % "1.15.3"
-val slick           = "com.typesafe.slick" %% "slick" % "3.3.3"
-val optionalSlick   = optional(slick)
-val playJson        = "com.typesafe.play" %% "play-json" % "2.9.2"
-val slickPg         = "com.github.tminglei" %% "slick-pg" % "0.19.5"
-val sprayJson       = "io.spray" %% "spray-json" % "1.3.6"
-val circe           = "io.circe" %% "circe-core" % "0.13.0"
-val circeAuto       = "io.circe" %% "circe-generic" % "0.13.0"
-val circeAutoExtras = "io.circe" %% "circe-generic-extras" % "0.13.0"
-val circeParser     = "io.circe" %% "circe-parser" % "0.13.0"
-val optionalCirce   = optional(circe)
+val scalaTest     = "org.scalatest" %% "scalatest" % "3.2.8"
+val scalaCheck    = "org.scalacheck" %% "scalacheck" % "1.15.3"
+val slick         = "com.typesafe.slick" %% "slick" % "3.3.3"
+val optionalSlick = optional(slick)
+val playJson      = "com.typesafe.play" %% "play-json" % "2.9.2"
+val slickPg       = "com.github.tminglei" %% "slick-pg" % "0.19.5"
+val sprayJson     = "io.spray" %% "spray-json" % "1.3.6"
+
+val circeVersion  = "0.14.0-M6"
+val circe         = "io.circe" %% "circe-core" % circeVersion
+val circeAuto     = "io.circe" %% "circe-generic" % circeVersion
+val circeParser   = "io.circe" %% "circe-parser" % circeVersion
+val optionalCirce = optional(circe)
 
 val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.1"
 
@@ -111,9 +113,9 @@ val enumeratumPlayJsonVersion = "1.5.16"
 val enumeratum                = "com.beachape" %% "enumeratum" % enumeratumVersion
 def enumeratumInExamples = {
   val playJsonSupport = "com.beachape" %% "enumeratum-play-json" % enumeratumPlayJsonVersion
-  Seq(enumeratum, playJsonSupport)
+  Seq(enumeratum.cross(CrossVersion.for3Use2_13), playJsonSupport.cross(CrossVersion.for3Use2_13))
 }
-val optionalEnumeratum = optional(enumeratum)
+val optionalEnumeratum = optional(enumeratum.cross(CrossVersion.for3Use2_13))
 
 val akkaVersion       = "2.6.14"
 val akkaHttpVersion   = "10.2.4"
@@ -123,72 +125,76 @@ val akkaHttp          = "com.typesafe.akka" %% "akka-http" % akkaHttpVersion
 val akkaHttpTestkit   = "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion
 def akkaHttpInExamples = {
   val akkaHttpSprayJson = "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion
-  Seq(akkaStream, akkaHttp, akkaHttpSprayJson)
+  Seq(akkaStream.cross(CrossVersion.for3Use2_13),
+      akkaHttp.cross(CrossVersion.for3Use2_13),
+      akkaHttpSprayJson.cross(CrossVersion.for3Use2_13))
 }
-def akkaHttpInBenchmarks = akkaHttpInExamples :+ akkaHttpTestkit
+def akkaHttpInBenchmarks = akkaHttpInExamples :+ (akkaHttpTestkit).cross(CrossVersion.for3Use2_13)
 
 lazy val commonSettings = baseSettings ++ Seq(
-  scalacOptions ++= Seq("-language:experimental.macros"),
+  scalacOptions ++=
+    (if (scalaVersion.value.startsWith("3"))
+       Seq("-language:implicitConversions", "-Ykind-projector", "-Xignore-scala2-macros")
+     else Nil),
 //  (scalacOptions in Test) ++= Seq("-Ymacro-debug-lite" /*, "-Xlog-implicits"*/ ),
   libraryDependencies += scalaTest % "test",
   resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 )
 
 lazy val slickSettings = commonSettings ++ Seq(
-  libraryDependencies += slick,
-  libraryDependencies += slickPg % "test",
-  libraryDependencies += optionalEnumeratum
+  libraryDependencies += slick.cross(CrossVersion.for3Use2_13),
+  libraryDependencies += (slickPg % "test").cross(CrossVersion.for3Use2_13),
+  libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13)
 )
 
 lazy val macroUtilsSettings = commonMacroSettings ++ Seq(
-  libraryDependencies += scalaCheck % "test",
-  libraryDependencies += optionalEnumeratum
+  libraryDependencies += (scalaCheck % "test").cross(CrossVersion.for3Use2_13),
+  libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13)
 )
 
 lazy val sprayJsonMacroSettings = commonMacroSettings ++ Seq(
-  libraryDependencies += sprayJson
+  libraryDependencies += sprayJson.cross(CrossVersion.for3Use2_13)
 )
 
 lazy val sprayJsonSettings = commonSettings ++ Seq(
-  libraryDependencies += optionalEnumeratum
+  libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13)
 )
 
 lazy val playJsonSettings = commonSettings ++ Seq(
-  libraryDependencies += playJson
+  libraryDependencies += playJson.cross(CrossVersion.for3Use2_13)
 )
 
 lazy val circeSettings = commonSettings ++ Seq(
   libraryDependencies += circe,
   libraryDependencies += circeAuto,
-  libraryDependencies += circeAutoExtras,
-  libraryDependencies += optionalEnumeratum,
+  libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13),
   libraryDependencies += circeParser % "test"
 )
 
 lazy val akkaHttpSettings = commonSettings ++ Seq(
-  libraryDependencies += akkaHttp,
-  libraryDependencies += akkaStreamTestkit % "test",
-  libraryDependencies += akkaHttpTestkit   % "test",
-  libraryDependencies += optionalEnumeratum
+  libraryDependencies += (akkaHttp).cross(CrossVersion.for3Use2_13),
+  libraryDependencies += (akkaStreamTestkit % "test").cross(CrossVersion.for3Use2_13),
+  libraryDependencies += (akkaHttpTestkit   % "test").cross(CrossVersion.for3Use2_13),
+  libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13)
 )
 
 lazy val jsonschemaSettings = commonSettings ++ Seq(
-  libraryDependencies += jsonschema
+  libraryDependencies += jsonschema.cross(CrossVersion.for3Use2_13)
 )
 
 lazy val scalacheckSettings = commonSettings ++ Seq(
-  libraryDependencies += scalacheck,
-  libraryDependencies += scalacheckEnumeratum,
-  libraryDependencies += scalacheckShapeless
+  libraryDependencies += scalacheck.cross(CrossVersion.for3Use2_13),
+  libraryDependencies += scalacheckEnumeratum.cross(CrossVersion.for3Use2_13),
+  libraryDependencies += scalacheckShapeless.cross(CrossVersion.for3Use2_13)
 )
 
 lazy val taggedSettings = commonSettings ++ Seq(
-  libraryDependencies += optionalSlick,
+  libraryDependencies += optionalSlick.cross(CrossVersion.for3Use2_13),
   libraryDependencies += optionalCirce
 )
 
 lazy val examplesSettings = commonSettings ++ Seq(
-  libraryDependencies += slickPg,
+  libraryDependencies += slickPg.cross(CrossVersion.for3Use2_13),
   libraryDependencies += circeParser,
   libraryDependencies ++= enumeratumInExamples,
   libraryDependencies ++= akkaHttpInExamples,
@@ -198,12 +204,12 @@ lazy val examplesSettings = commonSettings ++ Seq(
 
 lazy val benchmarkSettings = commonSettings ++ Seq(
   libraryDependencies += scalaTest,
-  libraryDependencies += enumeratum,
+  libraryDependencies += enumeratum.cross(CrossVersion.for3Use2_13),
   libraryDependencies ++= akkaHttpInBenchmarks
 )
 
 lazy val taggedMetaSettings = metaSettings ++ Seq(
-  libraryDependencies += optional(sprayJson),
+  libraryDependencies += optional(sprayJson.cross(CrossVersion.for3Use2_13)),
   libraryDependencies += optional(circe)
 )
 
