@@ -174,7 +174,7 @@ lazy val doobieSettings = commonSettings ++ Seq(
 
 lazy val coreSettings = commonMacroSettings ++ Seq(
   libraryDependencies += (scalaCheck.value % "test").cross(CrossVersion.for3Use2_13),
-  libraryDependencies += optionalEnumeratum
+  libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13)
 )
 
 lazy val sprayJsonMacroSettings = commonMacroSettings ++ Seq(
