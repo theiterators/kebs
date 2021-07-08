@@ -169,7 +169,9 @@ lazy val akkaHttpSettings = commonSettings ++ Seq(
   libraryDependencies += akkaHttp,
   libraryDependencies += akkaStreamTestkit % "test",
   libraryDependencies += akkaHttpTestkit   % "test",
-  libraryDependencies += optionalEnumeratum
+  libraryDependencies += optionalEnumeratum,
+  libraryDependencies ++= paradisePlugin(scalaVersion.value),
+  scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
 lazy val jsonschemaSettings = commonSettings ++ Seq(
@@ -282,7 +284,7 @@ lazy val circeSupport = project
 
 lazy val akkaHttpSupport = project
   .in(file("akka-http"))
-  .dependsOn(macroUtils)
+  .dependsOn(macroUtils, tagged % "test -> test", taggedMeta % "test -> test", instances % "test -> test")
   .settings(akkaHttpSettings: _*)
   .settings(publishSettings: _*)
   .settings(

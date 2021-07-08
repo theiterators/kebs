@@ -1,46 +1,28 @@
-import akka.http.scaladsl.server.MalformedQueryParamRejection
-import akka.http.scaladsl.server.directives.ParameterDirectives._
-import akka.http.scaladsl.server.directives.PathDirectives.path
-import akka.http.scaladsl.server.directives.RouteDirectives.complete
+package pl.iterators.kebs.unmarshallers
+
+import akka.http.scaladsl.model.FormData
+import akka.http.scaladsl.server.{Directives, MalformedQueryParamRejection}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import akka.http.scaladsl.unmarshalling.Unmarshal
-import enumeratum._
-import enumeratum.values._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import pl.iterators.kebs.Domain._
+import pl.iterators.kebs.instances.TimeInstances.{DayOfWeekInt, YearMonthString}
+import pl.iterators.kebs.unmarshallers.enums.KebsEnumUnmarshallers
 
-class AkkaHttpUnmarshallerTests extends AnyFunSuite with Matchers with ScalatestRouteTest with ScalaFutures {
-  case class I(i: Int)
-  case class S(s: String)
-  case class P[A](a: A)
-  case class CantUnmarshall(s: String, i: Int)
-  case object O
+import java.time.{DayOfWeek, YearMonth}
 
-  sealed trait Greeting extends EnumEntry
-
-  object Greeting extends Enum[Greeting] {
-    val values = findValues
-
-    case object Hello   extends Greeting
-    case object GoodBye extends Greeting
-    case object Hi      extends Greeting
-    case object Bye     extends Greeting
-  }
-
-  sealed abstract class LibraryItem(val value: Int) extends IntEnumEntry
-
-  object LibraryItem extends IntEnum[LibraryItem] {
-    case object Book     extends LibraryItem(1)
-    case object Movie    extends LibraryItem(2)
-    case object Magazine extends LibraryItem(3)
-    case object CD       extends LibraryItem(4)
-
-    val values = findValues
-  }
-
-  import pl.iterators.kebs.unmarshallers._
-  import enums._
+class AkkaHttpUnmarshallerTests
+    extends AnyFunSuite
+    with Matchers
+    with ScalatestRouteTest
+    with ScalaFutures
+    with Directives
+    with KebsUnmarshallers
+    with KebsEnumUnmarshallers
+    with YearMonthString
+    with DayOfWeekInt {
 
   test("Unmarshal") {
     Unmarshal(42).to[I].futureValue shouldBe I(42)
@@ -121,11 +103,6 @@ class AkkaHttpUnmarshallerTests extends AnyFunSuite with Matchers with Scalatest
     }
   }
 
-  case class Red(value: Int)
-  case class Green(value: Int)
-  case class Blue(value: Int)
-  case class Color(red: Red, green: Green, blue: Blue)
-
   test("Case class extraction") {
     val route =
       path("color") {
@@ -134,19 +111,17 @@ class AkkaHttpUnmarshallerTests extends AnyFunSuite with Matchers with Scalatest
         }
       }
     Get("/color?red=1&green=2&blue=3") ~> route ~> check { responseAs[String] shouldEqual "Color(Red(1),Green(2),Blue(3))" }
-
   }
 
-  sealed abstract class ShirtSize(val value: String) extends StringEnumEntry
-
-  object ShirtSize extends StringEnum[ShirtSize] {
-
-    case object Small  extends ShirtSize("S")
-    case object Medium extends ShirtSize("M")
-    case object Large  extends ShirtSize("L")
-
-    val values = findValues
-
+  test("Unmarshalling instances parameter") {
+    val testRoute = path("instances") {
+      parameters(Symbol("year").as[YearMonth]) { year =>
+        complete(year.toString)
+      }
+    }
+    Get("/instances?year=2021-05") ~> testRoute ~> check {
+      responseAs[String] shouldEqual "2021-05"
+    }
   }
 
   test("Unmarshalling string value enum parameter") {
@@ -159,14 +134,6 @@ class AkkaHttpUnmarshallerTests extends AnyFunSuite with Matchers with Scalatest
     Get("/?shirtSize=XL") ~> testRoute ~> check {
       rejection shouldEqual MalformedQueryParamRejection("shirtSize", "Invalid value 'XL'. Expected one of: S, M, L", None)
     }
-  }
-
-  sealed trait SortOrder extends EnumEntry
-  object SortOrder extends Enum[SortOrder] {
-    case object Asc  extends SortOrder
-    case object Desc extends SortOrder
-
-    override val values = findValues
   }
 
   test("bug: work with default enum values") {
@@ -185,6 +152,57 @@ class AkkaHttpUnmarshallerTests extends AnyFunSuite with Matchers with Scalatest
     Get("/test_enum") ~> route ~> check {
       responseAs[String] shouldBe "Sort was Desc"
     }
+  }
 
+  test("Unmarshal form field from String") {
+    val route =
+      path("test_form_fields") {
+        formFields("yearMonth".as[YearMonth]) { yearMonth =>
+          complete(yearMonth.toString)
+        }
+      }
+
+    Post("/test_form_fields", FormData("yearMonth" -> "2021-05")) ~> route ~> check {
+      responseAs[String] shouldEqual "2021-05"
+    }
+  }
+
+  test("Unmarshal form fields from Int") {
+    val route =
+      path("test_form_fields") {
+        formFields("dayOfWeek".as[DayOfWeek]) { dayOfWeek =>
+          complete(dayOfWeek.getValue.toString)
+        }
+      }
+
+    Post("/test_form_fields", FormData("dayOfWeek" -> "1")) ~> route ~> check {
+      responseAs[String] shouldEqual "1"
+    }
+  }
+
+  test("Unmarshal tagged parameters from Long") {
+    val route =
+      path("test_tagged") {
+        parameter("tagged".as[Id]) { id =>
+          complete(id.toString)
+        }
+      }
+
+    Get("/test_tagged?tagged=123456") ~> route ~> check {
+      responseAs[String] shouldBe "123456"
+    }
+  }
+
+  test("Unmarshal tagged parameters from UUID") {
+    val route =
+      path("test_tagged") {
+        parameter("tagged".as[TestId]) { id =>
+          complete(id.toString)
+        }
+      }
+
+    Get("/test_tagged?tagged=ce7a7cf1-8c00-49a9-a963-9fd119dd0642") ~> route ~> check {
+      responseAs[String] shouldBe "ce7a7cf1-8c00-49a9-a963-9fd119dd0642"
+    }
   }
 }
