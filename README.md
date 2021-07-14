@@ -31,44 +31,44 @@ Slick (`kebs-slick`), Spray (`kebs-spray-json`), Play (`kebs-play-json`), Circe 
 
 Support for `slick`
 
-`libraryDependencies += "pl.iterators" %% "kebs-slick" % "1.9.1"`
+`libraryDependencies += "pl.iterators" %% "kebs-slick" % "1.9.2"`
 
 Support for `spray-json`
 
-`libraryDependencies += "pl.iterators" %% "kebs-spray-json" % "1.9.1"`
+`libraryDependencies += "pl.iterators" %% "kebs-spray-json" % "1.9.2"`
 
 Support for `play-json`
 
-`libraryDependencies += "pl.iterators" %% "kebs-play-json" % "1.9.1"`
+`libraryDependencies += "pl.iterators" %% "kebs-play-json" % "1.9.2"`
 
 Support for `circe`
 
-`libraryDependencies += "pl.iterators" %% "kebs-circe" % "1.9.1"`
+`libraryDependencies += "pl.iterators" %% "kebs-circe" % "1.9.2"`
 
 Support for `json-schema`
 
-`libraryDependencies += "pl.iterators" %% "kebs-jsonschema" % "1.9.1"`
+`libraryDependencies += "pl.iterators" %% "kebs-jsonschema" % "1.9.2"`
 
 Support for `scalacheck`
 
-`libraryDependencies += "pl.iterators" %% "kebs-scalacheck" % "1.9.1"`
+`libraryDependencies += "pl.iterators" %% "kebs-scalacheck" % "1.9.2"`
 
 Support for `akka-http`
 
-`libraryDependencies += "pl.iterators" %% "kebs-akka-http" % "1.9.1"`
+`libraryDependencies += "pl.iterators" %% "kebs-akka-http" % "1.9.2"`
 
 Support for `tagged types`
 
-`libraryDependencies += "pl.iterators" %% "kebs-tagged" % "1.9.1"`
+`libraryDependencies += "pl.iterators" %% "kebs-tagged" % "1.9.2"`
 
 or for tagged-types code generation support
 
-`libraryDependencies += "pl.iterators" %% "kebs-tagged-meta" % "1.9.1"`
+`libraryDependencies += "pl.iterators" %% "kebs-tagged-meta" % "1.9.2"`
 `addCompilerPlugin("org.scalameta" % "paradise" % "3.0.0-M11" cross CrossVersion.full)`
 
 Support for `instances`
 
-`libraryDependencies += "pl.iterators" %% "kebs-instances" % "1.9.1"`
+`libraryDependencies += "pl.iterators" %% "kebs-instances" % "1.9.2"`
 
 Builds for Scala `2.12` and `2.13` are provided.
 

@@ -1,3 +1,10 @@
+## Version 1.9.2
+> 14.07.2021
+* Improved akka http module
+* Fixed naming consistency in instances module
+* Added test for diverging implicit expansion error
+* Improved Slick module
+
 ## Version 1.9.1
 > 8.04.2021
 * Added Mergify
