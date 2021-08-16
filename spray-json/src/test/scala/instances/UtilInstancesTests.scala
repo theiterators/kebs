@@ -1,22 +1,15 @@
-package pl.iterators.kebs.instances
+package instances
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.instances.UtilInstances.{CurrencyString, LocaleString, UUIDString}
+import pl.iterators.kebs.instances.InstanceConverter.DecodeErrorException
+import pl.iterators.kebs.instances.UtilInstances
 import pl.iterators.kebs.json.KebsSpray
 import spray.json._
 
 import java.util.{Currency, Locale, UUID}
 
-class UtilInstancesTests
-    extends AnyFunSuite
-    with Matchers
-    with DefaultJsonProtocol
-    with KebsSpray
-    with UtilInstances
-    with CurrencyString
-    with LocaleString
-    with UUIDString {
+class UtilInstancesTests extends AnyFunSuite with Matchers with DefaultJsonProtocol with KebsSpray with UtilInstances {
 
   test("Currency standard format") {
     val jf    = implicitly[JsonFormat[Currency]]
@@ -28,15 +21,10 @@ class UtilInstancesTests
   }
 
   test("Currency wrong format exception") {
-    import UtilInstances.CurrencyFormat
-
     val jf    = implicitly[JsonFormat[Currency]]
     val value = "not a Currency"
 
-    val thrown = intercept[IllegalArgumentException] {
-      jf.read(JsString(value))
-    }
-    assert(thrown.getMessage === errorMessage[Currency, String](classOf[Currency], value, CurrencyFormat))
+    assertThrows[DecodeErrorException](jf.read(JsString(value)))
   }
 
   test("Locale standard format") {
@@ -58,14 +46,9 @@ class UtilInstancesTests
   }
 
   test("UUID wrong format exception") {
-    import UtilInstances.UUIDFormat
-
     val jf    = implicitly[JsonFormat[UUID]]
     val value = "not an UUID"
 
-    val thrown = intercept[IllegalArgumentException] {
-      jf.read(JsString(value))
-    }
-    assert(thrown.getMessage === errorMessage[UUID, String](classOf[UUID], value, UUIDFormat))
+    assertThrows[DecodeErrorException](jf.read(JsString(value)))
   }
 }

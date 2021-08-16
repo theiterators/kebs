@@ -6,7 +6,8 @@ import org.scalatest.matchers.should.Matchers
 
 class SlickPgHstoreColumnTypeTests extends AnyFunSuite with Matchers {
   import pl.iterators.kebs.Kebs
-  import pl.iterators.kebs.instances.TimeInstances.{DayOfWeekInt, YearMonthString, InstantEpochMilliLong}
+  import pl.iterators.kebs.instances.time.{DayOfWeekInt, YearMonthString}
+  import pl.iterators.kebs.instances.time.mixins.InstantEpochMilliLong
   import java.time.{DayOfWeek, YearMonth, Instant}
 
   object MyPostgresProfile extends ExPostgresProfile with PgHStoreSupport {

@@ -10,7 +10,7 @@ import java.util.UUID
 
 class SlickPgHstoreTests extends AnyFunSuite with Matchers {
   import pl.iterators.kebs.Kebs
-  import pl.iterators.kebs.instances.TimeInstances.YearMonthString
+  import pl.iterators.kebs.instances.time.YearMonthString
 
   trait PostgresDriver extends ExPostgresProfile with PgArraySupport with PgHStoreSupport {
     override val api: HstoreAPI = new HstoreAPI {}

@@ -10,7 +10,7 @@ import java.util.UUID
 
 class SlickPgArrayTests extends AnyFunSuite with Matchers {
   import pl.iterators.kebs.Kebs
-  import pl.iterators.kebs.instances.TimeInstances.YearMonthString
+  import pl.iterators.kebs.instances.time.YearMonthString
 
   trait PostgresDriver extends ExPostgresProfile with PgArraySupport {
     override val api: ArrayAPI = new ArrayAPI {}

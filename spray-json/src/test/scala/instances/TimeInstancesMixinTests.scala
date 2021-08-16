@@ -1,7 +1,9 @@
-package pl.iterators.kebs.instances
+package instances
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import pl.iterators.kebs.instances.time.mixins.{DurationNanosLong, InstantEpochMilliLong}
+import pl.iterators.kebs.instances.{InstanceConverter, TimeInstances}
 import pl.iterators.kebs.json.KebsSpray
 import spray.json._
 
@@ -11,8 +13,7 @@ import java.time.format.DateTimeFormatter
 class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
 
   test("Instant epoch milli format") {
-    import TimeInstances.InstantEpochMilliLong
-    object TimeInstancesProtocol extends DefaultJsonProtocol with KebsSpray with TimeInstances with InstantEpochMilliLong
+    object TimeInstancesProtocol extends DefaultJsonProtocol with KebsSpray with InstantEpochMilliLong
     import TimeInstancesProtocol._
 
     val jf    = implicitly[JsonFormat[Instant]]
@@ -24,13 +25,7 @@ class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
   }
 
   test("Duration nanos format, Instant epoch milli format") {
-    import TimeInstances.{DurationNanosLong, InstantEpochMilliLong}
-    object TimeInstancesProtocol
-        extends DefaultJsonProtocol
-        with KebsSpray
-        with TimeInstances
-        with DurationNanosLong
-        with InstantEpochMilliLong
+    object TimeInstancesProtocol extends DefaultJsonProtocol with KebsSpray with DurationNanosLong with InstantEpochMilliLong
     import TimeInstancesProtocol._
 
     val jf_duration    = implicitly[JsonFormat[Duration]]
@@ -52,9 +47,8 @@ class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
     object TimeInstancesProtocol extends DefaultJsonProtocol with KebsSpray with TimeInstances {
       val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")
 
-      implicit val localDateTimeFormatter: InstancesFormatter[LocalDateTime, String] =
-        InstancesFormatter.apply[LocalDateTime, String](_.format(formatter),
-                                                        (value: String) => Right(LocalDateTime.parse(value, formatter)))
+      override implicit val localDateTimeFormatter: InstanceConverter[LocalDateTime, String] =
+        InstanceConverter.apply[LocalDateTime, String](_.format(formatter), value => LocalDateTime.parse(value, formatter))
     }
     import TimeInstancesProtocol._
 
@@ -71,17 +65,20 @@ class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
       val pattern                      = "yyyy/MM/dd HH:mm"
       val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern(pattern)
 
-      implicit val localDateTimeFormatter: InstancesFormatter[LocalDateTime, String] = new InstancesFormatter[LocalDateTime, String] {
-        override def encode(obj: LocalDateTime): String = obj.format(formatter)
-        override def decode(value: String): Either[DecodeError, LocalDateTime] =
-          try {
-            Right(LocalDateTime.parse(value, formatter))
-          } catch {
-            case e: DateTimeException =>
-              Left(DecodeError(s"${classOf[LocalDateTime]} cannot be parsed from $value – should be in format $pattern", Some(e)))
-            case e: Throwable => throw e
-          }
-      }
+      override implicit val localDateTimeFormatter: InstanceConverter[LocalDateTime, String] =
+        new InstanceConverter[LocalDateTime, String] {
+          override def encode(obj: LocalDateTime): String = obj.format(formatter)
+          override def decode(value: String): LocalDateTime =
+            try {
+              LocalDateTime.parse(value, formatter)
+            } catch {
+              case e: DateTimeException =>
+                throw new IllegalArgumentException(
+                  s"${classOf[LocalDateTime]} cannot be parsed from $value – should be in format $pattern",
+                  e)
+              case e: Throwable => throw e
+            }
+        }
     }
     import TimeInstancesProtocol._
 

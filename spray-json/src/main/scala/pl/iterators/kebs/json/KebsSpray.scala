@@ -2,6 +2,7 @@ package pl.iterators.kebs.json
 
 import pl.iterators.kebs.macros.CaseClass1Rep
 import spray.json.{DefaultJsonProtocol, JsValue, JsonFormat, JsonReader, RootJsonFormat}
+import pl.iterators.kebs.instances.InstanceConverter
 
 trait KebsSpray { self: DefaultJsonProtocol =>
   import macros.KebsSprayMacros
@@ -9,6 +10,11 @@ trait KebsSpray { self: DefaultJsonProtocol =>
   implicit def jsonFlatFormat[T, A](implicit rep: CaseClass1Rep[T, A], baseJsonFormat: JsonFormat[A]): JsonFormat[T] = {
     val reader: JsValue => T = json => rep.apply(baseJsonFormat.read(json))
     val writer: T => JsValue = obj => baseJsonFormat.write(rep.unapply(obj))
+    jsonFormat[T](reader, writer)
+  }
+  implicit def jsonConversionFormat2[T, A](implicit rep: InstanceConverter[T, A], baseJsonFormat: JsonFormat[A]): JsonFormat[T] = {
+    val reader: JsValue => T = json => rep.decode(baseJsonFormat.read(json))
+    val writer: T => JsValue = obj => baseJsonFormat.write(rep.encode(obj))
     jsonFormat[T](reader, writer)
   }
 

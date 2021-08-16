@@ -3,14 +3,15 @@ package pl.iterators.kebs.unmarshallers
 import akka.http.scaladsl.model.FormData
 import akka.http.scaladsl.server.{Directives, MalformedQueryParamRejection}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import akka.http.scaladsl.unmarshalling.Unmarshal
+import akka.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unmarshal}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.Domain._
-import pl.iterators.kebs.instances.TimeInstances.{DayOfWeekInt, YearMonthString}
+import pl.iterators.kebs.instances.{NetInstances, TimeInstances}
 import pl.iterators.kebs.unmarshallers.enums.KebsEnumUnmarshallers
 
+import java.net.URI
 import java.time.{DayOfWeek, YearMonth}
 
 class AkkaHttpUnmarshallerTests
@@ -21,8 +22,8 @@ class AkkaHttpUnmarshallerTests
     with Directives
     with KebsUnmarshallers
     with KebsEnumUnmarshallers
-    with YearMonthString
-    with DayOfWeekInt {
+    with TimeInstances
+    with NetInstances {
 
   test("Unmarshal") {
     Unmarshal(42).to[I].futureValue shouldBe I(42)
@@ -203,6 +204,20 @@ class AkkaHttpUnmarshallerTests
 
     Get("/test_tagged?tagged=ce7a7cf1-8c00-49a9-a963-9fd119dd0642") ~> route ~> check {
       responseAs[String] shouldBe "ce7a7cf1-8c00-49a9-a963-9fd119dd0642"
+    }
+  }
+
+  test("Unmarshal tagged URI") {
+    val un = implicitly[FromStringUnmarshaller[URI]]
+    val route =
+      path("test_tagged") {
+        parameter("tagged".as[TestTaggedUri]) { id =>
+          complete(id.toString)
+        }
+      }
+
+    Get("/test_tagged?tagged=www.test.pl") ~> route ~> check {
+      responseAs[String] shouldBe "www.test.pl"
     }
   }
 }
