@@ -24,7 +24,7 @@ class AkkaHttpMatchersTests
     with InstantEpochMilliLong
     with URIString {
 
-  test("Extract String instance") {
+  test("Extract String to ZonedDateTime") {
     val testRoute = path("test" / Segment.to[ZonedDateTime]) { zdt =>
       complete(zdt.toString)
     }
@@ -33,7 +33,7 @@ class AkkaHttpMatchersTests
     }
   }
 
-  test("Extract Int instance ") {
+  test("Extract Int to DayOfWeek") {
     val testRoute = path("test" / IntNumber.to[DayOfWeek]) { dayOfWeek =>
       complete(dayOfWeek.getValue.toString)
     }
@@ -42,7 +42,7 @@ class AkkaHttpMatchersTests
     }
   }
 
-  test("Extract Long instance ") {
+  test("Extract Long to Instant ") {
     val testRoute = path("test" / LongNumber.to[Instant]) { instant =>
       complete(instant.toEpochMilli.toString)
     }
@@ -50,7 +50,7 @@ class AkkaHttpMatchersTests
       responseAs[String] shouldEqual "1621258399"
     }
   }
-  test("Extract Double instance ") {
+  test("Extract Double as tagged Double") {
     val testRoute = path("test" / DoubleNumber.as[TestDouble]) { test =>
       complete(test.toString)
     }
@@ -59,7 +59,7 @@ class AkkaHttpMatchersTests
     }
   }
 
-  test("Extract tagged primitive instance") {
+  test("Extract Long as tagged Long") {
     val testRoute = path("test" / LongNumber.as[Id]) { id =>
       complete(id.toString)
     }
@@ -68,7 +68,7 @@ class AkkaHttpMatchersTests
     }
   }
 
-  test("Extract tagged UUID instance") {
+  test("Extract UUID as tagged UUID") {
     val testRoute = path("test" / JavaUUID.as[TestId]) { id =>
       complete(id.toString)
     }
@@ -77,7 +77,7 @@ class AkkaHttpMatchersTests
     }
   }
 
-  test("Extract Enum instance") {
+  test("Extract String as Enum") {
     val testRoute = path("test" / EnumSegment.as[Greeting]) { greeting =>
       complete(greeting.toString)
     }
@@ -86,7 +86,7 @@ class AkkaHttpMatchersTests
     }
   }
 
-  test("Extract tagged URI instance") {
+  test("Extract String to URI as tagged URI") {
     val testRoute = path("test" / Segment.to[URI].as[TestTaggedUri]) { id =>
       complete(id.toString)
     }

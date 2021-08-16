@@ -3,7 +3,7 @@ package pl.iterators.kebs.unmarshallers
 import akka.http.scaladsl.model.FormData
 import akka.http.scaladsl.server.{Directives, MalformedQueryParamRejection}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import akka.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unmarshal}
+import akka.http.scaladsl.unmarshalling.Unmarshal
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
@@ -11,10 +11,9 @@ import pl.iterators.kebs.Domain._
 import pl.iterators.kebs.instances.{NetInstances, TimeInstances}
 import pl.iterators.kebs.unmarshallers.enums.KebsEnumUnmarshallers
 
-import java.net.URI
 import java.time.{DayOfWeek, YearMonth}
 
-class AkkaHttpUnmarshallerTests
+class AkkaHttpUnmarshallersTests
     extends AnyFunSuite
     with Matchers
     with ScalatestRouteTest
@@ -208,7 +207,6 @@ class AkkaHttpUnmarshallerTests
   }
 
   test("Unmarshal tagged URI") {
-    val un = implicitly[FromStringUnmarshaller[URI]]
     val route =
       path("test_tagged") {
         parameter("tagged".as[TestTaggedUri]) { id =>

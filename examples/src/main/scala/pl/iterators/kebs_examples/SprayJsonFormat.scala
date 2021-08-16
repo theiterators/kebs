@@ -4,8 +4,8 @@ import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.marshalling.ToResponseMarshallable
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.server.Directives._
-import pl.iterators.kebs.instances.NetInstances.URIString
-import pl.iterators.kebs.instances.UtilInstances.UUIDString
+import pl.iterators.kebs.instances.net.URIString
+import pl.iterators.kebs.instances.util.UUIDString
 import pl.iterators.kebs.json.KebsSpray
 import spray.json._
 
@@ -25,7 +25,7 @@ object SprayJsonFormat {
       implicit val urlJsonFormat = new JsonFormat[URI] {
         override def read(json: JsValue): URI = json match {
           case JsString(uri) => Try(new URI(uri)).getOrElse(deserializationError("Invalid URI format"))
-          case _             => deserializationError("URL should be string")
+          case _             => deserializationError("URI should be string")
         }
 
         override def write(obj: URI): JsValue = JsString(obj.toString)
