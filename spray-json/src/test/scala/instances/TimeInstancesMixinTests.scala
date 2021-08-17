@@ -2,9 +2,11 @@ package instances
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import pl.iterators.kebs.instances.time.LocalDateTimeString
 import pl.iterators.kebs.instances.time.mixins.{DurationNanosLong, InstantEpochMilliLong}
 import pl.iterators.kebs.instances.{InstanceConverter, TimeInstances}
 import pl.iterators.kebs.json.KebsSpray
+import pl.iterators.kebs.macros.CaseClass1Rep
 import spray.json._
 
 import java.time._
@@ -15,6 +17,9 @@ class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
   test("Instant epoch milli format") {
     object TimeInstancesProtocol extends DefaultJsonProtocol with KebsSpray with InstantEpochMilliLong
     import TimeInstancesProtocol._
+
+    "implicitly[CaseClass1Rep[Instant, Long]]" shouldNot typeCheck
+    "implicitly[CaseClass1Rep[Long, Instant]]" shouldNot typeCheck
 
     val jf    = implicitly[JsonFormat[Instant]]
     val value = 123456789
@@ -27,6 +32,11 @@ class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
   test("Duration nanos format, Instant epoch milli format") {
     object TimeInstancesProtocol extends DefaultJsonProtocol with KebsSpray with DurationNanosLong with InstantEpochMilliLong
     import TimeInstancesProtocol._
+
+    "implicitly[CaseClass1Rep[Instant, Long]]" shouldNot typeCheck
+    "implicitly[CaseClass1Rep[Long, Instant]]" shouldNot typeCheck
+    "implicitly[CaseClass1Rep[Duration, Long]]" shouldNot typeCheck
+    "implicitly[CaseClass1Rep[Long, Duration]]" shouldNot typeCheck
 
     val jf_duration    = implicitly[JsonFormat[Duration]]
     val value_duration = 123456789
@@ -44,13 +54,16 @@ class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
   }
 
   test("LocalDateTime custom format using companion object") {
-    object TimeInstancesProtocol extends DefaultJsonProtocol with KebsSpray with TimeInstances {
+    object TimeInstancesProtocol extends DefaultJsonProtocol with KebsSpray with LocalDateTimeString {
       val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")
 
       override implicit val localDateTimeFormatter: InstanceConverter[LocalDateTime, String] =
-        InstanceConverter.apply[LocalDateTime, String](_.format(formatter), value => LocalDateTime.parse(value, formatter))
+        InstanceConverter.apply[LocalDateTime, String](_.format(formatter), LocalDateTime.parse(_, formatter))
     }
     import TimeInstancesProtocol._
+
+    "implicitly[CaseClass1Rep[LocalDateTime, String]]" shouldNot typeCheck
+    "implicitly[CaseClass1Rep[String, LocalDateTime]]" shouldNot typeCheck
 
     val jf    = implicitly[JsonFormat[LocalDateTime]]
     val value = "2007/12/03 10:30"
@@ -81,6 +94,9 @@ class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
         }
     }
     import TimeInstancesProtocol._
+
+    "implicitly[CaseClass1Rep[LocalDateTime, String]]" shouldNot typeCheck
+    "implicitly[CaseClass1Rep[String, LocalDateTime]]" shouldNot typeCheck
 
     val jf    = implicitly[JsonFormat[LocalDateTime]]
     val value = "2007/12/03 10:30"

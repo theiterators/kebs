@@ -22,7 +22,7 @@ class PlayJsonFormatTests extends AnyFunSuite with Matchers {
   }
 
   test("Flat format - no implicit JsonFormat") {
-    "implicitly[JsonFormat[E]]" shouldNot compile
+    "implicitly[JsonFormat[E]]" shouldNot typeCheck
   }
 
   test("Flat format - parametrized") {

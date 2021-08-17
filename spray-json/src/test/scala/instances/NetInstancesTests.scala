@@ -26,4 +26,11 @@ class NetInstancesTests extends AnyFunSuite with Matchers with DefaultJsonProtoc
 
     assertThrows[DecodeErrorException](jf.read(JsString(value)))
   }
+
+  test("No CaseClass1Rep implicits derived") {
+    import pl.iterators.kebs.macros.CaseClass1Rep
+
+    "implicitly[CaseClass1Rep[URI, String]]" shouldNot typeCheck
+    "implicitly[CaseClass1Rep[String, URI]]" shouldNot typeCheck
+  }
 }

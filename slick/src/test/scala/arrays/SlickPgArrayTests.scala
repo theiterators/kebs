@@ -40,6 +40,13 @@ class SlickPgArrayTests extends AnyFunSuite with Matchers {
     override def * : ProvenShape[Test] = (id, ccList) <> ((Test.apply _).tupled, Test.unapply)
   }
 
+  test("No CaseClass1Rep implicits derived") {
+    import pl.iterators.kebs.macros.CaseClass1Rep
+
+    "implicitly[CaseClass1Rep[YearMonth, String]]" shouldNot typeCheck
+    "implicitly[CaseClass1Rep[String, YearMonth]]" shouldNot typeCheck
+  }
+
   test("Case class list extension methods") {
     """
       |class TestRepository1 {

@@ -25,7 +25,7 @@ class SprayKebsIssue47Test extends AnyFunSuite with Matchers with DefaultJsonPro
     if (versionNumberString.startsWith("2.13")) {
       """implicitly[JsonFormat[Option[SomeDto]]]""".stripMargin should compile
     } else {
-      """implicitly[JsonFormat[Option[SomeDto]]]""".stripMargin shouldNot compile
+      """implicitly[JsonFormat[Option[SomeDto]]]""".stripMargin shouldNot typeCheck
     }
   }
 }

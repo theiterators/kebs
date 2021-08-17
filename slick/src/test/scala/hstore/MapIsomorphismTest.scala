@@ -12,6 +12,17 @@ class MapIsomorphismTest extends AnyFunSuite with Matchers with YearMonthString 
   case class StringValue(value: String)
   case class IntValue(value: Int)
 
+  test("No CaseClass1Rep implicits derived") {
+    import pl.iterators.kebs.macros.CaseClass1Rep
+
+    "implicitly[CaseClass1Rep[YearMonth, String]]" shouldNot typeCheck
+    "implicitly[CaseClass1Rep[String, YearMonth]]" shouldNot typeCheck
+    "implicitly[CaseClass1Rep[DayOfWeek, Int]]" shouldNot typeCheck
+    "implicitly[CaseClass1Rep[Int, DayOfWeek]]" shouldNot typeCheck
+    "implicitly[CaseClass1Rep[Instant, Long]]" shouldNot typeCheck
+    "implicitly[CaseClass1Rep[Long, Instant]]" shouldNot typeCheck
+  }
+
   test("Case classes isomorphisms implies string to int map isomorphism") {
     val iso = implicitly[Isomorphism[Map[StringValue, IntValue], Map[String, Int]]]
     iso.map(Map(StringValue("a") -> IntValue(0), StringValue("b") -> IntValue(1))) shouldBe Map("a"    -> 0, "b"                        -> 1)
@@ -38,7 +49,7 @@ class MapIsomorphismTest extends AnyFunSuite with Matchers with YearMonthString 
 
   import java.time.{DayOfWeek, YearMonth, Instant}
 
-  /* CaseClass1Rep[Obj, String] */
+  /* InstanceConverter[Obj, String] */
   test("Map[Obj[String], String] <-> Map[String, String]") {
     """val iso = implicitly[Isomorphism[Map[YearMonth, String], Map[String, String]]]""".stripMargin should compile
   }
@@ -71,7 +82,7 @@ class MapIsomorphismTest extends AnyFunSuite with Matchers with YearMonthString 
     """val iso = implicitly[Isomorphism[Map[Boolean, YearMonth], Map[String, String]]]""".stripMargin should compile
   }
 
-  /* CaseClass1Rep[Obj, Int] */
+  /* implicit InstanceConverter[Obj, Int] */
   test("Map[Obj[Int], String] <-> Map[String, String]") {
     """val iso = implicitly[Isomorphism[Map[DayOfWeek, String], Map[String, String]]]""".stripMargin should compile
   }
@@ -104,7 +115,7 @@ class MapIsomorphismTest extends AnyFunSuite with Matchers with YearMonthString 
     """val iso = implicitly[Isomorphism[Map[Boolean, DayOfWeek], Map[String, String]]]""".stripMargin should compile
   }
 
-  /* CaseClass1Rep[Obj, Long] */
+  /* implicit InstanceConverter[Obj, Long] */
   test("Map[Obj[Long], String] <-> Map[String, String]") {
     """val iso = implicitly[Isomorphism[Map[Instant, String], Map[String, String]]]""".stripMargin should compile
   }

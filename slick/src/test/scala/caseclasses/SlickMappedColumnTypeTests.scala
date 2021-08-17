@@ -83,6 +83,6 @@ class SlickMappedColumnTypeTests extends AnyFunSuite with Matchers {
       |
       |      override def * = (id, name)
       |}
-    """.stripMargin shouldNot compile
+    """.stripMargin shouldNot typeCheck
   }
 }

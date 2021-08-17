@@ -20,6 +20,17 @@ class SlickPgHstoreColumnTypeTests extends AnyFunSuite with Matchers {
 
   import MyPostgresProfile.api._
 
+  test("No CaseClass1Rep implicits derived") {
+    import pl.iterators.kebs.macros.CaseClass1Rep
+
+    "implicitly[CaseClass1Rep[YearMonth, String]]" shouldNot typeCheck
+    "implicitly[CaseClass1Rep[String, YearMonth]]" shouldNot typeCheck
+    "implicitly[CaseClass1Rep[DayOfWeek, Int]]" shouldNot typeCheck
+    "implicitly[CaseClass1Rep[Int, DayOfWeek]]" shouldNot typeCheck
+    "implicitly[CaseClass1Rep[Instant, Long]]" shouldNot typeCheck
+    "implicitly[CaseClass1Rep[Long, Instant]]" shouldNot typeCheck
+  }
+
   test("Value classes to HStore mapping") {
     """
       |    class HStoreTestTable(tag: Tag) extends Table[(Long, Map[CategoryName, CategoryImportance])](tag, "HStoreTestTable") {

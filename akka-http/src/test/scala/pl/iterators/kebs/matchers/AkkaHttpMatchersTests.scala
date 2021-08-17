@@ -24,6 +24,17 @@ class AkkaHttpMatchersTests
     with InstantEpochMilliLong
     with URIString {
 
+  test("No CaseClass1Rep implicits derived") {
+    import pl.iterators.kebs.macros.CaseClass1Rep
+
+    "implicitly[CaseClass1Rep[DayOfWeek, Int]]" shouldNot typeCheck
+    "implicitly[CaseClass1Rep[Int, DayOfWeek]]" shouldNot typeCheck
+    "implicitly[CaseClass1Rep[Instant, Long]]" shouldNot typeCheck
+    "implicitly[CaseClass1Rep[Long, Instant]]" shouldNot typeCheck
+    "implicitly[CaseClass1Rep[URI, String]]" shouldNot typeCheck
+    "implicitly[CaseClass1Rep[String, URI]]" shouldNot typeCheck
+  }
+
   test("Extract String to ZonedDateTime") {
     val testRoute = path("test" / Segment.to[ZonedDateTime]) { zdt =>
       complete(zdt.toString)

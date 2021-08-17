@@ -10,6 +10,13 @@ class ListIsomorphismTest extends AnyFunSuite with Matchers with YearMonthString
 
   case class C(a: String)
 
+  test("No CaseClass1Rep implicits derived") {
+    import pl.iterators.kebs.macros.CaseClass1Rep
+
+    "implicitly[CaseClass1Rep[YearMonth, String]]" shouldNot typeCheck
+    "implicitly[CaseClass1Rep[String, YearMonth]]" shouldNot typeCheck
+  }
+
   test("Case class isomorphism implies list isomorphism") {
     val iso = implicitly[Isomorphism[List[C], List[String]]]
     iso.map(List(C("a"), C("b"))) shouldBe List("a", "b")
@@ -25,10 +32,10 @@ class ListIsomorphismTest extends AnyFunSuite with Matchers with YearMonthString
   import java.time.YearMonth
 
   test("List[Obj[String]] <-> List[String]") {
-    """val iso = implicitly[Isomorphism[List[YearMonth], List[String]]]""".stripMargin should compile
+    "val iso = implicitly[Isomorphism[List[YearMonth], List[String]]]" should compile
   }
 
   test("Seq[Obj[String]] <-> List[String]") {
-    """val iso = implicitly[Isomorphism[Seq[YearMonth], List[String]]]""".stripMargin should compile
+    "val iso = implicitly[Isomorphism[Seq[YearMonth], List[String]]]" should compile
   }
 }
