@@ -8,12 +8,13 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.Domain._
-import pl.iterators.kebs.instances.TimeInstances.{DayOfWeekInt, YearMonthString}
+import pl.iterators.kebs.instances.net.URIString
+import pl.iterators.kebs.instances.time.{DayOfWeekInt, YearMonthString}
 import pl.iterators.kebs.unmarshallers.enums.KebsEnumUnmarshallers
 
 import java.time.{DayOfWeek, YearMonth}
 
-class AkkaHttpUnmarshallerTests
+class AkkaHttpUnmarshallersTests
     extends AnyFunSuite
     with Matchers
     with ScalatestRouteTest
@@ -21,8 +22,20 @@ class AkkaHttpUnmarshallerTests
     with Directives
     with KebsUnmarshallers
     with KebsEnumUnmarshallers
+    with URIString
     with YearMonthString
     with DayOfWeekInt {
+
+  test("No CaseClass1Rep implicits derived") {
+    import pl.iterators.kebs.macros.CaseClass1Rep
+
+    "implicitly[CaseClass1Rep[URI, String]]" shouldNot typeCheck
+    "implicitly[CaseClass1Rep[String, URI]]" shouldNot typeCheck
+    "implicitly[CaseClass1Rep[YearMonth, String]]" shouldNot typeCheck
+    "implicitly[CaseClass1Rep[String, YearMonth]]" shouldNot typeCheck
+    "implicitly[CaseClass1Rep[DayOfWeek, Int]]" shouldNot typeCheck
+    "implicitly[CaseClass1Rep[Int, DayOfWeek]]" shouldNot typeCheck
+  }
 
   test("Unmarshal") {
     Unmarshal(42).to[I].futureValue shouldBe I(42)
@@ -34,7 +47,7 @@ class AkkaHttpUnmarshallerTests
   }
 
   test("Unmarshal case object") {
-    """Unmarshal(42).to[O.type]""" shouldNot compile
+    """Unmarshal(42).to[O.type]""" shouldNot typeCheck
   }
 
   test("Unmarshal enum") {
@@ -48,11 +61,11 @@ class AkkaHttpUnmarshallerTests
   }
 
   test("No unmarshaller for case-classes of arity > 1") {
-    """Unmarshal("42").to[CantUnmarshall]""" shouldNot compile
+    """Unmarshal("42").to[CantUnmarshall]""" shouldNot typeCheck
   }
 
   test("Unmarshalling value enums is type-safe") {
-    """Unmarshal(1L).to[LibraryItem]""" shouldNot compile
+    """Unmarshal(1L).to[LibraryItem]""" shouldNot typeCheck
   }
 
   test("Unmarshal from string") {
@@ -203,6 +216,19 @@ class AkkaHttpUnmarshallerTests
 
     Get("/test_tagged?tagged=ce7a7cf1-8c00-49a9-a963-9fd119dd0642") ~> route ~> check {
       responseAs[String] shouldBe "ce7a7cf1-8c00-49a9-a963-9fd119dd0642"
+    }
+  }
+
+  test("Unmarshal tagged URI") {
+    val route =
+      path("test_tagged") {
+        parameter("tagged".as[TestTaggedUri]) { id =>
+          complete(id.toString)
+        }
+      }
+
+    Get("/test_tagged?tagged=www.test.pl") ~> route ~> check {
+      responseAs[String] shouldBe "www.test.pl"
     }
   }
 }

@@ -224,7 +224,7 @@ lazy val macroUtils = project
 
 lazy val slickSupport = project
   .in(file("slick"))
-  .dependsOn(macroUtils, instances % "test -> test")
+  .dependsOn(macroUtils, instances)
   .settings(slickSettings: _*)
   .settings(publishSettings: _*)
   .settings(
@@ -248,7 +248,7 @@ lazy val sprayJsonMacros = project
 
 lazy val sprayJsonSupport = project
   .in(file("spray-json"))
-  .dependsOn(sprayJsonMacros)
+  .dependsOn(sprayJsonMacros, instances)
   .settings(sprayJsonSettings: _*)
   .settings(publishSettings: _*)
   .settings(
@@ -284,7 +284,7 @@ lazy val circeSupport = project
 
 lazy val akkaHttpSupport = project
   .in(file("akka-http"))
-  .dependsOn(macroUtils, tagged % "test -> test", taggedMeta % "test -> test", instances % "test -> test")
+  .dependsOn(macroUtils, instances, tagged, taggedMeta % "test -> test")
   .settings(akkaHttpSettings: _*)
   .settings(publishSettings: _*)
   .settings(
@@ -372,12 +372,11 @@ lazy val benchmarks = project
 
 lazy val instances = project
   .in(file("instances"))
-  .dependsOn(macroUtils, sprayJsonSupport % "test -> test")
   .settings(instancesSettings: _*)
   .settings(publishSettings: _*)
   .settings(
     name := "instances",
-    description := "Standard Java types mappings",
+    description := "Standard type mappings",
     moduleName := "kebs-instances",
     crossScalaVersions := supportedScalaVersions
   )

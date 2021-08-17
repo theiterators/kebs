@@ -25,19 +25,19 @@ class CaseClassIsomorphismTests extends AnyFunSuite with Matchers {
   case class TooBig(a: Int, b: Int)
 
   test("No isomorphism for case classes of arity > 1") {
-    "implicitly[Isomorphism[TooBig, _]]" shouldNot compile
+    "implicitly[Isomorphism[TooBig, _]]" shouldNot typeCheck
   }
 
   case object NoIsoForYou
 
   test("No isomorphism for case classes of arity == 0") {
-    "implicitly[Isomorphism[NoIsoForYou.type, _]]" shouldNot compile
+    "implicitly[Isomorphism[NoIsoForYou.type, _]]" shouldNot typeCheck
   }
 
   class JustAClass(val a: Int)
 
   test("No isomorphism for ordinary classes") {
-    "implicitly[Isomorphism[JustAClass, Int]]" shouldNot compile
+    "implicitly[Isomorphism[JustAClass, Int]]" shouldNot typeCheck
   }
 
   case class Parametrized[P](a: P)

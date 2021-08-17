@@ -5,6 +5,7 @@ import enumeratum.{Enum, EnumEntry}
 import pl.iterators.kebs.tag.meta.tagged
 import pl.iterators.kebs.tagged._
 
+import java.net.URI
 import java.util.UUID
 
 @tagged trait Tags {
@@ -23,6 +24,10 @@ import java.util.UUID
     def fromString[T](str: String): UUIDId @@ T =
       UUID.fromString(str).taggedWith[T]
   }
+
+  trait TestTaggedUriTag
+  type TestTaggedUri = URI @@ TestTaggedUriTag
+
 }
 
 object Domain extends Tags {

@@ -73,7 +73,7 @@ object HStoreColumnType {
 
   object AfterKebs {
     import pl.iterators.kebs.Kebs
-    import pl.iterators.kebs.instances.TimeInstances.YearMonthString
+    import pl.iterators.kebs.instances.time.YearMonthString
 
     object MyPostgresProfile extends ExPostgresProfile with PgHStoreSupport {
       override val api: APIWithHstore = new APIWithHstore {}

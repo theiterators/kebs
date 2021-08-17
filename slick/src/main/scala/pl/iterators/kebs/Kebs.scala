@@ -1,6 +1,7 @@
 package pl.iterators.kebs
 
 import pl.iterators.kebs.hstore.KebsHStoreColumnExtensionMethods
+import pl.iterators.kebs.instances.InstanceConverter
 import pl.iterators.kebs.macros.CaseClass1Rep
 import slick.ast.{BaseTypedType, NumericTypedType}
 import slick.jdbc.JdbcType
@@ -54,6 +55,8 @@ trait KebsColumnExtensionMethods {
 trait Kebs extends KebsColumnExtensionMethods {
   implicit def valueColumnType[CC, B](implicit rep1: CaseClass1Rep[CC, B]): Isomorphism[CC, B] =
     new Isomorphism[CC, B](rep1.unapply, rep1.apply)
+  implicit def valueTransitionColumnType[CC, B](implicit ico: InstanceConverter[CC, B]): Isomorphism[CC, B] =
+    new Isomorphism[CC, B](ico.encode, ico.decode)
   implicit def listValueColumnType[CC, B](implicit iso: Isomorphism[CC, B]): Isomorphism[List[CC], List[B]] =
     new Isomorphism[List[CC], List[B]](_.map(iso.map), _.map(iso.comap))
   implicit def seqValueColumnType[CC, B](implicit iso: Isomorphism[CC, B]): Isomorphism[Seq[CC], List[B]] = {
@@ -100,65 +103,72 @@ trait Kebs extends KebsColumnExtensionMethods {
       iso2.comap andThen iso1.comap
     )
 
-  def cc1repIsoMapVal[Obj, Value, MapVal](comap1: String => Value, comap2: String => MapVal)(implicit cc1rep: CaseClass1Rep[Obj, Value]) =
+  def instancesIsoMapVal[Obj, Value, MapVal](comap1: String => Value, comap2: String => MapVal)(
+      implicit ico: InstanceConverter[Obj, Value]) =
     new Isomorphism[Map[Obj, MapVal], Map[String, String]](
-      _.map { case (obj, mapval) => (cc1rep.unapply(obj).toString, mapval.toString) },
-      _.map { case (value, str)  => (cc1rep.apply(comap1(value)), comap2(str)) }
+      _.map { case (obj, mapval) => (ico.encode(obj).toString, mapval.toString) },
+      _.map { case (value, str)  => (ico.decode(comap1(value)), comap2(str)) }
     )
-  def cc1repIsoMapKey[Obj, Value, MapKey](comap1: String => Value, comap2: String => MapKey)(implicit cc1rep: CaseClass1Rep[Obj, Value]) =
+  def instancesIsoMapKey[Obj, Value, MapKey](comap1: String => Value, comap2: String => MapKey)(
+      implicit ico: InstanceConverter[Obj, Value]) =
     new Isomorphism[Map[MapKey, Obj], Map[String, String]](
-      _.map { case (mapkey, obj) => (mapkey.toString, cc1rep.unapply(obj).toString) },
-      _.map { case (str1, str2)  => (comap2(str1), cc1rep.apply(comap1(str2))) }
+      _.map { case (mapkey, obj) => (mapkey.toString, ico.encode(obj).toString) },
+      _.map { case (str1, str2)  => (comap2(str1), ico.decode(comap1(str2))) }
     )
 
-  implicit def cc1repIsoObj2Str[Obj](implicit cc1rep: CaseClass1Rep[Obj, String]): Isomorphism[Map[Obj, String], Map[String, String]] =
-    cc1repIsoMapVal[Obj, String, String](identity[String], identity[String])
-  implicit def cc1repIsoObj2Str1[Obj](implicit cc1rep: CaseClass1Rep[Obj, String]): Isomorphism[Map[String, Obj], Map[String, String]] =
-    cc1repIsoMapKey[Obj, String, String](identity[String], identity[String])
-  implicit def cc1repIsoObj2Str2[Obj](implicit cc1rep: CaseClass1Rep[Obj, String]): Isomorphism[Map[Obj, Int], Map[String, String]] =
-    cc1repIsoMapVal[Obj, String, Int](identity[String], _.toInt)
-  implicit def cc1repIsoObj2Str3[Obj](implicit cc1rep: CaseClass1Rep[Obj, String]): Isomorphism[Map[Int, Obj], Map[String, String]] =
-    cc1repIsoMapKey[Obj, String, Int](identity[String], _.toInt)
-  implicit def cc1repIsoObj2Str4[Obj](implicit cc1rep: CaseClass1Rep[Obj, String]): Isomorphism[Map[Obj, Long], Map[String, String]] =
-    cc1repIsoMapVal[Obj, String, Long](identity[String], _.toLong)
-  implicit def cc1repIsoObj2Str5[Obj](implicit cc1rep: CaseClass1Rep[Obj, String]): Isomorphism[Map[Long, Obj], Map[String, String]] =
-    cc1repIsoMapKey[Obj, String, Long](identity[String], _.toLong)
-  implicit def cc1repIsoObj2Str6[Obj](implicit cc1rep: CaseClass1Rep[Obj, String]): Isomorphism[Map[Obj, Boolean], Map[String, String]] =
-    cc1repIsoMapVal[Obj, String, Boolean](identity[String], _.toBoolean)
-  implicit def cc1repIsoObj2Str7[Obj](implicit cc1rep: CaseClass1Rep[Obj, String]): Isomorphism[Map[Boolean, Obj], Map[String, String]] =
-    cc1repIsoMapKey[Obj, String, Boolean](identity[String], _.toBoolean)
+  implicit def instancesIsoObj2Str[Obj](implicit ico: InstanceConverter[Obj, String]): Isomorphism[Map[Obj, String], Map[String, String]] =
+    instancesIsoMapVal[Obj, String, String](identity[String], identity[String])
+  implicit def instancesIsoObj2Str1[Obj](
+      implicit ico: InstanceConverter[Obj, String]): Isomorphism[Map[String, Obj], Map[String, String]] =
+    instancesIsoMapKey[Obj, String, String](identity[String], identity[String])
+  implicit def instancesIsoObj2Str2[Obj](implicit ico: InstanceConverter[Obj, String]): Isomorphism[Map[Obj, Int], Map[String, String]] =
+    instancesIsoMapVal[Obj, String, Int](identity[String], _.toInt)
+  implicit def instancesIsoObj2Str3[Obj](implicit ico: InstanceConverter[Obj, String]): Isomorphism[Map[Int, Obj], Map[String, String]] =
+    instancesIsoMapKey[Obj, String, Int](identity[String], _.toInt)
+  implicit def instancesIsoObj2Str4[Obj](implicit ico: InstanceConverter[Obj, String]): Isomorphism[Map[Obj, Long], Map[String, String]] =
+    instancesIsoMapVal[Obj, String, Long](identity[String], _.toLong)
+  implicit def instancesIsoObj2Str5[Obj](implicit ico: InstanceConverter[Obj, String]): Isomorphism[Map[Long, Obj], Map[String, String]] =
+    instancesIsoMapKey[Obj, String, Long](identity[String], _.toLong)
+  implicit def instancesIsoObj2Str6[Obj](
+      implicit ico: InstanceConverter[Obj, String]): Isomorphism[Map[Obj, Boolean], Map[String, String]] =
+    instancesIsoMapVal[Obj, String, Boolean](identity[String], _.toBoolean)
+  implicit def instancesIsoObj2Str7[Obj](
+      implicit ico: InstanceConverter[Obj, String]): Isomorphism[Map[Boolean, Obj], Map[String, String]] =
+    instancesIsoMapKey[Obj, String, Boolean](identity[String], _.toBoolean)
 
-  implicit def cc1repIsoObj2Int[Obj](implicit cc1rep: CaseClass1Rep[Obj, Int]): Isomorphism[Map[Obj, String], Map[String, String]] =
-    cc1repIsoMapVal[Obj, Int, String](_.toInt, identity[String])
-  implicit def cc1repIsoObj2Int1[Obj](implicit cc1rep: CaseClass1Rep[Obj, Int]): Isomorphism[Map[String, Obj], Map[String, String]] =
-    cc1repIsoMapKey[Obj, Int, String](_.toInt, identity[String])
-  implicit def cc1repIsoObj2Int2[Obj](implicit cc1rep: CaseClass1Rep[Obj, Int]): Isomorphism[Map[Obj, Int], Map[String, String]] =
-    cc1repIsoMapVal[Obj, Int, Int](_.toInt, _.toInt)
-  implicit def cc1repIsoObj2Int3[Obj](implicit cc1rep: CaseClass1Rep[Obj, Int]): Isomorphism[Map[Int, Obj], Map[String, String]] =
-    cc1repIsoMapKey[Obj, Int, Int](_.toInt, _.toInt)
-  implicit def cc1repIsoObj2Int4[Obj](implicit cc1rep: CaseClass1Rep[Obj, Int]): Isomorphism[Map[Obj, Long], Map[String, String]] =
-    cc1repIsoMapVal[Obj, Int, Long](_.toInt, _.toLong)
-  implicit def cc1repIsoObj2Int5[Obj](implicit cc1rep: CaseClass1Rep[Obj, Int]): Isomorphism[Map[Long, Obj], Map[String, String]] =
-    cc1repIsoMapKey[Obj, Int, Long](_.toInt, _.toLong)
-  implicit def cc1repIsoObj2Int6[Obj](implicit cc1rep: CaseClass1Rep[Obj, Int]): Isomorphism[Map[Obj, Boolean], Map[String, String]] =
-    cc1repIsoMapVal[Obj, Int, Boolean](_.toInt, _.toBoolean)
-  implicit def cc1repIsoObj2Int7[Obj](implicit cc1rep: CaseClass1Rep[Obj, Int]): Isomorphism[Map[Boolean, Obj], Map[String, String]] =
-    cc1repIsoMapKey[Obj, Int, Boolean](_.toInt, _.toBoolean)
+  implicit def instancesIsoObj2Int[Obj](implicit ico: InstanceConverter[Obj, Int]): Isomorphism[Map[Obj, String], Map[String, String]] =
+    instancesIsoMapVal[Obj, Int, String](_.toInt, identity[String])
+  implicit def instancesIsoObj2Int1[Obj](implicit ico: InstanceConverter[Obj, Int]): Isomorphism[Map[String, Obj], Map[String, String]] =
+    instancesIsoMapKey[Obj, Int, String](_.toInt, identity[String])
+  implicit def instancesIsoObj2Int2[Obj](implicit ico: InstanceConverter[Obj, Int]): Isomorphism[Map[Obj, Int], Map[String, String]] =
+    instancesIsoMapVal[Obj, Int, Int](_.toInt, _.toInt)
+  implicit def instancesIsoObj2Int3[Obj](implicit ico: InstanceConverter[Obj, Int]): Isomorphism[Map[Int, Obj], Map[String, String]] =
+    instancesIsoMapKey[Obj, Int, Int](_.toInt, _.toInt)
+  implicit def instancesIsoObj2Int4[Obj](implicit ico: InstanceConverter[Obj, Int]): Isomorphism[Map[Obj, Long], Map[String, String]] =
+    instancesIsoMapVal[Obj, Int, Long](_.toInt, _.toLong)
+  implicit def instancesIsoObj2Int5[Obj](implicit ico: InstanceConverter[Obj, Int]): Isomorphism[Map[Long, Obj], Map[String, String]] =
+    instancesIsoMapKey[Obj, Int, Long](_.toInt, _.toLong)
+  implicit def instancesIsoObj2Int6[Obj](implicit ico: InstanceConverter[Obj, Int]): Isomorphism[Map[Obj, Boolean], Map[String, String]] =
+    instancesIsoMapVal[Obj, Int, Boolean](_.toInt, _.toBoolean)
+  implicit def instancesIsoObj2Int7[Obj](implicit ico: InstanceConverter[Obj, Int]): Isomorphism[Map[Boolean, Obj], Map[String, String]] =
+    instancesIsoMapKey[Obj, Int, Boolean](_.toInt, _.toBoolean)
 
-  implicit def cc1repIsoObj2Long[Obj](implicit cc1rep: CaseClass1Rep[Obj, Long]): Isomorphism[Map[Obj, String], Map[String, String]] =
-    cc1repIsoMapVal[Obj, Long, String](_.toLong, identity[String])
-  implicit def cc1repIsoObj2Long1[Obj](implicit cc1rep: CaseClass1Rep[Obj, Long]): Isomorphism[Map[String, Obj], Map[String, String]] =
-    cc1repIsoMapKey[Obj, Long, String](_.toLong, identity[String])
-  implicit def cc1repIsoObj2Long2[Obj](implicit cc1rep: CaseClass1Rep[Obj, Long]): Isomorphism[Map[Obj, Int], Map[String, String]] =
-    cc1repIsoMapVal[Obj, Long, Int](_.toLong, _.toInt)
-  implicit def cc1repIsoObj2Long3[Obj](implicit cc1rep: CaseClass1Rep[Obj, Long]): Isomorphism[Map[Int, Obj], Map[String, String]] =
-    cc1repIsoMapKey[Obj, Long, Int](_.toLong, _.toInt)
-  implicit def cc1repIsoObj2Long4[Obj](implicit cc1rep: CaseClass1Rep[Obj, Long]): Isomorphism[Map[Obj, Long], Map[String, String]] =
-    cc1repIsoMapVal[Obj, Long, Long](_.toLong, _.toLong)
-  implicit def cc1repIsoObj2Long5[Obj](implicit cc1rep: CaseClass1Rep[Obj, Long]): Isomorphism[Map[Long, Obj], Map[String, String]] =
-    cc1repIsoMapKey[Obj, Long, Long](_.toLong, _.toLong)
-  implicit def cc1repIsoObj2Long6[Obj](implicit cc1rep: CaseClass1Rep[Obj, Long]): Isomorphism[Map[Obj, Boolean], Map[String, String]] =
-    cc1repIsoMapVal[Obj, Long, Boolean](_.toLong, _.toBoolean)
-  implicit def cc1repIsoObj2Long7[Obj](implicit cc1rep: CaseClass1Rep[Obj, Long]): Isomorphism[Map[Boolean, Obj], Map[String, String]] =
-    cc1repIsoMapKey[Obj, Long, Boolean](_.toLong, _.toBoolean)
+  implicit def instancesIsoObj2Long[Obj](implicit ico: InstanceConverter[Obj, Long]): Isomorphism[Map[Obj, String], Map[String, String]] =
+    instancesIsoMapVal[Obj, Long, String](_.toLong, identity[String])
+  implicit def instancesIsoObj2Long1[Obj](implicit ico: InstanceConverter[Obj, Long]): Isomorphism[Map[String, Obj], Map[String, String]] =
+    instancesIsoMapKey[Obj, Long, String](_.toLong, identity[String])
+  implicit def instancesIsoObj2Long2[Obj](implicit ico: InstanceConverter[Obj, Long]): Isomorphism[Map[Obj, Int], Map[String, String]] =
+    instancesIsoMapVal[Obj, Long, Int](_.toLong, _.toInt)
+  implicit def instancesIsoObj2Long3[Obj](implicit ico: InstanceConverter[Obj, Long]): Isomorphism[Map[Int, Obj], Map[String, String]] =
+    instancesIsoMapKey[Obj, Long, Int](_.toLong, _.toInt)
+  implicit def instancesIsoObj2Long4[Obj](implicit ico: InstanceConverter[Obj, Long]): Isomorphism[Map[Obj, Long], Map[String, String]] =
+    instancesIsoMapVal[Obj, Long, Long](_.toLong, _.toLong)
+  implicit def instancesIsoObj2Long5[Obj](implicit ico: InstanceConverter[Obj, Long]): Isomorphism[Map[Long, Obj], Map[String, String]] =
+    instancesIsoMapKey[Obj, Long, Long](_.toLong, _.toLong)
+  implicit def instancesIsoObj2Long6[Obj](
+      implicit ico: InstanceConverter[Obj, Long]): Isomorphism[Map[Obj, Boolean], Map[String, String]] =
+    instancesIsoMapVal[Obj, Long, Boolean](_.toLong, _.toBoolean)
+  implicit def instancesIsoObj2Long7[Obj](
+      implicit ico: InstanceConverter[Obj, Long]): Isomorphism[Map[Boolean, Obj], Map[String, String]] =
+    instancesIsoMapKey[Obj, Long, Boolean](_.toLong, _.toBoolean)
 }

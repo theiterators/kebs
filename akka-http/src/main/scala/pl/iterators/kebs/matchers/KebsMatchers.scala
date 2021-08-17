@@ -2,21 +2,20 @@ package pl.iterators.kebs.matchers
 
 import akka.http.scaladsl.server.{PathMatcher1, PathMatchers}
 import enumeratum.{Enum, EnumEntry}
+import pl.iterators.kebs.instances.InstanceConverter
 import pl.iterators.kebs.macros.CaseClass1Rep
 
-import java.util.UUID
+import scala.language.implicitConversions
 
 trait KebsMatchers extends PathMatchers {
 
-  abstract class CustomSegment[U](segment: PathMatcher1[U]) {
+  implicit class SegmentIsomorphism[U](segment: PathMatcher1[U]) {
     def as[T](implicit rep: CaseClass1Rep[T, U]): PathMatcher1[T] = segment.map(rep.apply)
   }
 
-  implicit class StringSegment(segment: PathMatcher1[String]) extends CustomSegment[String](segment)
-  implicit class IntSegment(segment: PathMatcher1[Int])       extends CustomSegment[Int](segment)
-  implicit class LongSegment(segment: PathMatcher1[Long])     extends CustomSegment[Long](segment)
-  implicit class DoubleSegment(segment: PathMatcher1[Double]) extends CustomSegment[Double](segment)
-  implicit class UUIDSegment(segment: PathMatcher1[UUID])     extends CustomSegment[UUID](segment)
+  implicit class SegmentConversion[Source](segment: PathMatcher1[Source]) {
+    def to[Type](implicit ico: InstanceConverter[Type, Source]): PathMatcher1[Type] = segment.map(ico.decode)
+  }
 
   object EnumSegment {
     def as[T <: EnumEntry: Enum]: PathMatcher1[T] = {

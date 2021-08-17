@@ -6,7 +6,8 @@ import org.scalatest.matchers.should.Matchers
 
 class SlickPgHstoreColumnTypeTests extends AnyFunSuite with Matchers {
   import pl.iterators.kebs.Kebs
-  import pl.iterators.kebs.instances.TimeInstances.{DayOfWeekInt, YearMonthString, InstantEpochMilliLong}
+  import pl.iterators.kebs.instances.time.{DayOfWeekInt, YearMonthString}
+  import pl.iterators.kebs.instances.time.mixins.InstantEpochMilliLong
   import java.time.{DayOfWeek, YearMonth, Instant}
 
   object MyPostgresProfile extends ExPostgresProfile with PgHStoreSupport {
@@ -18,6 +19,17 @@ class SlickPgHstoreColumnTypeTests extends AnyFunSuite with Matchers {
   case class CategoryImportance(value: Int)
 
   import MyPostgresProfile.api._
+
+  test("No CaseClass1Rep implicits derived") {
+    import pl.iterators.kebs.macros.CaseClass1Rep
+
+    "implicitly[CaseClass1Rep[YearMonth, String]]" shouldNot typeCheck
+    "implicitly[CaseClass1Rep[String, YearMonth]]" shouldNot typeCheck
+    "implicitly[CaseClass1Rep[DayOfWeek, Int]]" shouldNot typeCheck
+    "implicitly[CaseClass1Rep[Int, DayOfWeek]]" shouldNot typeCheck
+    "implicitly[CaseClass1Rep[Instant, Long]]" shouldNot typeCheck
+    "implicitly[CaseClass1Rep[Long, Instant]]" shouldNot typeCheck
+  }
 
   test("Value classes to HStore mapping") {
     """
