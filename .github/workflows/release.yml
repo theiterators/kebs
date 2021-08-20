@@ -1,6 +1,8 @@
-name: Release
-on: 
-  workflow_dispatch:
+name: Release 
+on:
+  push:
+    branches: [master, main]
+    tags: ["*"]
 jobs:
   publish:
     runs-on: ubuntu-20.04
