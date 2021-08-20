@@ -46,11 +46,14 @@ lazy val publishSettings = Seq(
               name = "Marcin Rzeźnicki",
               email = "mrzeznicki@iterato.rs",
               url = url("https://github.com/marcin-rzeznicki")),
-    Developer(id = "jborkowski", name = "Jonatan Borkowski", email = "jborkowski@iterato.rs", url = url("https://github.com/jborkowski"))
+    Developer(id = "jborkowski", name = "Jonatan Borkowski", email = "jborkowski@iterato.rs", url = url("https://github.com/jborkowski")),
+    Developer(id = "pkiersznowski",
+              name = "Paweł Kiersznowski",
+              email = "pkiersznowski@iteratorshq.com",
+              url = url("https://github.com/pk044"))
   ),
   scmInfo := Some(
     ScmInfo(browseUrl = url("https://github.com/theiterators/kebs"), connection = "scm:git:https://github.com/theiterators/kebs.git")),
-  useGpg := true,
   releasePublishArtifactsAction := PgpKeys.publishSigned.value,
   credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
 ) ++ crossBuildSettings
