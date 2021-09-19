@@ -103,7 +103,7 @@ val circeAutoExtras = "io.circe" %% "circe-generic-extras" % "0.14.1"
 val circeParser     = "io.circe" %% "circe-parser" % "0.14.1"
 val optionalCirce   = optional(circe)
 
-val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.4"
+val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.5"
 
 val scalacheck           = "org.scalacheck"             %% "scalacheck"                % "1.15.4" % "test"
 val scalacheckShapeless  = "com.github.alexarchambault" %% "scalacheck-shapeless_1.14" % "1.2.5"
