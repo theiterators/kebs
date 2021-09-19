@@ -1,6 +1,6 @@
 val scala_2_12             = "2.12.13"
 val scala_2_13             = "2.13.5"
-val dotty                  = "3.0.0-RC3"
+val dotty                  = "3.1.0-RC1"
 val mainScalaVersion       = dotty
 val supportedScalaVersions = Seq(scala_2_12, scala_2_13)
 
@@ -88,7 +88,7 @@ def paradisePlugin(scalaVersion: String): Seq[ModuleID] =
   else
     Seq.empty
 
-val scalaTest     = "org.scalatest" %% "scalatest" % "3.2.8"
+val scalaTest     = "org.scalatest" %% "scalatest" % "3.2.9"
 val scalaCheck    = "org.scalacheck" %% "scalacheck" % "1.15.3"
 val slick         = "com.typesafe.slick" %% "slick" % "3.3.3"
 val optionalSlick = optional(slick)
@@ -96,7 +96,7 @@ val playJson      = "com.typesafe.play" %% "play-json" % "2.9.2"
 val slickPg       = "com.github.tminglei" %% "slick-pg" % "0.19.5"
 val sprayJson     = "io.spray" %% "spray-json" % "1.3.6"
 
-val circeVersion  = "0.14.0-M6"
+val circeVersion  = "0.14.1"
 val circe         = "io.circe" %% "circe-core" % circeVersion
 val circeAuto     = "io.circe" %% "circe-generic" % circeVersion
 val circeParser   = "io.circe" %% "circe-parser" % circeVersion
