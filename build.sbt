@@ -1,3 +1,5 @@
+import sbt.librarymanagement.ConflictWarning
+
 val scala_2_12             = "2.12.15"
 val scala_2_13             = "2.13.7"
 val scala_3                = "3.1.0"
@@ -6,6 +8,8 @@ val supportedScalaVersions = Seq(scala_2_12, scala_2_13, scala_3)
 
 ThisBuild / crossScalaVersions := supportedScalaVersions
 ThisBuild / scalaVersion := mainScalaVersion
+
+ThisBuild / conflictWarning := ConflictWarning.disable
 
 lazy val baseSettings = Seq(
   organization := "pl.iterators",
@@ -140,7 +144,7 @@ lazy val commonSettings = baseSettings ++ Seq(
   scalacOptions ++=
     (if (scalaVersion.value.startsWith("3"))
        Seq("-language:implicitConversions", "-Ykind-projector", "-Xignore-scala2-macros")
-     else Seq("-language:experimental.macros")),
+     else Seq("-language:implicitConversions", "-language:experimental.macros")),
 //  (scalacOptions in Test) ++= Seq("-Ymacro-debug-lite" /*, "-Xlog-implicits"*/ ),
   libraryDependencies += scalaTest % "test",
   resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
@@ -154,7 +158,7 @@ lazy val slickSettings = commonSettings ++ Seq(
 
 lazy val macroUtilsSettings = commonMacroSettings ++ Seq(
   libraryDependencies += (scalaCheck % "test").cross(CrossVersion.for3Use2_13),
-  libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13)
+  libraryDependencies += optionalEnumeratum
 )
 
 lazy val sprayJsonMacroSettings = commonMacroSettings ++ Seq(
@@ -172,7 +176,7 @@ lazy val playJsonSettings = commonSettings ++ Seq(
 lazy val circeSettings = commonSettings ++ Seq(
   libraryDependencies += circe,
   libraryDependencies += circeAuto,
-  libraryDependencies += circeAutoExtras,
+  libraryDependencies += circeAutoExtras.cross(CrossVersion.for3Use2_13),
   libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13),
   libraryDependencies += circeParser % "test"
 )
