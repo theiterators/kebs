@@ -11,7 +11,6 @@
 # IntelliJ
 /out/
 /.idea
-
 # mpeltonen/sbt-idea plugin
 .idea_modules/
 
@@ -66,5 +65,7 @@ project/plugins/project/
 # macOS specific
 .DS_Store
 
+.metals
+.vscode
 .bloop
 project/.bloop
