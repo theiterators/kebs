@@ -11,8 +11,12 @@ pull_request_rules:
     conditions:
       - base=master
       - author=scala-steward
-      - status-success=Build and Test (ubuntu-latest, 2.12.15, adopt@1.8)
-      - status-success=Build and Test (ubuntu-latest, 2.13.7, adopt@1.8)
+      - status-success=Build and Test (ubuntu-latest, 2.12.15, temurin@8)
+      - status-success=Build and Test (ubuntu-latest, 2.12.15, temurin@17)
+      - status-success=Build and Test (ubuntu-latest, 2.13.7, temurin@8)
+      - status-success=Build and Test (ubuntu-latest, 2.13.7, temurin@17)
+      - status-success=Build and Test (ubuntu-latest, 3.1.0, temurin@8)
+      - status-success=Build and Test (ubuntu-latest, 3.1.0, temurin@17)
     actions:
       merge:
         method: squash
