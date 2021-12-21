@@ -78,6 +78,8 @@ final class macroImpl(val c: whitebox.Context) {
         case Some(ModuleDef(mods, companionName, template)) =>
           val generatedMethods = List(generateFromMethod, generateApplyMethod)
           ModuleDef(mods, companionName, Template(template.parents, template.self, template.body ++ generatedMethods))
+        case Some(_) =>
+          c.abort(c.enclosingPosition, "Could not generate companion for tagged type, check proper context for @tagged")
         case None =>
           q"object ${name.toTermName} { ..${List(generateFromMethod, generateApplyMethod)} }"
       }
@@ -155,6 +157,8 @@ final class macroImpl(val c: whitebox.Context) {
       maybeCompanion match {
         case Some(ModuleDef(mods, companionName, template)) =>
           ModuleDef(mods, companionName, Template(template.parents, template.self, template.body ++ implicits))
+        case Some(_) =>
+          c.abort(c.enclosingPosition, "Could not generate companion for tagged type, check proper context for @tagged")
         case None =>
           q"object ${tagName.toTermName} { ..$implicits }"
       }
