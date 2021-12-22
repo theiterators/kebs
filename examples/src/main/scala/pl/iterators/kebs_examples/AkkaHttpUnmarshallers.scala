@@ -31,19 +31,19 @@ object AkkaHttpUnmarshallers {
   case class PaginationQuery(sortBy: Column, sortOrder: SortOrder, offset: Offset, limit: Limit)
 
   object BeforeKebs {
-    final def enumUnmarshaller[E <: EnumEntry](enum: Enum[E]): FromStringUnmarshaller[E] = Unmarshaller { _ => name =>
-      enum.withNameInsensitiveOption(name) match {
+    final def enumUnmarshaller[E <: EnumEntry](`enum`: Enum[E]): FromStringUnmarshaller[E] = Unmarshaller { _ =>name =>
+      `enum`.withNameInsensitiveOption(name) match {
         case Some(enumEntry) => FastFuture.successful(enumEntry)
         case None =>
-          FastFuture.failed(new IllegalArgumentException(s"""Invalid value '$name'. Expected one of: ${enum.namesToValuesMap.keysIterator
+          FastFuture.failed(new IllegalArgumentException(s"""Invalid value '$name'. Expected one of: ${`enum`.namesToValuesMap.keysIterator
             .mkString(", ")}"""))
       }
     }
-    final def valueEnumUnmarshaller[V, E <: ValueEnumEntry[V]](enum: ValueEnum[V, E]): Unmarshaller[V, E] = Unmarshaller { _ => v =>
-      enum.withValueOpt(v) match {
+    final def valueEnumUnmarshaller[V, E <: ValueEnumEntry[V]](`enum`: ValueEnum[V, E]): Unmarshaller[V, E] = Unmarshaller { _ =>v =>
+      `enum`.withValueOpt(v) match {
         case Some(enumEntry) => FastFuture.successful(enumEntry)
         case None =>
-          FastFuture.failed(new IllegalArgumentException(s"""Invalid value '$v'. Expected one of: ${enum.valuesToEntriesMap.keysIterator
+          FastFuture.failed(new IllegalArgumentException(s"""Invalid value '$v'. Expected one of: ${`enum`.valuesToEntriesMap.keysIterator
             .mkString(", ")}"""))
       }
     }

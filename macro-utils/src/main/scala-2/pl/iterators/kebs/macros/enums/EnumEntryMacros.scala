@@ -5,7 +5,7 @@ import enumeratum.{Enum, EnumEntry}
 import scala.language.experimental.macros
 import scala.reflect.macros.blackbox
 
-class EnumOf[E <: EnumEntry](val enum: Enum[E])
+class EnumOf[E <: EnumEntry](val `enum`: Enum[E])
 
 object EnumOf {
   implicit def enumOf[E <: EnumEntry]: EnumOf[E] = macro EnumEntryMacros.enumOfImpl[E]
