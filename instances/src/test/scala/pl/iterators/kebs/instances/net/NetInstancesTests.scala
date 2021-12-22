@@ -1,13 +1,13 @@
 package pl.iterators.kebs.instances.net
 
 import org.scalatest.funsuite.AnyFunSuite
-import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.instances.InstanceConverter
 import pl.iterators.kebs.instances.InstanceConverter.DecodeErrorException
 
 import java.net.URI
 
-class NetInstancesTests extends AnyFunSuite with URIString {
+class NetInstancesTests extends AnyFunSuite with Matchers with URIString {
 
   test("URI to String") {
     val ico   = implicitly[InstanceConverter[URI, String]]
