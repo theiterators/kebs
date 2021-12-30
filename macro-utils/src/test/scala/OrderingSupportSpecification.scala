@@ -15,19 +15,19 @@ object OrderingSupportSpecification extends Properties("OrderingSupport") {
   private def sortedReverse[A: Ordering](list: List[A]): List[A] =
     list.sorted(Ordering[A].reverse)
 
-  property("ordering should be available for numeric tagged types") = forAll { bigDecimalList: List[BigDecimal] =>
+  property("ordering should be available for numeric tagged types") = forAll { (bigDecimalList: List[BigDecimal]) =>
     toTagged(bigDecimalList).sorted == toTagged(bigDecimalList.sorted)
   }
 
-  property("reverse ordering should be available for numeric tagged types") = forAll { bigDecimalList: List[BigDecimal] =>
+  property("reverse ordering should be available for numeric tagged types") = forAll { (bigDecimalList: List[BigDecimal]) =>
     sortedReverse(toTagged(bigDecimalList)) == toTagged(sortedReverse(bigDecimalList))
   }
 
-  property("ordering should be available for numeric boxed types") = forAll { bigDecimalList: List[BigDecimal] =>
+  property("ordering should be available for numeric boxed types") = forAll { (bigDecimalList: List[BigDecimal]) =>
     toBoxed(bigDecimalList).sorted == toBoxed(bigDecimalList.sorted)
   }
 
-  property("reverse ordering should be available for numeric boxed types") = forAll { bigDecimalList: List[BigDecimal] =>
+  property("reverse ordering should be available for numeric boxed types") = forAll { (bigDecimalList: List[BigDecimal]) =>
     sortedReverse(toBoxed(bigDecimalList)) == toBoxed(sortedReverse(bigDecimalList))
   }
 }

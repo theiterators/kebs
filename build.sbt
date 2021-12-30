@@ -426,7 +426,6 @@ lazy val instances = project
   .in(file("instances"))
   .settings(instancesSettings: _*)
   .settings(publishSettings: _*)
-  .settings(disableScala3)
   .settings(
     name := "instances",
     description := "Standard type mappings",
