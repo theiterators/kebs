@@ -1,4 +1,4 @@
-package pl.iterators.kebs.matchers
+package pl.iterators.kebs
 
 import akka.http.scaladsl.server.{PathMatcher1, PathMatchers}
 import enumeratum.{Enum, EnumEntry}

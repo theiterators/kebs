@@ -8,7 +8,6 @@ val supportedScalaVersions = Seq(scala_2_12, scala_2_13, scala_3)
 
 ThisBuild / crossScalaVersions := supportedScalaVersions
 ThisBuild / scalaVersion := mainScalaVersion
-
 ThisBuild / conflictWarning := ConflictWarning.disable
 
 lazy val baseSettings = Seq(
@@ -206,14 +205,12 @@ lazy val circeSettings = commonSettings ++ Seq(
   libraryDependencies += circeParser % "test"
 )
 
-lazy val akkaHttpSettings = commonSettings ++ Seq(
-  libraryDependencies += (akkaHttp).cross(CrossVersion.for3Use2_13),
-  libraryDependencies += (akkaStreamTestkit % "test").cross(CrossVersion.for3Use2_13),
-  libraryDependencies += (akkaHttpTestkit   % "test").cross(CrossVersion.for3Use2_13),
-  libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13),
-  libraryDependencies ++= paradisePlugin(scalaVersion.value),
-  scalacOptions ++= paradiseFlag(scalaVersion.value)
-)
+lazy val akkaHttpSettings = commonSettings ++ Seq(libraryDependencies ++= Seq(
+  akkaHttp,
+  akkaStreamTestkit % "test",
+  akkaHttpTestkit   % "test",
+  optionalEnumeratum
+).map(_.cross(CrossVersion.for3Use2_13)))
 
 lazy val jsonschemaSettings = commonSettings ++ Seq(
   libraryDependencies += jsonschema.cross(CrossVersion.for3Use2_13)
@@ -330,10 +327,14 @@ lazy val circeSupport = project
 
 lazy val akkaHttpSupport = project
   .in(file("akka-http"))
-  .dependsOn(macroUtils, instances, tagged, taggedMeta % "test -> test")
+  .dependsOn(
+  macroUtils, 
+  instances
+  //  tagged,
+    // taggedMeta % "test -> test"
+    )
   .settings(akkaHttpSettings: _*)
   .settings(publishSettings: _*)
-  .settings(disableScala3)
   .settings(
     name := "akka-http",
     description := "Automatic generation of akka-http deserializers for 1-element case classes",
