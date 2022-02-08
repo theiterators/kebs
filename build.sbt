@@ -230,6 +230,8 @@ lazy val taggedSettings = commonSettings ++ Seq(
   libraryDependencies += optionalCirce
 )
 
+lazy val opaqueSettings = commonSettings
+
 lazy val examplesSettings = commonSettings ++ Seq(
   libraryDependencies += slickPg.cross(CrossVersion.for3Use2_13),
   libraryDependencies += circeParser,
@@ -380,6 +382,18 @@ lazy val tagged = project
     crossScalaVersions := supportedScalaVersions
   )
 
+lazy val opaque = project
+  .in(file("opaque"))
+  .dependsOn(macroUtils)
+  .settings(opaqueSettings: _*)
+  .settings(publishSettings: _*)
+  .settings(
+    name := "opaque",
+    description := "Representation of opaque types",
+    moduleName := "kebs-opaque",
+    crossScalaVersions := Seq(scala_3)
+  )
+
 lazy val taggedMeta = project
   .in(file("tagged-meta"))
   .dependsOn(
@@ -440,6 +454,7 @@ lazy val kebs = project
   .in(file("."))
   .aggregate(
     tagged,
+    opaque,
     macroUtils,
     slickSupport,
     sprayJsonMacros,
