@@ -1,28 +1,27 @@
-package pl.iterators.kebs.unmarshallers
+package pl.iterators.kebs.unmarshallers.enums
 
-// import akka.http.scaladsl.unmarshalling.PredefinedFromStringUnmarshallers._
-// import akka.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
-// import akka.http.scaladsl.util.FastFuture
-// import enumeratum.values._
-// import enumeratum.{Enum, EnumEntry}
-// import pl.iterators.kebs.macros.enums.{EnumOf, ValueEnumOf}
+import akka.http.scaladsl.unmarshalling.PredefinedFromStringUnmarshallers._
+import akka.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
+import akka.http.scaladsl.util.FastFuture
+import pl.iterators.kebs.macros.enums.{EnumOf}
+import scala.reflect.Enum
+import scala.runtime.Statics
+import pl.iterators.kebs.macros.enums.EnumLike
 
-// trait EnumUnmarshallers {
-//   final def enumUnmarshaller[E <: EnumEntry](`enum`: Enum[E]): FromStringUnmarshaller[E] = Unmarshaller { _ =>name =>
-//     `enum`.withNameInsensitiveOption(name) match {
-//       case Some(enumEntry) => FastFuture.successful(enumEntry)
-//       case None =>
-//         FastFuture.failed(new IllegalArgumentException(s"""Invalid value '$name'. Expected one of: ${`enum`.namesToValuesMap.keysIterator
-//           .mkString(", ")}"""))
-//     }
-//   }
+trait EnumUnmarshallers {
+  implicit def enumUnmarshaller[E <: scala.reflect.Enum](`enum`: EnumLike[E]): FromStringUnmarshaller[E] = Unmarshaller { _ => name =>
+    `enum`.values.find(s => s.toString.toLowerCase == name.toLowerCase) match {
+      case Some(someEnum) => FastFuture.successful(someEnum)
+      case None => FastFuture.failed(new IllegalArgumentException(s"""Invalid value '$name'. Expected one of: ${`enum`.values.mkString(", ")}"""))
 
-//   implicit def kebsEnumUnmarshaller[E <: EnumEntry](implicit ev: EnumOf[E]): FromStringUnmarshaller[E] =
-//     enumUnmarshaller(ev.`enum`)
-// }
+    }
+  }
 
-// trait ValueEnumUnmarshallers {
-//   final def valueEnumUnmarshaller[V, E <: ValueEnumEntry[V]](`enum`: ValueEnum[V, E]): Unmarshaller[V, E] = Unmarshaller { _ =>v =>
+  inline given[E <: scala.reflect.Enum](using ev: EnumOf[E]): FromStringUnmarshaller[E] = enumUnmarshaller(ev.`enum`)
+}
+
+trait ValueEnumUnmarshallers {
+//   final def valueEnumUnmarshaller[V, E <: scala.reflect.Enum[V]](`enum`: E[V]): Unmarshaller[V, E] = Unmarshaller { _ =>v =>
 //     `enum`.withValueOpt(v) match {
 //       case Some(enumEntry) => FastFuture.successful(enumEntry)
 //       case None =>
@@ -43,7 +42,7 @@ package pl.iterators.kebs.unmarshallers
 //     shortFromStringUnmarshaller andThen valueEnumUnmarshaller(ev.valueEnum)
 //   implicit def kebsByteValueEnumFromStringUnmarshaller[E <: ByteEnumEntry](implicit ev: ValueEnumOf[Byte, E]): FromStringUnmarshaller[E] =
 //     byteFromStringUnmarshaller andThen valueEnumUnmarshaller(ev.valueEnum)
-// }
+}
 
 trait KebsEnumUnmarshallers
-//  extends EnumUnmarshallers with ValueEnumUnmarshallers {}
+ extends EnumUnmarshallers with ValueEnumUnmarshallers {}

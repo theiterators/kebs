@@ -1,4 +1,4 @@
-package pl.iterators.kebs.unmarshallers
+package pl.iterators.kebs.unmarshallers.enums
 
 import akka.http.scaladsl.unmarshalling.PredefinedFromStringUnmarshallers._
 import akka.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
