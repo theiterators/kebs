@@ -3,7 +3,7 @@ import sbt.librarymanagement.ConflictWarning
 val scala_2_12             = "2.12.15"
 val scala_2_13             = "2.13.8"
 val scala_3                = "3.1.0"
-val mainScalaVersion       = scala_2_13
+val mainScalaVersion       = scala_3
 val supportedScalaVersions = Seq(scala_2_12, scala_2_13, scala_3)
 
 ThisBuild / crossScalaVersions := supportedScalaVersions
@@ -205,8 +205,9 @@ lazy val circeSettings = commonSettings ++ Seq(
   libraryDependencies += circeParser % "test"
 )
 
-lazy val akkaHttpSettings = commonSettings ++ Seq(libraryDependencies ++= Seq(
+lazy val akkaHttpSettings = metaSettings ++ Seq(libraryDependencies ++= Seq(
   akkaHttp,
+  akkaStream,
   akkaStreamTestkit % "test",
   akkaHttpTestkit   % "test",
   optionalEnumeratum
@@ -329,11 +330,11 @@ lazy val akkaHttpSupport = project
   .in(file("akka-http"))
   .dependsOn(
   macroUtils, 
-  instances
-  //  tagged,
-    // taggedMeta % "test -> test"
+  instances,
+   tagged,
+    taggedMeta % "test -> test"
     )
-  .settings(akkaHttpSettings: _*)
+  .settings(akkaHttpSettings)
   .settings(publishSettings: _*)
   .settings(
     name := "akka-http",
