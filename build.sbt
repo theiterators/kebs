@@ -2,21 +2,28 @@ import sbt.librarymanagement.ConflictWarning
 
 val scala_2_12             = "2.12.15"
 val scala_2_13             = "2.13.8"
-val scala_3                = "3.1.1"
+val scala_30                = "3.0.2"
+val scala_31                = "3.1.1"
 val mainScalaVersion       = scala_2_13
-val supportedScalaVersions = Seq(scala_2_12, scala_2_13, scala_3)
+val supportedScalaVersions = Seq(scala_2_12, scala_2_13, scala_30, scala_31)
 
 ThisBuild / crossScalaVersions := supportedScalaVersions
 ThisBuild / scalaVersion := mainScalaVersion
 
 ThisBuild / conflictWarning := ConflictWarning.disable
 
+
 lazy val baseSettings = Seq(
   organization := "pl.iterators",
   organizationName := "Iterators",
   organizationHomepage := Some(url("https://iterato.rs")),
   homepage := Some(url("https://github.com/theiterators/kebs")),
-  scalacOptions := Seq("-deprecation", "-unchecked", "-feature", "-encoding", "utf8")
+  scalacOptions := Seq("-deprecation", "-unchecked", "-feature", "-encoding", "utf8"),
+  // Don't publish for Scala 3.1 or later, only from 3.0
+  publish / skip := (CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((3, x)) if x > 0 => true
+    case _                     => false
+  })
 )
 
 lazy val commonMacroSettings = baseSettings ++ Seq(
