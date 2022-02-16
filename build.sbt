@@ -399,7 +399,7 @@ lazy val opaque = project
     name := "opaque",
     description := "Representation of opaque types",
     moduleName := "kebs-opaque",
-    crossScalaVersions := Seq(scala_3)
+    crossScalaVersions := Seq(scala_30)
   )
 
 lazy val taggedMeta = project
