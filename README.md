@@ -31,44 +31,44 @@ Slick (`kebs-slick`), Spray (`kebs-spray-json`), Play (`kebs-play-json`), Circe 
 
 Support for `slick`
 
-`libraryDependencies += "pl.iterators" %% "kebs-slick" % "1.9.1"`
+`libraryDependencies += "pl.iterators" %% "kebs-slick" % "1.9.3"`
 
 Support for `spray-json`
 
-`libraryDependencies += "pl.iterators" %% "kebs-spray-json" % "1.9.1"`
+`libraryDependencies += "pl.iterators" %% "kebs-spray-json" % "1.9.3"`
 
 Support for `play-json`
 
-`libraryDependencies += "pl.iterators" %% "kebs-play-json" % "1.9.1"`
+`libraryDependencies += "pl.iterators" %% "kebs-play-json" % "1.9.3"`
 
 Support for `circe`
 
-`libraryDependencies += "pl.iterators" %% "kebs-circe" % "1.9.1"`
+`libraryDependencies += "pl.iterators" %% "kebs-circe" % "1.9.3"`
 
 Support for `json-schema`
 
-`libraryDependencies += "pl.iterators" %% "kebs-jsonschema" % "1.9.1"`
+`libraryDependencies += "pl.iterators" %% "kebs-jsonschema" % "1.9.3"`
 
 Support for `scalacheck`
 
-`libraryDependencies += "pl.iterators" %% "kebs-scalacheck" % "1.9.1"`
+`libraryDependencies += "pl.iterators" %% "kebs-scalacheck" % "1.9.3"`
 
 Support for `akka-http`
 
-`libraryDependencies += "pl.iterators" %% "kebs-akka-http" % "1.9.1"`
+`libraryDependencies += "pl.iterators" %% "kebs-akka-http" % "1.9.3"`
 
 Support for `tagged types`
 
-`libraryDependencies += "pl.iterators" %% "kebs-tagged" % "1.9.1"`
+`libraryDependencies += "pl.iterators" %% "kebs-tagged" % "1.9.3"`
 
 or for tagged-types code generation support
 
-`libraryDependencies += "pl.iterators" %% "kebs-tagged-meta" % "1.9.1"`
+`libraryDependencies += "pl.iterators" %% "kebs-tagged-meta" % "1.9.3"`
 `addCompilerPlugin("org.scalameta" % "paradise" % "3.0.0-M11" cross CrossVersion.full)`
 
 Support for `instances`
 
-`libraryDependencies += "pl.iterators" %% "kebs-instances" % "1.9.1"`
+`libraryDependencies += "pl.iterators" %% "kebs-instances" % "1.9.3"`
 
 Builds for Scala `2.12` and `2.13` are provided.
 
@@ -212,6 +212,76 @@ class ArrayTestTable(tag: Tag) extends Table[(Long, List[Institution], Option[Li
 }
 
 ```
+
+**`kebs-slick` supports Postgres HSTORE type**
+
+Instead of writing this:
+```scala
+
+object MyPostgresProfile extends ExPostgresProfile with PgHStoreSupport {
+  override val api: APIWithHstore = new APIWithHstore {}
+  trait APIWithHstore extends super.API with HStoreImplicits {
+    val yearMonthIso: Isomorphism[YearMonth, String] = new Isomorphism(_.toString, YearMonth.parse)
+  }
+}
+
+import MyPostgresProfile.api._
+class HStoreTestTable(tag: Tag) extends Table[(Long, Map[YearMonth, Boolean])](tag, "HStoreTest") {
+  def id                                = column[Long]("id")
+  def history: Rep[Map[String, String]] = column[Map[String, String]]("history")
+
+  def historyMapped: MappedProjection[Map[YearMonth, Boolean], Map[String, String]] =
+    history.<>(h => h.map(kv => yearMonthIso.comap(kv._1) -> kv._2.toBoolean),
+               h => Option(h.map(kv => yearMonthIso.map(kv._1) -> kv._2.toString)))
+
+  def * = (id, historyMapped)
+}
+
+class HstoreRepository(implicit ec: ExecutionContext) {
+  def get(id: Long, yearMonth: YearMonth): DBIO[Option[Boolean]] =
+    byIdQuery(id)
+            .map(_.history +> yearMonthIso.map(yearMonth).asColumnOf[Option[String]])
+            .result
+            .map(_.headOption.flatMap(_.map(_.toBoolean)))
+
+  private def byIdQuery(id: Long) = testTable.filter(_.id === id)
+
+  private val testTable = TableQuery[HStoreTestTable]
+}
+
+```
+you can write this:
+
+```scala
+
+object MyPostgresProfile extends ExPostgresProfile with PgHStoreSupport {
+  override val api: APIWithHstore = new APIWithHstore {}
+  trait APIWithHstore extends super.API with HStoreImplicits with Kebs with YearMonthString
+}
+
+import MyPostgresProfile.api._
+class HStoreTestTable(tag: Tag) extends Table[(Long, Map[YearMonth, Boolean])](tag, "HStoreTest") {
+  def id                                    = column[Long]("id")
+  def history: Rep[Map[YearMonth, Boolean]] = column[Map[YearMonth, Boolean]]("history")
+
+  def * = (id, history)
+}
+
+class HstoreRepository(implicit ec: ExecutionContext) {
+  def get(id: Long, yearMonth: YearMonth): DBIO[Option[Boolean]] =
+    byIdQuery(id)
+            .map(_.history +> yearMonth)
+            .result
+            .map(_.headOption.flatten)
+
+  private def byIdQuery(id: Long) = testTable.filter(_.id === id)
+  
+  private val testTable = TableQuery[HStoreTestTable]
+}
+
+```
+Make sure to mix in correct mapping from `instances`, in this case `YearMonthString`.
+
 
 **`kebs` also supports `Enumeratum`**
 Let's go back to the previous example. If you wanted to add a column of type `EnumEntry`, then you would have to write mapping for it:
@@ -786,6 +856,62 @@ There are some conventions that are assumed during generation.
   * return Either (this is not enforced though - you'll have a compilation error later)
 
 Also, `CaseClass1Rep` is generated for each tag meaning you will get a lot of `kebs` machinery for free eg. spray formats etc.
+
+### Opaque types
+
+As an alternative to tagged types, Scala 3 provides [opaque types](https://docs.scala-lang.org/scala3/reference/other-new-features/opaques.html).
+The principles of opaque types are similar to tagged type. The basic usage of opaque types requires the
+same amount of boilerplate as tagged types - e.g. you have to write smart constructors, validations and unwrapping
+mechanisms all by hand. `kebs-opaque` is meant to help with that by generating a handful of methods and providing a
+`CaseClass1Rep` for an easy typclass derivation.
+
+```scala
+import pl.iterators.kebs.opaque._
+
+object MyDomain {
+  opaque type ISBN = String
+  object ISBN extends Opaque[ISBN, String]
+}
+```
+
+That's the basic usage. Inside the companion object you will get methods like `from`, `apply`, `unsafe` and extension
+method `unwrap` plus an instance of `CaseClass1Rep[ISBN, String]`. A more complete example below.
+
+```scala
+import pl.iterators.kebs.macros.CaseClass1Rep
+import pl.iterators.kebs.opaque._
+
+object MyDomain {
+  opaque type ISBN = String
+  object ISBN extends Opaque[ISBN, String] {
+    override protected def validate(unwrapped: String): Either[String, ISBN] = {
+      val trimmed = unwrapped.trim
+      val allDigits = trimmed.forall(_.isDigit)
+      if (allDigits && trimmed.length == 9) Right("0" + trimmed) // converting old style ISBN to a new one
+      else if (allDigits && trimmed.length == 10) Right(trimmed)
+      else Left(s"Invalid ISBN: $trimmed")
+    }
+  }
+}
+
+import MyDomain._
+ISBN.from("1234567890") // Right(ISBN("1234567890"))
+ISBN.from(" 123456789  ") // Right(ISBN("023456789"))
+ISBN.from("foo") // Left("Invalid ISBN: foo")
+
+val isbn = ISBN("1234567890") // ISBN("1234567890")
+isbn.unwrap // "1234567890"
+ISBN("foo") // throws IllegalArgumentException("Invalid ISBN: foo")
+
+ISBN.unsafe("boom") // don't do that, unless you really need to!
+
+trait Showable[A] {
+  def show(a: A): String
+}
+given Showable[String] = (a: String) => a
+given[S, A](using showable: Showable[S], cc1Rep: CaseClass1Rep[A, S]): Showable[A] = (a: A) => showable.show(cc1Rep.unapply(a))
+implicitly[Showable[ISBN]].show(ISBN("1234567890")) // "1234567890"
+```
 
 ### JsonSchema support
 

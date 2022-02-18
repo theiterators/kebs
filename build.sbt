@@ -1,11 +1,17 @@
-val scala_2_12             = "2.12.13"
-val scala_2_13             = "2.13.5"
-val dotty                  = "3.1.1"
-val mainScalaVersion       = dotty
-val supportedScalaVersions = Seq(scala_2_12, scala_2_13)
+import sbt.librarymanagement.ConflictWarning
+
+val scala_2_12             = "2.12.15"
+val scala_2_13             = "2.13.8"
+val scala_30                = "3.0.2"
+val scala_31                = "3.1.1"
+val mainScalaVersion       = scala_2_13
+val supportedScalaVersions = Seq(scala_2_12, scala_2_13, scala_30, scala_31)
 
 ThisBuild / crossScalaVersions := supportedScalaVersions
 ThisBuild / scalaVersion := mainScalaVersion
+
+ThisBuild / conflictWarning := ConflictWarning.disable
+
 
 lazy val baseSettings = Seq(
   organization := "pl.iterators",
@@ -13,13 +19,18 @@ lazy val baseSettings = Seq(
   organizationHomepage := Some(url("https://iterato.rs")),
   homepage := Some(url("https://github.com/theiterators/kebs")),
   scalacOptions := Seq("-deprecation", "-unchecked", "-feature", "-encoding", "utf8"),
-  scalafmtVersion := "1.3.0",
-  scalafmtOnCompile := true
+  // Don't publish for Scala 3.1 or later, only from 3.0
+  publish / skip := (CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((3, x)) if x > 0 => true
+    case _                     => false
+  })
 )
 
 lazy val commonMacroSettings = baseSettings ++ Seq(
   libraryDependencies ++= (if (scalaVersion.value.startsWith("3")) Nil
-                           else Seq("org.scala-lang" %% "scala-compiler" % scalaVersion.value % "provided"))
+                           else
+                             Seq("org.scala-lang" % "scala-compiler" % scalaVersion.value % "provided",
+                                 "org.scala-lang" % "scala-reflect"  % scalaVersion.value))
 )
 
 lazy val metaSettings = commonSettings ++ Seq(
@@ -47,11 +58,14 @@ lazy val publishSettings = Seq(
               name = "Marcin Rzeźnicki",
               email = "mrzeznicki@iterato.rs",
               url = url("https://github.com/marcin-rzeznicki")),
-    Developer(id = "jborkowski", name = "Jonatan Borkowski", email = "jborkowski@iterato.rs", url = url("https://github.com/jborkowski"))
+    Developer(id = "jborkowski", name = "Jonatan Borkowski", email = "jborkowski@iterato.rs", url = url("https://github.com/jborkowski")),
+    Developer(id = "pkiersznowski",
+              name = "Paweł Kiersznowski",
+              email = "pkiersznowski@iteratorshq.com",
+              url = url("https://github.com/pk044"))
   ),
   scmInfo := Some(
     ScmInfo(browseUrl = url("https://github.com/theiterators/kebs"), connection = "scm:git:https://github.com/theiterators/kebs.git")),
-  useGpg := true,
   releasePublishArtifactsAction := PgpKeys.publishSigned.value,
   credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
 ) ++ crossBuildSettings
@@ -66,6 +80,33 @@ lazy val noPublishSettings =
       streams.value.log.warn(s"Publishing for $projectName is turned off")
     }
   )
+
+def disableScala(v: String) = Def.settings(
+  libraryDependencies := {
+    if (scalaBinaryVersion.value == v) {
+      Nil
+    } else {
+      libraryDependencies.value
+    }
+  },
+  Seq(Compile, Test).map { x =>
+    (x / sources) := {
+      if (scalaBinaryVersion.value == v) {
+        Nil
+      } else {
+        (x / sources).value
+      }
+    }
+  },
+  Test / test := {
+    if (scalaBinaryVersion.value == v) {
+      ()
+    } else {
+      (Test / test).value
+    }
+  },
+  publish / skip := (scalaBinaryVersion.value == v)
+)
 
 def optional(dependency: ModuleID) = dependency % "provided"
 def sv[A](scalaVersion: String, scala2_12Version: => A, scala2_13Version: => A) =
@@ -88,27 +129,26 @@ def paradisePlugin(scalaVersion: String): Seq[ModuleID] =
   else
     Seq.empty
 
-val scalaTest     = "org.scalatest" %% "scalatest" % "3.2.9"
-val scalaCheck    = "org.scalacheck" %% "scalacheck" % "1.15.3"
-val slick         = "com.typesafe.slick" %% "slick" % "3.3.3"
-val optionalSlick = optional(slick)
-val playJson      = "com.typesafe.play" %% "play-json" % "2.9.2"
-val slickPg       = "com.github.tminglei" %% "slick-pg" % "0.19.5"
-val sprayJson     = "io.spray" %% "spray-json" % "1.3.6"
+val scalaTest       = "org.scalatest" %% "scalatest" % "3.2.11"
+val scalaCheck      = "org.scalacheck" %% "scalacheck" % "1.15.4"
+val slick           = "com.typesafe.slick" %% "slick" % "3.3.3"
+val optionalSlick   = optional(slick)
+val playJson        = "com.typesafe.play" %% "play-json" % "2.9.2"
+val slickPg         = "com.github.tminglei" %% "slick-pg" % "0.20.2"
+val sprayJson       = "io.spray" %% "spray-json" % "1.3.6"
+val circe           = "io.circe" %% "circe-core" % "0.14.1"
+val circeAuto       = "io.circe" %% "circe-generic" % "0.14.1"
+val circeAutoExtras = "io.circe" %% "circe-generic-extras" % "0.14.1"
+val circeParser     = "io.circe" %% "circe-parser" % "0.14.1"
+val optionalCirce   = optional(circe)
 
-val circeVersion  = "0.14.1"
-val circe         = "io.circe" %% "circe-core" % circeVersion
-val circeAuto     = "io.circe" %% "circe-generic" % circeVersion
-val circeParser   = "io.circe" %% "circe-parser" % circeVersion
-val optionalCirce = optional(circe)
+val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.8"
 
-val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.1"
-
-val scalacheck           = "org.scalacheck"             %% "scalacheck"                % "1.15.3" % "test"
+val scalacheck           = "org.scalacheck"             %% "scalacheck"                % "1.15.4" % "test"
 val scalacheckShapeless  = "com.github.alexarchambault" %% "scalacheck-shapeless_1.14" % "1.2.5"
-val scalacheckEnumeratum = "com.beachape"               %% "enumeratum-scalacheck"     % "1.6.1"
+val scalacheckEnumeratum = "com.beachape"               %% "enumeratum-scalacheck"     % "1.7.0"
 
-val enumeratumVersion         = "1.6.1"
+val enumeratumVersion         = "1.7.0"
 val enumeratumPlayJsonVersion = "1.5.16"
 val enumeratum                = "com.beachape" %% "enumeratum" % enumeratumVersion
 def enumeratumInExamples = {
@@ -117,8 +157,8 @@ def enumeratumInExamples = {
 }
 val optionalEnumeratum = optional(enumeratum.cross(CrossVersion.for3Use2_13))
 
-val akkaVersion       = "2.6.14"
-val akkaHttpVersion   = "10.2.4"
+val akkaVersion       = "2.6.18"
+val akkaHttpVersion   = "10.2.8"
 val akkaStream        = "com.typesafe.akka" %% "akka-stream" % akkaVersion
 val akkaStreamTestkit = "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion
 val akkaHttp          = "com.typesafe.akka" %% "akka-http" % akkaHttpVersion
@@ -135,7 +175,7 @@ lazy val commonSettings = baseSettings ++ Seq(
   scalacOptions ++=
     (if (scalaVersion.value.startsWith("3"))
        Seq("-language:implicitConversions", "-Ykind-projector", "-Xignore-scala2-macros")
-     else Nil),
+     else Seq("-language:implicitConversions", "-language:experimental.macros")),
 //  (scalacOptions in Test) ++= Seq("-Ymacro-debug-lite" /*, "-Xlog-implicits"*/ ),
   libraryDependencies += scalaTest % "test",
   resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
@@ -149,7 +189,7 @@ lazy val slickSettings = commonSettings ++ Seq(
 
 lazy val macroUtilsSettings = commonMacroSettings ++ Seq(
   libraryDependencies += (scalaCheck % "test").cross(CrossVersion.for3Use2_13),
-  libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13)
+  libraryDependencies += optionalEnumeratum
 )
 
 lazy val sprayJsonMacroSettings = commonMacroSettings ++ Seq(
@@ -167,6 +207,7 @@ lazy val playJsonSettings = commonSettings ++ Seq(
 lazy val circeSettings = commonSettings ++ Seq(
   libraryDependencies += circe,
   libraryDependencies += circeAuto,
+  libraryDependencies += circeAutoExtras.cross(CrossVersion.for3Use2_13),
   libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13),
   libraryDependencies += circeParser % "test"
 )
@@ -175,7 +216,9 @@ lazy val akkaHttpSettings = commonSettings ++ Seq(
   libraryDependencies += (akkaHttp).cross(CrossVersion.for3Use2_13),
   libraryDependencies += (akkaStreamTestkit % "test").cross(CrossVersion.for3Use2_13),
   libraryDependencies += (akkaHttpTestkit   % "test").cross(CrossVersion.for3Use2_13),
-  libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13)
+  libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13),
+  libraryDependencies ++= paradisePlugin(scalaVersion.value),
+  scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
 lazy val jsonschemaSettings = commonSettings ++ Seq(
@@ -192,6 +235,8 @@ lazy val taggedSettings = commonSettings ++ Seq(
   libraryDependencies += optionalSlick.cross(CrossVersion.for3Use2_13),
   libraryDependencies += optionalCirce
 )
+
+lazy val opaqueSettings = commonSettings
 
 lazy val examplesSettings = commonSettings ++ Seq(
   libraryDependencies += slickPg.cross(CrossVersion.for3Use2_13),
@@ -228,9 +273,10 @@ lazy val macroUtils = project
 
 lazy val slickSupport = project
   .in(file("slick"))
-  .dependsOn(macroUtils)
+  .dependsOn(macroUtils, instances)
   .settings(slickSettings: _*)
   .settings(publishSettings: _*)
+  .settings(disableScala("3"))
   .settings(
     name := "slick",
     description := "Library to eliminate the boilerplate code that comes with the use of Slick",
@@ -243,6 +289,7 @@ lazy val sprayJsonMacros = project
   .dependsOn(macroUtils)
   .settings(sprayJsonMacroSettings: _*)
   .settings(publishSettings: _*)
+  .settings(disableScala("3"))
   .settings(
     name := "spray-json-macros",
     description := "Automatic generation of Spray json formats for case-classes - macros",
@@ -252,9 +299,10 @@ lazy val sprayJsonMacros = project
 
 lazy val sprayJsonSupport = project
   .in(file("spray-json"))
-  .dependsOn(sprayJsonMacros)
+  .dependsOn(sprayJsonMacros, instances)
   .settings(sprayJsonSettings: _*)
   .settings(publishSettings: _*)
+  .settings(disableScala("3"))
   .settings(
     name := "spray-json",
     description := "Automatic generation of Spray json formats for case-classes",
@@ -267,6 +315,7 @@ lazy val playJsonSupport = project
   .dependsOn(macroUtils)
   .settings(playJsonSettings: _*)
   .settings(publishSettings: _*)
+  .settings(disableScala("3"))
   .settings(
     name := "play-json",
     description := "Automatic generation of Play json formats for case-classes",
@@ -280,6 +329,7 @@ lazy val circeSupport = project
   .settings(circeSettings: _*)
   .settings(crossBuildSettings: _*)
   .settings(publishSettings: _*)
+  .settings(disableScala("3"))
   .settings(
     name := "circe",
     description := "Automatic generation of circe formats for case-classes",
@@ -288,9 +338,10 @@ lazy val circeSupport = project
 
 lazy val akkaHttpSupport = project
   .in(file("akka-http"))
-  .dependsOn(macroUtils)
+  .dependsOn(macroUtils, instances, tagged, taggedMeta % "test -> test")
   .settings(akkaHttpSettings: _*)
   .settings(publishSettings: _*)
+  .settings(disableScala("3"))
   .settings(
     name := "akka-http",
     description := "Automatic generation of akka-http deserializers for 1-element case classes",
@@ -303,6 +354,7 @@ lazy val jsonschemaSupport = project
   .dependsOn(macroUtils)
   .settings(jsonschemaSettings: _*)
   .settings(publishSettings: _*)
+  .settings(disableScala("3"))
   .settings(
     name := "jsonschema",
     description := "Automatic generation of JSON Schemas for case classes",
@@ -315,6 +367,7 @@ lazy val scalacheckSupport = project
   .dependsOn(macroUtils)
   .settings(scalacheckSettings: _*)
   .settings(publishSettings: _*)
+  .settings(disableScala("3"))
   .settings(
     name := "scalacheck",
     description := "Automatic generation of scalacheck generators for case classes",
@@ -327,11 +380,25 @@ lazy val tagged = project
   .dependsOn(macroUtils)
   .settings(taggedSettings: _*)
   .settings(publishSettings: _*)
+  .settings(disableScala("3"))
   .settings(
     name := "tagged",
     description := "Representation of tagged types",
     moduleName := "kebs-tagged",
     crossScalaVersions := supportedScalaVersions
+  )
+
+lazy val opaque = project
+  .in(file("opaque"))
+  .dependsOn(macroUtils)
+  .settings(opaqueSettings: _*)
+  .settings(publishSettings: _*)
+  .settings(disableScala("2"))
+  .settings(
+    name := "opaque",
+    description := "Representation of opaque types",
+    moduleName := "kebs-opaque",
+    crossScalaVersions := Seq(scala_30)
   )
 
 lazy val taggedMeta = project
@@ -346,6 +413,7 @@ lazy val taggedMeta = project
   )
   .settings(taggedMetaSettings: _*)
   .settings(publishSettings: _*)
+  .settings(disableScala("3"))
   .settings(
     name := "tagged-meta",
     description := "Representation of tagged types - code generation based on scala-meta",
@@ -358,6 +426,7 @@ lazy val examples = project
   .dependsOn(slickSupport, sprayJsonSupport, playJsonSupport, akkaHttpSupport, taggedMeta, circeSupport, instances)
   .settings(examplesSettings: _*)
   .settings(noPublishSettings: _*)
+  .settings(disableScala("3"))
   .settings(
     name := "examples",
     moduleName := "kebs-examples"
@@ -376,12 +445,11 @@ lazy val benchmarks = project
 
 lazy val instances = project
   .in(file("instances"))
-  .dependsOn(macroUtils, sprayJsonSupport % "test -> test")
   .settings(instancesSettings: _*)
   .settings(publishSettings: _*)
   .settings(
     name := "instances",
-    description := "Standard Java types mappings",
+    description := "Standard type mappings",
     moduleName := "kebs-instances",
     crossScalaVersions := supportedScalaVersions
   )
@@ -393,6 +461,7 @@ lazy val kebs = project
   .in(file("."))
   .aggregate(
     tagged,
+    opaque,
     macroUtils,
     slickSupport,
     sprayJsonMacros,

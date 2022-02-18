@@ -28,7 +28,7 @@ class SprayJsonFormatTests extends AnyFunSuite with Matchers {
   }
 
   test("Flat format - no implicit JsonFormat") {
-    "implicitly[JsonFormat[E]]" shouldNot compile
+    "implicitly[JsonFormat[E]]" shouldNot typeCheck
   }
 
   test("Flat format - parametrized") {
@@ -56,7 +56,7 @@ class SprayJsonFormatTests extends AnyFunSuite with Matchers {
   }
 
   test("Root format - no implicit JsonFormat") {
-    "implicitly[RootJsonFormat[E]]" shouldNot compile
+    "implicitly[RootJsonFormat[E]]" shouldNot typeCheck
   }
 
   test("Root format - parametrized") {
