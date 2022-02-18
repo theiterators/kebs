@@ -1,6 +1,6 @@
 val scala_2_12             = "2.12.13"
 val scala_2_13             = "2.13.5"
-val dotty                  = "3.1.0-RC1"
+val dotty                  = "3.1.1"
 val mainScalaVersion       = dotty
 val supportedScalaVersions = Seq(scala_2_12, scala_2_13)
 

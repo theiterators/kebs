@@ -68,3 +68,6 @@ project/plugins/project/
 
 .bloop
 project/.bloop
+.metals
+.vscode
+project/metals.sbt
