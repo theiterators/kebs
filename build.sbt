@@ -130,7 +130,7 @@ def paradisePlugin(scalaVersion: String): Seq[ModuleID] =
     Seq.empty
 
 val scalaTest       = "org.scalatest" %% "scalatest" % "3.2.11"
-val scalaCheck      = "org.scalacheck" %% "scalacheck" % "1.15.4"
+val scalaCheck      = "org.scalacheck" %% "scalacheck" % "1.16.0"
 val slick           = "com.typesafe.slick" %% "slick" % "3.3.3"
 val optionalSlick   = optional(slick)
 val playJson        = "com.typesafe.play" %% "play-json" % "2.9.2"
@@ -144,7 +144,7 @@ val optionalCirce   = optional(circe)
 
 val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.8"
 
-val scalacheck           = "org.scalacheck"             %% "scalacheck"                % "1.15.4" % "test"
+val scalacheck           = "org.scalacheck"             %% "scalacheck"                % "1.16.0" % "test"
 val scalacheckShapeless  = "com.github.alexarchambault" %% "scalacheck-shapeless_1.14" % "1.2.5"
 val scalacheckEnumeratum = "com.beachape"               %% "enumeratum-scalacheck"     % "1.7.0"
 
