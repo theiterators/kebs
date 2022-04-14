@@ -96,7 +96,7 @@ final class macroImpl(val c: whitebox.Context) {
         else List.empty
       val body =
         if (hasValidations)
-          q"validate($argName).map(arg1 => $argName.taggedWith[${tagType.tagName}[..$tagParams]])"
+          q"validate($argName).map(_ => $argName.taggedWith[${tagType.tagName}[..$tagParams]])"
         else
           q"$argName.taggedWith[${tagType.tagName}[..$tagParams]]"
 
