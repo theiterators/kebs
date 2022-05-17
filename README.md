@@ -13,6 +13,7 @@ A library maintained by [Iterators](https://www.iteratorshq.com).
 * [SBT](#sbt)
 * [Examples](#examples)
   * [slick](#--kebs-generates-slick-mappers-for-your-case-class-wrappers-kebs-slick)
+  * [doobie](#--kebs-generates-doobie-mappers-for-your-case-class-wrappers-kebs-doobie)
   * [spray-json](#--kebs-eliminates-spray-json-induced-boilerplate-kebs-spray-json)
   * [play-json](#--kebs-eliminates-play-json-induced-boilerplate-kebs-play-json)
   * [akka-http](#--kebs-generates-akka-http-unmarshaller-kebs-akka-http)
@@ -25,13 +26,17 @@ A library maintained by [Iterators](https://www.iteratorshq.com).
 ### Why?
 
 `kebs` is for eliminating some common sources of Scala boilerplate code that arise when you use 
-Slick (`kebs-slick`), Spray (`kebs-spray-json`), Play (`kebs-play-json`), Circe (`kebs-circe`), Akka HTTP (`kebs-akka-http`).
+Slick (`kebs-slick`), Doobie (`kebs-doobie`), Spray (`kebs-spray-json`), Play (`kebs-play-json`), Circe (`kebs-circe`), Akka HTTP (`kebs-akka-http`).
 
 ### SBT
 
 Support for `slick`
 
 `libraryDependencies += "pl.iterators" %% "kebs-slick" % "1.9.3"`
+
+Support for `doobie`
+
+`libraryDependencies += "pl.iterators" %% "kebs-doobie" % "1.9.3"`
 
 Support for `spray-json`
 
@@ -370,6 +375,17 @@ import MyPostgresProfile.api._
      override val values = findValues
  }
  ```
+
+#### - kebs generates doobie mappers for your case-class wrappers (kebs-doobie)
+
+kebs-doobie works similarly to [kebs-slick](#--kebs-generates-slick-mappers-for-your-case-class-wrappers-kebs-slick). It provides doobie's `Meta` instances for:
+
+* Instances of `CaseClass1Rep` (value classes, tagged types, opaque types)
+* Instances of `InstanceConverter`
+* Enumeratum for Scala 2
+* Native enums for Scala 3
+
+To make the magic happen, do `import pl.iterators.kebs._` and `import pl.iterators.kebs.enums._` (or `import pl.iterators.kebs.enums.uppercase._` or `import pl.iterators.kebs.enums.lowercase._`).
 
 #### - kebs eliminates spray-json induced boilerplate (kebs-spray-json)
 
