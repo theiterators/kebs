@@ -105,7 +105,7 @@ def disableScala(v: String) = Def.settings(
       (Test / test).value
     }
   },
-  publish / skip := (scalaBinaryVersion.value == 2)
+  publish / skip := (scalaBinaryVersion.value == v)
 )
 
 def optional(dependency: ModuleID) = dependency % "provided"
@@ -181,7 +181,7 @@ lazy val commonSettings = baseSettings ++ Seq(
      else Seq("-language:implicitConversions", "-language:experimental.macros")),
 //  (scalacOptions in Test) ++= Seq("-Ymacro-debug-lite" /*, "-Xlog-implicits"*/ ),
   libraryDependencies += scalaTest % "test",
-  // resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+  resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 )
 
 lazy val slickSettings = commonSettings ++ Seq(
@@ -415,6 +415,7 @@ lazy val opaque = project
   .settings(opaqueSettings: _*)
   .settings(publishSettings: _*)
   .settings(disableScala("2.13"))
+  .settings(disableScala("2.12"))
   .settings(
     name := "opaque",
     description := "Representation of opaque types",
