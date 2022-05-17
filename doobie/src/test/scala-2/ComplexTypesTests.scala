@@ -19,7 +19,7 @@ class ComplexTypesTests extends AnyFunSuite with Matchers {
     case object Green extends EyeColor
     case object Brown extends EyeColor
     case object Other extends EyeColor
-    val values: IndexedSeq[EyeColor] = findValues
+    def values = findValues
   }
   case class Person(name: Name, eyeColor: EyeColor, preferredCurrency: Currency, relatives: List[Name], eyeballsInTheJar: Array[EyeColor])
 

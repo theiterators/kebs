@@ -4,7 +4,7 @@ val scala_2_12             = "2.12.15"
 val scala_2_13             = "2.13.8"
 val scala_30                = "3.0.2"
 val scala_31                = "3.1.2"
-val mainScalaVersion       = scala_2_13
+val mainScalaVersion       = scala_2_12
 val supportedScalaVersions = Seq(scala_2_12, scala_2_13, scala_30, scala_31)
 
 ThisBuild / crossScalaVersions := supportedScalaVersions
@@ -105,7 +105,7 @@ def disableScala(v: String) = Def.settings(
       (Test / test).value
     }
   },
-  publish / skip := (scalaBinaryVersion.value == v)
+  publish / skip := (scalaBinaryVersion.value == 2)
 )
 
 def optional(dependency: ModuleID) = dependency % "provided"
@@ -181,7 +181,7 @@ lazy val commonSettings = baseSettings ++ Seq(
      else Seq("-language:implicitConversions", "-language:experimental.macros")),
 //  (scalacOptions in Test) ++= Seq("-Ymacro-debug-lite" /*, "-Xlog-implicits"*/ ),
   libraryDependencies += scalaTest % "test",
-  resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+  // resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 )
 
 lazy val slickSettings = commonSettings ++ Seq(
@@ -295,7 +295,7 @@ lazy val slickSupport = project
 
 lazy val doobieSupport = project
   .in(file("doobie"))
-  .dependsOn(macroUtils, instances, opaque)
+  .dependsOn(instances, opaque)
   .settings(doobieSettings: _*)
   .settings(publishSettings: _*)
   .settings(
@@ -414,13 +414,13 @@ lazy val opaque = project
   .dependsOn(macroUtils)
   .settings(opaqueSettings: _*)
   .settings(publishSettings: _*)
-  .settings(disableScala("2"))
+  .settings(disableScala("2.13"))
   .settings(
     name := "opaque",
     description := "Representation of opaque types",
     moduleName := "kebs-opaque",
     crossScalaVersions := Seq(scala_30)
-  )
+ )
 
 lazy val taggedMeta = project
   .in(file("tagged-meta"))
