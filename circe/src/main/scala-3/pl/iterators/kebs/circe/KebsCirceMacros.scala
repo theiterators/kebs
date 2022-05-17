@@ -6,7 +6,7 @@ import scala.collection.immutable.Seq
 import scala.deriving._
 import scala.compiletime._
 import scala.quoted.*
-import language.deprecated.symbolLiterals
+
  abstract class KebsCirceMacros {
 
 
@@ -23,28 +23,38 @@ import language.deprecated.symbolLiterals
     if (!isCaseClass) report.errorAndAbort(msg, Position.ofMacroExpansion)
   }
 
-  inline final def materializeDecoder[T](using quotes: Quotes, m: Mirror.Of[T]): Expr[Decoder[T]] = {
+  private def noflat[T: Type](using Quotes) = {
+        import quotes.reflect.*
+        TypeRepr.of[T].typeSymbol.annotations.exists(_.tpe =:= noflatType)
+  }
+
+  inline final def materializeDecoder[T](using quotes: Quotes, m: Mirror.Of[T], tp: Type[T]): Expr[Decoder[T]] = {
     import quotes.reflect.*
 
     val T = TypeRepr.of[T]
+
     assertCaseClass[T](s"To materialize Decoder, ${T.typeSymbol} must be a case class")
+
     val ev: Expr[Mirror.Of[T]] = Expr.summon[Mirror.Of[T]].get
+    val symbol = T.termSymbol
+    val expr = ev.asExprOf[T]
     
     val decoder = caseAccessors[T] match {
       case Nil =>
-       '${_root_.io.circe.Decoder.decodeJsonObject.emap(obj => if(obj.isEmpty) Right(${Expr(t.asInstanceOf[String])}.asInstanceOf[TypeSymbol]}) else Left("Empty JsonObject"))}
-      // case _1 :: Nil =>
-      //   if (preferFlat && (isLookingFor(decoderOf[T]) && !noflat[T]))
-      //    scala.sys.error("Flat format preferred")
-      //   else
-      //     _materializeDecoder[T](List(_1))
-      // case fields => _materializeDecoder[T](fields)
+      '{_root_.io.circe.Decoder.decodeJsonObject.emap(obj => if(obj.isEmpty) Right(${T.termSymbol.tree.asExprOf[T]}) else Left("Empty JsonObject"))}
+      case _1 :: Nil =>
+        if (preferFlat && (quotes.reflect.Implicits.search(T).isInstanceOf[T] && !noflat[T]))
+         scala.sys.error("Flat format preferred")
+        else
+          _materializeDecoder[T](List(_1))
+      case fields => _materializeDecoder[T](fields)
     }
 
     decoder
   }
 
-  // private def _materializeDecoder[T](fields: List[quotes.reflect.Symbol]) = {
+  private def _materializeDecoder[T](using Quotes)(fields: List[quotes.reflect.Symbol]) = ???
+  //    {
   //   if (fields.lengthCompare(maxCaseClassFields) <= 0) {
   //     val Ps             = extractFieldTypes(fields, T)
   //     val jsonFieldNames = extractJsonFieldNames(fields)
@@ -53,9 +63,9 @@ import language.deprecated.symbolLiterals
   //     q"$tree(..${inferDecoderFormats(Ps)})"
   //   } else {
   //     q"""{
-  //          $semiAutoNamingStrategy
-  //          _root_.io.circe.generic.extras.auto.exportDecoder[$T].instance
-  //          }"""
+  // //          $semiAutoNamingStrategy
+  // //          _root_.io.circe.generic.extras.auto.exportDecoder[$T].instance
+  // //          }"""
   //   }
   // }
 
@@ -90,19 +100,27 @@ import language.deprecated.symbolLiterals
   //   }
   // }
 
-  // private val noflatType                                                       = typeOf[noflat]
+  private def noflatType(using Quotes) = {
+        import quotes.reflect.*
+  // TypeRepr.of[pl.iterators.kebs.circe.noflat]
+  ???
+  }
+
+    val maxCaseClassFields = 22
+
   // private def isLookingFor[T]                                            = c.enclosingImplicits.headOption.exists(_.pt.typeSymbol == t.typeSymbol)
   // private def noflat[T]                                                  = t.typeSymbol.annotations.exists(_.tree.tpe =:= noflatType)
   // private val decoderType                                                      = typeOf[Decoder[_]]
   // private val encoderType                                                      = typeOf[Encoder[_]]
   // private def decoderOf[T]                                               = appliedType(decoderType, p)
   // private def encoderOf[T]                                               = appliedType(encoderType, p)
-  // private def extractFieldTypes(fields: List[MethodSymbol], in: Type)          = fields.map(resultType(_, in))
+  // private def extractFieldTypes(fields: List[Symbol], in: Type)          = fields.map(resultType(_, in))
+    // protected def resultType[T](using Quotes)(method: quotes.reflect.Symbol, in: Type[T]) = method.
   // private def extractFieldNames(fields: List[MethodSymbol])                    = fields.map(_.name.decodedName.toString)
   // private def inferDecoderFormats(ps: List[Type])                              = ps.map(p => inferImplicitValue(decoderOf(p), s"Cannot infer Decoder[$p]"))
   // private def inferEncoderFormats(ps: List[Type])                              = ps.map(p => inferImplicitValue(encoderOf(p), s"Cannot infer Encoder[$p]"))
   // protected def extractJsonFieldNames(fields: List[MethodSymbol]): Seq[String] = extractFieldNames(fields)
-  // protected val preferFlat: Boolean                                            = true
+  protected val preferFlat: Boolean                                            = true
   // protected val semiAutoNamingStrategy: Tree =
   //   q"implicit lazy val __config: _root_.io.circe.generic.extras.Configuration = _root_.io.circe.generic.extras.Configuration.default"
 

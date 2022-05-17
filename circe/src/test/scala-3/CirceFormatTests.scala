@@ -87,18 +87,18 @@ class CirceFormatTests extends AnyFunSuite with Matchers {
       Seq("c" -> Json.fromInt(5), "d" -> Json.fromFields(Seq("i" -> Json.fromInt(10), "s" -> Json.fromString("abcd")))))
   }
 
-  // test("Recursive format") {
-  //   val decoder = implicitly[Decoder[R]]
-  //   val encoder = implicitly[Encoder[R]]
+  test("Recursive format") {
+    val decoder = implicitly[Decoder[R]]
+    val encoder = implicitly[Encoder[R]]
 
 
-  //   decoder.apply(
-  //     Json
-  //       .fromFields(Seq("a" -> Json.fromInt(1), "rs" -> Json.arr(Json.fromFields(Seq("a" -> Json.fromInt(2), "rs" -> Json.arr())))))
-  //       .hcursor) shouldBe Right(R(1, Seq(R(2, Seq.empty[R]))))
-  //   encoder.apply(R(1, Seq(R(2, Seq.empty[R])))) shouldBe Json.fromFields(
-  //     Seq("a" -> Json.fromInt(1), "rs" -> Json.arr(Json.fromFields(Seq("a" -> Json.fromInt(2), "rs" -> Json.arr())))))
-  // }
+    decoder.apply(
+      Json
+        .fromFields(Seq("a" -> Json.fromInt(1), "rs" -> Json.arr(Json.fromFields(Seq("a" -> Json.fromInt(2), "rs" -> Json.arr())))))
+        .hcursor) shouldBe Right(R(1, Seq(R(2, Seq.empty[R]))))
+    encoder.apply(R(1, Seq(R(2, Seq.empty[R])))) shouldBe Json.fromFields(
+      Seq("a" -> Json.fromInt(1), "rs" -> Json.arr(Json.fromFields(Seq("a" -> Json.fromInt(2), "rs" -> Json.arr())))))
+  }
 
   // test("Format - case class with > 22 fields") {
   //   import model._

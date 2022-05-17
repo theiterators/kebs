@@ -4,7 +4,7 @@ val scala_2_12             = "2.12.15"
 val scala_2_13             = "2.13.8"
 val scala_30                = "3.0.2"
 val scala_31                = "3.1.1"
-val mainScalaVersion       = scala_2_13
+val mainScalaVersion       = scala_31
 val supportedScalaVersions = Seq(scala_2_12, scala_2_13, scala_30, scala_31)
 
 ThisBuild / crossScalaVersions := supportedScalaVersions
@@ -136,10 +136,11 @@ val optionalSlick   = optional(slick)
 val playJson        = "com.typesafe.play" %% "play-json" % "2.9.2"
 val slickPg         = "com.github.tminglei" %% "slick-pg" % "0.20.2"
 val sprayJson       = "io.spray" %% "spray-json" % "1.3.6"
-val circe           = "io.circe" %% "circe-core" % "0.14.1"
-val circeAuto       = "io.circe" %% "circe-generic" % "0.14.1"
+val circeV = "0.15.0-SNAPSHOT"
+val circe           = "io.circe" %% "circe-core" % circeV
+val circeAuto       = "io.circe" %% "circe-generic" % circeV
 val circeAutoExtras = "io.circe" %% "circe-generic-extras" % "0.14.1"
-val circeParser     = "io.circe" %% "circe-parser" % "0.14.1"
+val circeParser     = "io.circe" %% "circe-parser" % circeV
 val optionalCirce   = optional(circe)
 
 val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.8"
@@ -178,7 +179,8 @@ lazy val commonSettings = baseSettings ++ Seq(
      else Seq("-language:implicitConversions", "-language:experimental.macros")),
 //  (scalacOptions in Test) ++= Seq("-Ymacro-debug-lite" /*, "-Xlog-implicits"*/ ),
   libraryDependencies += scalaTest % "test",
-  resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+  resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
+  resolvers += Resolver.mavenLocal
 )
 
 lazy val slickSettings = commonSettings ++ Seq(
@@ -207,10 +209,11 @@ lazy val playJsonSettings = commonSettings ++ Seq(
 lazy val circeSettings = commonSettings ++ Seq(
   libraryDependencies += circe,
   libraryDependencies += circeAuto,
-  libraryDependencies += circeAutoExtras.cross(CrossVersion.for3Use2_13),
   libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13),
   libraryDependencies += circeParser % "test"
-)
+) ++ Seq(
+  libraryDependencies ++= (if (scalaVersion.value.startsWith("3")) Nil
+                           else Seq(circeAutoExtras)))
 
 lazy val akkaHttpSettings = commonSettings ++ Seq(
   libraryDependencies += (akkaHttp).cross(CrossVersion.for3Use2_13),
@@ -329,7 +332,6 @@ lazy val circeSupport = project
   .settings(circeSettings: _*)
   .settings(crossBuildSettings: _*)
   .settings(publishSettings: _*)
-  .settings(disableScala("3"))
   .settings(
     name := "circe",
     description := "Automatic generation of circe formats for case-classes",
