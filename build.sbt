@@ -136,10 +136,10 @@ val optionalSlick   = optional(slick)
 val playJson        = "com.typesafe.play" %% "play-json" % "2.9.2"
 val slickPg         = "com.github.tminglei" %% "slick-pg" % "0.20.3"
 val sprayJson       = "io.spray" %% "spray-json" % "1.3.6"
-val circe           = "io.circe" %% "circe-core" % "0.14.1"
-val circeAuto       = "io.circe" %% "circe-generic" % "0.14.1"
+val circe           = "io.circe" %% "circe-core" % "0.14.2"
+val circeAuto       = "io.circe" %% "circe-generic" % "0.14.2"
 val circeAutoExtras = "io.circe" %% "circe-generic-extras" % "0.14.1"
-val circeParser     = "io.circe" %% "circe-parser" % "0.14.1"
+val circeParser     = "io.circe" %% "circe-parser" % "0.14.2"
 val optionalCirce   = optional(circe)
 
 val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.8"
