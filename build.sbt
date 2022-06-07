@@ -9,7 +9,7 @@ val supportedScalaVersions = Seq(scala_2_12, scala_2_13, scala_30, scala_31)
 
 ThisBuild / crossScalaVersions := supportedScalaVersions
 ThisBuild / scalaVersion := mainScalaVersion
-
+// ThisBuild / scalaOutputVersion := "3.0.2"
 ThisBuild / conflictWarning := ConflictWarning.disable
 
 
@@ -193,7 +193,7 @@ lazy val slickSettings = commonSettings ++ Seq(
 lazy val doobieSettings = commonSettings ++ Seq(
   libraryDependencies += doobie,
   libraryDependencies += (doobiePg % "test"),
-  libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13)
+  libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13),
 )
 
 lazy val macroUtilsSettings = commonMacroSettings ++ Seq(
@@ -276,8 +276,7 @@ lazy val macroUtils = project
   .settings(
     name := "macro-utils",
     description := "Macros supporting Kebs library",
-    moduleName := "kebs-macro-utils",
-    crossScalaVersions := supportedScalaVersions
+    moduleName := "kebs-macro-utils"
   )
 
 lazy val slickSupport = project
@@ -419,8 +418,7 @@ lazy val opaque = project
   .settings(
     name := "opaque",
     description := "Representation of opaque types",
-    moduleName := "kebs-opaque",
-    crossScalaVersions := Seq(scala_30)
+    moduleName := "kebs-opaque"
  )
 
 lazy val taggedMeta = project
@@ -472,8 +470,8 @@ lazy val instances = project
   .settings(
     name := "instances",
     description := "Standard type mappings",
-    moduleName := "kebs-instances",
-    crossScalaVersions := supportedScalaVersions
+    moduleName := "kebs-instances"
+    // crossScalaVersions := supportedScalaVersions
   )
 
 import sbtrelease.ReleasePlugin.autoImport._
