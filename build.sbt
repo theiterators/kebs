@@ -105,7 +105,8 @@ def disableScala(v: String) = Def.settings(
       (Test / test).value
     }
   },
-  publish / skip := (scalaBinaryVersion.value == v)
+  publish / skip := (scalaBinaryVersion.value == v),
+  publishLocal / skip := (scalaBinaryVersion.value == v)
 )
 
 def optional(dependency: ModuleID) = dependency % "provided"
@@ -412,13 +413,16 @@ lazy val opaque = project
   .in(file("opaque"))
   .dependsOn(macroUtils)
   .settings(opaqueSettings: _*)
-  .settings(publishSettings: _*)
   .settings(disableScala("2.13"))
   .settings(disableScala("2.12"))
+  .settings(publishSettings: _*)
   .settings(
     name := "opaque",
     description := "Representation of opaque types",
-    moduleName := "kebs-opaque"
+    moduleName := "kebs-opaque",
+    crossScalaVersions := supportedScalaVersions,
+    releaseCrossBuild := false,
+    publish / skip := (scalaBinaryVersion.value == "2.13")
  )
 
 lazy val taggedMeta = project
