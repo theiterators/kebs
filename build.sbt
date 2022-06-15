@@ -4,7 +4,7 @@ val scala_2_12             = "2.12.15"
 val scala_2_13             = "2.13.8"
 val scala_30                = "3.0.2"
 val scala_31                = "3.1.2"
-val mainScalaVersion       = scala_2_13
+val mainScalaVersion       = scala_31
 val supportedScalaVersions = Seq(scala_2_12, scala_2_13, scala_30, scala_31)
 
 ThisBuild / crossScalaVersions := supportedScalaVersions
@@ -165,8 +165,8 @@ val akkaHttp          = "com.typesafe.akka" %% "akka-http" % akkaHttpVersion
 val akkaHttpTestkit   = "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion
 def akkaHttpInExamples = {
   val akkaHttpSprayJson = "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion
-  Seq(akkaStream.cross(CrossVersion.for3Use2_13),
-      akkaHttp.cross(CrossVersion.for3Use2_13),
+  Seq(akkaStream,
+      akkaHttp,
       akkaHttpSprayJson.cross(CrossVersion.for3Use2_13))
 }
 
@@ -339,10 +339,9 @@ lazy val circeSupport = project
 
 lazy val akkaHttpSupport = project
   .in(file("akka-http"))
-  .dependsOn(macroUtils, instances, tagged, taggedMeta % "test -> test")
+  .dependsOn(macroUtils, instances, tagged % "test -> test", taggedMeta % "test -> test")
   .settings(akkaHttpSettings: _*)
   .settings(publishSettings: _*)
-  .settings(disableScala("3"))
   .settings(
     name := "akka-http",
     description := "Automatic generation of akka-http deserializers for 1-element case classes",
