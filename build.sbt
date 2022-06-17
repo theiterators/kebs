@@ -9,7 +9,6 @@ val supportedScalaVersions = Seq(scala_2_12, scala_2_13, scala_30, scala_31)
 
 ThisBuild / crossScalaVersions := supportedScalaVersions
 ThisBuild / scalaVersion := mainScalaVersion
-// ThisBuild / scalaOutputVersion := "3.0.2"
 ThisBuild / conflictWarning := ConflictWarning.disable
 
 
@@ -105,8 +104,7 @@ def disableScala(v: String) = Def.settings(
       (Test / test).value
     }
   },
-  publish / skip := (scalaBinaryVersion.value == v),
-  publishLocal / skip := (scalaBinaryVersion.value == v)
+  publish / skip := (scalaBinaryVersion.value == v)
 )
 
 def optional(dependency: ModuleID) = dependency % "provided"
@@ -475,7 +473,6 @@ lazy val instances = project
     name := "instances",
     description := "Standard type mappings",
     moduleName := "kebs-instances"
-    // crossScalaVersions := supportedScalaVersions
   )
 
 import sbtrelease.ReleasePlugin.autoImport._
