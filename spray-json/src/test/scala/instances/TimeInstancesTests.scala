@@ -226,18 +226,18 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with DefaultJsonProto
 
   test("Year standard format") {
     val jf    = implicitly[JsonFormat[Year]]
-    val value = "2007"
-    val obj   = Year.parse(value)
+    val value = 2007
+    val obj   = Year.of(value)
 
-    jf.write(obj) shouldBe JsString(value)
-    jf.read(JsString(value)) shouldBe obj
+    jf.write(obj) shouldBe JsNumber(value)
+    jf.read(JsNumber(value)) shouldBe obj
   }
 
   test("Year wrong format exception") {
     val jf    = implicitly[JsonFormat[Year]]
-    val value = "NotAYear"
+    val value = Int.MinValue
 
-    assertThrows[DecodeErrorException](jf.read(JsString(value)))
+    assertThrows[DecodeErrorException](jf.read(JsNumber(value)))
   }
 
   test("YearMonth standard format") {

@@ -185,18 +185,18 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with TimeInstances {
     assertThrows[DecodeErrorException](ico.decode(value))
   }
 
-  test("Year to String") {
-    val ico   = implicitly[InstanceConverter[Year, String]]
-    val value = "2007"
-    val obj   = Year.parse(value)
+  test("Year to Int") {
+    val ico   = implicitly[InstanceConverter[Year, Int]]
+    val value = 2007
+    val obj   = Year.of(value)
 
     ico.encode(obj) shouldBe value
     ico.decode(value) shouldBe obj
   }
 
   test("Year wrong format exception") {
-    val ico   = implicitly[InstanceConverter[Year, String]]
-    val value = "NotAYear"
+    val ico   = implicitly[InstanceConverter[Year, Int]]
+    val value = Int.MinValue
 
     assertThrows[DecodeErrorException](ico.decode(value))
   }

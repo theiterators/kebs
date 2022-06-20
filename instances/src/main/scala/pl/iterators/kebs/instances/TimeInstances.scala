@@ -15,7 +15,7 @@ trait TimeInstances
     with OffsetTimeString
     with PeriodString
     with YearMonthString
-    with YearString
+    with YearInt
     with ZonedDateTimeString
     with ZoneIdString
     with ZoneOffsetString
