@@ -1,6 +1,10 @@
+
+import io.circe.Decoder
+import io.circe.Encoder
 package object model {
 
-  case class F1(f1: String) extends AnyVal
+  // case class F1(f1: String) extends AnyVal derives Decoder, Encoder.AsObject
+  case class F1(f1: String) derives Decoder, Encoder.AsObject
 
   case class ClassWith23Fields(
       f1: F1,
@@ -26,7 +30,7 @@ package object model {
       f21: String,
       f22: String,
       f23: Boolean
-  )
+  ) derives Decoder, Encoder.AsObject
 
   object ClassWith23Fields {
     val Example = ClassWith23Fields(

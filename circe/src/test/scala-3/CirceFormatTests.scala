@@ -22,7 +22,7 @@ class CirceFormatTests extends AnyFunSuite with Matchers {
   case class Parametrized1[T](field: T)
   case class Parametrized2[T0, T1](field1: T0, field2: T1)
 
-  case class R(a: Int, rs: Seq[R])
+  case class R(a: Int, rs: Seq[R]) derives Decoder, Encoder.AsObject
 
   test("Flat format") {
     val decoder = implicitly[Decoder[C]]
@@ -87,114 +87,114 @@ class CirceFormatTests extends AnyFunSuite with Matchers {
       Seq("c" -> Json.fromInt(5), "d" -> Json.fromFields(Seq("i" -> Json.fromInt(10), "s" -> Json.fromString("abcd")))))
   }
 
-  // test("Recursive format") {
-  //   val decoder = implicitly[Decoder[R]]
-  //   val encoder = implicitly[Encoder[R]]
+  test("Recursive format") {
+    val decoder = implicitly[Decoder[R]]
+    val encoder = implicitly[Encoder[R]]
 
 
-  //   decoder.apply(
-  //     Json
-  //       .fromFields(Seq("a" -> Json.fromInt(1), "rs" -> Json.arr(Json.fromFields(Seq("a" -> Json.fromInt(2), "rs" -> Json.arr())))))
-  //       .hcursor) shouldBe Right(R(1, Seq(R(2, Seq.empty[R]))))
-  //   encoder.apply(R(1, Seq(R(2, Seq.empty[R])))) shouldBe Json.fromFields(
-  //     Seq("a" -> Json.fromInt(1), "rs" -> Json.arr(Json.fromFields(Seq("a" -> Json.fromInt(2), "rs" -> Json.arr())))))
-  // }
+    decoder.apply(
+      Json
+        .fromFields(Seq("a" -> Json.fromInt(1), "rs" -> Json.arr(Json.fromFields(Seq("a" -> Json.fromInt(2), "rs" -> Json.arr())))))
+        .hcursor) shouldBe Right(R(1, Seq(R(2, Seq.empty[R]))))
+    encoder.apply(R(1, Seq(R(2, Seq.empty[R])))) shouldBe Json.fromFields(
+      Seq("a" -> Json.fromInt(1), "rs" -> Json.arr(Json.fromFields(Seq("a" -> Json.fromInt(2), "rs" -> Json.arr())))))
+  }
 
-  // test("Format - case class with > 22 fields") {
-  //   import model._
+  test("Format - case class with > 22 fields") {
+    import model._
 
-  //   val decoder = implicitly[Decoder[ClassWith23Fields]]
-  //   val encoder = implicitly[Encoder[ClassWith23Fields]]
-  //   val obj     = ClassWith23Fields.Example
-  //   val json = Json.fromFields(
-  //     Seq(
-  //       "f1"             -> Json.fromString("f1 value"),
-  //       "f2"             -> Json.fromInt(2),
-  //       "f3"             -> Json.fromInt(3),
-  //       "f4"             -> Json.Null,
-  //       "f5"             -> Json.fromString("f5 value"),
-  //       "fieldNumberSix" -> Json.fromString("six"),
-  //       "f7"             -> Json.arr(Json.fromString("f7 value 1"), Json.fromString("f7 value 2")),
-  //       "f8"             -> Json.fromString("f8 value"),
-  //       "f9"             -> Json.fromString("f9 value"),
-  //       "f10"            -> Json.fromString("f10 value"),
-  //       "f11"            -> Json.fromString("f11 value"),
-  //       "f12"            -> Json.fromString("f12 value"),
-  //       "f13"            -> Json.fromString("f13 value"),
-  //       "f14"            -> Json.fromString("f14 value"),
-  //       "f15"            -> Json.fromString("f15 value"),
-  //       "f16"            -> Json.fromString("f16 value"),
-  //       "f17"            -> Json.fromString("f17 value"),
-  //       "f18"            -> Json.fromString("f18 value"),
-  //       "f19"            -> Json.fromString("f19 value"),
-  //       "f20"            -> Json.fromString("f20 value"),
-  //       "f21"            -> Json.fromString("f21 value"),
-  //       "f22"            -> Json.fromString("f22 value"),
-  //       "f23"            -> Json.fromBoolean(true)
-  //     ))
+    val decoder = implicitly[Decoder[ClassWith23Fields]]
+    val encoder = implicitly[Encoder[ClassWith23Fields]]
+    val obj     = ClassWith23Fields.Example
+    val json = Json.fromFields(
+      Seq(
+        "f1"             -> Json.fromString("f1 value"),
+        "f2"             -> Json.fromInt(2),
+        "f3"             -> Json.fromInt(3),
+        "f4"             -> Json.Null,
+        "f5"             -> Json.fromString("f5 value"),
+        "fieldNumberSix" -> Json.fromString("six"),
+        "f7"             -> Json.arr(Json.fromString("f7 value 1"), Json.fromString("f7 value 2")),
+        "f8"             -> Json.fromString("f8 value"),
+        "f9"             -> Json.fromString("f9 value"),
+        "f10"            -> Json.fromString("f10 value"),
+        "f11"            -> Json.fromString("f11 value"),
+        "f12"            -> Json.fromString("f12 value"),
+        "f13"            -> Json.fromString("f13 value"),
+        "f14"            -> Json.fromString("f14 value"),
+        "f15"            -> Json.fromString("f15 value"),
+        "f16"            -> Json.fromString("f16 value"),
+        "f17"            -> Json.fromString("f17 value"),
+        "f18"            -> Json.fromString("f18 value"),
+        "f19"            -> Json.fromString("f19 value"),
+        "f20"            -> Json.fromString("f20 value"),
+        "f21"            -> Json.fromString("f21 value"),
+        "f22"            -> Json.fromString("f22 value"),
+        "f23"            -> Json.fromBoolean(true)
+      ))
 
-  //   encoder.apply(obj) shouldBe json
-  //   decoder.apply(json.hcursor) shouldBe Right(obj)
-  // }
+    encoder.apply(obj) shouldBe json
+    decoder.apply(json.hcursor) shouldBe Right(obj)
+  }
 
-  // test("Nested case classes with > 22 fields") {
-  //   import model._
+  test("Nested case classes with > 22 fields") {
+    import model._
 
-  //   val decoder = implicitly[Decoder[ClassWith23FieldsNested]]
-  //   val encoder = implicitly[Encoder[ClassWith23FieldsNested]]
-  //   val obj     = ClassWith23FieldsNested.Example
-  //   val json = Json.fromFields(
-  //     Map(
-  //       "f1" -> Json.fromString("f1 value"),
-  //       "f2" -> Json.fromFields(Seq(
-  //         "f1"             -> Json.fromString("f1 value"),
-  //         "f2"             -> Json.fromInt(2),
-  //         "f3"             -> Json.fromInt(3),
-  //         "f4"             -> Json.Null,
-  //         "f5"             -> Json.fromString("f5 value"),
-  //         "fieldNumberSix" -> Json.fromString("six"),
-  //         "f7"             -> Json.arr(Json.fromString("f7 value 1"), Json.fromString("f7 value 2")),
-  //         "f8"             -> Json.fromString("f8 value"),
-  //         "f9"             -> Json.fromString("f9 value"),
-  //         "f10"            -> Json.fromString("f10 value"),
-  //         "f11"            -> Json.fromString("f11 value"),
-  //         "f12"            -> Json.fromString("f12 value"),
-  //         "f13"            -> Json.fromString("f13 value"),
-  //         "f14"            -> Json.fromString("f14 value"),
-  //         "f15"            -> Json.fromString("f15 value"),
-  //         "f16"            -> Json.fromString("f16 value"),
-  //         "f17"            -> Json.fromString("f17 value"),
-  //         "f18"            -> Json.fromString("f18 value"),
-  //         "f19"            -> Json.fromString("f19 value"),
-  //         "f20"            -> Json.fromString("f20 value"),
-  //         "f21"            -> Json.fromString("f21 value"),
-  //         "f22"            -> Json.fromString("f22 value"),
-  //         "f23"            -> Json.fromBoolean(true)
-  //       )),
-  //       "f3"             -> Json.fromInt(3),
-  //       "f4"             -> Json.Null,
-  //       "f5"             -> Json.fromString("f5 value"),
-  //       "fieldNumberSix" -> Json.fromString("six"),
-  //       "f7"             -> Json.arr(Json.fromString("f7 value 1"), Json.fromString("f7 value 2")),
-  //       "f8"             -> Json.fromString("f8 value"),
-  //       "f9"             -> Json.fromString("f9 value"),
-  //       "f10"            -> Json.fromString("f10 value"),
-  //       "f11"            -> Json.fromString("f11 value"),
-  //       "f12"            -> Json.fromString("f12 value"),
-  //       "f13"            -> Json.fromString("f13 value"),
-  //       "f14"            -> Json.fromString("f14 value"),
-  //       "f15"            -> Json.fromString("f15 value"),
-  //       "f16"            -> Json.fromString("f16 value"),
-  //       "f17"            -> Json.fromString("f17 value"),
-  //       "f18"            -> Json.fromString("f18 value"),
-  //       "f19"            -> Json.fromString("f19 value"),
-  //       "f20"            -> Json.fromString("f20 value"),
-  //       "f21"            -> Json.fromString("f21 value"),
-  //       "f22"            -> Json.fromString("f22 value"),
-  //       "f23"            -> Json.fromBoolean(true)
-  //     ))
+    val decoder = implicitly[Decoder[ClassWith23FieldsNested]]
+    val encoder = implicitly[Encoder[ClassWith23FieldsNested]]
+    val obj     = ClassWith23FieldsNested.Example
+    val json = Json.fromFields(
+      Map(
+        "f1" -> Json.fromString("f1 value"),
+        "f2" -> Json.fromFields(Seq(
+          "f1"             -> Json.fromString("f1 value"),
+          "f2"             -> Json.fromInt(2),
+          "f3"             -> Json.fromInt(3),
+          "f4"             -> Json.Null,
+          "f5"             -> Json.fromString("f5 value"),
+          "fieldNumberSix" -> Json.fromString("six"),
+          "f7"             -> Json.arr(Json.fromString("f7 value 1"), Json.fromString("f7 value 2")),
+          "f8"             -> Json.fromString("f8 value"),
+          "f9"             -> Json.fromString("f9 value"),
+          "f10"            -> Json.fromString("f10 value"),
+          "f11"            -> Json.fromString("f11 value"),
+          "f12"            -> Json.fromString("f12 value"),
+          "f13"            -> Json.fromString("f13 value"),
+          "f14"            -> Json.fromString("f14 value"),
+          "f15"            -> Json.fromString("f15 value"),
+          "f16"            -> Json.fromString("f16 value"),
+          "f17"            -> Json.fromString("f17 value"),
+          "f18"            -> Json.fromString("f18 value"),
+          "f19"            -> Json.fromString("f19 value"),
+          "f20"            -> Json.fromString("f20 value"),
+          "f21"            -> Json.fromString("f21 value"),
+          "f22"            -> Json.fromString("f22 value"),
+          "f23"            -> Json.fromBoolean(true)
+        )),
+        "f3"             -> Json.fromInt(3),
+        "f4"             -> Json.Null,
+        "f5"             -> Json.fromString("f5 value"),
+        "fieldNumberSix" -> Json.fromString("six"),
+        "f7"             -> Json.arr(Json.fromString("f7 value 1"), Json.fromString("f7 value 2")),
+        "f8"             -> Json.fromString("f8 value"),
+        "f9"             -> Json.fromString("f9 value"),
+        "f10"            -> Json.fromString("f10 value"),
+        "f11"            -> Json.fromString("f11 value"),
+        "f12"            -> Json.fromString("f12 value"),
+        "f13"            -> Json.fromString("f13 value"),
+        "f14"            -> Json.fromString("f14 value"),
+        "f15"            -> Json.fromString("f15 value"),
+        "f16"            -> Json.fromString("f16 value"),
+        "f17"            -> Json.fromString("f17 value"),
+        "f18"            -> Json.fromString("f18 value"),
+        "f19"            -> Json.fromString("f19 value"),
+        "f20"            -> Json.fromString("f20 value"),
+        "f21"            -> Json.fromString("f21 value"),
+        "f22"            -> Json.fromString("f22 value"),
+        "f23"            -> Json.fromBoolean(true)
+      ))
 
-  //   encoder.apply(obj) shouldBe json
-  //   decoder.apply(json.hcursor) shouldBe Right(obj)
-  // }
+    encoder.apply(obj) shouldBe json
+    decoder.apply(json.hcursor) shouldBe Right(obj)
+  }
 }
