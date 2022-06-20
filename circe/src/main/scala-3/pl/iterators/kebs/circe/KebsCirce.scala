@@ -21,4 +21,5 @@ import pl.iterators.kebs.macros.CaseClass1Rep
 
   implicit inline given[T, A](using inline rep: InstanceConverter[T, A], decoder: Decoder[A]): Decoder[T] =
     decoder.emap(obj => Try(rep.decode(obj)).toEither.left.map(_.getMessage))
+    
 }
