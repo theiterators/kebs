@@ -6,30 +6,19 @@ import scala.util.Try
 import scala.quoted.Quotes
 import io.circe.HCursor
 import pl.iterators.kebs.macros.CaseClass1Rep
-import io.circe.derivation.Configuration
-import io.circe.derivation.ConfiguredEncoder
-import io.circe.derivation.ConfiguredCodec
-import io.circe.derivation.ConfiguredDecoder
+ import pl.iterators.kebs.instances.InstanceConverter
+ import io.circe.generic.AutoDerivation
+ trait KebsCirce extends AutoDerivation {
 
-trait KebsCirce {
+  implicit inline given[T, A](using inline rep: CaseClass1Rep[T, A], decoder: Decoder[A]): Decoder[T] =
+    decoder.emap(obj => Try(rep.apply(obj)).toEither.left.map(_.getMessage))
 
-  implicit inline given[T, A](using inline rep: CaseClass1Rep[T, A], inline A: Mirror.Of[A]): Decoder[T] =
-    Decoder.derived[A].emap(obj => Try(rep.apply(obj)).toEither.left.map(_.getMessage))
-
-  implicit inline given[T, A](using inline A: Mirror.Of[A], rep: CaseClass1Rep[T, A]): Encoder[T] =
-    Encoder.AsObject.derived[A].contramap(rep.unapply(_))
+  implicit inline given[T, A](using inline rep: CaseClass1Rep[T, A], encoder: Encoder[A]): Encoder[T] =
+    encoder.contramap(rep.unapply)
     
-}
+  implicit inline given[T, A](using inline rep: InstanceConverter[T, A], encoder: Encoder[A]): Encoder[T] =
+    encoder.contramap(rep.encode)
 
-object KebsCirce {
-
-  trait NoFlat extends KebsCirce {
-
-  }
-
-  trait Snakified extends KebsCirce {
-  }
-
-  trait Capitalized extends KebsCirce {
-  }
+  implicit inline given[T, A](using inline rep: InstanceConverter[T, A], decoder: Decoder[A]): Decoder[T] =
+    decoder.emap(obj => Try(rep.decode(obj)).toEither.left.map(_.getMessage))
 }
