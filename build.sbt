@@ -3,13 +3,12 @@ import sbt.librarymanagement.ConflictWarning
 val scala_2_12             = "2.12.15"
 val scala_2_13             = "2.13.8"
 val scala_30                = "3.0.2"
-val scala_31                = "3.1.1"
+val scala_31                = "3.1.2"
 val mainScalaVersion       = scala_31
 val supportedScalaVersions = Seq(scala_2_12, scala_2_13, scala_30, scala_31)
 
 ThisBuild / crossScalaVersions := supportedScalaVersions
 ThisBuild / scalaVersion := mainScalaVersion
-
 ThisBuild / conflictWarning := ConflictWarning.disable
 
 
@@ -130,11 +129,13 @@ def paradisePlugin(scalaVersion: String): Seq[ModuleID] =
     Seq.empty
 
 val scalaTest       = "org.scalatest" %% "scalatest" % "3.2.11"
-val scalaCheck      = "org.scalacheck" %% "scalacheck" % "1.15.4"
+val scalaCheck      = "org.scalacheck" %% "scalacheck" % "1.16.0"
 val slick           = "com.typesafe.slick" %% "slick" % "3.3.3"
 val optionalSlick   = optional(slick)
 val playJson        = "com.typesafe.play" %% "play-json" % "2.9.2"
-val slickPg         = "com.github.tminglei" %% "slick-pg" % "0.20.2"
+val slickPg         = "com.github.tminglei" %% "slick-pg" % "0.20.3"
+val doobie          = "org.tpolecat" %% "doobie-core" % "1.0.0-RC1"
+val doobiePg        = "org.tpolecat" %% "doobie-postgres" % "1.0.0-RC1"
 val sprayJson       = "io.spray" %% "spray-json" % "1.3.6"
 val circeV = "0.15.0-SNAPSHOT"
 val circe           = "io.circe" %% "circe-core" % circeV
@@ -145,7 +146,7 @@ val optionalCirce   = optional(circe)
 
 val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.8"
 
-val scalacheck           = "org.scalacheck"             %% "scalacheck"                % "1.15.4" % "test"
+val scalacheck           = "org.scalacheck"             %% "scalacheck"                % "1.16.0" % "test"
 val scalacheckShapeless  = "com.github.alexarchambault" %% "scalacheck-shapeless_1.14" % "1.2.5"
 val scalacheckEnumeratum = "com.beachape"               %% "enumeratum-scalacheck"     % "1.7.0"
 
@@ -158,8 +159,8 @@ def enumeratumInExamples = {
 }
 val optionalEnumeratum = optional(enumeratum.cross(CrossVersion.for3Use2_13))
 
-val akkaVersion       = "2.6.18"
-val akkaHttpVersion   = "10.2.8"
+val akkaVersion       = "2.6.19"
+val akkaHttpVersion   = "10.2.9"
 val akkaStream        = "com.typesafe.akka" %% "akka-stream" % akkaVersion
 val akkaStreamTestkit = "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion
 val akkaHttp          = "com.typesafe.akka" %% "akka-http" % akkaHttpVersion
@@ -187,6 +188,12 @@ lazy val slickSettings = commonSettings ++ Seq(
   libraryDependencies += slick.cross(CrossVersion.for3Use2_13),
   libraryDependencies += (slickPg % "test").cross(CrossVersion.for3Use2_13),
   libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13)
+)
+
+lazy val doobieSettings = commonSettings ++ Seq(
+  libraryDependencies += doobie,
+  libraryDependencies += (doobiePg % "test"),
+  libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13),
 )
 
 lazy val macroUtilsSettings = commonMacroSettings ++ Seq(
@@ -270,8 +277,7 @@ lazy val macroUtils = project
   .settings(
     name := "macro-utils",
     description := "Macros supporting Kebs library",
-    moduleName := "kebs-macro-utils",
-    crossScalaVersions := supportedScalaVersions
+    moduleName := "kebs-macro-utils"
   )
 
 lazy val slickSupport = project
@@ -284,6 +290,18 @@ lazy val slickSupport = project
     name := "slick",
     description := "Library to eliminate the boilerplate code that comes with the use of Slick",
     moduleName := "kebs-slick",
+    crossScalaVersions := supportedScalaVersions
+  )
+
+lazy val doobieSupport = project
+  .in(file("doobie"))
+  .dependsOn(instances, opaque)
+  .settings(doobieSettings: _*)
+  .settings(publishSettings: _*)
+  .settings(
+    name := "doobie",
+    description := "Library to eliminate the boilerplate code that comes with the use of Doobie",
+    moduleName := "kebs-doobie",
     crossScalaVersions := supportedScalaVersions
   )
 
@@ -394,14 +412,17 @@ lazy val opaque = project
   .in(file("opaque"))
   .dependsOn(macroUtils)
   .settings(opaqueSettings: _*)
+  .settings(disableScala("2.13"))
+  .settings(disableScala("2.12"))
   .settings(publishSettings: _*)
-  .settings(disableScala("2"))
   .settings(
     name := "opaque",
     description := "Representation of opaque types",
     moduleName := "kebs-opaque",
-    crossScalaVersions := Seq(scala_30)
-  )
+    crossScalaVersions := supportedScalaVersions,
+    releaseCrossBuild := false,
+    publish / skip := (scalaBinaryVersion.value == "2.13")
+ )
 
 lazy val taggedMeta = project
   .in(file("tagged-meta"))
@@ -452,8 +473,7 @@ lazy val instances = project
   .settings(
     name := "instances",
     description := "Standard type mappings",
-    moduleName := "kebs-instances",
-    crossScalaVersions := supportedScalaVersions
+    moduleName := "kebs-instances"
   )
 
 import sbtrelease.ReleasePlugin.autoImport._
@@ -466,6 +486,7 @@ lazy val kebs = project
     opaque,
     macroUtils,
     slickSupport,
+    doobieSupport,
     sprayJsonMacros,
     sprayJsonSupport,
     playJsonSupport,
