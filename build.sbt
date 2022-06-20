@@ -137,10 +137,10 @@ val slickPg         = "com.github.tminglei" %% "slick-pg" % "0.20.3"
 val doobie          = "org.tpolecat" %% "doobie-core" % "1.0.0-RC1"
 val doobiePg        = "org.tpolecat" %% "doobie-postgres" % "1.0.0-RC1"
 val sprayJson       = "io.spray" %% "spray-json" % "1.3.6"
-val circeV = "0.15.0-SNAPSHOT"
+val circeV = "0.14.1"
 val circe           = "io.circe" %% "circe-core" % circeV
 val circeAuto       = "io.circe" %% "circe-generic" % circeV
-val circeAutoExtras = "io.circe" %% "circe-generic-extras" % "0.14.1"
+val circeAutoExtras = "io.circe" %% "circe-generic-extras" % circeV
 val circeParser     = "io.circe" %% "circe-parser" % circeV
 val optionalCirce   = optional(circe)
 
