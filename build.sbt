@@ -171,6 +171,9 @@ def akkaHttpInExamples = {
       akkaHttpSprayJson.cross(CrossVersion.for3Use2_13))
 }
 
+val http4sVersion = "0.23.12"
+val http4s = "org.http4s" %% "http4s-dsl" % http4sVersion
+
 def akkaHttpInBenchmarks = akkaHttpInExamples :+ (akkaHttpTestkit).cross(CrossVersion.for3Use2_13)
 
 lazy val commonSettings = baseSettings ++ Seq(
@@ -224,6 +227,13 @@ lazy val akkaHttpSettings = commonSettings ++ Seq(
   libraryDependencies += (akkaHttp).cross(CrossVersion.for3Use2_13),
   libraryDependencies += (akkaStreamTestkit % "test").cross(CrossVersion.for3Use2_13),
   libraryDependencies += (akkaHttpTestkit   % "test").cross(CrossVersion.for3Use2_13),
+  libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13),
+  libraryDependencies ++= paradisePlugin(scalaVersion.value),
+  scalacOptions ++= paradiseFlag(scalaVersion.value)
+)
+
+lazy val http4sSettings = commonSettings ++ Seq(
+  libraryDependencies += http4s,
   libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13),
   libraryDependencies ++= paradisePlugin(scalaVersion.value),
   scalacOptions ++= paradiseFlag(scalaVersion.value)
@@ -357,7 +367,7 @@ lazy val circeSupport = project
 
 lazy val akkaHttpSupport = project
   .in(file("akka-http"))
-  .dependsOn(macroUtils, instances, tagged, taggedMeta % "test -> test")
+  .dependsOn(macroUtils, instances, tagged % "test -> test", taggedMeta % "test -> test")
   .settings(akkaHttpSettings: _*)
   .settings(publishSettings: _*)
   .settings(disableScala("3"))
@@ -365,6 +375,18 @@ lazy val akkaHttpSupport = project
     name := "akka-http",
     description := "Automatic generation of akka-http deserializers for 1-element case classes",
     moduleName := "kebs-akka-http",
+    crossScalaVersions := supportedScalaVersions
+  )
+
+lazy val http4sSupport = project
+  .in(file("http4s"))
+  .dependsOn(macroUtils, instances, opaque % "test -> test", tagged % "test -> test", taggedMeta % "test -> test")
+  .settings(http4sSettings: _*)
+  .settings(publishSettings: _*)
+  .settings(
+    name := "http4s",
+    description := "Automatic generation of http4s deserializers for 1-element case classes, opaque and tagged types",
+    moduleName := "kebs-http4s",
     crossScalaVersions := supportedScalaVersions
   )
 
@@ -493,6 +515,7 @@ lazy val kebs = project
     jsonschemaSupport,
     scalacheckSupport,
     akkaHttpSupport,
+    http4sSupport,
     taggedMeta,
     instances
   )
