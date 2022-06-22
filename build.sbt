@@ -1,6 +1,6 @@
 import sbt.librarymanagement.ConflictWarning
 
-val scala_2_12             = "2.12.15"
+val scala_2_12             = "2.12.16"
 val scala_2_13             = "2.13.8"
 val scala_30                = "3.0.2"
 val scala_31                = "3.1.2"
