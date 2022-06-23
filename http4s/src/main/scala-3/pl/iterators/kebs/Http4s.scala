@@ -11,7 +11,7 @@ import java.util.UUID
 trait Http4s {
   protected class PathVar[A](cast: String => Try[A]) {
     def unapply(str: String): Option[A] =
-      if (!str.isEmpty)
+      if (str.nonEmpty)
         cast(str).toOption
       else
         None

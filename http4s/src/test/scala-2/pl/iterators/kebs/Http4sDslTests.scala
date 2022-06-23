@@ -7,16 +7,16 @@ import org.http4s.dsl.io._
 import org.http4s.implicits._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+
 import java.time.Year
 import java.util.Currency
-
 import pl.iterators.kebs.instances.KebsInstances._
-import pl.iterators.kebs.http4s.{given, _}
+import pl.iterators.kebs.http4s._
 
 class Http4sDslTests extends AnyFunSuite with Matchers {
   import Domain._
 
-  given val runtime: IORuntime = cats.effect.unsafe.IORuntime.global
+  implicit val runtime: IORuntime = cats.effect.unsafe.IORuntime.global
 
   object AgeQueryParamDecoderMatcher extends QueryParamDecoderMatcher[Age]("age")
 
@@ -24,12 +24,18 @@ class Http4sDslTests extends AnyFunSuite with Matchers {
 
   object ValidatingColorQueryParamDecoderMatcher extends ValidatingQueryParamDecoderMatcher[Color]("color")
 
+  // this indirection comes from: https://github.com/scala/bug/issues/884
+  val AgeVar = WrappedInt[Age]
+  val CurrencyVar = InstanceString[Currency]
+  val UserIdVar = WrappedUUID[UserId]
+  val ColorVar = EnumString[Color]
+
   val routes = HttpRoutes.of[IO] {
-    case GET -> Root / "WrappedInt" / WrappedInt[Age](age) => Ok(age.unwrap.toString())
-    case GET -> Root / "InstanceString" / InstanceString[Currency](currency) => Ok(currency.getClass.toString)
-    case GET -> Root / "EnumString" / EnumString[Color](color) => Ok(color.ordinal.toString)
-    case GET -> Root / "WrappedUUID" / WrappedUUID[UserId](userId) => Ok(userId.toString)
-    case GET -> Root / "WrappedIntParam" :? AgeQueryParamDecoderMatcher(age) => Ok(age.unwrap.toString)
+    case GET -> Root / "WrappedInt" / AgeVar(age) => Ok(age.toString)
+    case GET -> Root / "InstanceString" / CurrencyVar(currency) => Ok(currency.getClass.toString)
+    case GET -> Root / "EnumString" / ColorVar(color) => Ok(color.toString)
+    case GET -> Root / "WrappedUUID" / UserIdVar(userId) => Ok(userId.toString)
+    case GET -> Root / "WrappedIntParam" :? AgeQueryParamDecoderMatcher(age) => Ok(age.toString)
     case GET -> Root / "InstanceIntParam" :? OptionalYearParamDecoderMatcher(year) => Ok(year.toString)
     case GET -> Root / "EnumStringParam" :? ValidatingColorQueryParamDecoderMatcher(color) => Ok(color.toString)
   }
@@ -54,9 +60,9 @@ class Http4sDslTests extends AnyFunSuite with Matchers {
   }
 
   test("EnumString") {
-    runPathGetBody(uri"/EnumString/Red") shouldBe "0"
-    runPathGetBody(uri"/EnumString/BlUe") shouldBe "1"
-    runPathGetBody(uri"/EnumString/GrEEn") shouldBe "2"
+    runPathGetBody(uri"/EnumString/Red") shouldBe "Red"
+    runPathGetBody(uri"/EnumString/BlUe") shouldBe "Blue"
+    runPathGetBody(uri"/EnumString/GrEEn") shouldBe "Green"
     runPathGetBody(uri"/EnumString/Yellow") shouldBe "Not found"
   }
 
