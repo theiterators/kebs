@@ -17,6 +17,7 @@ A library maintained by [Iterators](https://www.iteratorshq.com).
   * [spray-json](#--kebs-eliminates-spray-json-induced-boilerplate-kebs-spray-json)
   * [play-json](#--kebs-eliminates-play-json-induced-boilerplate-kebs-play-json)
   * [akka-http](#--kebs-generates-akka-http-unmarshaller-kebs-akka-http)
+  * [http4s](#--kebs-provides-helpers-for-http4s)
   * [circe](#--kebs-eliminates-circe-induced-boilerplate-kebs-circe)
 * [Tagged types](#tagged-types)
 * [JsonSchema support](#jsonschema-support)
@@ -26,7 +27,7 @@ A library maintained by [Iterators](https://www.iteratorshq.com).
 ### Why?
 
 `kebs` is for eliminating some common sources of Scala boilerplate code that arise when you use 
-Slick (`kebs-slick`), Doobie (`kebs-doobie`), Spray (`kebs-spray-json`), Play (`kebs-play-json`), Circe (`kebs-circe`), Akka HTTP (`kebs-akka-http`).
+Slick (`kebs-slick`), Doobie (`kebs-doobie`), Spray (`kebs-spray-json`), Play (`kebs-play-json`), Circe (`kebs-circe`), Akka HTTP (`kebs-akka-http`), http4s (`kebs-http4s`).
 
 ### SBT
 
@@ -61,6 +62,10 @@ Support for `scalacheck`
 Support for `akka-http`
 
 `libraryDependencies += "pl.iterators" %% "kebs-akka-http" % "1.9.3"`
+
+Support for `http4s`
+
+`libraryDependencies += "pl.iterators" %% "http4s" % "1.9.3"`
 
 Support for `tagged types`
 
@@ -706,6 +711,53 @@ val route = get {
 }
 
 ```
+
+#### - kebs provides helpers for http4s
+
+Kebs makes it easy to use 1-element case-classes, opaque types (Scala 3), `enumeratum` or native Scala 3 enums in its DSL:
+
+```scala
+import java.util.UUID
+import java.time.Year
+import java.util.Currency
+
+import org.http4s._
+import org.http4s.dsl.io._
+import org.http4s.implicits._
+
+import pl.iterators.kebs.opaque.Opaque
+import pl.iterators.kebs.http4s.{given, _}
+import pl.iterators.kebs.instances.KebsInstances._ // optional, if you want instances support, ex. java.util.Currency
+
+opaque type Age = Int
+object Age extends Opaque[Age, Int] {
+  override def validate(value: Int): Either[String, Age] =
+    if (value < 0) Left("No going back, sorry") else Right(value)
+}
+
+case class UserId(id: UUID)
+
+enum Color {
+  case Red, Blue, Green
+}
+
+object AgeQueryParamDecoderMatcher extends QueryParamDecoderMatcher[Age]("age")
+object OptionalYearParamDecoderMatcher extends OptionalQueryParamDecoderMatcher[Year]("year")
+object ValidatingColorQueryParamDecoderMatcher extends ValidatingQueryParamDecoderMatcher[Color]("color")
+
+val routes = HttpRoutes.of[IO] {
+  case GET -> Root / "WrappedInt" / WrappedInt[Age](age) => ...
+  case GET -> Root / "InstanceString" / InstanceString[Currency](currency) => ...
+  case GET -> Root / "EnumString" / EnumString[Color](color) => ...
+  case GET -> Root / "WrappedUUID" / WrappedUUID[UserId](userId) => ...
+  case GET -> Root / "WrappedIntParam" :? AgeQueryParamDecoderMatcher(age) => ...
+  case GET -> Root / "InstanceIntParam" :? OptionalYearParamDecoderMatcher(year) => ...
+  case GET -> Root / "EnumStringParam" :? ValidatingColorQueryParamDecoderMatcher(color) => ...
+}
+```
+
+In Scala 2, some more boilerplate is required due to https://github.com/scala/bug/issues/884. See [tests](https://github.com/theiterators/kebs/blob/master/http4s/src/test/scala-2/pl/iterators/kebs/Http4sDslTests.scala)
+for more details.
 
 ### Tagged types
 
