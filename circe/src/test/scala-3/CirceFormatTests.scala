@@ -22,6 +22,7 @@ class CirceFormatTests extends AnyFunSuite with Matchers {
   case class Parametrized1[T](field: T)
   case class Parametrized2[T0, T1](field1: T0, field2: T1)
 
+  // https://github.com/circe/circe/issues/1980
   case class R(a: Int, rs: Seq[R]) derives Decoder, Encoder.AsObject
 
   test("Flat format") {
