@@ -6,20 +6,19 @@ import scala.util.Try
 import scala.quoted.Quotes
 import io.circe.HCursor
 import pl.iterators.kebs.macros.CaseClass1Rep
- import pl.iterators.kebs.instances.InstanceConverter
- import io.circe.generic.AutoDerivation
- trait KebsCirce extends AutoDerivation {
+import pl.iterators.kebs.instances.InstanceConverter
+import io.circe.generic.AutoDerivation
 
-  implicit inline given[T, A](using inline rep: CaseClass1Rep[T, A], decoder: Decoder[A]): Decoder[T] =
+trait KebsCirce extends AutoDerivation {
+   inline implicit def flatDecoder[T, A](implicit inline  rep: CaseClass1Rep[T, A], decoder: Decoder[A]): Decoder[T] =
     decoder.emap(obj => Try(rep.apply(obj)).toEither.left.map(_.getMessage))
 
-  implicit inline given[T, A](using inline rep: CaseClass1Rep[T, A], encoder: Encoder[A]): Encoder[T] =
+   inline implicit def flatEncoder[T, A](implicit inline rep: CaseClass1Rep[T, A], encoder: Encoder[A]): Encoder[T] =
     encoder.contramap(rep.unapply)
-    
-  implicit inline given[T, A](using inline rep: InstanceConverter[T, A], encoder: Encoder[A]): Encoder[T] =
+
+   inline implicit def instanceEncoder[T, A](implicit inline rep: InstanceConverter[T, A], encoder: Encoder[A]): Encoder[T] =
     encoder.contramap(rep.encode)
 
-  implicit inline given[T, A](using inline rep: InstanceConverter[T, A], decoder: Decoder[A]): Decoder[T] =
+   inline implicit def instanceDecoder[T, A](implicit inline rep: InstanceConverter[T, A], decoder: Decoder[A]): Decoder[T] =
     decoder.emap(obj => Try(rep.decode(obj)).toEither.left.map(_.getMessage))
-    
 }

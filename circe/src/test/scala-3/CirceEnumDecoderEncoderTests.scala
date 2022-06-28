@@ -3,11 +3,12 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.funsuite.AnyFunSuite
 import pl.iterators.kebs.circe.KebsEnumFormats
 import scala.reflect.Enum
-class CirceEnumDecoderEncoderTests extends AnyFunSuite with Matchers {
 
-  enum Greeting {
-    case Hello, GoodBye, Hi, Bye
-  }
+enum Greeting {
+  case Hello, GoodBye, Hi, Bye
+}
+
+class CirceEnumDecoderEncoderTests extends AnyFunSuite with Matchers {
 
   object KebsProtocol          extends KebsEnumFormats
   // object KebsProtocolUppercase extends KebsEnumFormats.Uppercase
