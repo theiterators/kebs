@@ -15,51 +15,40 @@ class CirceEnumDecoderEncoderTests extends AnyFunSuite with Matchers {
   // object KebsProtocolLowercase extends KebsEnumFormats.Lowercase
 
   import Greeting._
-  // test("enum JsonFormat") {
-  //   import KebsProtocol._
-  //   val decoder = implicitly[Decoder[Greeting]]
-  //   val encoder = implicitly[Encoder[Greeting]]
-  //   decoder(Json.fromString("hElLo").hcursor) shouldBe Right(Hello)
-  //   decoder(Json.fromString("goodbye").hcursor) shouldBe Right(GoodBye)
-  //   encoder(Hello) shouldBe Json.fromString("Hello")
-  //   encoder(GoodBye) shouldBe Json.fromString("GoodBye")
-  // }
-
-    test("enum JsonFormat") {
+  test("enum JsonFormat") {
     import KebsProtocol._
-    // val decoder = implicitly[Decoder[Greeting]]
+    val decoder = implicitly[Decoder[Greeting]]
     val encoder = implicitly[Encoder[Greeting]]
-    // decoder(Json.fromString("hElLo").hcursor) shouldBe Right(Hello)
-    // decoder(Json.fromString("goodbye").hcursor) shouldBe Right(GoodBye)
+    decoder(Json.fromString("hElLo").hcursor) shouldBe Right(Hello)
+    decoder(Json.fromString("goodbye").hcursor) shouldBe Right(GoodBye)
     encoder(Hello) shouldBe Json.fromString("Hello")
     encoder(GoodBye) shouldBe Json.fromString("GoodBye")
   }
 
+  test("enum name deserialization error") {
+    import KebsProtocol._
+    val decoder = implicitly[Decoder[Greeting]]
+    decoder(Json.fromInt(1).hcursor) shouldBe Left(
+      DecodingFailure("1 should be a string of value Hello, GoodBye, Hi, Bye", List.empty[CursorOp]))
+  }
 
-  // test("enum name deserialization error") {
-  //   import KebsProtocol._
-  //   val decoder = implicitly[Decoder[Greeting]]
-  //   decoder(Json.fromInt(1).hcursor) shouldBe Left(
-  //     DecodingFailure("1 should be a string of value Hello, GoodBye, Hi, Bye", List.empty[CursorOp]))
-  // }
+  test("enum JsonFormat - lowercase") {
+    import KebsProtocol._
+    val decoder = implicitly[Decoder[Greeting]]
+    val encoder = implicitly[Encoder[Greeting]]
+    decoder(Json.fromString("hello").hcursor) shouldBe Right(Hello)
+    decoder(Json.fromString("goodbye").hcursor) shouldBe Right(GoodBye)
+    encoder(Hello) shouldBe Json.fromString("Hello")
+    encoder(GoodBye) shouldBe Json.fromString("GoodBye")
+  }
 
-  // test("enum JsonFormat - lowercase") {
-  //   import KebsProtocol._
-  //   val decoder = implicitly[Decoder[Greeting]]
-  //   val encoder = implicitly[Encoder[Greeting]]
-  //   decoder(Json.fromString("hello").hcursor) shouldBe Right(Hello)
-  //   decoder(Json.fromString("goodbye").hcursor) shouldBe Right(GoodBye)
-  //   encoder(Hello) shouldBe Json.fromString("Hello")
-  //   encoder(GoodBye) shouldBe Json.fromString("GoodBye")
-  // }
-
-  // test("enum JsonFormat - uppercase") {
-  //   import KebsProtocol._
-  //   val decoder = implicitly[Decoder[Greeting]]
-  //   val encoder = implicitly[Encoder[Greeting]]
-  //   decoder(Json.fromString("HELLO").hcursor) shouldBe Right(Hello)
-  //   decoder(Json.fromString("GOODBYE").hcursor) shouldBe Right(GoodBye)
-  //   encoder(Hello) shouldBe Json.fromString("Hello")
-  //   encoder(GoodBye) shouldBe Json.fromString("GoodBye")
-  // }
+  test("enum JsonFormat - uppercase") {
+    import KebsProtocol._
+    val decoder = implicitly[Decoder[Greeting]]
+    val encoder = implicitly[Encoder[Greeting]]
+    decoder(Json.fromString("HELLO").hcursor) shouldBe Right(Hello)
+    decoder(Json.fromString("GOODBYE").hcursor) shouldBe Right(GoodBye)
+    encoder(Hello) shouldBe Json.fromString("Hello")
+    encoder(GoodBye) shouldBe Json.fromString("GoodBye")
+  }
 }
