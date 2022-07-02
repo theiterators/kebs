@@ -17,7 +17,7 @@ lazy val baseSettings = Seq(
   organizationName := "Iterators",
   organizationHomepage := Some(url("https://iterato.rs")),
   homepage := Some(url("https://github.com/theiterators/kebs")),
-  scalacOptions := Seq("-deprecation", "-unchecked", "-feature", "-encoding", "utf8", "-Xmax-inlines", "64"),
+  scalacOptions := Seq("-deprecation", "-unchecked", "-feature", "-encoding", "utf8"),
   // Don't publish for Scala 3.1 or later, only from 3.0
   publish / skip := (CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((3, x)) if x > 0 => true
@@ -353,7 +353,8 @@ lazy val circeSupport = project
   .settings(
     name := "circe",
     description := "Automatic generation of circe formats for case-classes",
-    moduleName := "kebs-circe"
+    moduleName := "kebs-circe",
+    Test / scalacOptions ++= Seq("-Xmax-inlines", "64")
   )
 
 lazy val akkaHttpSupport = project
