@@ -1,15 +1,13 @@
 import sbt.librarymanagement.ConflictWarning
 
-val scala_2_12             = "2.12.15"
+val scala_2_12             = "2.12.16"
 val scala_2_13             = "2.13.8"
-val scala_30                = "3.0.2"
 val scala_31                = "3.1.2"
-val mainScalaVersion       = scala_2_12
-val supportedScalaVersions = Seq(scala_2_12, scala_2_13, scala_30, scala_31)
+val mainScalaVersion       = scala_31
+val supportedScalaVersions = Seq(scala_2_12, scala_2_13, scala_31)
 
 ThisBuild / crossScalaVersions := supportedScalaVersions
 ThisBuild / scalaVersion := mainScalaVersion
-
 ThisBuild / conflictWarning := ConflictWarning.disable
 
 
@@ -138,10 +136,10 @@ val slickPg         = "com.github.tminglei" %% "slick-pg" % "0.20.3"
 val doobie          = "org.tpolecat" %% "doobie-core" % "1.0.0-RC1"
 val doobiePg        = "org.tpolecat" %% "doobie-postgres" % "1.0.0-RC1"
 val sprayJson       = "io.spray" %% "spray-json" % "1.3.6"
-val circe           = "io.circe" %% "circe-core" % "0.14.1"
-val circeAuto       = "io.circe" %% "circe-generic" % "0.14.1"
-val circeAutoExtras = "io.circe" %% "circe-generic-extras" % "0.14.1"
-val circeParser     = "io.circe" %% "circe-parser" % "0.14.1"
+val circe           = "io.circe" %% "circe-core" % "0.14.2"
+val circeAuto       = "io.circe" %% "circe-generic" % "0.14.2"
+val circeAutoExtras = "io.circe" %% "circe-generic-extras" % "0.14.2"
+val circeParser     = "io.circe" %% "circe-parser" % "0.14.2"
 val optionalCirce   = optional(circe)
 
 val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.8"
@@ -193,7 +191,7 @@ lazy val slickSettings = commonSettings ++ Seq(
 lazy val doobieSettings = commonSettings ++ Seq(
   libraryDependencies += doobie,
   libraryDependencies += (doobiePg % "test"),
-  libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13)
+  libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13),
 )
 
 lazy val macroUtilsSettings = commonMacroSettings ++ Seq(
@@ -276,8 +274,7 @@ lazy val macroUtils = project
   .settings(
     name := "macro-utils",
     description := "Macros supporting Kebs library",
-    moduleName := "kebs-macro-utils",
-    crossScalaVersions := supportedScalaVersions
+    moduleName := "kebs-macro-utils"
   )
 
 lazy val slickSupport = project
@@ -333,7 +330,7 @@ lazy val sprayJsonSupport = project
 
 lazy val playJsonSupport = project
   .in(file("play-json"))
-  .dependsOn(macroUtils)
+  .dependsOn(macroUtils, instances)
   .settings(playJsonSettings: _*)
   .settings(publishSettings: _*)
   .settings(disableScala("3"))
@@ -346,7 +343,7 @@ lazy val playJsonSupport = project
 
 lazy val circeSupport = project
   .in(file("circe"))
-  .dependsOn(macroUtils)
+  .dependsOn(macroUtils, instances)
   .settings(circeSettings: _*)
   .settings(crossBuildSettings: _*)
   .settings(publishSettings: _*)
@@ -413,13 +410,16 @@ lazy val opaque = project
   .in(file("opaque"))
   .dependsOn(macroUtils)
   .settings(opaqueSettings: _*)
-  .settings(publishSettings: _*)
   .settings(disableScala("2.13"))
+  .settings(disableScala("2.12"))
+  .settings(publishSettings: _*)
   .settings(
     name := "opaque",
     description := "Representation of opaque types",
     moduleName := "kebs-opaque",
-    crossScalaVersions := Seq(scala_30)
+    crossScalaVersions := supportedScalaVersions,
+    releaseCrossBuild := false,
+    publish / skip := (scalaBinaryVersion.value == "2.13")
  )
 
 lazy val taggedMeta = project
@@ -471,8 +471,7 @@ lazy val instances = project
   .settings(
     name := "instances",
     description := "Standard type mappings",
-    moduleName := "kebs-instances",
-    crossScalaVersions := supportedScalaVersions
+    moduleName := "kebs-instances"
   )
 
 import sbtrelease.ReleasePlugin.autoImport._
