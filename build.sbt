@@ -1,11 +1,10 @@
 import sbt.librarymanagement.ConflictWarning
 
-val scala_2_12             = "2.12.15"
+val scala_2_12             = "2.12.16"
 val scala_2_13             = "2.13.8"
-val scala_30                = "3.0.2"
-val scala_31                = "3.1.2"
+val scala_31               = "3.1.3"
 val mainScalaVersion       = scala_31
-val supportedScalaVersions = Seq(scala_2_12, scala_2_13, scala_30, scala_31)
+val supportedScalaVersions = Seq(scala_2_12, scala_2_13, scala_31)
 
 ThisBuild / crossScalaVersions := supportedScalaVersions
 ThisBuild / scalaVersion := mainScalaVersion
@@ -341,7 +340,7 @@ lazy val sprayJsonSupport = project
 
 lazy val playJsonSupport = project
   .in(file("play-json"))
-  .dependsOn(macroUtils)
+  .dependsOn(macroUtils, instances)
   .settings(playJsonSettings: _*)
   .settings(publishSettings: _*)
   .settings(disableScala("3"))
@@ -354,7 +353,7 @@ lazy val playJsonSupport = project
 
 lazy val circeSupport = project
   .in(file("circe"))
-  .dependsOn(macroUtils)
+  .dependsOn(macroUtils, instances)
   .settings(circeSettings: _*)
   .settings(crossBuildSettings: _*)
   .settings(publishSettings: _*)
