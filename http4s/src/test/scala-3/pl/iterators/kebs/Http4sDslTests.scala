@@ -16,7 +16,7 @@ import pl.iterators.kebs.http4s.{given, _}
 class Http4sDslTests extends AnyFunSuite with Matchers {
   import Domain._
 
-  given val runtime: IORuntime = cats.effect.unsafe.IORuntime.global
+  given runtime: IORuntime = cats.effect.unsafe.IORuntime.global
 
   object AgeQueryParamDecoderMatcher extends QueryParamDecoderMatcher[Age]("age")
 
