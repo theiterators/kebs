@@ -24,6 +24,6 @@ object Domain extends Domain {
     case object Blue extends Color
     case object Green extends Color
 
-    override def values: IndexedSeq[Color] = findValues
+    override def values = findValues
   }
 }
