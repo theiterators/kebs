@@ -2,10 +2,9 @@ import sbt.librarymanagement.ConflictWarning
 
 val scala_2_12             = "2.12.16"
 val scala_2_13             = "2.13.8"
-val scala_30                = "3.0.2"
-val scala_31                = "3.1.2"
+val scala_31               = "3.1.3"
 val mainScalaVersion       = scala_31
-val supportedScalaVersions = Seq(scala_2_12, scala_2_13, scala_30, scala_31)
+val supportedScalaVersions = Seq(scala_2_12, scala_2_13, scala_31)
 
 ThisBuild / crossScalaVersions := supportedScalaVersions
 ThisBuild / scalaVersion := mainScalaVersion
@@ -128,14 +127,14 @@ def paradisePlugin(scalaVersion: String): Seq[ModuleID] =
   else
     Seq.empty
 
-val scalaTest       = "org.scalatest" %% "scalatest" % "3.2.11"
+val scalaTest       = "org.scalatest" %% "scalatest" % "3.2.12"
 val scalaCheck      = "org.scalacheck" %% "scalacheck" % "1.16.0"
 val slick           = "com.typesafe.slick" %% "slick" % "3.3.3"
 val optionalSlick   = optional(slick)
 val playJson        = "com.typesafe.play" %% "play-json" % "2.9.2"
 val slickPg         = "com.github.tminglei" %% "slick-pg" % "0.20.3"
-val doobie          = "org.tpolecat" %% "doobie-core" % "1.0.0-RC1"
-val doobiePg        = "org.tpolecat" %% "doobie-postgres" % "1.0.0-RC1"
+val doobie          = "org.tpolecat" %% "doobie-core" % "1.0.0-RC2"
+val doobiePg        = "org.tpolecat" %% "doobie-postgres" % "1.0.0-RC2"
 val sprayJson       = "io.spray" %% "spray-json" % "1.3.6"
 val circeV = "0.14.1"
 val circe           = "io.circe" %% "circe-core" % circeV
@@ -144,7 +143,7 @@ val circeAutoExtras = "io.circe" %% "circe-generic-extras" % circeV
 val circeParser     = "io.circe" %% "circe-parser" % circeV
 val optionalCirce   = optional(circe)
 
-val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.8"
+val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.9"
 
 val scalacheck           = "org.scalacheck"             %% "scalacheck"                % "1.16.0" % "test"
 val scalacheckShapeless  = "com.github.alexarchambault" %% "scalacheck-shapeless_1.14" % "1.2.5"
@@ -171,6 +170,10 @@ def akkaHttpInExamples = {
       akkaHttp.cross(CrossVersion.for3Use2_13),
       akkaHttpSprayJson.cross(CrossVersion.for3Use2_13))
 }
+
+val http4sVersion = "0.23.13"
+val http4s = "org.http4s" %% "http4s-dsl" % http4sVersion
+
 def akkaHttpInBenchmarks = akkaHttpInExamples :+ (akkaHttpTestkit).cross(CrossVersion.for3Use2_13)
 
 lazy val commonSettings = baseSettings ++ Seq(
@@ -226,6 +229,13 @@ lazy val akkaHttpSettings = commonSettings ++ Seq(
   libraryDependencies += (akkaHttp).cross(CrossVersion.for3Use2_13),
   libraryDependencies += (akkaStreamTestkit % "test").cross(CrossVersion.for3Use2_13),
   libraryDependencies += (akkaHttpTestkit   % "test").cross(CrossVersion.for3Use2_13),
+  libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13),
+  libraryDependencies ++= paradisePlugin(scalaVersion.value),
+  scalacOptions ++= paradiseFlag(scalaVersion.value)
+)
+
+lazy val http4sSettings = commonSettings ++ Seq(
+  libraryDependencies += http4s,
   libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13),
   libraryDependencies ++= paradisePlugin(scalaVersion.value),
   scalacOptions ++= paradiseFlag(scalaVersion.value)
@@ -359,7 +369,7 @@ lazy val circeSupport = project
 
 lazy val akkaHttpSupport = project
   .in(file("akka-http"))
-  .dependsOn(macroUtils, instances, tagged, taggedMeta % "test -> test")
+  .dependsOn(macroUtils, instances, tagged % "test -> test", taggedMeta % "test -> test")
   .settings(akkaHttpSettings: _*)
   .settings(publishSettings: _*)
   .settings(disableScala("3"))
@@ -367,6 +377,18 @@ lazy val akkaHttpSupport = project
     name := "akka-http",
     description := "Automatic generation of akka-http deserializers for 1-element case classes",
     moduleName := "kebs-akka-http",
+    crossScalaVersions := supportedScalaVersions
+  )
+
+lazy val http4sSupport = project
+  .in(file("http4s"))
+  .dependsOn(macroUtils, instances, opaque % "test -> test", tagged % "test -> test", taggedMeta % "test -> test")
+  .settings(http4sSettings: _*)
+  .settings(publishSettings: _*)
+  .settings(
+    name := "http4s",
+    description := "Automatic generation of http4s deserializers for 1-element case classes, opaque and tagged types",
+    moduleName := "kebs-http4s",
     crossScalaVersions := supportedScalaVersions
   )
 
@@ -495,6 +517,7 @@ lazy val kebs = project
     jsonschemaSupport,
     scalacheckSupport,
     akkaHttpSupport,
+    http4sSupport,
     taggedMeta,
     instances
   )
