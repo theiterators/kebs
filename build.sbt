@@ -364,7 +364,7 @@ lazy val circeSupport = project
     name := "circe",
     description := "Automatic generation of circe formats for case-classes",
     moduleName := "kebs-circe",
-    Test / scalacOptions ++= Seq("-Xmax-inlines", "64")
+    Test / scalacOptions ++= (if(scalaVersion.value.startsWith("3")) Seq("-Xmax-inlines", "64") else Nil)
   )
 
 lazy val akkaHttpSupport = project
