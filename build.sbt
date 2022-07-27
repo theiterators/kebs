@@ -165,7 +165,7 @@ def akkaHttpInExamples = {
       akkaHttpSprayJson.cross(CrossVersion.for3Use2_13))
 }
 
-val http4sVersion = "0.23.13"
+val http4sVersion = "0.23.14"
 val http4s = "org.http4s" %% "http4s-dsl" % http4sVersion
 
 def akkaHttpInBenchmarks = akkaHttpInExamples :+ (akkaHttpTestkit).cross(CrossVersion.for3Use2_13)
