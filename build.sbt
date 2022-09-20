@@ -31,19 +31,9 @@ lazy val metaSettings = commonSettings ++ Seq(
   libraryDependencies ++= paradisePlugin(scalaVersion.value)
 )
 
-lazy val publishToNexus = publishTo := {
-  val nexus = "https://oss.sonatype.org/"
-  if (isSnapshot.value)
-    Some("snapshots" at nexus + "content/repositories/snapshots")
-  else
-    Some("releases" at nexus + "service/local/staging/deploy/maven2")
-}
-
-lazy val crossBuildSettings = Seq(crossScalaVersions := supportedScalaVersions, releaseCrossBuild := true)
+lazy val crossBuildSettings = Seq(crossScalaVersions := supportedScalaVersions)
 
 lazy val publishSettings = Seq(
-  publishToNexus,
-  publishMavenStyle := true,
   pomIncludeRepository := const(true),
   licenses := Seq("MIT License" -> url("http://opensource.org/licenses/MIT")),
   developers := List(
@@ -59,19 +49,11 @@ lazy val publishSettings = Seq(
   ),
   scmInfo := Some(
     ScmInfo(browseUrl = url("https://github.com/theiterators/kebs"), connection = "scm:git:https://github.com/theiterators/kebs.git")),
-  releasePublishArtifactsAction := PgpKeys.publishSigned.value,
-  credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
 ) ++ crossBuildSettings
 
 lazy val noPublishSettings =
   Seq(
-    publishToNexus /*must be set for sbt-release*/,
     publishArtifact := false,
-    releaseCrossBuild := false,
-    releasePublishArtifactsAction := {
-      val projectName = name.value
-      streams.value.log.warn(s"Publishing for $projectName is turned off")
-    }
   )
 
 def disableScala(v: String) = Def.settings(
@@ -435,7 +417,6 @@ lazy val opaque = project
     description := "Representation of opaque types",
     moduleName := "kebs-opaque",
     crossScalaVersions := supportedScalaVersions,
-    releaseCrossBuild := false,
     publish / skip := (scalaBinaryVersion.value == "2.13")
  )
 
@@ -491,9 +472,6 @@ lazy val instances = project
     moduleName := "kebs-instances"
   )
 
-import sbtrelease.ReleasePlugin.autoImport._
-import sbtrelease.ReleaseStateTransformations._
-
 lazy val kebs = project
   .in(file("."))
   .aggregate(
@@ -516,23 +494,5 @@ lazy val kebs = project
   .settings(baseSettings: _*)
   .settings(
     name := "kebs",
-    description := "Library to eliminate the boilerplate code",
-    publishToNexus, /*must be set for sbt-release*/
-    releaseCrossBuild := false,
-    releaseProcess := Seq(
-      checkSnapshotDependencies,
-      inquireVersions,
-      releaseStepCommandAndRemaining("+publishLocalSigned"),
-      releaseStepCommandAndRemaining("+clean"),
-      releaseStepCommandAndRemaining("+test"),
-      setReleaseVersion,
-      commitReleaseVersion,
-      tagRelease,
-      releaseStepCommandAndRemaining("+publishSigned"),
-      setNextVersion,
-      commitNextVersion,
-      pushChanges
-    ),
-    publishArtifact := false,
-    crossScalaVersions := Nil
+    description := "Library to eliminate the boilerplate code"
   )
