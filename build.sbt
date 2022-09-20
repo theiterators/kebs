@@ -491,6 +491,7 @@ lazy val kebs = project
     instances
   )
   .settings(baseSettings: _*)
+  .settings(noPublishSettings)
   .settings(
     name := "kebs",
     description := "Library to eliminate the boilerplate code"
