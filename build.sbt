@@ -104,7 +104,7 @@ def paradisePlugin(scalaVersion: String): Seq[ModuleID] =
   else
     Seq.empty
 
-val scalaTest       = "org.scalatest" %% "scalatest" % "3.2.13"
+val scalaTest       = "org.scalatest" %% "scalatest" % "3.2.14"
 val scalaCheck      = "org.scalacheck" %% "scalacheck" % "1.16.0"
 val slick           = "com.typesafe.slick" %% "slick" % "3.4.1"
 val optionalSlick   = optional(slick)
