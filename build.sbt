@@ -104,25 +104,25 @@ def paradisePlugin(scalaVersion: String): Seq[ModuleID] =
   else
     Seq.empty
 
-val scalaTest       = "org.scalatest" %% "scalatest" % "3.2.13"
+val scalaTest       = "org.scalatest" %% "scalatest" % "3.2.14"
 val scalaCheck      = "org.scalacheck" %% "scalacheck" % "1.16.0"
-val slick           = "com.typesafe.slick" %% "slick" % "3.4.0"
+val slick           = "com.typesafe.slick" %% "slick" % "3.4.1"
 val optionalSlick   = optional(slick)
 val playJson        = "com.typesafe.play" %% "play-json" % "2.9.3"
 val slickPg         = "com.github.tminglei" %% "slick-pg" % "0.21.0"
 val doobie          = "org.tpolecat" %% "doobie-core" % "1.0.0-RC2"
 val doobiePg        = "org.tpolecat" %% "doobie-postgres" % "1.0.0-RC2"
 val sprayJson       = "io.spray" %% "spray-json" % "1.3.6"
-val circe           = "io.circe" %% "circe-core" % "0.14.2"
-val circeAuto       = "io.circe" %% "circe-generic" % "0.14.2"
-val circeAutoExtras = "io.circe" %% "circe-generic-extras" % "0.14.2"
-val circeParser     = "io.circe" %% "circe-parser" % "0.14.2"
+val circe           = "io.circe" %% "circe-core" % "0.14.3"
+val circeAuto       = "io.circe" %% "circe-generic" % "0.14.3"
+val circeAutoExtras = "io.circe" %% "circe-generic-extras" % "0.14.3"
+val circeParser     = "io.circe" %% "circe-parser" % "0.14.3"
 val optionalCirce   = optional(circe)
 
 val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.9"
 
 val scalacheck           = "org.scalacheck"             %% "scalacheck"                % "1.16.0" % "test"
-val scalacheckShapeless  = "com.github.alexarchambault" %% "scalacheck-shapeless_1.14" % "1.2.5"
+val scalacheckShapeless  = "com.github.alexarchambault" %% "scalacheck-shapeless_1.15" % "1.3.0"
 val scalacheckEnumeratum = "com.beachape"               %% "enumeratum-scalacheck"     % "1.7.0"
 
 val enumeratumVersion         = "1.7.0"
@@ -147,7 +147,7 @@ def akkaHttpInExamples = {
       akkaHttpSprayJson.cross(CrossVersion.for3Use2_13))
 }
 
-val http4sVersion = "0.23.15"
+val http4sVersion = "0.23.16"
 val http4s = "org.http4s" %% "http4s-dsl" % http4sVersion
 
 def akkaHttpInBenchmarks = akkaHttpInExamples :+ (akkaHttpTestkit).cross(CrossVersion.for3Use2_13)
