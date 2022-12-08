@@ -16,7 +16,7 @@ lazy val baseSettings = Seq(
   organizationName := "Iterators",
   organizationHomepage := Some(url("https://iterato.rs")),
   homepage := Some(url("https://github.com/theiterators/kebs")),
-  scalacOptions := Seq("-deprecation", "-unchecked", "-feature", "-encoding", "utf8")
+  scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature", "-encoding", "utf8")
 )
 
 lazy val commonMacroSettings = baseSettings ++ Seq(
@@ -104,8 +104,8 @@ def paradisePlugin(scalaVersion: String): Seq[ModuleID] =
   else
     Seq.empty
 
-val scalaTest       = "org.scalatest" %% "scalatest" % "3.2.14"
-val scalaCheck      = "org.scalacheck" %% "scalacheck" % "1.17.0"
+val scalaTest       = Def.setting("org.scalatest" %%% "scalatest" % "3.2.14")
+val scalaCheck      = Def.setting("org.scalacheck" %%% "scalacheck" % "1.17.0")
 val slick           = "com.typesafe.slick" %% "slick" % "3.4.1"
 val optionalSlick   = optional(slick)
 val playJson        = "com.typesafe.play" %% "play-json" % "2.9.3"
@@ -113,11 +113,10 @@ val slickPg         = "com.github.tminglei" %% "slick-pg" % "0.21.1"
 val doobie          = "org.tpolecat" %% "doobie-core" % "1.0.0-RC2"
 val doobiePg        = "org.tpolecat" %% "doobie-postgres" % "1.0.0-RC2"
 val sprayJson       = "io.spray" %% "spray-json" % "1.3.6"
-val circe           = "io.circe" %% "circe-core" % "0.14.3"
+val circe           = Def.setting("io.circe" %%% "circe-core" % "0.14.3")
 val circeAuto       = "io.circe" %% "circe-generic" % "0.14.3"
 val circeAutoExtras = "io.circe" %% "circe-generic-extras" % "0.14.3"
 val circeParser     = "io.circe" %% "circe-parser" % "0.14.3"
-val optionalCirce   = optional(circe)
 
 val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.9"
 
@@ -158,7 +157,7 @@ lazy val commonSettings = baseSettings ++ Seq(
        Seq("-language:implicitConversions", "-Ykind-projector", "-Xignore-scala2-macros")
      else Seq("-language:implicitConversions", "-language:experimental.macros")),
 //  (scalacOptions in Test) ++= Seq("-Ymacro-debug-lite" /*, "-Xlog-implicits"*/ ),
-  libraryDependencies += scalaTest % "test"
+  libraryDependencies += scalaTest.value % "test"
 )
 
 lazy val slickSettings = commonSettings ++ Seq(
@@ -174,7 +173,7 @@ lazy val doobieSettings = commonSettings ++ Seq(
 )
 
 lazy val macroUtilsSettings = commonMacroSettings ++ Seq(
-  libraryDependencies += (scalaCheck % "test").cross(CrossVersion.for3Use2_13),
+  libraryDependencies += (scalaCheck.value % "test").cross(CrossVersion.for3Use2_13),
   libraryDependencies += optionalEnumeratum
 )
 
@@ -191,7 +190,7 @@ lazy val playJsonSettings = commonSettings ++ Seq(
 )
 
 lazy val circeSettings = commonSettings ++ Seq(
-  libraryDependencies += circe,
+  libraryDependencies += circe.value,
   libraryDependencies += circeAuto,
   libraryDependencies += circeAutoExtras.cross(CrossVersion.for3Use2_13),
   libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13),
@@ -226,7 +225,7 @@ lazy val scalacheckSettings = commonSettings ++ Seq(
 
 lazy val taggedSettings = commonSettings ++ Seq(
   libraryDependencies += optionalSlick.cross(CrossVersion.for3Use2_13),
-  libraryDependencies += optionalCirce
+  libraryDependencies += optional(circe.value)
 )
 
 lazy val opaqueSettings = commonSettings
@@ -241,19 +240,21 @@ lazy val examplesSettings = commonSettings ++ Seq(
 )
 
 lazy val benchmarkSettings = commonSettings ++ Seq(
-  libraryDependencies += scalaTest,
+  libraryDependencies += scalaTest.value,
   libraryDependencies += enumeratum.cross(CrossVersion.for3Use2_13),
   libraryDependencies ++= akkaHttpInBenchmarks
 )
 
 lazy val taggedMetaSettings = metaSettings ++ Seq(
   libraryDependencies += optional(sprayJson.cross(CrossVersion.for3Use2_13)),
-  libraryDependencies += optional(circe)
+  libraryDependencies += optional(circe.value)
 )
 
 lazy val instancesSettings = commonSettings
 
-lazy val macroUtils = project
+lazy val macroUtils = crossProject(JSPlatform, JVMPlatform)
+  .withoutSuffixFor(JVMPlatform)
+  .crossType(CrossType.Pure)
   .in(file("macro-utils"))
   .settings(macroUtilsSettings: _*)
   .settings(publishSettings: _*)
@@ -265,7 +266,7 @@ lazy val macroUtils = project
 
 lazy val slickSupport = project
   .in(file("slick"))
-  .dependsOn(macroUtils, instances)
+  .dependsOn(macroUtils.jvm, instances)
   .settings(slickSettings: _*)
   .settings(publishSettings: _*)
   .settings(disableScala("3"))
@@ -278,7 +279,7 @@ lazy val slickSupport = project
 
 lazy val doobieSupport = project
   .in(file("doobie"))
-  .dependsOn(instances, opaque)
+  .dependsOn(instances, opaque.jvm)
   .settings(doobieSettings: _*)
   .settings(publishSettings: _*)
   .settings(
@@ -290,7 +291,7 @@ lazy val doobieSupport = project
 
 lazy val sprayJsonMacros = project
   .in(file("spray-json-macros"))
-  .dependsOn(macroUtils)
+  .dependsOn(macroUtils.jvm)
   .settings(sprayJsonMacroSettings: _*)
   .settings(publishSettings: _*)
   .settings(disableScala("3"))
@@ -316,7 +317,7 @@ lazy val sprayJsonSupport = project
 
 lazy val playJsonSupport = project
   .in(file("play-json"))
-  .dependsOn(macroUtils, instances)
+  .dependsOn(macroUtils.jvm, instances)
   .settings(playJsonSettings: _*)
   .settings(publishSettings: _*)
   .settings(disableScala("3"))
@@ -329,7 +330,7 @@ lazy val playJsonSupport = project
 
 lazy val circeSupport = project
   .in(file("circe"))
-  .dependsOn(macroUtils, instances)
+  .dependsOn(macroUtils.jvm, instances)
   .settings(circeSettings: _*)
   .settings(crossBuildSettings: _*)
   .settings(publishSettings: _*)
@@ -342,7 +343,7 @@ lazy val circeSupport = project
 
 lazy val akkaHttpSupport = project
   .in(file("akka-http"))
-  .dependsOn(macroUtils, instances, tagged % "test -> test", taggedMeta % "test -> test")
+  .dependsOn(macroUtils.jvm, instances, tagged.jvm % "test -> test", taggedMeta % "test -> test")
   .settings(akkaHttpSettings: _*)
   .settings(publishSettings: _*)
   .settings(disableScala("3"))
@@ -355,7 +356,7 @@ lazy val akkaHttpSupport = project
 
 lazy val http4sSupport = project
   .in(file("http4s"))
-  .dependsOn(macroUtils, instances, opaque % "test -> test", tagged % "test -> test", taggedMeta % "test -> test")
+  .dependsOn(macroUtils.jvm, instances, opaque.jvm % "test -> test", tagged.jvm % "test -> test", taggedMeta % "test -> test")
   .settings(http4sSettings: _*)
   .settings(publishSettings: _*)
   .settings(
@@ -367,7 +368,7 @@ lazy val http4sSupport = project
 
 lazy val jsonschemaSupport = project
   .in(file("jsonschema"))
-  .dependsOn(macroUtils)
+  .dependsOn(macroUtils.jvm)
   .settings(jsonschemaSettings: _*)
   .settings(publishSettings: _*)
   .settings(disableScala("3"))
@@ -380,7 +381,7 @@ lazy val jsonschemaSupport = project
 
 lazy val scalacheckSupport = project
   .in(file("scalacheck"))
-  .dependsOn(macroUtils)
+  .dependsOn(macroUtils.jvm)
   .settings(scalacheckSettings: _*)
   .settings(publishSettings: _*)
   .settings(disableScala("3"))
@@ -391,7 +392,9 @@ lazy val scalacheckSupport = project
     crossScalaVersions := supportedScalaVersions
   )
 
-lazy val tagged = project
+lazy val tagged = crossProject(JSPlatform, JVMPlatform)
+  .withoutSuffixFor(JVMPlatform)
+  .crossType(CrossType.Full)
   .in(file("tagged"))
   .dependsOn(macroUtils)
   .settings(taggedSettings: _*)
@@ -404,7 +407,9 @@ lazy val tagged = project
     crossScalaVersions := supportedScalaVersions
   )
 
-lazy val opaque = project
+lazy val opaque = crossProject(JSPlatform, JVMPlatform)
+  .withoutSuffixFor(JVMPlatform)
+  .crossType(CrossType.Pure)
   .in(file("opaque"))
   .dependsOn(macroUtils)
   .settings(opaqueSettings: _*)
@@ -422,8 +427,8 @@ lazy val opaque = project
 lazy val taggedMeta = project
   .in(file("tagged-meta"))
   .dependsOn(
-    macroUtils,
-    tagged,
+    macroUtils.jvm,
+    tagged.jvm,
     sprayJsonSupport  % "test -> test",
     circeSupport      % "test -> test",
     jsonschemaSupport % "test -> test",
@@ -474,9 +479,12 @@ lazy val instances = project
 lazy val kebs = project
   .in(file("."))
   .aggregate(
-    tagged,
-    opaque,
-    macroUtils,
+    tagged.jvm,
+    tagged.js,
+    opaque.jvm,
+    opaque.js,
+    macroUtils.jvm,
+    macroUtils.js,
     slickSupport,
     doobieSupport,
     sprayJsonMacros,
