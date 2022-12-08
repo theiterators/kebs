@@ -279,7 +279,7 @@ lazy val slickSupport = project
 
 lazy val doobieSupport = project
   .in(file("doobie"))
-  .dependsOn(instances, opaque)
+  .dependsOn(instances, opaque.jvm)
   .settings(doobieSettings: _*)
   .settings(publishSettings: _*)
   .settings(
@@ -356,7 +356,7 @@ lazy val akkaHttpSupport = project
 
 lazy val http4sSupport = project
   .in(file("http4s"))
-  .dependsOn(macroUtils.jvm, instances, opaque % "test -> test", tagged.jvm % "test -> test", taggedMeta % "test -> test")
+  .dependsOn(macroUtils.jvm, instances, opaque.jvm % "test -> test", tagged.jvm % "test -> test", taggedMeta % "test -> test")
   .settings(http4sSettings: _*)
   .settings(publishSettings: _*)
   .settings(
@@ -407,9 +407,11 @@ lazy val tagged = crossProject(JSPlatform, JVMPlatform)
     crossScalaVersions := supportedScalaVersions
   )
 
-lazy val opaque = project
+lazy val opaque = crossProject(JSPlatform, JVMPlatform)
+  .withoutSuffixFor(JVMPlatform)
+  .crossType(CrossType.Pure)
   .in(file("opaque"))
-  .dependsOn(macroUtils.jvm)
+  .dependsOn(macroUtils)
   .settings(opaqueSettings: _*)
   .settings(disableScala("2.13"))
   .settings(disableScala("2.12"))
@@ -479,7 +481,8 @@ lazy val kebs = project
   .aggregate(
     tagged.jvm,
     tagged.js,
-    opaque,
+    opaque.jvm,
+    opaque.js,
     macroUtils.jvm,
     macroUtils.js,
     slickSupport,
