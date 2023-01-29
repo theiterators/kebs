@@ -16,12 +16,7 @@ lazy val baseSettings = Seq(
   organizationName := "Iterators",
   organizationHomepage := Some(url("https://iterato.rs")),
   homepage := Some(url("https://github.com/theiterators/kebs")),
-  scalacOptions := Seq("-deprecation", "-unchecked", "-feature", "-encoding", "utf8"),
-  // Don't publish for Scala 3.1 or later, only from 3.0
-  publish / skip := (CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((3, x)) if x > 0 => true
-    case _                     => false
-  })
+  scalacOptions := Seq("-deprecation", "-unchecked", "-feature", "-encoding", "utf8")
 )
 
 lazy val commonMacroSettings = baseSettings ++ Seq(
