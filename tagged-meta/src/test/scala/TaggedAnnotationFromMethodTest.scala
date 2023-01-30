@@ -5,8 +5,8 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
 @tagged object DomainTrimmedString {
-  trait ProjectNameTag
-  type Name = String @@ ProjectNameTag
+  trait NameTag
+  type Name = String @@ NameTag
 
   object Name {
     sealed trait Error
@@ -24,12 +24,8 @@ class TaggedAnnotationFromMethodTest extends AnyFunSuite with Matchers with Eith
   }
 
   test("from method must forward Error value") {
-    val result = try {
+    intercept[Exception] {
       Name("       ")
-    } catch {
-      case _: IllegalArgumentException => 1
-      case _: Throwable                => 0
     }
-    result shouldEqual 1
   }
 }
