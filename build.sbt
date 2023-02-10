@@ -252,24 +252,24 @@ lazy val taggedMetaSettings = metaSettings ++ Seq(
 
 lazy val instancesSettings = commonSettings
 
-lazy val baseModuleSettings = commonSettings ++ Seq(libraryDependencies += (scalaCheck.value % "test").cross(CrossVersion.for3Use2_13))
+lazy val coreSettings = commonSettings ++ Seq(libraryDependencies += (scalaCheck.value % "test").cross(CrossVersion.for3Use2_13))
 
-lazy val base = crossProject(JSPlatform, JVMPlatform)
+lazy val core = crossProject(JSPlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
   .crossType(CrossType.Pure)
-  .in(file("base"))
+  .in(file("core"))
   .settings(publishSettings: _*)
-  .settings(baseModuleSettings: _*)
+  .settings(coreSettings: _*)
   .settings(
-    name := "base",
-    moduleName := "kebs-base"
+    name := "core",
+    moduleName := "kebs-core"
   )
 
 lazy val macroUtils = crossProject(JSPlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("macro-utils"))
-  .dependsOn(base)
+  .dependsOn(core)
   .settings(macroUtilsSettings: _*)
   .settings(publishSettings: _*)
   .settings(
@@ -280,7 +280,7 @@ lazy val macroUtils = crossProject(JSPlatform, JVMPlatform)
 
 lazy val slickSupport = project
   .in(file("slick"))
-  .dependsOn(macroUtils.jvm, base.jvm)
+  .dependsOn(macroUtils.jvm, core.jvm)
   .settings(slickSettings: _*)
   .settings(publishSettings: _*)
   .settings(disableScala("3"))
@@ -318,7 +318,7 @@ lazy val sprayJsonMacros = project
 
 lazy val sprayJsonSupport = project
   .in(file("spray-json"))
-  .dependsOn(sprayJsonMacros, base.jvm)
+  .dependsOn(sprayJsonMacros, core.jvm)
   .settings(sprayJsonSettings: _*)
   .settings(publishSettings: _*)
   .settings(disableScala("3"))
@@ -331,7 +331,7 @@ lazy val sprayJsonSupport = project
 
 lazy val playJsonSupport = project
   .in(file("play-json"))
-  .dependsOn(macroUtils.jvm, base.jvm)
+  .dependsOn(macroUtils.jvm, core.jvm)
   .settings(playJsonSettings: _*)
   .settings(publishSettings: _*)
   .settings(disableScala("3"))
@@ -344,7 +344,7 @@ lazy val playJsonSupport = project
 
 lazy val circeSupport = project
   .in(file("circe"))
-  .dependsOn(macroUtils.jvm, base.jvm)
+  .dependsOn(macroUtils.jvm, core.jvm)
   .settings(circeSettings: _*)
   .settings(crossBuildSettings: _*)
   .settings(publishSettings: _*)
@@ -357,7 +357,7 @@ lazy val circeSupport = project
 
 lazy val akkaHttpSupport = project
   .in(file("akka-http"))
-  .dependsOn(macroUtils.jvm, base.jvm, tagged.jvm % "test -> test", taggedMeta % "test -> test")
+  .dependsOn(macroUtils.jvm, core.jvm, tagged.jvm % "test -> test", taggedMeta % "test -> test")
   .settings(akkaHttpSettings: _*)
   .settings(publishSettings: _*)
   .settings(disableScala("3"))
@@ -370,7 +370,7 @@ lazy val akkaHttpSupport = project
 
 lazy val http4sSupport = project
   .in(file("http4s"))
-  .dependsOn(macroUtils.jvm, instances, base.jvm, opaque.jvm % "test -> test", tagged.jvm % "test -> test", taggedMeta % "test -> test")
+  .dependsOn(macroUtils.jvm, instances, core.jvm, opaque.jvm % "test -> test", tagged.jvm % "test -> test", taggedMeta % "test -> test")
   .settings(http4sSettings: _*)
   .settings(publishSettings: _*)
   .settings(
@@ -482,7 +482,7 @@ lazy val benchmarks = project
 
 lazy val instances = project
   .in(file("instances"))
-  .dependsOn(base.jvm)
+  .dependsOn(core.jvm)
   .settings(instancesSettings: _*)
   .settings(publishSettings: _*)
   .settings(
@@ -512,8 +512,8 @@ lazy val kebs = project
     http4sSupport,
     taggedMeta,
     instances,
-    base.jvm,
-    base.js
+    core.jvm,
+    core.js
   )
   .settings(baseSettings: _*)
   .settings(noPublishSettings)
