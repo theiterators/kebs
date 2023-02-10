@@ -1,4 +1,4 @@
-import pl.iterators.kebs.macros.CaseClass1Rep
+import pl.iterators.kebs.macros.base.CaseClass1Rep
 
 object StringsDomain {
   trait Tag1

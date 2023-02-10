@@ -1,6 +1,6 @@
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Gen, Properties}
-import pl.iterators.kebs.macros.CaseClass1Rep
+import pl.iterators.kebs.macros.base.CaseClass1Rep
 import pl.iterators.kebs.macros.enums.EnumOf
 
 object DerivingSpecification extends Properties("Deriving") {

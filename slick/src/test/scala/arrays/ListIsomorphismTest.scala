@@ -11,7 +11,7 @@ class ListIsomorphismTest extends AnyFunSuite with Matchers with YearMonthString
   case class C(a: String)
 
   test("No CaseClass1Rep implicits derived") {
-    import pl.iterators.kebs.macros.CaseClass1Rep
+    import pl.iterators.kebs.macros.base.CaseClass1Rep
 
     "implicitly[CaseClass1Rep[YearMonth, String]]" shouldNot typeCheck
     "implicitly[CaseClass1Rep[String, YearMonth]]" shouldNot typeCheck
