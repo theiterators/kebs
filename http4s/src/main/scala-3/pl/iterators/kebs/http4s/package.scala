@@ -2,7 +2,7 @@ package pl.iterators.kebs.http4s
 
 import scala.util.Try
 import scala.reflect.Enum
-import pl.iterators.kebs.macros.base.CaseClass1Rep
+import pl.iterators.kebs.macros.CaseClass1Rep
 import pl.iterators.kebs.macros.enums.EnumOf
 import org.http4s._
 import pl.iterators.kebs.instances.InstanceConverter

@@ -2,7 +2,7 @@ package pl.iterators.kebs.unmarshallers
 
 import akka.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
 import pl.iterators.kebs.instances.InstanceConverter
-import pl.iterators.kebs.macros.base.CaseClass1Rep
+import pl.iterators.kebs.macros.CaseClass1Rep
 
 trait KebsUnmarshallers {
   implicit def kebsUnmarshaller[A, B](implicit rep: CaseClass1Rep[B, A]): Unmarshaller[A, B] =

@@ -1,4 +1,4 @@
-package pl.iterators.kebs.macros.base
+package pl.iterators.kebs.macros
 
 import scala.deriving.Mirror
 

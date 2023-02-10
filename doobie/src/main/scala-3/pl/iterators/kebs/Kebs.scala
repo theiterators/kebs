@@ -3,7 +3,7 @@ package pl.iterators.kebs
 import doobie.{Get, Put, Meta}
 import pl.iterators.kebs.enums.KebsEnums
 import pl.iterators.kebs.instances.InstanceConverter
-import pl.iterators.kebs.macros.base.CaseClass1Rep
+import pl.iterators.kebs.macros.CaseClass1Rep
 
 import scala.reflect.ClassTag
 

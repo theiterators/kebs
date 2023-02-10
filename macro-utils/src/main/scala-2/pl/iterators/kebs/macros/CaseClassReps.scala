@@ -1,6 +1,4 @@
-package pl.iterators.kebs.macros.base
-
-import pl.iterators.kebs.macros.MacroUtils
+package pl.iterators.kebs.macros
 
 import scala.language.experimental.macros
 import scala.language.higherKinds

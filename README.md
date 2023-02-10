@@ -946,7 +946,7 @@ That's the basic usage. Inside the companion object you will get methods like `f
 method `unwrap` plus an instance of `CaseClass1Rep[ISBN, String]`. A more complete example below.
 
 ```scala
-import pl.iterators.kebs.macros.base.CaseClass1Rep
+import pl.iterators.kebs.macros.CaseClass1Rep
 import pl.iterators.kebs.opaque._
 
 object MyDomain {
