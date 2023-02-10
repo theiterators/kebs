@@ -2,7 +2,6 @@ package pl.iterators.kebs.macros.enums
 
 import enumeratum.EnumEntry
 import enumeratum.values.ValueEnumEntry
-import pl.iterators.kebs.macros.MacroUtils
 
 abstract class EnumMacroUtils extends MacroUtils {
   import c.universe._

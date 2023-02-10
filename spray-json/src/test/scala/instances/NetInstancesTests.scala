@@ -2,8 +2,6 @@ package instances
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.instances.InstanceConverter.DecodeErrorException
-import pl.iterators.kebs.instances.net.URIString
 import pl.iterators.kebs.json.KebsSpray
 import spray.json._
 
@@ -28,7 +26,7 @@ class NetInstancesTests extends AnyFunSuite with Matchers with DefaultJsonProtoc
   }
 
   test("No CaseClass1Rep implicits derived") {
-    import pl.iterators.kebs.macros.CaseClass1Rep
+    import pl.iterators.kebs.core.CaseClass1Rep
 
     "implicitly[CaseClass1Rep[URI, String]]" shouldNot typeCheck
     "implicitly[CaseClass1Rep[String, URI]]" shouldNot typeCheck

@@ -6,8 +6,6 @@ import org.scalatest.matchers.should.Matchers
 
 class SlickPgHstoreColumnTypeTests extends AnyFunSuite with Matchers {
   import pl.iterators.kebs.Kebs
-  import pl.iterators.kebs.instances.time.{DayOfWeekInt, YearMonthString}
-  import pl.iterators.kebs.instances.time.mixins.InstantEpochMilliLong
   import java.time.{DayOfWeek, YearMonth, Instant}
 
   object MyPostgresProfile extends ExPostgresProfile with PgHStoreSupport {
@@ -21,7 +19,7 @@ class SlickPgHstoreColumnTypeTests extends AnyFunSuite with Matchers {
   import MyPostgresProfile.api._
 
   test("No CaseClass1Rep implicits derived") {
-    import pl.iterators.kebs.macros.CaseClass1Rep
+    import pl.iterators.kebs.core.CaseClass1Rep
 
     "implicitly[CaseClass1Rep[YearMonth, String]]" shouldNot typeCheck
     "implicitly[CaseClass1Rep[String, YearMonth]]" shouldNot typeCheck

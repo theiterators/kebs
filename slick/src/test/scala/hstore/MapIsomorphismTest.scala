@@ -2,8 +2,6 @@ package hstore
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.instances.time.mixins.InstantEpochMilliLong
-import pl.iterators.kebs.instances.time.{DayOfWeekInt, YearMonthString}
 import slick.lifted.Isomorphism
 
 class MapIsomorphismTest extends AnyFunSuite with Matchers with YearMonthString with DayOfWeekInt with InstantEpochMilliLong {
@@ -13,7 +11,7 @@ class MapIsomorphismTest extends AnyFunSuite with Matchers with YearMonthString 
   case class IntValue(value: Int)
 
   test("No CaseClass1Rep implicits derived") {
-    import pl.iterators.kebs.macros.CaseClass1Rep
+    import pl.iterators.kebs.core.CaseClass1Rep
 
     "implicitly[CaseClass1Rep[YearMonth, String]]" shouldNot typeCheck
     "implicitly[CaseClass1Rep[String, YearMonth]]" shouldNot typeCheck

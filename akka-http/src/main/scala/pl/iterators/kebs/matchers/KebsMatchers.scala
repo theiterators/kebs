@@ -2,8 +2,7 @@ package pl.iterators.kebs.matchers
 
 import akka.http.scaladsl.server.{PathMatcher1, PathMatchers}
 import enumeratum.{Enum, EnumEntry}
-import pl.iterators.kebs.instances.InstanceConverter
-import pl.iterators.kebs.macros.CaseClass1Rep
+import pl.iterators.kebs.core.{CaseClass1Rep, InstanceConverter}
 
 import scala.language.implicitConversions
 

@@ -2,8 +2,6 @@ package instances
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.instances.InstanceConverter.DecodeErrorException
-import pl.iterators.kebs.instances.UtilInstances
 import play.api.libs.json.{Format, JsString, JsSuccess}
 
 import java.util.{Currency, Locale, UUID}

@@ -1,7 +1,6 @@
 package pl.iterators.kebs.json
 
-import pl.iterators.kebs.instances.InstanceConverter
-import pl.iterators.kebs.macros.CaseClass1Rep
+import pl.iterators.kebs.core.{CaseClass1Rep, InstanceConverter}
 import play.api.libs.json._
 
 trait KebsPlay {

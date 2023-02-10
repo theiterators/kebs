@@ -1,8 +1,7 @@
 package pl.iterators.kebs.json
 
-import pl.iterators.kebs.macros.CaseClass1Rep
+import pl.iterators.kebs.core.{CaseClass1Rep, InstanceConverter}
 import spray.json.{DefaultJsonProtocol, JsValue, JsonFormat, JsonReader, RootJsonFormat}
-import pl.iterators.kebs.instances.InstanceConverter
 
 trait KebsSpray { self: DefaultJsonProtocol =>
   import macros.KebsSprayMacros

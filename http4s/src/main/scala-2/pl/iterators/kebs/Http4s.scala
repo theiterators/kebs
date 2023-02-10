@@ -3,10 +3,8 @@ package pl.iterators.kebs
 import enumeratum.EnumEntry
 
 import scala.util.Try
-import pl.iterators.kebs.macros.CaseClass1Rep
-import pl.iterators.kebs.macros.enums.EnumOf
 import org.http4s._
-import pl.iterators.kebs.instances.InstanceConverter
+import pl.iterators.kebs.core.{CaseClass1Rep, InstanceConverter}
 
 import java.util.UUID
 

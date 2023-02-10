@@ -2,8 +2,6 @@ package instances
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.instances.InstanceConverter.DecodeErrorException
-import pl.iterators.kebs.instances.TimeInstances
 import pl.iterators.kebs.json.KebsSpray
 import spray.json._
 
@@ -12,7 +10,7 @@ import java.time._
 class TimeInstancesTests extends AnyFunSuite with Matchers with DefaultJsonProtocol with KebsSpray with TimeInstances {
 
   test("No CaseClass1Rep implicits derived") {
-    import pl.iterators.kebs.macros.CaseClass1Rep
+    import pl.iterators.kebs.core.CaseClass1Rep
 
     "implicitly[CaseClass1Rep[DayOfWeek, Int]]" shouldNot typeCheck
     "implicitly[CaseClass1Rep[Int, DayOfWeek]]" shouldNot typeCheck

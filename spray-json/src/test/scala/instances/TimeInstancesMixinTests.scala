@@ -2,11 +2,8 @@ package instances
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.instances.time.LocalDateTimeString
-import pl.iterators.kebs.instances.time.mixins.{DurationNanosLong, InstantEpochMilliLong}
-import pl.iterators.kebs.instances.{InstanceConverter, TimeInstances}
+import pl.iterators.kebs.core.{CaseClass1Rep, InstanceConverter}
 import pl.iterators.kebs.json.KebsSpray
-import pl.iterators.kebs.macros.CaseClass1Rep
 import spray.json._
 
 import java.time._

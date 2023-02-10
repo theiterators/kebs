@@ -1,8 +1,7 @@
 package pl.iterators.kebs
 
 import doobie.Meta
-import pl.iterators.kebs.instances.InstanceConverter
-import pl.iterators.kebs.macros.CaseClass1Rep
+import pl.iterators.kebs.core.{CaseClass1Rep, InstanceConverter}
 
 import scala.reflect.ClassTag
 

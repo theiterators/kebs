@@ -1,6 +1,6 @@
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Gen, Properties}
-import pl.iterators.kebs.macros.CaseClass1Rep
+import pl.iterators.kebs.core.CaseClass1Rep
 
 object DerivingSpecification extends Properties("Deriving") {
   case class CC1Ex(whatever: String)

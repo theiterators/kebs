@@ -8,8 +8,6 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.Domain._
-import pl.iterators.kebs.instances.net.URIString
-import pl.iterators.kebs.instances.time.{DayOfWeekInt, YearMonthString}
 import pl.iterators.kebs.unmarshallers.enums.KebsEnumUnmarshallers
 
 import java.time.{DayOfWeek, YearMonth}
@@ -27,7 +25,7 @@ class AkkaHttpUnmarshallersTests
     with DayOfWeekInt {
 
   test("No CaseClass1Rep implicits derived") {
-    import pl.iterators.kebs.macros.CaseClass1Rep
+    import pl.iterators.kebs.core.CaseClass1Rep
 
     "implicitly[CaseClass1Rep[URI, String]]" shouldNot typeCheck
     "implicitly[CaseClass1Rep[String, URI]]" shouldNot typeCheck

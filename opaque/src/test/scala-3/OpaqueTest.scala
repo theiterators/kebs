@@ -1,7 +1,7 @@
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.opaque.Opaque
-import pl.iterators.kebs.macros.CaseClass1Rep
+import pl.iterators.kebs.core.CaseClass1Rep
 
 object OpaqueTestDomain {
   opaque type TestWrappedInt = Int

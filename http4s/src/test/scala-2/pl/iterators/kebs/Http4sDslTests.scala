@@ -10,7 +10,6 @@ import org.scalatest.matchers.should.Matchers
 
 import java.time.Year
 import java.util.Currency
-import pl.iterators.kebs.instances.KebsInstances._
 import pl.iterators.kebs.http4s._
 
 class Http4sDslTests extends AnyFunSuite with Matchers {

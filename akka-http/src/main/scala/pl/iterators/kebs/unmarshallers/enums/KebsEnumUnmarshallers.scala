@@ -5,7 +5,6 @@ import akka.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
 import akka.http.scaladsl.util.FastFuture
 import enumeratum.values._
 import enumeratum.{Enum, EnumEntry}
-import pl.iterators.kebs.macros.enums.{EnumOf, ValueEnumOf}
 
 trait EnumUnmarshallers {
   final def enumUnmarshaller[E <: EnumEntry](`enum`: Enum[E]): FromStringUnmarshaller[E] = Unmarshaller { _ =>name =>

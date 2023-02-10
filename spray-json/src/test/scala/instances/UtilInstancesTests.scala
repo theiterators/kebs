@@ -2,8 +2,6 @@ package instances
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.instances.InstanceConverter.DecodeErrorException
-import pl.iterators.kebs.instances.UtilInstances
 import pl.iterators.kebs.json.KebsSpray
 import spray.json._
 
@@ -12,7 +10,7 @@ import java.util.{Currency, Locale, UUID}
 class UtilInstancesTests extends AnyFunSuite with Matchers with DefaultJsonProtocol with KebsSpray with UtilInstances {
 
   test("No CaseClass1Rep implicits derived") {
-    import pl.iterators.kebs.macros.CaseClass1Rep
+    import pl.iterators.kebs.core.CaseClass1Rep
 
     "implicitly[CaseClass1Rep[Currency, String]]" shouldNot typeCheck
     "implicitly[CaseClass1Rep[String, Currency]]" shouldNot typeCheck

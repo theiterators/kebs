@@ -2,7 +2,6 @@ package pl.iterators.kebs.circe
 
 import io.circe.generic.extras.Configuration
 import io.circe.{Decoder, Encoder}
-import pl.iterators.kebs.macros.MacroUtils
 
 import scala.collection.immutable.Seq
 import scala.reflect.macros.whitebox
@@ -110,7 +109,6 @@ object KebsCirceMacros {
 
   class SnakifyVariant(context: whitebox.Context) extends KebsCirceMacros(context) {
 
-    import pl.iterators.kebs.macros.namingconventions.SnakifyVariant.snakify
     import c.universe._
     protected override val semiAutoNamingStrategy: Tree =
       q"implicit lazy val __config: _root_.io.circe.generic.extras.Configuration = _root_.io.circe.generic.extras.Configuration.default.withSnakeCaseMemberNames"

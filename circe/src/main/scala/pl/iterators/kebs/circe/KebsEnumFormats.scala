@@ -4,7 +4,6 @@ import enumeratum.values.{ValueEnum, ValueEnumEntry}
 import enumeratum.{Enum, EnumEntry}
 import io.circe.Decoder.Result
 import io.circe._
-import pl.iterators.kebs.macros.enums.{EnumOf, ValueEnumOf}
 
 trait CirceEnum {
   @inline protected final def enumNameDeserializationError[E <: EnumEntry](`enum`: Enum[E], name: String): String = {

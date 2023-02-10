@@ -9,7 +9,6 @@ import doobie.postgres._
 import doobie.postgres.implicits._
 import pl.iterators.kebs.enums._
 import pl.iterators.kebs._
-import pl.iterators.kebs.instances.KebsInstances._
 
 class ComplexTypesTests extends AnyFunSuite with Matchers {
   case class Name(name: String)

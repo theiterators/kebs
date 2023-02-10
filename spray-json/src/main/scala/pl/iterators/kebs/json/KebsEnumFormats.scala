@@ -2,7 +2,6 @@ package pl.iterators.kebs.json
 
 import enumeratum.values.{ValueEnum, ValueEnumEntry}
 import enumeratum.{Enum, EnumEntry}
-import pl.iterators.kebs.macros.enums.{EnumOf, ValueEnumOf}
 import spray.json.{JsString, JsValue, JsonFormat}
 
 trait SprayJsonEnum {

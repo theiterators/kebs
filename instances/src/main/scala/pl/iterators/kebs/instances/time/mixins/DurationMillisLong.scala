@@ -1,7 +1,6 @@
 package pl.iterators.kebs.instances.time.mixins
 
-import pl.iterators.kebs.instances.InstanceConverter
-
+import pl.iterators.kebs.core.InstanceConverter
 import java.time.Duration
 
 trait DurationMillisLong {

@@ -10,7 +10,6 @@ import java.util.UUID
 
 class SlickPgHstoreTests extends AnyFunSuite with Matchers {
   import pl.iterators.kebs.Kebs
-  import pl.iterators.kebs.instances.time.YearMonthString
 
   trait PostgresDriver extends ExPostgresProfile with PgArraySupport with PgHStoreSupport {
     override val api: HstoreAPI = new HstoreAPI {}
@@ -42,7 +41,7 @@ class SlickPgHstoreTests extends AnyFunSuite with Matchers {
   }
 
   test("No CaseClass1Rep implicits derived") {
-    import pl.iterators.kebs.macros.CaseClass1Rep
+    import pl.iterators.kebs.core.CaseClass1Rep
 
     "implicitly[CaseClass1Rep[YearMonth, String]]" shouldNot typeCheck
     "implicitly[CaseClass1Rep[String, YearMonth]]" shouldNot typeCheck

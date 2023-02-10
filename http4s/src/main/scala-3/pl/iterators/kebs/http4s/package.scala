@@ -2,10 +2,10 @@ package pl.iterators.kebs.http4s
 
 import scala.util.Try
 import scala.reflect.Enum
-import pl.iterators.kebs.macros.CaseClass1Rep
+import pl.iterators.kebs.core.CaseClass1Rep
 import pl.iterators.kebs.macros.enums.EnumOf
 import org.http4s._
-import pl.iterators.kebs.instances.InstanceConverter
+import pl.iterators.kebs.core.InstanceConverter
 import java.util.UUID
 
 protected class PathVar[A](cast: String => Try[A]) {

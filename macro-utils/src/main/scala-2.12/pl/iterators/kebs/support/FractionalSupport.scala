@@ -1,7 +1,5 @@
 package pl.iterators.kebs.support
 
-import pl.iterators.kebs.macros.CaseClass1Rep
-
 trait FractionalSupport {
 
   implicit def fractionalFromCaseClass1Rep[A, Rep](implicit cc1Rep: CaseClass1Rep[A, Rep],

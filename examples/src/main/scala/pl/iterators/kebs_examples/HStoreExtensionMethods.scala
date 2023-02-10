@@ -49,7 +49,6 @@ object HStoreExtensionMethods {
 
   object AfterKebs {
     import pl.iterators.kebs.Kebs
-    import pl.iterators.kebs.instances.time.YearMonthString
 
     object MyPostgresProfile extends ExPostgresProfile with PgHStoreSupport with PgArraySupport {
       override val api: APIWithHstore = new APIWithHstore {}

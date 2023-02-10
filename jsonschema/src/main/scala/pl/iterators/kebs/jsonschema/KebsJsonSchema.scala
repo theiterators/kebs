@@ -1,6 +1,6 @@
 package pl.iterators.kebs.jsonschema
 
-import pl.iterators.kebs.macros.CaseClass1Rep
+import pl.iterators.kebs.core.CaseClass1Rep
 
 trait KebsJsonSchema {
   import macros.KebsJsonSchemaMacros

@@ -2,7 +2,6 @@ package pl.iterators.kebs.enums
 
 import enumeratum.{Enum, EnumEntry}
 import enumeratum.values.{ValueEnum, ValueEnumEntry}
-import pl.iterators.kebs.macros.enums.{EnumOf, ValueEnumOf}
 import slick.lifted.Isomorphism
 
 trait SlickEnum {

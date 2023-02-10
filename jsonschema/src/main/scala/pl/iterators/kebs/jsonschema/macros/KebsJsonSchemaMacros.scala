@@ -1,7 +1,5 @@
 package pl.iterators.kebs.jsonschema.macros
 
-import pl.iterators.kebs.macros.MacroUtils
-
 import scala.reflect.macros._
 import json._
 import pl.iterators.kebs.jsonschema.JsonSchemaWrapper

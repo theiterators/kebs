@@ -1,6 +1,6 @@
 package pl.iterators.kebs.instances.time
 
-import pl.iterators.kebs.instances.InstanceConverter
+import pl.iterators.kebs.core.InstanceConverter
 import pl.iterators.kebs.instances.time.YearInt.YearFormat
 
 import java.time.Year

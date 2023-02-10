@@ -1,4 +1,4 @@
-package pl.iterators.kebs.macros
+package pl.iterators.kebs.core
 
 import scala.language.experimental.macros
 import scala.language.higherKinds
@@ -29,6 +29,6 @@ class CaseClassRepMacros(override val c: whitebox.Context) extends MacroUtils {
     val unapplyF = q"_.$caseAccessor"
     val applyF   = apply(caseClassType)
 
-    q"new _root_.pl.iterators.kebs.macros.CaseClass1Rep[$caseClassType, $f1]($applyF, $unapplyF)"
+    q"new _root_.pl.iterators.kebs.core.CaseClass1Rep[$caseClassType, $f1]($applyF, $unapplyF)"
   }
 }

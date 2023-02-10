@@ -1,7 +1,6 @@
 package pl.iterators.kebs.json.macros
 
 import pl.iterators.kebs.json.noflat
-import pl.iterators.kebs.macros.MacroUtils
 import spray.json.{JsonFormat, JsonReader, JsonWriter, NullOptions, RootJsonFormat}
 
 import scala.collection.immutable.Seq
@@ -106,7 +105,7 @@ object KebsSprayMacros {
     override protected val preferFlat = false
   }
   class SnakifyVariant(context: whitebox.Context) extends KebsSprayMacros(context) {
-    import pl.iterators.kebs.macros.namingconventions.SnakifyVariant.snakify
+
     import c.universe._
 
     override protected def extractJsonFieldNames(fields: List[MethodSymbol]) = super.extractJsonFieldNames(fields).map(snakify)
