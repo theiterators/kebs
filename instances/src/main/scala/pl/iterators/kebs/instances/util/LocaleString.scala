@@ -1,6 +1,6 @@
 package pl.iterators.kebs.instances.util
 
-import pl.iterators.kebs.converters.InstanceConverter
+import pl.iterators.kebs.instances.InstanceConverter
 import pl.iterators.kebs.instances.util.LocaleString.LocaleFormat
 
 import java.util.Locale

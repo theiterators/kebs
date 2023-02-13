@@ -6,7 +6,7 @@ import scala.util.Try
 import pl.iterators.kebs.macros.CaseClass1Rep
 import pl.iterators.kebs.macros.enums.EnumOf
 import org.http4s._
-import pl.iterators.kebs.converters.InstanceConverter
+import pl.iterators.kebs.instances.InstanceConverter
 
 import java.util.UUID
 

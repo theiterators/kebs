@@ -2,7 +2,7 @@ package instances
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.converters.InstanceConverter
+import pl.iterators.kebs.instances.InstanceConverter
 import pl.iterators.kebs.instances.time.LocalDateTimeString
 import pl.iterators.kebs.instances.time.mixins.{DurationNanosLong, InstantEpochMilliLong}
 import pl.iterators.kebs.instances.TimeInstances

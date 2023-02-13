@@ -1,4 +1,4 @@
-package pl.iterators.kebs.converters
+package pl.iterators.kebs.instances
 
 import scala.reflect.{ClassTag, classTag}
 import scala.util.control.NonFatal

@@ -2,8 +2,8 @@ package pl.iterators.kebs.instances.time
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.converters.InstanceConverter
-import pl.iterators.kebs.converters.InstanceConverter.DecodeErrorException
+import pl.iterators.kebs.instances.InstanceConverter
+import pl.iterators.kebs.instances.InstanceConverter.DecodeErrorException
 import pl.iterators.kebs.instances.TimeInstances
 
 import java.time._

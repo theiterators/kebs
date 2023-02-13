@@ -2,7 +2,7 @@ package pl.iterators.kebs.circe
 
 import io.circe.generic.AutoDerivation
 import io.circe.{Decoder, Encoder}
-import pl.iterators.kebs.converters.InstanceConverter
+import pl.iterators.kebs.instances.InstanceConverter
 import pl.iterators.kebs.macros.CaseClass1Rep
 
 import scala.language.experimental.macros
