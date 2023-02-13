@@ -2,7 +2,7 @@ package instances
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.instances.InstanceConverter.DecodeErrorException
+import pl.iterators.kebs.converters.InstanceConverter.DecodeErrorException
 import pl.iterators.kebs.instances.net.URIString
 import pl.iterators.kebs.json.KebsSpray
 import spray.json._

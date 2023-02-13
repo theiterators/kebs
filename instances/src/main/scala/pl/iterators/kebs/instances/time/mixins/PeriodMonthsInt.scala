@@ -1,6 +1,6 @@
 package pl.iterators.kebs.instances.time.mixins
 
-import pl.iterators.kebs.instances.InstanceConverter
+import pl.iterators.kebs.converters.InstanceConverter
 
 import java.time.Period
 

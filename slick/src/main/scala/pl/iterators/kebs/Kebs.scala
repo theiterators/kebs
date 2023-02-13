@@ -1,7 +1,7 @@
 package pl.iterators.kebs
 
 import pl.iterators.kebs.hstore.KebsHStoreColumnExtensionMethods
-import pl.iterators.kebs.instances.InstanceConverter
+import pl.iterators.kebs.converters.InstanceConverter
 import pl.iterators.kebs.macros.CaseClass1Rep
 import slick.ast.{BaseTypedType, NumericTypedType}
 import slick.jdbc.JdbcType

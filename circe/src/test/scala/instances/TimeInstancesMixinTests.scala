@@ -4,9 +4,10 @@ import io.circe.{Decoder, Encoder, Json}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.circe.KebsCirce
+import pl.iterators.kebs.converters.InstanceConverter
 import pl.iterators.kebs.instances.time.LocalDateTimeString
 import pl.iterators.kebs.instances.time.mixins.{DurationNanosLong, InstantEpochMilliLong}
-import pl.iterators.kebs.instances.{InstanceConverter, TimeInstances}
+import pl.iterators.kebs.instances.TimeInstances
 
 import java.time._
 import java.time.format.DateTimeFormatter
