@@ -261,7 +261,19 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
   .settings(
     name := "core",
     description := "Macros and utils supporting Kebs library",
-    moduleName := "kebs-core"
+    moduleName := "kebs-core",
+)
+
+lazy val macroUtils = crossProject(JSPlatform, JVMPlatform)
+  .withoutSuffixFor(JVMPlatform)
+  .crossType(CrossType.Pure)
+  .in(file("macro-utils"))
+  .settings(coreSettings: _*)
+  .settings(publishSettings: _*)
+  .settings(
+    name := "macro-utils",
+    description := "Macros and utils supporting Kebs library",
+    moduleName := "kebs-macro-utils",
   )
 
 lazy val slickSupport = project
@@ -486,6 +498,8 @@ lazy val kebs = project
     opaque.js,
     core.jvm,
     core.js,
+    macroUtils.jvm,
+    macroUtils.js,
     slickSupport,
     doobieSupport,
     sprayJsonMacros,
