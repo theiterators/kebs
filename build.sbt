@@ -252,6 +252,11 @@ lazy val taggedMetaSettings = metaSettings ++ Seq(
 
 lazy val instancesSettings = commonSettings
 
+lazy val macroUtilsSettings = coreSettings ++ Seq(
+  Compile / scalaSource := baseDirectory.value  / ".." / ".." / "core" / "src" / "main" / "scala",
+  Test / scalaSource := baseDirectory.value / ".." / ".." / "core" / "src" / "test" / "scala"
+)
+
 lazy val core = crossProject(JSPlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
   .crossType(CrossType.Pure)
@@ -268,7 +273,7 @@ lazy val macroUtils = crossProject(JSPlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("macro-utils"))
-  .settings(coreSettings: _*)
+  .settings(macroUtilsSettings: _*)
   .settings(publishSettings: _*)
   .settings(
     name := "macro-utils",
