@@ -3,7 +3,6 @@ import io.circe._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.circe.KebsEnumFormats
-import io.circe.syntax._
 class CirceValueEnumDecoderEncoderTests extends AnyFunSuite with Matchers {
   sealed abstract class LongGreeting(val value: Long) extends LongEnumEntry
 
