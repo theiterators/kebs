@@ -160,7 +160,7 @@ lazy val commonSettings = baseSettings ++ Seq(
        Seq("-language:implicitConversions", "-Ykind-projector", "-Xignore-scala2-macros")
      else Seq("-language:implicitConversions", "-language:experimental.macros")),
 //  (scalacOptions in Test) ++= Seq("-Ymacro-debug-lite" /*, "-Xlog-implicits"*/ ),
-  libraryDependencies += scalaTest % "test",
+  libraryDependencies += scalaTest.value % "test",
   resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
   )
 
@@ -194,7 +194,7 @@ lazy val playJsonSettings = commonSettings ++ Seq(
 )
 
 lazy val circeSettings = commonSettings ++ Seq(
-  libraryDependencies += circe.value,
+  libraryDependencies += circe,
   libraryDependencies += circeAuto,
   libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13),
   libraryDependencies += circeParser % "test"
@@ -230,7 +230,7 @@ lazy val scalacheckSettings = commonSettings ++ Seq(
 
 lazy val taggedSettings = commonSettings ++ Seq(
   libraryDependencies += optionalSlick.cross(CrossVersion.for3Use2_13),
-  libraryDependencies += optional(circe.value)
+  libraryDependencies += optional(circe)
 )
 
 lazy val opaqueSettings = commonSettings
@@ -252,7 +252,7 @@ lazy val benchmarkSettings = commonSettings ++ Seq(
 
 lazy val taggedMetaSettings = metaSettings ++ Seq(
   libraryDependencies += optional(sprayJson.cross(CrossVersion.for3Use2_13)),
-  libraryDependencies += optional(circe.value)
+  libraryDependencies += optional(circe)
 )
 
 lazy val instancesSettings = commonSettings
