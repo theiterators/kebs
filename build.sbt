@@ -2,7 +2,7 @@ import sbt.librarymanagement.ConflictWarning
 
 val scala_2_12             = "2.12.16"
 val scala_2_13             = "2.13.8"
-val scala_31               = "3.1.3"
+val scala_31               = "3.2.2"
 val mainScalaVersion       = scala_31
 val supportedScalaVersions = Seq(scala_2_12, scala_2_13, scala_31)
 
@@ -131,7 +131,7 @@ val slickPg         = "com.github.tminglei" %% "slick-pg" % "0.20.3"
 val doobie          = "org.tpolecat" %% "doobie-core" % "1.0.0-RC2"
 val doobiePg        = "org.tpolecat" %% "doobie-postgres" % "1.0.0-RC2"
 val sprayJson       = "io.spray" %% "spray-json" % "1.3.6"
-val circeV = "0.14.1"
+val circeV = "0.14.3"
 val circe           = "io.circe" %% "circe-core" % circeV
 val circeAuto       = "io.circe" %% "circe-generic" % circeV
 val circeAutoExtras = "io.circe" %% "circe-generic-extras" % circeV
