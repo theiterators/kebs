@@ -1,6 +1,5 @@
 package object model {
 
-  // case class F1(f1: String) extends AnyVal derives Decoder, Encoder.AsObject
   case class F1(f1: String)
 
   case class ClassWith23Fields(
