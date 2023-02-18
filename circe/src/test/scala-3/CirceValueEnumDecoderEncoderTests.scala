@@ -1,38 +1,38 @@
-// import enumeratum.values.{LongEnum, LongEnumEntry}
-// import io.circe._
-// import org.scalatest.funsuite.AnyFunSuite
-// import org.scalatest.matchers.should.Matchers
-// import pl.iterators.kebs.circe.KebsEnumFormats
+import enumeratum.values.{LongEnum, LongEnumEntry}
+import io.circe._
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
+import pl.iterators.kebs.circe.KebsEnumFormats
+import pl.iterators.kebs.enums.ValueEnum
 
-// class CirceValueEnumDecoderEncoderTests extends AnyFunSuite with Matchers {
-//   sealed abstract class LongGreeting(val value: Long) extends LongEnumEntry
+class CirceValueEnumDecoderEncoderTests extends AnyFunSuite with Matchers {
 
-//   object LongGreeting extends LongEnum[LongGreeting] {
-//     val values = findValues
+  object KebsProtocol extends KebsEnumFormats
 
-//     case object Hello   extends LongGreeting(0L)
-//     case object GoodBye extends LongGreeting(1L)
-//     case object Hi      extends LongGreeting(2L)
-//     case object Bye     extends LongGreeting(3L)
-//   }
+  enum LongGreeting(val value: Long) extends ValueEnum[Long] {
+    case  Hello   extends LongGreeting(0L)
+    case  GoodBye extends LongGreeting(1L)
+    case  Hi      extends LongGreeting(2L)
+    case  Bye     extends LongGreeting(3L) 
+  }
 
-//   import LongGreeting._
+  import LongGreeting._
 
-//   object KebsProtocol extends KebsEnumFormats
+  test("value enum JsonFormat") {
+    import KebsProtocol._
+    val decoder = implicitly[Decoder[LongGreeting]]
+    val encoder = implicitly[Encoder[LongGreeting]]
 
-//   test("value enum JsonFormat") {
-//     import KebsProtocol._
-//     val decoder = implicitly[Decoder[LongGreeting]]
-//     val encoder = implicitly[Encoder[LongGreeting]]
-//     decoder(Json.fromLong(0).hcursor) shouldBe Right(Hello)
-//     decoder(Json.fromLong(1).hcursor) shouldBe Right(GoodBye)
-//     encoder(Hello) shouldBe Json.fromLong(0)
-//     encoder(GoodBye) shouldBe Json.fromLong(1)
-//   }
+    decoder(Json.fromLong(0L).hcursor) shouldBe Right(Hello)
+    decoder(Json.fromLong(1L).hcursor) shouldBe Right(GoodBye)
 
-//   test("value enum deserialization error") {
-//     import KebsProtocol._
-//     val decoder = implicitly[Decoder[LongGreeting]]
-//     decoder(Json.fromLong(4).hcursor) shouldBe Left(DecodingFailure("4 is not a member of 0, 1, 2, 3", List.empty[CursorOp]))
-//   }
-// }
+    encoder(Hello) shouldBe Json.fromLong(0L)
+    encoder(GoodBye) shouldBe Json.fromLong(1L)
+  }
+
+  test("value enum deserialization error") {
+    import KebsProtocol._
+    val decoder = implicitly[Decoder[LongGreeting]]
+    decoder(Json.fromLong(4L).hcursor) shouldBe Left(DecodingFailure("4 is not a member of 0, 1, 2, 3", List.empty[CursorOp]))
+  }
+}
