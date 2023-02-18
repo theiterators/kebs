@@ -4,15 +4,17 @@ import org.scalatest.funsuite.AnyFunSuite
 import pl.iterators.kebs.circe.KebsEnumFormats
 import scala.reflect.Enum
 
-enum Greeting {
-  case Hello, GoodBye, Hi, Bye
-}
-
 class CirceEnumDecoderEncoderTests extends AnyFunSuite with Matchers {
 
+  enum Greeting {
+  case Hello, GoodBye, Hi, Bye
+  }
+
   object KebsProtocol          extends KebsEnumFormats
-  // object KebsProtocolUppercase extends KebsEnumFormats.Uppercase
-  // object KebsProtocolLowercase extends KebsEnumFormats.Lowercase
+  object KebsProtocolUppercase extends KebsEnumFormats.Uppercase
+  object KebsProtocolLowercase extends KebsEnumFormats.Lowercase
+
+  
 
   import Greeting._
   test("enum JsonFormat") {
