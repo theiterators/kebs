@@ -172,7 +172,7 @@ lazy val doobieSettings = commonSettings ++ Seq(
   libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13),
 )
 
-lazy val macroUtilsSettings = commonMacroSettings ++ Seq(
+lazy val coreSettings = commonMacroSettings ++ Seq(
   libraryDependencies += (scalaCheck.value % "test").cross(CrossVersion.for3Use2_13),
   libraryDependencies += optionalEnumeratum
 )
@@ -252,6 +252,23 @@ lazy val taggedMetaSettings = metaSettings ++ Seq(
 
 lazy val instancesSettings = commonSettings
 
+lazy val macroUtilsSettings = coreSettings ++ Seq(
+  Compile / scalaSource := baseDirectory.value  / ".." / ".." / "core" / "src" / "main" / "scala",
+  Test / scalaSource := baseDirectory.value / ".." / ".." / "core" / "src" / "test" / "scala"
+)
+
+lazy val core = crossProject(JSPlatform, JVMPlatform)
+  .withoutSuffixFor(JVMPlatform)
+  .crossType(CrossType.Pure)
+  .in(file("core"))
+  .settings(coreSettings: _*)
+  .settings(publishSettings: _*)
+  .settings(
+    name := "core",
+    description := "Macros and utils supporting Kebs library",
+    moduleName := "kebs-core",
+)
+
 lazy val macroUtils = crossProject(JSPlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
   .crossType(CrossType.Pure)
@@ -260,13 +277,13 @@ lazy val macroUtils = crossProject(JSPlatform, JVMPlatform)
   .settings(publishSettings: _*)
   .settings(
     name := "macro-utils",
-    description := "Macros supporting Kebs library",
-    moduleName := "kebs-macro-utils"
+    description := "Macros and utils supporting Kebs library",
+    moduleName := "kebs-macro-utils",
   )
 
 lazy val slickSupport = project
   .in(file("slick"))
-  .dependsOn(macroUtils.jvm, instances)
+  .dependsOn(core.jvm, instances % "test -> test")
   .settings(slickSettings: _*)
   .settings(publishSettings: _*)
   .settings(disableScala("3"))
@@ -291,7 +308,7 @@ lazy val doobieSupport = project
 
 lazy val sprayJsonMacros = project
   .in(file("spray-json-macros"))
-  .dependsOn(macroUtils.jvm)
+  .dependsOn(core.jvm)
   .settings(sprayJsonMacroSettings: _*)
   .settings(publishSettings: _*)
   .settings(disableScala("3"))
@@ -304,7 +321,7 @@ lazy val sprayJsonMacros = project
 
 lazy val sprayJsonSupport = project
   .in(file("spray-json"))
-  .dependsOn(sprayJsonMacros, instances)
+  .dependsOn(sprayJsonMacros, instances % "test -> test")
   .settings(sprayJsonSettings: _*)
   .settings(publishSettings: _*)
   .settings(disableScala("3"))
@@ -317,7 +334,7 @@ lazy val sprayJsonSupport = project
 
 lazy val playJsonSupport = project
   .in(file("play-json"))
-  .dependsOn(macroUtils.jvm, instances)
+  .dependsOn(core.jvm, instances % "test -> test")
   .settings(playJsonSettings: _*)
   .settings(publishSettings: _*)
   .settings(disableScala("3"))
@@ -330,7 +347,7 @@ lazy val playJsonSupport = project
 
 lazy val circeSupport = project
   .in(file("circe"))
-  .dependsOn(macroUtils.jvm, instances)
+  .dependsOn(core.jvm, instances % "test -> test")
   .settings(circeSettings: _*)
   .settings(crossBuildSettings: _*)
   .settings(publishSettings: _*)
@@ -343,7 +360,7 @@ lazy val circeSupport = project
 
 lazy val akkaHttpSupport = project
   .in(file("akka-http"))
-  .dependsOn(macroUtils.jvm, instances, tagged.jvm % "test -> test", taggedMeta % "test -> test")
+  .dependsOn(core.jvm, instances % "test -> test", tagged.jvm % "test -> test", taggedMeta % "test -> test")
   .settings(akkaHttpSettings: _*)
   .settings(publishSettings: _*)
   .settings(disableScala("3"))
@@ -356,7 +373,7 @@ lazy val akkaHttpSupport = project
 
 lazy val http4sSupport = project
   .in(file("http4s"))
-  .dependsOn(macroUtils.jvm, instances, opaque.jvm % "test -> test", tagged.jvm % "test -> test", taggedMeta % "test -> test")
+  .dependsOn(core.jvm, instances, opaque.jvm % "test -> test", tagged.jvm % "test -> test", taggedMeta % "test -> test")
   .settings(http4sSettings: _*)
   .settings(publishSettings: _*)
   .settings(
@@ -368,7 +385,7 @@ lazy val http4sSupport = project
 
 lazy val jsonschemaSupport = project
   .in(file("jsonschema"))
-  .dependsOn(macroUtils.jvm)
+  .dependsOn(core.jvm)
   .settings(jsonschemaSettings: _*)
   .settings(publishSettings: _*)
   .settings(disableScala("3"))
@@ -381,7 +398,7 @@ lazy val jsonschemaSupport = project
 
 lazy val scalacheckSupport = project
   .in(file("scalacheck"))
-  .dependsOn(macroUtils.jvm)
+  .dependsOn(core.jvm)
   .settings(scalacheckSettings: _*)
   .settings(publishSettings: _*)
   .settings(disableScala("3"))
@@ -396,7 +413,7 @@ lazy val tagged = crossProject(JSPlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
   .crossType(CrossType.Full)
   .in(file("tagged"))
-  .dependsOn(macroUtils)
+  .dependsOn(core)
   .settings(taggedSettings: _*)
   .settings(publishSettings: _*)
   .settings(disableScala("3"))
@@ -411,7 +428,7 @@ lazy val opaque = crossProject(JSPlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("opaque"))
-  .dependsOn(macroUtils)
+  .dependsOn(core)
   .settings(opaqueSettings: _*)
   .settings(disableScala("2.13"))
   .settings(disableScala("2.12"))
@@ -427,7 +444,7 @@ lazy val opaque = crossProject(JSPlatform, JVMPlatform)
 lazy val taggedMeta = project
   .in(file("tagged-meta"))
   .dependsOn(
-    macroUtils.jvm,
+    core.jvm,
     tagged.jvm,
     sprayJsonSupport  % "test -> test",
     circeSupport      % "test -> test",
@@ -468,6 +485,7 @@ lazy val benchmarks = project
 
 lazy val instances = project
   .in(file("instances"))
+  .dependsOn(core.jvm)
   .settings(instancesSettings: _*)
   .settings(publishSettings: _*)
   .settings(
@@ -483,6 +501,8 @@ lazy val kebs = project
     tagged.js,
     opaque.jvm,
     opaque.js,
+    core.jvm,
+    core.js,
     macroUtils.jvm,
     macroUtils.js,
     slickSupport,
