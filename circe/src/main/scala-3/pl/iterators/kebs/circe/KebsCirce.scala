@@ -10,15 +10,32 @@ import pl.iterators.kebs.instances.InstanceConverter
 import io.circe.generic.AutoDerivation
 
 trait KebsCirce extends AutoDerivation {
-   inline implicit def flatDecoder[T, A](implicit inline  rep: CaseClass1Rep[T, A], decoder: Decoder[A]): Decoder[T] =
+   inline given[T, A](using rep: CaseClass1Rep[T, A], decoder: Decoder[A]): Decoder[T] =
     decoder.emap(obj => Try(rep.apply(obj)).toEither.left.map(_.getMessage))
 
-   inline implicit def flatEncoder[T, A](implicit inline rep: CaseClass1Rep[T, A], encoder: Encoder[A]): Encoder[T] =
+   inline given[T, A](using rep: CaseClass1Rep[T, A], encoder: Encoder[A]): Encoder[T] =
     encoder.contramap(rep.unapply)
 
-   inline implicit def instanceEncoder[T, A](implicit inline rep: InstanceConverter[T, A], encoder: Encoder[A]): Encoder[T] =
+   inline given[T, A](using rep: InstanceConverter[T, A], encoder: Encoder[A]): Encoder[T] =
     encoder.contramap(rep.encode)
 
-   inline implicit def instanceDecoder[T, A](implicit inline rep: InstanceConverter[T, A], decoder: Decoder[A]): Decoder[T] =
+   inline given[T, A](using rep: InstanceConverter[T, A], decoder: Decoder[A]): Decoder[T] =
     decoder.emap(obj => Try(rep.decode(obj)).toEither.left.map(_.getMessage))
+}
+
+object KebsCirce {
+  trait NoFlat extends KebsCirce {
+    inline given[T <: Product]: Decoder[T] = ${KebsCirceMacros.NoflatVariant.materializeDecoder[T]}
+    inline given[T <: Product]: Encoder[T] = ${KebsCirceMacros.NoflatVariant.materializeEncoder[T]}
+  }
+
+  trait Snakified extends KebsCirce {
+    inline given[T <: Product]: Decoder[T] = ${KebsCirceMacros.SnakifyVariant.materializeDecoder[T]}
+    inline given[T <: Product]: Encoder[T] = ${KebsCirceMacros.SnakifyVariant.materializeEncoder[T]}
+  }
+
+  trait Capitalized extends KebsCirce {
+    inline given[T <: Product]: Decoder[T] = ${KebsCirceMacros.CapitalizedCamelCase.materializeDecoder[T]}
+    inline given[T <: Product]: Encoder[T] = ${KebsCirceMacros.CapitalizedCamelCase.materializeEncoder[T]}
+  }
 }
