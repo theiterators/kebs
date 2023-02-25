@@ -114,10 +114,10 @@ val doobie          = "org.tpolecat" %% "doobie-core" % "1.0.0-RC2"
 val doobiePg        = "org.tpolecat" %% "doobie-postgres" % "1.0.0-RC2"
 val sprayJson       = "io.spray" %% "spray-json" % "1.3.6"
 
-val circeV = "0.14.3"
+val circeV = "0.14.4"
 val circe           = "io.circe" %% "circe-core" % circeV
 val circeAuto       = "io.circe" %% "circe-generic" % circeV
-val circeAutoExtras = "io.circe" %% "circe-generic-extras" % circeV
+val circeAutoExtras = "io.circe" %% "circe-generic-extras" % "0.14.3"
 val circeParser     = "io.circe" %% "circe-parser" % circeV
 val optionalCirce   = optional(circe)
 
@@ -157,7 +157,7 @@ def akkaHttpInBenchmarks = akkaHttpInExamples :+ (akkaHttpTestkit).cross(CrossVe
 lazy val commonSettings = baseSettings ++ Seq(
   scalacOptions ++=
     (if (scalaVersion.value.startsWith("3"))
-       Seq("-language:implicitConversions", "-Ykind-projector", "-Xignore-scala2-macros")
+       Seq("-language:implicitConversions", "-Ykind-projector", "-Xignore-scala2-macros", "-Xcheck-macros")
      else Seq("-language:implicitConversions", "-language:experimental.macros")),
 //  (scalacOptions in Test) ++= Seq("-Ymacro-debug-lite" /*, "-Xlog-implicits"*/ ),
   libraryDependencies += scalaTest.value % "test",

@@ -8,7 +8,7 @@ import scala.util.Try
 
 class CirceFormatTests extends AnyFunSuite with Matchers {
   object KebsProtocol extends KebsCirce
-  import KebsProtocol._
+  import KebsProtocol.{given, _}
 
   case class C(i: Int)
   case class D(i: Int, s: String)
@@ -31,7 +31,6 @@ class CirceFormatTests extends AnyFunSuite with Matchers {
     decoder.apply(Json.fromInt(10).hcursor) shouldBe Right(C(10))
     encoder.apply(C(10)) shouldBe Json.fromInt(10)
   }
-
   test("Flat format - parametrized") {
     val decoder = implicitly[Decoder[Parametrized1[Double]]]
     val encoder = implicitly[Encoder[Parametrized1[Double]]]
