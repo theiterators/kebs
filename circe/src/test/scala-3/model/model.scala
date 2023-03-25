@@ -1,3 +1,6 @@
+
+import io.circe.Decoder
+import io.circe.Encoder
 package object model {
 
   case class F1(f1: String)
