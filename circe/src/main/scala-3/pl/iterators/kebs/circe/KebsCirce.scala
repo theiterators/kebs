@@ -11,11 +11,27 @@ import io.circe.generic.AutoDerivation
 import scala.quoted.Type
 import io.circe.derivation.ConfiguredDecoder
 import io.circe.derivation.Configuration
+import io.circe.Derivation
+import io.circe.DecoderDerivation
+import io.circe.EncoderDerivation
+import io.circe.derivation.ConfiguredEncoder
+import scala.NonEmptyTuple
 
-trait KebsCirce extends AutoDerivation {
+trait KebsAutoDerivation {
+  
+  implicit val configuration: Configuration = Configuration.default
 
-   inline given[T, A](using rep: CaseClass1Rep[T, A], decoder: Decoder[A]): Decoder[T] =
+  inline implicit def exportDecoder[A](using conf: Configuration, inline m: Mirror.ProductOf[A]): ConfiguredDecoder[A] =
+    ConfiguredDecoder.derived[A]
+
+  inline implicit def exportEncoder[A](using conf: Configuration, inline m: Mirror.ProductOf[A]): ConfiguredEncoder[A] =
+    ConfiguredEncoder.derived[A]
+}
+trait KebsCirce extends KebsAutoDerivation {
+
+   inline given[T, A](using rep: CaseClass1Rep[T, A], decoder: Decoder[A]): Decoder[T] = {
     decoder.emap(obj => Try(rep.apply(obj)).toEither.left.map(_.getMessage))
+   }
 
    inline given[T, A](using rep: CaseClass1Rep[T, A], encoder: Encoder[A]): Encoder[T] =
     encoder.contramap(rep.unapply)
@@ -29,17 +45,13 @@ trait KebsCirce extends AutoDerivation {
 
 object KebsCirce {
   trait NoFlat extends KebsCirce {
-  transparent inline given[T <: Product](using inline m: Mirror.Of[T]): Decoder[T] = KebsCirceMacros.NoflatVariant.materializeDecoder[T]
-  transparent inline given[T <: Product](using m: Mirror.Of[T]): Encoder[T] = KebsCirceMacros.NoflatVariant.materializeEncoder[T]
   }
 
   trait Snakified extends KebsCirce {
-    transparent inline given[T <: Product](using m: Mirror.Of[T]): Decoder[T] = KebsCirceMacros.SnakifyVariant.materializeDecoder[T]
-    transparent inline given[T <: Product](using m: Mirror.Of[T]): Encoder[T] = KebsCirceMacros.SnakifyVariant.materializeEncoder[T]
+    override implicit val configuration: Configuration = Configuration.default.withSnakeCaseMemberNames
   }
 
   trait Capitalized extends KebsCirce {
-    transparent inline given[T <: Product](using inline m: Mirror.Of[T]): Decoder[T] = KebsCirceMacros.CapitalizedCamelCase.materializeDecoder[T]
-    transparent inline given[T <: Product](using m: Mirror.Of[T]): Encoder[T] = KebsCirceMacros.CapitalizedCamelCase.materializeEncoder[T]
+    override implicit val configuration: Configuration = Configuration.default.withPascalCaseMemberNames
   }
 }
