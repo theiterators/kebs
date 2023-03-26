@@ -9,7 +9,7 @@ class CirceFormatCapitalizedVariantTests extends AnyFunSuite with Matchers {
   object KebsProtocol extends KebsCirce with KebsCirce.Capitalized
   import KebsProtocol.{given, _}
 
-  case class C(anInteger: Int)
+  case class C(anInteger: Int) 
   case class D(intField: Int, stringField: String)
   case object F
 
@@ -115,7 +115,7 @@ class CirceFormatCapitalizedVariantTests extends AnyFunSuite with Matchers {
         "F23"            -> Json.fromBoolean(true)
       ))
 
-    // encoder.apply(obj) shouldBe json
+    encoder.apply(obj) shouldBe json
     decoder.apply(json.hcursor) shouldBe Right(obj)
   }
 }

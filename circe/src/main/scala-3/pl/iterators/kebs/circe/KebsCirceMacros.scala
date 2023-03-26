@@ -18,6 +18,7 @@ import io.circe.DecodingFailure
 import io.circe._
 import io.circe.syntax._
 import pl.iterators.kebs.circe.MacroUtils.abortImplicit
+import io.circe.Decoder.Result
 
 object MacroUtils {
   transparent inline def abortImplicit: Nothing = ${abortImplicitImpl}
@@ -28,22 +29,29 @@ object MacroUtils {
 class KebsCirceMacros {
 
   transparent inline given materializeDecoder[T](using mirror: Mirror.Of[T]): ConfiguredDecoder[T] = {
-    if(preferFlat == true) {
-           abortImplicit
-    }
-           else {
-   new ConfiguredDecoder[T](using namingStrategy):
-      val name = constValue[mirror.MirroredLabel]
+    lazy val name = constValue[mirror.MirroredLabel]
+    lazy val elemLabels: List[String] = summonLabels[mirror.MirroredElemLabels]
+
+  elemLabels match
+    case Nil => abortImplicit
+    case _1 :: Nil => if(preferFlat) abortImplicit else _materializeDecoder
+    case fields => _materializeDecoder
+}
+
+ transparent inline def _materializeDecoder[T](using mirror: Mirror.Of[T]): ConfiguredDecoder[T] = {
+  new ConfiguredDecoder[T] {
+
+          val name = constValue[mirror.MirroredLabel]
       lazy val elemLabels: List[String] = summonLabels[mirror.MirroredElemLabels].map(namingStrategy.transformMemberNames)
       lazy val elemDecoders: List[Decoder[?]] = summonDecoders[mirror.MirroredElemTypes]
       lazy val elemDefaults: Default[T] = Predef.summon[Default[T]]
-
-       final def apply(c: HCursor): Decoder.Result[T] = {
+    override def apply(c: HCursor): Result[T] = {
       inline mirror match {
         case product: Mirror.ProductOf[T] =>
           for {
             args <- elemDecoders.zip(elemLabels).foldLeft(Right(Nil): Decoder.Result[List[Any]]) { 
               case (acc, (decoder, key)) =>
+                println(acc)
                 acc.flatMap(params => decoder.tryDecode(c.downField(key)).map(x => params :+ x))
             }
           } yield product.fromProduct(Tuple.fromArray(args.toArray))
@@ -56,19 +64,19 @@ class KebsCirceMacros {
 
 
 
-
   transparent inline def materializeEncoder[T](using mirror: Mirror.Of[T]): ConfiguredEncoder[T] = {
         if(preferFlat == true) {
             MacroUtils.abortImplicit   
           } else {
-new ConfiguredEncoder[T] {
+new ConfiguredEncoder[T](using namingStrategy) {
     val name = constValue[mirror.MirroredLabel]
-    lazy val elemLabels: List[String] = summonLabels[mirror.MirroredElemLabels]
-    lazy val elemEncoders: List[Encoder[?]] = summonEncoders[mirror.MirroredElemTypes]
+    override lazy val elemLabels: List[String] = summonLabels[mirror.MirroredElemLabels].map(namingStrategy.transformMemberNames)
+    override lazy val elemEncoders: List[Encoder[?]] = summonEncoders[mirror.MirroredElemTypes]
 
     override def encodeObject(a: T): JsonObject = 
         inline mirror match
-          case product: Mirror.ProductOf[T] => encodeProduct(a)
+          case product: Mirror.ProductOf[T] => 
+            encodeProduct(a)
           case sum: Mirror.SumOf[T]   => encodeSum(sum.ordinal(a), a)
   }
   }

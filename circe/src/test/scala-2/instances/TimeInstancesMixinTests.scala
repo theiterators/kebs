@@ -1,4 +1,4 @@
-package instances
+
 
 import io.circe.{Decoder, Encoder, Json}
 import org.scalatest.funsuite.AnyFunSuite
@@ -97,7 +97,7 @@ class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
         }
     }
     import TimeInstancesProtocol._
-
+    
     "implicitly[CaseClass1Rep[LocalDateTime, String]]" shouldNot typeCheck
     "implicitly[CaseClass1Rep[String, LocalDateTime]]" shouldNot typeCheck
 

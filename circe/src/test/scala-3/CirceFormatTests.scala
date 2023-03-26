@@ -196,7 +196,7 @@ class CirceFormatTests extends AnyFunSuite with Matchers {
         "f23"            -> Json.fromBoolean(true)
       ))
 
-    // encoder.apply(obj) shouldBe json
+    encoder.apply(obj) shouldBe json
     decoder.apply(json.hcursor) shouldBe Right(obj)
   }
 }

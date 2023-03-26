@@ -14,7 +14,6 @@ class CirceFormatNoFlatTests extends AnyFunSuite with Matchers {
 
 case class C(i: Int)
 
-
   test("No-flat format") {
     val decoder = implicitly[Decoder[C]]
     val encoder = implicitly[Encoder[C]]
