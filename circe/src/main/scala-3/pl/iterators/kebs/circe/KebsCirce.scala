@@ -45,19 +45,13 @@ trait KebsCirce extends KebsAutoDerivation {
 
 object KebsCirce {
   trait NoFlat extends KebsCirce {
-  transparent inline given[T <: Product](using inline m: Mirror.Of[T]): Decoder[T] = KebsCirceMacros.NoflatVariant.materializeDecoder[T]
-  transparent inline given[T <: Product](using m: Mirror.Of[T]): Encoder[T] = KebsCirceMacros.NoflatVariant.materializeEncoder[T]
   }
 
   trait Snakified extends KebsCirce {
     override implicit val configuration: Configuration = Configuration.default.withSnakeCaseMemberNames
-    transparent inline given[T <: Product](using m: Mirror.Of[T]): Decoder[T] = KebsCirceMacros.SnakifyVariant.materializeDecoder[T]
-    transparent inline given[T <: Product](using m: Mirror.Of[T]): Encoder[T] = KebsCirceMacros.SnakifyVariant.materializeEncoder[T]
   }
 
   trait Capitalized extends KebsCirce {
     override implicit val configuration: Configuration = Configuration.default.withPascalCaseMemberNames
-    transparent inline given[T <: Product](using inline m: Mirror.Of[T]): Decoder[T] = KebsCirceMacros.CapitalizedCamelCase.materializeDecoder[T]
-    transparent inline given[T <: Product](using m: Mirror.Of[T]): Encoder[T] = KebsCirceMacros.CapitalizedCamelCase.materializeEncoder[T]
   }
 }
