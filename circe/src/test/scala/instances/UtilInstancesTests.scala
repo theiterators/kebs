@@ -38,15 +38,15 @@ class UtilInstancesTests extends AnyFunSuite with Matchers with KebsCirce with U
     decoder(Json.fromString(value).hcursor) shouldBe a [Left[_, _]]
   }
 
-  // test("Locale standard format") {
-  //   val encoder    = implicitly[Encoder[Locale]]
-  //   val decoder    = implicitly[Decoder[Locale]]
-  //   val value = "pl-PL"
-  //   val obj   = Locale.forLanguageTag(value)
+   test("Locale standard format") {
+     val encoder    = implicitly[Encoder[Locale]]
+     val decoder    = implicitly[Decoder[Locale]]
+     val value = "pl-PL"
+     val obj   = Locale.forLanguageTag(value)
 
-  //   encoder(obj) shouldBe Json.fromString(value)
-  //   decoder(Json.fromString(value).hcursor) shouldBe Right(obj)
-  // }
+     encoder(obj) shouldBe Json.fromString(value)
+     decoder(Json.fromString(value).hcursor) shouldBe Right(obj)
+   }
 
   test("UUID standard format") {
     val encoder    = implicitly[Encoder[UUID]]
