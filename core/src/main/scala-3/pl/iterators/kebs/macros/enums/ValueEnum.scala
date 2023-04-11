@@ -1,3 +1,4 @@
+
 package pl.iterators.kebs.enums
 
 trait ValueEnum[ValueType] {
