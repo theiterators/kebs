@@ -17,7 +17,7 @@ import io.circe.EncoderDerivation
 import io.circe.derivation.ConfiguredEncoder
 import scala.NonEmptyTuple
 
-trait KebsAutoDerivation {
+private[circe] trait KebsAutoDerivation {
   
   implicit val configuration: Configuration = Configuration.default
 
