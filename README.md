@@ -672,6 +672,20 @@ And capitalized:
  object KebsProtocol extends KebsCirce with KebsCirce.Capitalized
 ```
 
+**NOTE for Scala 3 version of kebs-circe**:
+As of today, there is no support for the @noflat annotation - using it will have no effect.
+
+If you're using flat format or Snakified/Capitalized formats, remember to import `given` instances, e.g.:
+```scala
+  object KebsProtocol extends KebsCirce with KebsCirce.Snakified
+  import KebsProtocol.{given, _}
+  ```
+ 
+ as for NoFlat, it should stay the same:
+ ```scala
+   object KebsProtocol extends KebsCirce with KebsCirce.NoFlat
+  import KebsProtocol._
+ ```
 #### - kebs generates akka-http Unmarshaller (kebs-akka-http)
 
 It makes it very easy to use 1-element case-classes or `enumeratum` enums/value enums in eg. `parameters` directive:
