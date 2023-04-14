@@ -93,7 +93,7 @@ def sv[A](scalaVersion: String, scala2_12Version: => A, scala2_13Version: => A) 
   }
 
 def paradiseFlag(scalaVersion: String): Seq[String] =
-  if (scalaVersion == scala_2_12)
+  if (scalaVersion == scala_2_12 || scalaVersion == scala_32)
     Seq.empty
   else
     Seq("-Ymacro-annotations")
@@ -114,7 +114,7 @@ val doobie          = "org.tpolecat" %% "doobie-core" % "1.0.0-RC2"
 val doobiePg        = "org.tpolecat" %% "doobie-postgres" % "1.0.0-RC2"
 val sprayJson       = "io.spray" %% "spray-json" % "1.3.6"
 val circeV = "0.14.5"
-val circe           = Def.setting("io.circe" %%% "circe-core" % circeV)
+val circe           = "io.circe" %% "circe-core" % circeV
 val circeAuto       = "io.circe" %% "circe-generic" % circeV
 val circeAutoExtras = "io.circe" %% "circe-generic-extras" % "0.14.3"
 val circeParser     = "io.circe" %% "circe-parser" % circeV
@@ -191,11 +191,10 @@ lazy val playJsonSettings = commonSettings ++ Seq(
 )
 
 lazy val circeSettings = commonSettings ++ Seq(
-  libraryDependencies += circe.value,
+  libraryDependencies += circe,
   libraryDependencies += circeAuto,
-  libraryDependencies += circeAutoExtras.cross(CrossVersion.for3Use2_13),
   libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13),
-  libraryDependencies += circeParser % "test"
+  libraryDependencies += (circeParser % "test")
 ) ++ Seq(
   libraryDependencies ++= (if (scalaVersion.value.startsWith("3")) Nil
   else Seq(circeAutoExtras)))
@@ -228,7 +227,7 @@ lazy val scalacheckSettings = commonSettings ++ Seq(
 
 lazy val taggedSettings = commonSettings ++ Seq(
   libraryDependencies += optionalSlick.cross(CrossVersion.for3Use2_13),
-  libraryDependencies += optional(circe.value)
+  libraryDependencies += optional(circe)
 )
 
 lazy val opaqueSettings = commonSettings
@@ -250,7 +249,7 @@ lazy val benchmarkSettings = commonSettings ++ Seq(
 
 lazy val taggedMetaSettings = metaSettings ++ Seq(
   libraryDependencies += optional(sprayJson.cross(CrossVersion.for3Use2_13)),
-  libraryDependencies += optional(circe.value)
+  libraryDependencies += optional(circe)
 )
 
 lazy val instancesSettings = commonSettings
