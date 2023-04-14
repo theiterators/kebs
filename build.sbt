@@ -133,7 +133,7 @@ def enumeratumInExamples = {
 }
 val optionalEnumeratum = optional(enumeratum.cross(CrossVersion.for3Use2_13))
 
-val akkaVersion       = "2.6.19"
+val akkaVersion       = "2.6.20"
 val akkaHttpVersion   = "10.2.10"
 val akkaStream        = "com.typesafe.akka" %% "akka-stream" % akkaVersion
 val akkaStreamTestkit = "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion
