@@ -3,7 +3,7 @@ package pl.iterators.kebs.instances.net
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.instances.InstanceConverter
-import pl.iterators.kebs.instances.InstanceConverter.DecodeErrorException
+import InstanceConverter.DecodeErrorException
 
 import java.net.URI
 
