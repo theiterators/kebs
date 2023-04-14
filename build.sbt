@@ -1,7 +1,7 @@
 import sbt.librarymanagement.ConflictWarning
 
 val scala_2_12             = "2.12.17"
-val scala_2_13             = "2.13.8"
+val scala_2_13             = "2.13.10"
 val scala_32               = "3.2.2"
 val mainScalaVersion       = scala_32
 val supportedScalaVersions = Seq(scala_2_12, scala_2_13, scala_32)
@@ -134,7 +134,7 @@ def enumeratumInExamples = {
 }
 val optionalEnumeratum = optional(enumeratum.cross(CrossVersion.for3Use2_13))
 
-val akkaVersion       = "2.6.19"
+val akkaVersion       = "2.6.20"
 val akkaHttpVersion   = "10.2.10"
 val akkaStream        = "com.typesafe.akka" %% "akka-stream" % akkaVersion
 val akkaStreamTestkit = "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion
