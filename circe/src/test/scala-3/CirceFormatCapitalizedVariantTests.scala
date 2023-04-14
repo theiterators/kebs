@@ -115,7 +115,7 @@ class CirceFormatCapitalizedVariantTests extends AnyFunSuite with Matchers {
         "F23"            -> Json.fromBoolean(true)
       ))
 
-    // encoder.apply(obj) shouldBe json
+    encoder.apply(obj) shouldBe json
     decoder.apply(json.hcursor) shouldBe Right(obj)
   }
 }

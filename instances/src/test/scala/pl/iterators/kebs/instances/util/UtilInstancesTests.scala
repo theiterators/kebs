@@ -2,9 +2,8 @@ package pl.iterators.kebs.instances.util
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.instances.InstanceConverter
 import pl.iterators.kebs.instances.InstanceConverter.DecodeErrorException
-import pl.iterators.kebs.instances.UtilInstances
+import pl.iterators.kebs.instances.{InstanceConverter, UtilInstances}
 
 import java.util.{Currency, Locale, UUID}
 

@@ -4,6 +4,7 @@ import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.circe.KebsCirce
 
 import scala.Right
+import io.circe.derivation.Configuration
 
 
 
@@ -17,19 +18,19 @@ class CirceFormatSnakifiedVariantTests extends AnyFunSuite with Matchers {
 
   case class Compound(CField: C, DField: D)
 
-//   test("Flat format remains unchanged") {
-//     val decoder = implicitly[Decoder[C]]
-//     val encoder = implicitly[Encoder[C]]
-//     decoder.apply(Json.fromInt(10).hcursor) shouldBe Right(C(10))
-//     encoder.apply(C(10)) shouldBe Json.fromInt(10)
-//   }
+  test("Flat format remains unchanged") {
+    val decoder = implicitly[Decoder[C]]
+    val encoder = implicitly[Encoder[C]]
+    decoder.apply(Json.fromInt(10).hcursor) shouldBe Right(C(10))
+    encoder.apply(C(10)) shouldBe Json.fromInt(10)
+  }
 
-//   test("Format 0 remains unchanged") {
-//     val decoder = implicitly[Decoder[F.type]]
-//     val encoder = implicitly[Encoder[F.type]]
-//     decoder.apply(Json.fromFields(Seq.empty[(String, Json)]).hcursor) shouldBe Right(F)
-//     encoder.apply(F) shouldBe Json.fromFields(Seq.empty[(String, Json)])
-//   }
+  test("Format 0 remains unchanged") {
+    val decoder = implicitly[Decoder[F.type]]
+    val encoder = implicitly[Encoder[F.type]]
+    decoder.apply(Json.fromFields(Seq.empty[(String, Json)]).hcursor) shouldBe Right(F)
+    encoder.apply(F) shouldBe Json.fromFields(Seq.empty[(String, Json)])
+  }
 
   test("format 2 snakified") {
     val decoder = implicitly[Decoder[D]]
