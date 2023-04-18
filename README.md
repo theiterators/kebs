@@ -673,9 +673,14 @@ And capitalized:
 ```
 
 **NOTE for Scala 3 version of kebs-circe**:
-As of today, there is no support for the @noflat annotation - using it will have no effect.
+1. As of today, there is no support for the @noflat annotation - using it will have no effect.
+2. If you're using recursive types - due to [this issue](https://github.com/circe/circe/issues/1980) you'll have to add codecs explicitly in the following way:
+```scala
+case class R(a: Int, rs: Seq[R]) derives Decoder, Encoder.AsObject
+```
 
-If you're using flat format or Snakified/Capitalized formats, remember to import `given` instances, e.g.:
+
+3. If you're using flat format or Snakified/Capitalized formats, remember to import `given` instances, e.g.:
 ```scala
   object KebsProtocol extends KebsCirce with KebsCirce.Snakified
   import KebsProtocol.{given, _}
