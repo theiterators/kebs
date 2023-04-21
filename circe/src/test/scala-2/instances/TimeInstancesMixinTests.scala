@@ -1,13 +1,12 @@
-package instances
+
 
 import io.circe.{Decoder, Encoder, Json}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.circe.KebsCirce
-import pl.iterators.kebs.instances.InstanceConverter
 import pl.iterators.kebs.instances.time.LocalDateTimeString
 import pl.iterators.kebs.instances.time.mixins.{DurationNanosLong, InstantEpochMilliLong}
-import pl.iterators.kebs.instances.TimeInstances
+import pl.iterators.kebs.instances.{InstanceConverter, TimeInstances}
 
 import java.time._
 import java.time.format.DateTimeFormatter
@@ -98,7 +97,7 @@ class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
         }
     }
     import TimeInstancesProtocol._
-
+    
     "implicitly[CaseClass1Rep[LocalDateTime, String]]" shouldNot typeCheck
     "implicitly[CaseClass1Rep[String, LocalDateTime]]" shouldNot typeCheck
 

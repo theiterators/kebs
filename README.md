@@ -672,6 +672,25 @@ And capitalized:
  object KebsProtocol extends KebsCirce with KebsCirce.Capitalized
 ```
 
+**NOTE for Scala 3 version of kebs-circe**:
+1. As of today, there is no support for the @noflat annotation - using it will have no effect.
+2. If you're using recursive types - due to [this issue](https://github.com/circe/circe/issues/1980) you'll have to add codecs explicitly in the following way:
+```scala
+case class R(a: Int, rs: Seq[R]) derives Decoder, Encoder.AsObject
+```
+
+
+3. If you're using flat format or Snakified/Capitalized formats, remember to import `given` instances, e.g.:
+```scala
+  object KebsProtocol extends KebsCirce with KebsCirce.Snakified
+  import KebsProtocol.{given, _}
+  ```
+ 
+ as for NoFlat, it should stay the same:
+ ```scala
+   object KebsProtocol extends KebsCirce with KebsCirce.NoFlat
+  import KebsProtocol._
+ ```
 #### - kebs generates akka-http Unmarshaller (kebs-akka-http)
 
 It makes it very easy to use 1-element case-classes or `enumeratum` enums/value enums in eg. `parameters` directive:
