@@ -65,7 +65,7 @@ Support for `akka-http`
 
 Support for `http4s`
 
-`libraryDependencies += "pl.iterators" %% "http4s" % "1.9.3"`
+`libraryDependencies += "pl.iterators" %% "kebs-http4s" % "1.9.3"`
 
 Support for `tagged types`
 
