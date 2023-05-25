@@ -56,9 +56,10 @@ lazy val noPublishSettings =
     publishArtifact := false,
   )
 
-def disableScala(v: String) = Def.settings(
+def disableScala(v: List[String]) =
+  Def.settings(
   libraryDependencies := {
-    if (scalaBinaryVersion.value == v) {
+    if (v.contains(scalaBinaryVersion.value)) {
       Nil
     } else {
       libraryDependencies.value
@@ -66,7 +67,7 @@ def disableScala(v: String) = Def.settings(
   },
   Seq(Compile, Test).map { x =>
     (x / sources) := {
-      if (scalaBinaryVersion.value == v) {
+      if (v.contains(scalaBinaryVersion.value)) {
         Nil
       } else {
         (x / sources).value
@@ -74,14 +75,14 @@ def disableScala(v: String) = Def.settings(
     }
   },
   Test / test := {
-    if (scalaBinaryVersion.value == v) {
+    if (v.contains(scalaBinaryVersion.value)) {
       ()
     } else {
       (Test / test).value
     }
   },
-  publish / skip := (scalaBinaryVersion.value == v)
-)
+  publish / skip := (v.contains(scalaBinaryVersion.value)))
+
 
 def optional(dependency: ModuleID) = dependency % "provided"
 def sv[A](scalaVersion: String, scala2_12Version: => A, scala2_13Version: => A) =
@@ -288,7 +289,7 @@ lazy val slickSupport = project
   .dependsOn(core.jvm, instances % "test -> test")
   .settings(slickSettings: _*)
   .settings(publishSettings: _*)
-  .settings(disableScala("3"))
+  .settings(disableScala(List("3")))
   .settings(
     name := "slick",
     description := "Library to eliminate the boilerplate code that comes with the use of Slick",
@@ -313,7 +314,7 @@ lazy val sprayJsonMacros = project
   .dependsOn(core.jvm)
   .settings(sprayJsonMacroSettings: _*)
   .settings(publishSettings: _*)
-  .settings(disableScala("3"))
+  .settings(disableScala(List("3")))
   .settings(
     name := "spray-json-macros",
     description := "Automatic generation of Spray json formats for case-classes - macros",
@@ -326,7 +327,7 @@ lazy val sprayJsonSupport = project
   .dependsOn(sprayJsonMacros, instances % "test -> test")
   .settings(sprayJsonSettings: _*)
   .settings(publishSettings: _*)
-  .settings(disableScala("3"))
+  .settings(disableScala(List("3")))
   .settings(
     name := "spray-json",
     description := "Automatic generation of Spray json formats for case-classes",
@@ -339,7 +340,7 @@ lazy val playJsonSupport = project
   .dependsOn(core.jvm, instances % "test -> test")
   .settings(playJsonSettings: _*)
   .settings(publishSettings: _*)
-  .settings(disableScala("3"))
+  .settings(disableScala(List("3")))
   .settings(
     name := "play-json",
     description := "Automatic generation of Play json formats for case-classes",
@@ -364,7 +365,7 @@ lazy val akkaHttpSupport = project
   .dependsOn(core.jvm, instances % "test -> test", tagged.jvm % "test -> test", taggedMeta % "test -> test")
   .settings(akkaHttpSettings: _*)
   .settings(publishSettings: _*)
-  .settings(disableScala("3"))
+  .settings(disableScala(List("3")))
   .settings(
     name := "akka-http",
     description := "Automatic generation of akka-http deserializers for 1-element case classes",
@@ -389,7 +390,7 @@ lazy val jsonschemaSupport = project
   .dependsOn(core.jvm)
   .settings(jsonschemaSettings: _*)
   .settings(publishSettings: _*)
-  .settings(disableScala("3"))
+  .settings(disableScala(List("3")))
   .settings(
     name := "jsonschema",
     description := "Automatic generation of JSON Schemas for case classes",
@@ -402,7 +403,7 @@ lazy val scalacheckSupport = project
   .dependsOn(core.jvm)
   .settings(scalacheckSettings: _*)
   .settings(publishSettings: _*)
-  .settings(disableScala("3"))
+  .settings(disableScala(List("3")))
   .settings(
     name := "scalacheck",
     description := "Automatic generation of scalacheck generators for case classes",
@@ -417,7 +418,7 @@ lazy val tagged = crossProject(JSPlatform, JVMPlatform)
   .dependsOn(core)
   .settings(taggedSettings: _*)
   .settings(publishSettings: _*)
-  .settings(disableScala("3"))
+  .settings(disableScala(List("3")))
   .settings(
     name := "tagged",
     description := "Representation of tagged types",
@@ -431,16 +432,14 @@ lazy val opaque = crossProject(JSPlatform, JVMPlatform)
   .in(file("opaque"))
   .dependsOn(core)
   .settings(opaqueSettings: _*)
-  .settings(disableScala("2.13"))
-  .settings(disableScala("2.12"))
   .settings(publishSettings: _*)
   .settings(
     name := "opaque",
     description := "Representation of opaque types",
     moduleName := "kebs-opaque",
-    crossScalaVersions := supportedScalaVersions,
-    publish / skip := (scalaBinaryVersion.value == "2.13")
+    crossScalaVersions := supportedScalaVersions
  )
+  .settings(disableScala(List("2.12", "2.13")))
 
 lazy val taggedMeta = project
   .in(file("tagged-meta"))
@@ -454,7 +453,7 @@ lazy val taggedMeta = project
   )
   .settings(taggedMetaSettings: _*)
   .settings(publishSettings: _*)
-  .settings(disableScala("3"))
+  .settings(disableScala(List("3")))
   .settings(
     name := "tagged-meta",
     description := "Representation of tagged types - code generation based on scala-meta",
@@ -467,7 +466,7 @@ lazy val examples = project
   .dependsOn(slickSupport, sprayJsonSupport, playJsonSupport, akkaHttpSupport, taggedMeta, circeSupport, instances)
   .settings(examplesSettings: _*)
   .settings(noPublishSettings: _*)
-  .settings(disableScala("3"))
+  .settings(disableScala(List("3")))
   .settings(
     name := "examples",
     moduleName := "kebs-examples"
