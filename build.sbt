@@ -299,7 +299,7 @@ lazy val slickSupport = project
 
 lazy val doobieSupport = project
   .in(file("doobie"))
-  .dependsOn(instances, opaque.jvm)
+  .dependsOn(instances, opaque.jvm % "test -> test")
   .settings(doobieSettings: _*)
   .settings(publishSettings: _*)
   .settings(
