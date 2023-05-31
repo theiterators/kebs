@@ -2,9 +2,9 @@ import sbt.librarymanagement.ConflictWarning
 
 val scala_2_12             = "2.12.17"
 val scala_2_13             = "2.13.10"
-val scala_32               = "3.2.2"
-val mainScalaVersion       = scala_32
-val supportedScalaVersions = Seq(scala_2_12, scala_2_13, scala_32)
+val scala_3                = "3.3.0"
+val mainScalaVersion       = scala_3
+val supportedScalaVersions = Seq(scala_2_12, scala_2_13, scala_3)
 
 ThisBuild / crossScalaVersions := supportedScalaVersions
 ThisBuild / scalaVersion := mainScalaVersion
@@ -94,7 +94,7 @@ def sv[A](scalaVersion: String, scala2_12Version: => A, scala2_13Version: => A) 
   }
 
 def paradiseFlag(scalaVersion: String): Seq[String] =
-  if (scalaVersion == scala_2_12 || scalaVersion == scala_32)
+  if (scalaVersion == scala_2_12 || scalaVersion == scala_3)
     Seq.empty
   else
     Seq("-Ymacro-annotations")

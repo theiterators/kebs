@@ -34,8 +34,7 @@ case class C(i: Int)
         |   "chapters": [{"name":"first"}, {"name":"second"}]
         | }
       """.stripMargin
-    val Right(book) = parse(json)
-    decoder(book.hcursor) shouldBe Right(
+    parse(json).flatMap(b => decoder(b.hcursor)) shouldBe Right(
       Book(
         name = "Functional Programming in Scala",
         chapters = List(Chapter("first"), Chapter("second"))
