@@ -1,6 +1,6 @@
-package pl.iterators.kebs.scalacheck
 
 import org.scalacheck.Arbitrary
+import .CommonArbitrarySupport
 
 trait Generator[T] extends CommonArbitrarySupport {
   def ArbT: Arbitrary[T]

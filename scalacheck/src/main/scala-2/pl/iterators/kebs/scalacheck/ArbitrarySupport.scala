@@ -1,4 +1,3 @@
-package pl.iterators.kebs.scalacheck
 
 import enumeratum.ScalacheckInstances
 import org.scalacheck.{Arbitrary, Gen, ScalacheckShapeless}
