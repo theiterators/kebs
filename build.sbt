@@ -126,7 +126,7 @@ val scalacheck           = "org.scalacheck"             %% "scalacheck"         
 val scalacheckShapeless  = "com.github.alexarchambault" %% "scalacheck-shapeless_1.15" % "1.3.0"
 val scalacheckEnumeratum = "com.beachape"               %% "enumeratum-scalacheck"     % "1.7.2"
 
-val enumeratumVersion         = "1.7.0"
+val enumeratumVersion         = "1.7.3"
 val enumeratumPlayJsonVersion = "1.5.16"
 val enumeratum                = "com.beachape" %% "enumeratum" % enumeratumVersion
 def enumeratumInExamples = {
