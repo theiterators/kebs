@@ -111,8 +111,8 @@ val slick           = "com.typesafe.slick" %% "slick" % "3.4.1"
 val optionalSlick   = optional(slick)
 val playJson        = "com.typesafe.play" %% "play-json" % "2.9.4"
 val slickPg         = "com.github.tminglei" %% "slick-pg" % "0.21.1"
-val doobie          = "org.tpolecat" %% "doobie-core" % "1.0.0-RC2"
-val doobiePg        = "org.tpolecat" %% "doobie-postgres" % "1.0.0-RC2"
+val doobie          = "org.tpolecat" %% "doobie-core" % "1.0.0-RC4"
+val doobiePg        = "org.tpolecat" %% "doobie-postgres" % "1.0.0-RC4"
 val sprayJson       = "io.spray" %% "spray-json" % "1.3.6"
 val circeV = "0.14.5"
 val circe           = "io.circe" %% "circe-core" % circeV
@@ -120,13 +120,13 @@ val circeAuto       = "io.circe" %% "circe-generic" % circeV
 val circeAutoExtras = "io.circe" %% "circe-generic-extras" % "0.14.3"
 val circeParser     = "io.circe" %% "circe-parser" % circeV
 
-val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.9"
+val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.11"
 
 val scalacheck           = "org.scalacheck"             %% "scalacheck"                % "1.17.0" % "test"
 val scalacheckShapeless  = "com.github.alexarchambault" %% "scalacheck-shapeless_1.15" % "1.3.0"
-val scalacheckEnumeratum = "com.beachape"               %% "enumeratum-scalacheck"     % "1.7.2"
+val scalacheckEnumeratum = "com.beachape"               %% "enumeratum-scalacheck"     % "1.7.3"
 
-val enumeratumVersion         = "1.7.0"
+val enumeratumVersion         = "1.7.3"
 val enumeratumPlayJsonVersion = "1.5.16"
 val enumeratum                = "com.beachape" %% "enumeratum" % enumeratumVersion
 def enumeratumInExamples = {
@@ -148,7 +148,7 @@ def akkaHttpInExamples = {
       akkaHttpSprayJson.cross(CrossVersion.for3Use2_13))
 }
 
-val http4sVersion = "0.23.19"
+val http4sVersion = "0.23.23"
 val http4s = "org.http4s" %% "http4s-dsl" % http4sVersion
 
 def akkaHttpInBenchmarks = akkaHttpInExamples :+ (akkaHttpTestkit).cross(CrossVersion.for3Use2_13)
