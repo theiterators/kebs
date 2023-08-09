@@ -1,6 +1,6 @@
 import sbt.librarymanagement.ConflictWarning
 
-val scala_2_12             = "2.12.17"
+val scala_2_12             = "2.12.18"
 val scala_2_13             = "2.13.10"
 val scala_3                = "3.3.0"
 val mainScalaVersion       = scala_3
