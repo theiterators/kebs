@@ -124,6 +124,7 @@ val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.11"
 
 val scalacheck           = "org.scalacheck"             %% "scalacheck"                % "1.17.0" % "test"
 val scalacheckShapeless  = "com.github.alexarchambault" %% "scalacheck-shapeless_1.15" % "1.3.0"
+val scalacheckDerived  = "io.github.martinhh" %% "scalacheck-derived" % "0.2.0"
 val scalacheckEnumeratum = "com.beachape"               %% "enumeratum-scalacheck"     % "1.7.3"
 
 val enumeratumVersion         = "1.7.3"
@@ -223,8 +224,10 @@ lazy val jsonschemaSettings = commonSettings ++ Seq(
 lazy val scalacheckSettings = commonSettings ++ Seq(
   libraryDependencies += scalacheck.cross(CrossVersion.for3Use2_13),
   libraryDependencies += scalacheckEnumeratum.cross(CrossVersion.for3Use2_13),
-  libraryDependencies += scalacheckShapeless.cross(CrossVersion.for3Use2_13)
-)
+  libraryDependencies += scalacheckShapeless.cross(CrossVersion.for3Use2_13),
+) ++ Seq(
+  libraryDependencies ++= (if (scalaVersion.value.startsWith("3")) Seq(scalacheckDerived)
+  else Nil))
 
 lazy val taggedSettings = commonSettings ++ Seq(
   libraryDependencies += optionalSlick.cross(CrossVersion.for3Use2_13),
@@ -400,10 +403,9 @@ lazy val jsonschemaSupport = project
 
 lazy val scalacheckSupport = project
   .in(file("scalacheck"))
-  .dependsOn(core.jvm)
+  .dependsOn(core.jvm, opaque.jvm % "test -> test")
   .settings(scalacheckSettings: _*)
   .settings(publishSettings: _*)
-  .settings(disableScala(List("3")))
   .settings(
     name := "scalacheck",
     description := "Automatic generation of scalacheck generators for case classes",
