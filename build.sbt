@@ -124,7 +124,7 @@ val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.11"
 
 val scalacheck           = "org.scalacheck"             %% "scalacheck"                % "1.17.0" % "test"
 val scalacheckShapeless  = "com.github.alexarchambault" %% "scalacheck-shapeless_1.15" % "1.3.0"
-val scalacheckDerived  = "io.github.martinhh" %% "scalacheck-derived" % "0.2.0"
+val scalacheckDerived  = "io.github.martinhh" %% "scalacheck-derived" % "0.4.1"
 val scalacheckEnumeratum = "com.beachape"               %% "enumeratum-scalacheck"     % "1.7.3"
 
 val enumeratumVersion         = "1.7.3"
