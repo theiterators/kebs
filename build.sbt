@@ -136,6 +136,19 @@ def enumeratumInExamples = {
 }
 val optionalEnumeratum = optional(enumeratum.cross(CrossVersion.for3Use2_13))
 
+val akkaVersion       = "2.6.20"
+val akkaHttpVersion   = "10.2.10"
+val akkaStream        = "com.typesafe.akka" %% "akka-stream" % akkaVersion
+val akkaStreamTestkit = "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion
+val akkaHttp          = "com.typesafe.akka" %% "akka-http" % akkaHttpVersion
+val akkaHttpTestkit   = "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion
+def akkaHttpInExamples = {
+  val akkaHttpSprayJson = "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion
+  Seq(akkaStream.cross(CrossVersion.for3Use2_13),
+    akkaHttp.cross(CrossVersion.for3Use2_13),
+    akkaHttpSprayJson.cross(CrossVersion.for3Use2_13))
+}
+
 val pekkoVersion       = "1.0.1"
 val pekkoHttpVersion   = "1.0.0"
 val pekkoHttpJsonV     = "2.0.0"
@@ -153,6 +166,8 @@ def pekkoHttpInExamples = {
 
 val http4sVersion = "0.23.23"
 val http4s = "org.http4s" %% "http4s-dsl" % http4sVersion
+
+def akkaHttpInBenchmarks = akkaHttpInExamples :+ (akkaHttpTestkit).cross(CrossVersion.for3Use2_13)
 
 def pekkoHttpInBenchmarks = pekkoHttpInExamples :+ (pekkoHttpTestkit).cross(CrossVersion.for3Use2_13)
 
@@ -202,6 +217,15 @@ lazy val circeSettings = commonSettings ++ Seq(
 ) ++ Seq(
   libraryDependencies ++= (if (scalaVersion.value.startsWith("3")) Nil
   else Seq(circeAutoExtras)))
+
+lazy val akkaHttpSettings = commonSettings ++ Seq(
+  libraryDependencies += (akkaHttp).cross(CrossVersion.for3Use2_13),
+  libraryDependencies += (akkaStreamTestkit % "test").cross(CrossVersion.for3Use2_13),
+  libraryDependencies += (akkaHttpTestkit   % "test").cross(CrossVersion.for3Use2_13),
+  libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13),
+  libraryDependencies ++= paradisePlugin(scalaVersion.value),
+  scalacOptions ++= paradiseFlag(scalaVersion.value)
+)
 
 lazy val pekkoHttpSettings = commonSettings ++ Seq(
   libraryDependencies += (pekkoHttp).cross(CrossVersion.for3Use2_13),
@@ -365,6 +389,19 @@ lazy val circeSupport = project
     moduleName := "kebs-circe"
   )
 
+lazy val akkaHttpSupport = project
+  .in(file("akka-http"))
+  .dependsOn(core.jvm, instances % "test -> test", tagged.jvm % "test -> test", taggedMeta % "test -> test")
+  .settings(akkaHttpSettings: _*)
+  .settings(publishSettings: _*)
+  .settings(disableScala(List("3")))
+  .settings(
+    name := "akka-http",
+    description := "Automatic generation of akka-http deserializers for 1-element case classes",
+    moduleName := "kebs-akka-http",
+    crossScalaVersions := supportedScalaVersions
+  )
+
 lazy val pekkoHttpSupport = project
   .in(file("pekko-http"))
   .dependsOn(core.jvm, instances % "test -> test", tagged.jvm % "test -> test", taggedMeta % "test -> test")
@@ -517,6 +554,7 @@ lazy val kebs = project
     circeSupport,
     jsonschemaSupport,
     scalacheckSupport,
+    akkaHttpSupport,
     pekkoHttpSupport,
     http4sSupport,
     taggedMeta,
