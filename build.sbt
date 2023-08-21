@@ -142,7 +142,6 @@ val pekkoHttpJsonV     = "2.0.0"
 val pekkoStream        = "org.apache.pekko" %% "pekko-stream" % pekkoVersion
 val pekkoStreamTestkit = "org.apache.pekko" %% "pekko-stream-testkit" % pekkoVersion
 val pekkoHttp          = "org.apache.pekko" %% "pekko-http" % pekkoHttpVersion
-val pekkoTestkit       = "org.apache.pekko" %% "pekko-testkit" % pekkoVersion
 val pekkoHttpTestkit   = "org.apache.pekko" %% "pekko-http-testkit" % pekkoHttpVersion
 
 def pekkoHttpInExamples = {
