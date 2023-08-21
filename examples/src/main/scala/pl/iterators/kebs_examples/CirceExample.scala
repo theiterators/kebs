@@ -3,14 +3,14 @@ package pl.iterators.kebs_examples
 import java.net.URL
 import java.util.UUID
 
-import akka.http.scaladsl.marshalling.{ToResponseMarshallable, _}
-import akka.http.scaladsl.model.MediaTypes.`application/json`
-import akka.http.scaladsl.model.StatusCodes._
-import akka.http.scaladsl.model.{ContentType, ContentTypeRange, HttpEntity, MediaType}
-import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.Route
-import akka.http.scaladsl.unmarshalling._
-import akka.util.ByteString
+import org.apache.pekko.http.scaladsl.marshalling.{ToResponseMarshallable, _}
+import org.apache.pekko.http.scaladsl.model.MediaTypes.`application/json`
+import org.apache.pekko.http.scaladsl.model.StatusCodes._
+import org.apache.pekko.http.scaladsl.model.{ContentType, ContentTypeRange, HttpEntity, MediaType}
+import org.apache.pekko.http.scaladsl.server.Directives._
+import org.apache.pekko.http.scaladsl.server.Route
+import org.apache.pekko.http.scaladsl.unmarshalling._
+import org.apache.pekko.util.ByteString
 import cats.data.NonEmptyList
 import io.circe.jawn.parseByteBuffer
 import io.circe._
@@ -27,7 +27,7 @@ object CirceExample {
   }
 
   object BeforeKebs {
-    object ThingProtocol extends CirceProtocol with CirceAkkaHttpSupport {
+    object ThingProtocol extends CirceProtocol with CircePekkoHttpSupport {
       import io.circe._
       import io.circe.generic.semiauto._
       implicit val thingCreateRequestEncoder: Encoder[ThingCreateRequest] = deriveEncoder
@@ -62,7 +62,7 @@ object CirceExample {
   }
 
   object AfterKebs {
-    object ThingProtocol extends KebsCirce with CirceProtocol with CirceAkkaHttpSupport
+    object ThingProtocol extends KebsCirce with CirceProtocol with CircePekkoHttpSupport
     import ThingProtocol._
 
     class ThingRouter(thingsService: ThingsService)(implicit ec: ExecutionContext) {
@@ -105,7 +105,7 @@ object CirceExample {
   }
 }
 
-trait CirceAkkaHttpSupport {
+trait CircePekkoHttpSupport {
 
   implicit def jsonUnmarshaller[T](implicit reader: Decoder[T]): FromEntityUnmarshaller[T] =
     jsonUnmarshaller

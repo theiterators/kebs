@@ -1,9 +1,9 @@
 package pl.iterators.kebs.unmarshallers
 
-import akka.http.scaladsl.model.FormData
-import akka.http.scaladsl.server.{Directives, MalformedQueryParamRejection}
-import akka.http.scaladsl.testkit.ScalatestRouteTest
-import akka.http.scaladsl.unmarshalling.Unmarshal
+import org.apache.pekko.http.scaladsl.model.FormData
+import org.apache.pekko.http.scaladsl.server.{Directives, MalformedQueryParamRejection}
+import org.apache.pekko.http.scaladsl.testkit.ScalatestRouteTest
+import org.apache.pekko.http.scaladsl.unmarshalling.Unmarshal
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
@@ -14,7 +14,7 @@ import pl.iterators.kebs.unmarshallers.enums.KebsEnumUnmarshallers
 
 import java.time.{DayOfWeek, YearMonth}
 
-class AkkaHttpUnmarshallersTests
+class PekkoHttpUnmarshallersTests
     extends AnyFunSuite
     with Matchers
     with ScalatestRouteTest

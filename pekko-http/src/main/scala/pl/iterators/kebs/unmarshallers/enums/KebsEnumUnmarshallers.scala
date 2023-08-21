@@ -1,8 +1,8 @@
 package pl.iterators.kebs.unmarshallers.enums
 
-import akka.http.scaladsl.unmarshalling.PredefinedFromStringUnmarshallers._
-import akka.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
-import akka.http.scaladsl.util.FastFuture
+import org.apache.pekko.http.scaladsl.unmarshalling.PredefinedFromStringUnmarshallers._
+import org.apache.pekko.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
+import org.apache.pekko.http.scaladsl.util.FastFuture
 import enumeratum.values._
 import enumeratum.{Enum, EnumEntry}
 import pl.iterators.kebs.macros.enums.{EnumOf, ValueEnumOf}

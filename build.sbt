@@ -136,23 +136,26 @@ def enumeratumInExamples = {
 }
 val optionalEnumeratum = optional(enumeratum.cross(CrossVersion.for3Use2_13))
 
-val akkaVersion       = "2.6.20"
-val akkaHttpVersion   = "10.2.10"
-val akkaStream        = "com.typesafe.akka" %% "akka-stream" % akkaVersion
-val akkaStreamTestkit = "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion
-val akkaHttp          = "com.typesafe.akka" %% "akka-http" % akkaHttpVersion
-val akkaHttpTestkit   = "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion
-def akkaHttpInExamples = {
-  val akkaHttpSprayJson = "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion
-  Seq(akkaStream.cross(CrossVersion.for3Use2_13),
-      akkaHttp.cross(CrossVersion.for3Use2_13),
-      akkaHttpSprayJson.cross(CrossVersion.for3Use2_13))
+val pekkoVersion       = "1.0.1"
+val pekkoHttpVersion   = "1.0.0"
+val pekkoHttpJsonV     = "2.0.0"
+val pekkoStream        = "org.apache.pekko" %% "pekko-stream" % pekkoVersion
+val pekkoStreamTestkit = "org.apache.pekko" %% "pekko-stream-testkit" % pekkoVersion
+val pekkoHttp          = "org.apache.pekko" %% "pekko-http" % pekkoHttpVersion
+val pekkoTestkit       = "org.apache.pekko" %% "pekko-testkit" % pekkoVersion
+val pekkoHttpTestkit   = "org.apache.pekko" %% "pekko-http-testkit" % pekkoHttpVersion
+
+def pekkoHttpInExamples = {
+  val pekkoHttpSprayJson = "org.apache.pekko" %% "pekko-http-spray-json" % pekkoHttpVersion
+  Seq(pekkoStream.cross(CrossVersion.for3Use2_13),
+    pekkoHttp.cross(CrossVersion.for3Use2_13),
+    pekkoHttpSprayJson.cross(CrossVersion.for3Use2_13))
 }
 
 val http4sVersion = "0.23.23"
 val http4s = "org.http4s" %% "http4s-dsl" % http4sVersion
 
-def akkaHttpInBenchmarks = akkaHttpInExamples :+ (akkaHttpTestkit).cross(CrossVersion.for3Use2_13)
+def pekkoHttpInBenchmarks = pekkoHttpInExamples :+ (pekkoHttpTestkit).cross(CrossVersion.for3Use2_13)
 
 lazy val commonSettings = baseSettings ++ Seq(
   scalacOptions ++=
@@ -201,10 +204,10 @@ lazy val circeSettings = commonSettings ++ Seq(
   libraryDependencies ++= (if (scalaVersion.value.startsWith("3")) Nil
   else Seq(circeAutoExtras)))
 
-lazy val akkaHttpSettings = commonSettings ++ Seq(
-  libraryDependencies += (akkaHttp).cross(CrossVersion.for3Use2_13),
-  libraryDependencies += (akkaStreamTestkit % "test").cross(CrossVersion.for3Use2_13),
-  libraryDependencies += (akkaHttpTestkit   % "test").cross(CrossVersion.for3Use2_13),
+lazy val pekkoHttpSettings = commonSettings ++ Seq(
+  libraryDependencies += (pekkoHttp).cross(CrossVersion.for3Use2_13),
+  libraryDependencies += (pekkoStreamTestkit % "test").cross(CrossVersion.for3Use2_13),
+  libraryDependencies += (pekkoHttpTestkit   % "test").cross(CrossVersion.for3Use2_13),
   libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13),
   libraryDependencies ++= paradisePlugin(scalaVersion.value),
   scalacOptions ++= paradiseFlag(scalaVersion.value)
@@ -240,7 +243,7 @@ lazy val examplesSettings = commonSettings ++ Seq(
   libraryDependencies += slickPg.cross(CrossVersion.for3Use2_13),
   libraryDependencies += circeParser,
   libraryDependencies ++= enumeratumInExamples,
-  libraryDependencies ++= akkaHttpInExamples,
+  libraryDependencies ++= pekkoHttpInExamples,
   libraryDependencies ++= paradisePlugin(scalaVersion.value),
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
@@ -248,7 +251,7 @@ lazy val examplesSettings = commonSettings ++ Seq(
 lazy val benchmarkSettings = commonSettings ++ Seq(
   libraryDependencies += scalaTest.value,
   libraryDependencies += enumeratum.cross(CrossVersion.for3Use2_13),
-  libraryDependencies ++= akkaHttpInBenchmarks
+  libraryDependencies ++= pekkoHttpInBenchmarks
 )
 
 lazy val taggedMetaSettings = metaSettings ++ Seq(
@@ -363,16 +366,16 @@ lazy val circeSupport = project
     moduleName := "kebs-circe"
   )
 
-lazy val akkaHttpSupport = project
-  .in(file("akka-http"))
+lazy val pekkoHttpSupport = project
+  .in(file("pekko-http"))
   .dependsOn(core.jvm, instances % "test -> test", tagged.jvm % "test -> test", taggedMeta % "test -> test")
-  .settings(akkaHttpSettings: _*)
+  .settings(pekkoHttpSettings: _*)
   .settings(publishSettings: _*)
   .settings(disableScala(List("3")))
   .settings(
-    name := "akka-http",
-    description := "Automatic generation of akka-http deserializers for 1-element case classes",
-    moduleName := "kebs-akka-http",
+    name := "pekko-http",
+    description := "Automatic generation of pekko-http deserializers for 1-element case classes",
+    moduleName := "kebs-pekko-http",
     crossScalaVersions := supportedScalaVersions
   )
 
@@ -465,7 +468,7 @@ lazy val taggedMeta = project
 
 lazy val examples = project
   .in(file("examples"))
-  .dependsOn(slickSupport, sprayJsonSupport, playJsonSupport, akkaHttpSupport, taggedMeta, circeSupport, instances)
+  .dependsOn(slickSupport, sprayJsonSupport, playJsonSupport, pekkoHttpSupport, taggedMeta, circeSupport, instances)
   .settings(examplesSettings: _*)
   .settings(noPublishSettings: _*)
   .settings(disableScala(List("3")))
@@ -515,7 +518,7 @@ lazy val kebs = project
     circeSupport,
     jsonschemaSupport,
     scalacheckSupport,
-    akkaHttpSupport,
+    pekkoHttpSupport,
     http4sSupport,
     taggedMeta,
     instances

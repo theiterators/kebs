@@ -1,7 +1,7 @@
 package pl.iterators.kebs.matchers
 
-import akka.http.scaladsl.server.Directives
-import akka.http.scaladsl.testkit.ScalatestRouteTest
+import org.apache.pekko.http.scaladsl.server.Directives
+import org.apache.pekko.http.scaladsl.testkit.ScalatestRouteTest
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
@@ -13,7 +13,7 @@ import pl.iterators.kebs.instances.time.{DayOfWeekInt, ZonedDateTimeString}
 import java.net.URI
 import java.time.{DayOfWeek, Instant, ZonedDateTime}
 
-class AkkaHttpMatchersTests
+class PekkoHttpMatchersTests
     extends AnyFunSuite
     with Matchers
     with Directives

@@ -1,6 +1,6 @@
 package pl.iterators.kebs.unmarshallers
 
-import akka.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
+import org.apache.pekko.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
 import pl.iterators.kebs.instances.InstanceConverter
 import pl.iterators.kebs.macros.CaseClass1Rep
 
