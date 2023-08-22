@@ -152,6 +152,10 @@ def akkaHttpInExamples = {
 val http4sVersion = "0.23.23"
 val http4s = "org.http4s" %% "http4s-dsl" % http4sVersion
 
+val http4sStirVersion = "0.2"
+val http4sStir = "pl.iterators" %% "http4s-stir" % http4sStirVersion
+val http4sStirTestkit = "pl.iterators" %% "http4s-stir-testkit" % http4sStirVersion
+
 def akkaHttpInBenchmarks = akkaHttpInExamples :+ (akkaHttpTestkit).cross(CrossVersion.for3Use2_13)
 
 lazy val commonSettings = baseSettings ++ Seq(
@@ -212,6 +216,15 @@ lazy val akkaHttpSettings = commonSettings ++ Seq(
 
 lazy val http4sSettings = commonSettings ++ Seq(
   libraryDependencies += http4s,
+  libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13),
+  libraryDependencies ++= paradisePlugin(scalaVersion.value),
+  scalacOptions ++= paradiseFlag(scalaVersion.value)
+)
+
+lazy val http4sStirSettings = commonSettings ++ Seq(
+  libraryDependencies += http4s,
+  libraryDependencies += http4sStir,
+  libraryDependencies += http4sStirTestkit % "test",
   libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13),
   libraryDependencies ++= paradisePlugin(scalaVersion.value),
   scalacOptions ++= paradiseFlag(scalaVersion.value)
@@ -388,6 +401,19 @@ lazy val http4sSupport = project
     crossScalaVersions := supportedScalaVersions
   )
 
+
+lazy val http4sStirSupport = project
+  .in(file("http4s-stir"))
+  .dependsOn(core.jvm, instances, opaque.jvm % "test -> test", tagged.jvm % "test -> test", taggedMeta % "test -> test")
+  .settings(http4sStirSettings: _*)
+  .settings(publishSettings: _*)
+  .settings(
+    name := "http4s-stir",
+    description := "Automatic generation of http4s-stir deserializers for 1-element case classes, opaque and tagged types",
+    moduleName := "kebs-http4s-stir",
+    crossScalaVersions := supportedScalaVersions
+  ).settings(disableScala(List("2.12")))
+
 lazy val jsonschemaSupport = project
   .in(file("jsonschema"))
   .dependsOn(core.jvm)
@@ -517,6 +543,7 @@ lazy val kebs = project
     scalacheckSupport,
     akkaHttpSupport,
     http4sSupport,
+    http4sStirSupport,
     taggedMeta,
     instances
   )
