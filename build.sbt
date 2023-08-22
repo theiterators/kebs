@@ -412,7 +412,7 @@ lazy val http4sStirSupport = project
     description := "Automatic generation of http4s-stir deserializers for 1-element case classes, opaque and tagged types",
     moduleName := "kebs-http4s-stir",
     crossScalaVersions := supportedScalaVersions
-  )
+  ).settings(disableScala(List("2.12")))
 
 lazy val jsonschemaSupport = project
   .in(file("jsonschema"))
