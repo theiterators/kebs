@@ -132,9 +132,9 @@ val enumeratumPlayJsonVersion = "1.5.16"
 val enumeratum                = "com.beachape" %% "enumeratum" % enumeratumVersion
 def enumeratumInExamples = {
   val playJsonSupport = "com.beachape" %% "enumeratum-play-json" % enumeratumPlayJsonVersion
-  Seq(enumeratum.cross(CrossVersion.for3Use2_13), playJsonSupport.cross(CrossVersion.for3Use2_13))
+  Seq(enumeratum, playJsonSupport.cross(CrossVersion.for3Use2_13))
 }
-val optionalEnumeratum = optional(enumeratum.cross(CrossVersion.for3Use2_13))
+val optionalEnumeratum = optional(enumeratum)
 
 val akkaVersion       = "2.6.20"
 val akkaHttpVersion   = "10.2.10"
@@ -170,13 +170,13 @@ lazy val commonSettings = baseSettings ++ Seq(
 lazy val slickSettings = commonSettings ++ Seq(
   libraryDependencies += slick.cross(CrossVersion.for3Use2_13),
   libraryDependencies += (slickPg % "test").cross(CrossVersion.for3Use2_13),
-  libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13)
+  libraryDependencies += optionalEnumeratum
 )
 
 lazy val doobieSettings = commonSettings ++ Seq(
   libraryDependencies += doobie,
   libraryDependencies += (doobiePg % "test"),
-  libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13),
+  libraryDependencies += optionalEnumeratum,
 )
 
 lazy val coreSettings = commonMacroSettings ++ Seq(
@@ -189,7 +189,7 @@ lazy val sprayJsonMacroSettings = commonMacroSettings ++ Seq(
 )
 
 lazy val sprayJsonSettings = commonSettings ++ Seq(
-  libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13)
+  libraryDependencies += optionalEnumeratum
 )
 
 lazy val playJsonSettings = commonSettings ++ Seq(
@@ -199,7 +199,7 @@ lazy val playJsonSettings = commonSettings ++ Seq(
 lazy val circeSettings = commonSettings ++ Seq(
   libraryDependencies += circe,
   libraryDependencies += circeAuto,
-  libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13),
+  libraryDependencies += optionalEnumeratum,
   libraryDependencies += (circeParser % "test")
 ) ++ Seq(
   libraryDependencies ++= (if (scalaVersion.value.startsWith("3")) Nil
@@ -209,14 +209,14 @@ lazy val akkaHttpSettings = commonSettings ++ Seq(
   libraryDependencies += (akkaHttp).cross(CrossVersion.for3Use2_13),
   libraryDependencies += (akkaStreamTestkit % "test").cross(CrossVersion.for3Use2_13),
   libraryDependencies += (akkaHttpTestkit   % "test").cross(CrossVersion.for3Use2_13),
-  libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13),
+  libraryDependencies += optionalEnumeratum,
   libraryDependencies ++= paradisePlugin(scalaVersion.value),
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
 lazy val http4sSettings = commonSettings ++ Seq(
   libraryDependencies += http4s,
-  libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13),
+  libraryDependencies += optionalEnumeratum,
   libraryDependencies ++= paradisePlugin(scalaVersion.value),
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
@@ -225,7 +225,7 @@ lazy val http4sStirSettings = commonSettings ++ Seq(
   libraryDependencies += http4s,
   libraryDependencies += http4sStir,
   libraryDependencies += http4sStirTestkit % "test",
-  libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13),
+  libraryDependencies += optionalEnumeratum,
   libraryDependencies ++= paradisePlugin(scalaVersion.value),
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
@@ -260,7 +260,7 @@ lazy val examplesSettings = commonSettings ++ Seq(
 
 lazy val benchmarkSettings = commonSettings ++ Seq(
   libraryDependencies += scalaTest.value,
-  libraryDependencies += enumeratum.cross(CrossVersion.for3Use2_13),
+  libraryDependencies += enumeratum,
   libraryDependencies ++= akkaHttpInBenchmarks
 )
 
