@@ -132,9 +132,9 @@ val enumeratumPlayJsonVersion = "1.5.16"
 val enumeratum                = "com.beachape" %% "enumeratum" % enumeratumVersion
 def enumeratumInExamples = {
   val playJsonSupport = "com.beachape" %% "enumeratum-play-json" % enumeratumPlayJsonVersion
-  Seq(enumeratum.cross(CrossVersion.for3Use2_13), playJsonSupport.cross(CrossVersion.for3Use2_13))
+  Seq(enumeratum, playJsonSupport.cross(CrossVersion.for3Use2_13))
 }
-val optionalEnumeratum = optional(enumeratum.cross(CrossVersion.for3Use2_13))
+val optionalEnumeratum = optional(enumeratum)
 
 val akkaVersion       = "2.6.20"
 val akkaHttpVersion   = "10.2.10"
@@ -167,6 +167,10 @@ def pekkoHttpInExamples = {
 val http4sVersion = "0.23.23"
 val http4s = "org.http4s" %% "http4s-dsl" % http4sVersion
 
+val http4sStirVersion = "0.2"
+val http4sStir = "pl.iterators" %% "http4s-stir" % http4sStirVersion
+val http4sStirTestkit = "pl.iterators" %% "http4s-stir-testkit" % http4sStirVersion
+
 def akkaHttpInBenchmarks = akkaHttpInExamples :+ (akkaHttpTestkit).cross(CrossVersion.for3Use2_13)
 
 def pekkoHttpInBenchmarks = pekkoHttpInExamples :+ (pekkoHttpTestkit).cross(CrossVersion.for3Use2_13)
@@ -183,13 +187,13 @@ lazy val commonSettings = baseSettings ++ Seq(
 lazy val slickSettings = commonSettings ++ Seq(
   libraryDependencies += slick.cross(CrossVersion.for3Use2_13),
   libraryDependencies += (slickPg % "test").cross(CrossVersion.for3Use2_13),
-  libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13)
+  libraryDependencies += optionalEnumeratum
 )
 
 lazy val doobieSettings = commonSettings ++ Seq(
   libraryDependencies += doobie,
   libraryDependencies += (doobiePg % "test"),
-  libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13),
+  libraryDependencies += optionalEnumeratum,
 )
 
 lazy val coreSettings = commonMacroSettings ++ Seq(
@@ -202,7 +206,7 @@ lazy val sprayJsonMacroSettings = commonMacroSettings ++ Seq(
 )
 
 lazy val sprayJsonSettings = commonSettings ++ Seq(
-  libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13)
+  libraryDependencies += optionalEnumeratum
 )
 
 lazy val playJsonSettings = commonSettings ++ Seq(
@@ -212,7 +216,7 @@ lazy val playJsonSettings = commonSettings ++ Seq(
 lazy val circeSettings = commonSettings ++ Seq(
   libraryDependencies += circe,
   libraryDependencies += circeAuto,
-  libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13),
+  libraryDependencies += optionalEnumeratum,
   libraryDependencies += (circeParser % "test")
 ) ++ Seq(
   libraryDependencies ++= (if (scalaVersion.value.startsWith("3")) Nil
@@ -222,7 +226,7 @@ lazy val akkaHttpSettings = commonSettings ++ Seq(
   libraryDependencies += (akkaHttp).cross(CrossVersion.for3Use2_13),
   libraryDependencies += (akkaStreamTestkit % "test").cross(CrossVersion.for3Use2_13),
   libraryDependencies += (akkaHttpTestkit   % "test").cross(CrossVersion.for3Use2_13),
-  libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13),
+  libraryDependencies += optionalEnumeratum,
   libraryDependencies ++= paradisePlugin(scalaVersion.value),
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
@@ -239,7 +243,16 @@ lazy val pekkoHttpSettings = commonSettings ++ Seq(
 
 lazy val http4sSettings = commonSettings ++ Seq(
   libraryDependencies += http4s,
-  libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13),
+  libraryDependencies += optionalEnumeratum,
+  libraryDependencies ++= paradisePlugin(scalaVersion.value),
+  scalacOptions ++= paradiseFlag(scalaVersion.value)
+)
+
+lazy val http4sStirSettings = commonSettings ++ Seq(
+  libraryDependencies += http4s,
+  libraryDependencies += http4sStir,
+  libraryDependencies += http4sStirTestkit % "test",
+  libraryDependencies += optionalEnumeratum,
   libraryDependencies ++= paradisePlugin(scalaVersion.value),
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
@@ -274,8 +287,9 @@ lazy val examplesSettings = commonSettings ++ Seq(
 
 lazy val benchmarkSettings = commonSettings ++ Seq(
   libraryDependencies += scalaTest.value,
-  libraryDependencies += enumeratum.cross(CrossVersion.for3Use2_13),
-  libraryDependencies ++= pekkoHttpInBenchmarks
+  libraryDependencies ++= pekkoHttpInBenchmarks,
+  libraryDependencies += enumeratum,
+  libraryDependencies ++= akkaHttpInBenchmarks
 )
 
 lazy val taggedMetaSettings = metaSettings ++ Seq(
@@ -427,6 +441,19 @@ lazy val http4sSupport = project
     crossScalaVersions := supportedScalaVersions
   )
 
+
+lazy val http4sStirSupport = project
+  .in(file("http4s-stir"))
+  .dependsOn(core.jvm, instances, opaque.jvm % "test -> test", tagged.jvm % "test -> test", taggedMeta % "test -> test")
+  .settings(http4sStirSettings: _*)
+  .settings(publishSettings: _*)
+  .settings(
+    name := "http4s-stir",
+    description := "Automatic generation of http4s-stir deserializers for 1-element case classes, opaque and tagged types",
+    moduleName := "kebs-http4s-stir",
+    crossScalaVersions := supportedScalaVersions
+  ).settings(disableScala(List("2.12")))
+
 lazy val jsonschemaSupport = project
   .in(file("jsonschema"))
   .dependsOn(core.jvm)
@@ -557,6 +584,7 @@ lazy val kebs = project
     akkaHttpSupport,
     pekkoHttpSupport,
     http4sSupport,
+    http4sStirSupport,
     taggedMeta,
     instances
   )
