@@ -8,7 +8,7 @@ import enumeratum.{Enum, EnumEntry}
 import pl.iterators.kebs.macros.enums.{EnumOf, ValueEnumOf}
 
 trait EnumUnmarshallers {
-  final def enumUnmarshaller[E <: EnumEntry](`enum`: Enum[E]): FromStringUnmarshaller[E] = Unmarshaller { _ =>name =>
+  final def enumUnmarshaller[E <: EnumEntry](`enum`: Enum[E]): FromStringUnmarshaller[E] = Unmarshaller { _ => name =>
     `enum`.withNameInsensitiveOption(name) match {
       case Some(enumEntry) => FastFuture.successful(enumEntry)
       case None =>
@@ -39,7 +39,7 @@ trait ValueEnumUnmarshallers {
   implicit def kebsLongValueEnumFromStringUnmarshaller[E <: LongEnumEntry](implicit ev: ValueEnumOf[Long, E]): FromStringUnmarshaller[E] =
     longFromStringUnmarshaller andThen valueEnumUnmarshaller(ev.valueEnum)
   implicit def kebsShortValueEnumFromStringUnmarshaller[E <: ShortEnumEntry](
-      implicit ev: ValueEnumOf[Short, E]): FromStringUnmarshaller[E] =
+                                                                              implicit ev: ValueEnumOf[Short, E]): FromStringUnmarshaller[E] =
     shortFromStringUnmarshaller andThen valueEnumUnmarshaller(ev.valueEnum)
   implicit def kebsByteValueEnumFromStringUnmarshaller[E <: ByteEnumEntry](implicit ev: ValueEnumOf[Byte, E]): FromStringUnmarshaller[E] =
     byteFromStringUnmarshaller andThen valueEnumUnmarshaller(ev.valueEnum)

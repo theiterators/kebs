@@ -228,9 +228,10 @@ lazy val akkaHttpSettings = commonSettings ++ Seq(
 )
 
 lazy val pekkoHttpSettings = commonSettings ++ Seq(
-  libraryDependencies += (pekkoHttp).cross(CrossVersion.for3Use2_13),
-  libraryDependencies += (pekkoStreamTestkit % "test").cross(CrossVersion.for3Use2_13),
-  libraryDependencies += (pekkoHttpTestkit   % "test").cross(CrossVersion.for3Use2_13),
+  libraryDependencies += pekkoHttp,
+  libraryDependencies += pekkoStream,
+  libraryDependencies += pekkoStreamTestkit % "test",
+  libraryDependencies += pekkoHttpTestkit   % "test",
   libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13),
   libraryDependencies ++= paradisePlugin(scalaVersion.value),
   scalacOptions ++= paradiseFlag(scalaVersion.value)
@@ -407,7 +408,6 @@ lazy val pekkoHttpSupport = project
   .dependsOn(core.jvm, instances % "test -> test", tagged.jvm % "test -> test", taggedMeta % "test -> test")
   .settings(pekkoHttpSettings: _*)
   .settings(publishSettings: _*)
-  .settings(disableScala(List("3")))
   .settings(
     name := "pekko-http",
     description := "Automatic generation of pekko-http deserializers for 1-element case classes",
