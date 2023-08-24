@@ -159,9 +159,7 @@ val pekkoHttpTestkit   = "org.apache.pekko" %% "pekko-http-testkit" % pekkoHttpV
 
 def pekkoHttpInExamples = {
   val pekkoHttpSprayJson = "org.apache.pekko" %% "pekko-http-spray-json" % pekkoHttpVersion
-  Seq(pekkoStream.cross(CrossVersion.for3Use2_13),
-    pekkoHttp.cross(CrossVersion.for3Use2_13),
-    pekkoHttpSprayJson.cross(CrossVersion.for3Use2_13))
+  Seq(pekkoStream, pekkoHttp, pekkoHttpSprayJson)
 }
 
 val http4sVersion = "0.23.23"
@@ -173,7 +171,7 @@ val http4sStirTestkit = "pl.iterators" %% "http4s-stir-testkit" % http4sStirVers
 
 def akkaHttpInBenchmarks = akkaHttpInExamples :+ (akkaHttpTestkit).cross(CrossVersion.for3Use2_13)
 
-def pekkoHttpInBenchmarks = pekkoHttpInExamples :+ (pekkoHttpTestkit).cross(CrossVersion.for3Use2_13)
+def pekkoHttpInBenchmarks = pekkoHttpInExamples :+ pekkoHttpTestkit
 
 lazy val commonSettings = baseSettings ++ Seq(
   scalacOptions ++=
@@ -236,7 +234,7 @@ lazy val pekkoHttpSettings = commonSettings ++ Seq(
   libraryDependencies += pekkoStream,
   libraryDependencies += pekkoStreamTestkit % "test",
   libraryDependencies += pekkoHttpTestkit   % "test",
-  libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13),
+  libraryDependencies += optionalEnumeratum,
   libraryDependencies ++= paradisePlugin(scalaVersion.value),
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
