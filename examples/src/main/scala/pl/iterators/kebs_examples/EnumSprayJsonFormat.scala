@@ -3,10 +3,10 @@ package pl.iterators.kebs_examples
 import java.net.URL
 import java.util.UUID
 
-import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import akka.http.scaladsl.marshalling.ToResponseMarshallable
-import akka.http.scaladsl.model.StatusCodes._
-import akka.http.scaladsl.server.Directives._
+import org.apache.pekko.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
+import org.apache.pekko.http.scaladsl.marshalling.ToResponseMarshallable
+import org.apache.pekko.http.scaladsl.model.StatusCodes._
+import org.apache.pekko.http.scaladsl.server.Directives._
 import enumeratum.{Enum, EnumEntry}
 import pl.iterators.kebs.json.{KebsEnumFormats, KebsSpray}
 import spray.json.{DefaultJsonProtocol, JsString, JsValue, JsonFormat, JsonReader, JsonWriter, deserializationError}

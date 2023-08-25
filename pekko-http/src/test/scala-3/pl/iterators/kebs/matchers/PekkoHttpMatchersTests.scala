@@ -1,7 +1,7 @@
 package pl.iterators.kebs.matchers
 
-import pl.iterators.stir.server.Directives
-import pl.iterators.stir.testkit.ScalatestRouteTest
+import org.apache.pekko.http.scaladsl.server.Directives
+import org.apache.pekko.http.scaladsl.testkit.ScalatestRouteTest
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
@@ -13,8 +13,8 @@ import pl.iterators.kebs.instances.time.{DayOfWeekInt, ZonedDateTimeString}
 import java.net.URI
 import java.time.{DayOfWeek, Instant, ZonedDateTime}
 
-class Http4sStirMatchersTests
-    extends AnyFunSuite
+class PekkoHttpMatchersTests
+  extends AnyFunSuite
     with Matchers
     with Directives
     with ScalatestRouteTest
@@ -23,7 +23,6 @@ class Http4sStirMatchersTests
     with DayOfWeekInt
     with InstantEpochMilliLong
     with URIString {
-  implicit def runtime: cats.effect.unsafe.IORuntime = cats.effect.unsafe.IORuntime.global
 
   test("No CaseClass1Rep implicits derived") {
     import pl.iterators.kebs.macros.CaseClass1Rep

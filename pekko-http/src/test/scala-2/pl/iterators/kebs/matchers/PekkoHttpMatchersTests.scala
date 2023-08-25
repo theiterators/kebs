@@ -1,7 +1,7 @@
 package pl.iterators.kebs.matchers
 
-import pl.iterators.stir.server.Directives
-import pl.iterators.stir.testkit.ScalatestRouteTest
+import org.apache.pekko.http.scaladsl.server.Directives
+import org.apache.pekko.http.scaladsl.testkit.ScalatestRouteTest
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
@@ -13,7 +13,7 @@ import pl.iterators.kebs.instances.time.{DayOfWeekInt, ZonedDateTimeString}
 import java.net.URI
 import java.time.{DayOfWeek, Instant, ZonedDateTime}
 
-class Http4sStirMatchersTests
+class PekkoHttpMatchersTests
     extends AnyFunSuite
     with Matchers
     with Directives
@@ -23,7 +23,6 @@ class Http4sStirMatchersTests
     with DayOfWeekInt
     with InstantEpochMilliLong
     with URIString {
-  implicit def runtime: cats.effect.unsafe.IORuntime = cats.effect.unsafe.IORuntime.global
 
   test("No CaseClass1Rep implicits derived") {
     import pl.iterators.kebs.macros.CaseClass1Rep
@@ -60,6 +59,32 @@ class Http4sStirMatchersTests
     }
     Get("/test/1621258399") ~> testRoute ~> check {
       responseAs[String] shouldEqual "1621258399"
+    }
+  }
+  test("Extract Double as tagged Double") {
+    val testRoute = path("test" / DoubleNumber.as[TestDouble]) { test =>
+      complete(test.toString)
+    }
+    Get("/test/1.23") ~> testRoute ~> check {
+      responseAs[String] shouldEqual "1.23"
+    }
+  }
+
+  test("Extract Long as tagged Long") {
+    val testRoute = path("test" / LongNumber.as[Id]) { id =>
+      complete(id.toString)
+    }
+    Get("/test/123456") ~> testRoute ~> check {
+      responseAs[String] shouldEqual "123456"
+    }
+  }
+
+  test("Extract UUID as tagged UUID") {
+    val testRoute = path("test" / JavaUUID.as[TestId]) { id =>
+      complete(id.toString)
+    }
+    Get("/test/ce7a7cf1-8c00-49a9-a963-9fd119dd0642") ~> testRoute ~> check {
+      responseAs[String] shouldEqual "ce7a7cf1-8c00-49a9-a963-9fd119dd0642"
     }
   }
 

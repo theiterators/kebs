@@ -1,8 +1,9 @@
 package pl.iterators.kebs.unmarshallers
 
-import org.http4s.UrlForm
-import pl.iterators.stir.server.{Directives, MalformedQueryParamRejection}
-import pl.iterators.stir.testkit.ScalatestRouteTest
+import org.apache.pekko.http.scaladsl.model.FormData
+import org.apache.pekko.http.scaladsl.server.{Directives, MalformedQueryParamRejection}
+import org.apache.pekko.http.scaladsl.testkit.ScalatestRouteTest
+import org.apache.pekko.http.scaladsl.unmarshalling.Unmarshal
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
@@ -13,8 +14,8 @@ import pl.iterators.kebs.unmarshallers.enums.KebsEnumUnmarshallers
 
 import java.time.{DayOfWeek, YearMonth}
 
-class Http4sStirUnmarshallersTests
-    extends AnyFunSuite
+class PekkoHttpUnmarshallersTests
+  extends AnyFunSuite
     with Matchers
     with ScalatestRouteTest
     with ScalaFutures
@@ -24,7 +25,6 @@ class Http4sStirUnmarshallersTests
     with URIString
     with YearMonthString
     with DayOfWeekInt {
-  implicit def runtime: cats.effect.unsafe.IORuntime = cats.effect.unsafe.IORuntime.global
 
   test("No CaseClass1Rep implicits derived") {
     import pl.iterators.kebs.macros.CaseClass1Rep
@@ -35,6 +35,41 @@ class Http4sStirUnmarshallersTests
     "implicitly[CaseClass1Rep[String, YearMonth]]" shouldNot typeCheck
     "implicitly[CaseClass1Rep[DayOfWeek, Int]]" shouldNot typeCheck
     "implicitly[CaseClass1Rep[Int, DayOfWeek]]" shouldNot typeCheck
+  }
+
+  test("Unmarshal") {
+    Unmarshal(42).to[I].futureValue shouldBe I(42)
+    Unmarshal("42").to[S].futureValue shouldBe S("42")
+  }
+
+  test("Unmarshal parametrized") {
+    Unmarshal("42").to[P[String]].futureValue shouldBe P("42")
+  }
+
+  test("Unmarshal case object") {
+    """Unmarshal(42).to[O.type]""" shouldNot typeCheck
+  }
+
+  test("Unmarshal enum") {
+    Unmarshal("hello").to[Greeting].futureValue shouldBe Greeting.Hello
+    Unmarshal("blah").to[Greeting].failed.futureValue shouldBe a[IllegalArgumentException]
+  }
+
+  test("Unmarshal value enum") {
+    Unmarshal(3).to[LibraryItem].futureValue shouldBe LibraryItem.Magazine
+    Unmarshal(5).to[LibraryItem].failed.futureValue shouldBe a[IllegalArgumentException]
+  }
+
+  test("No unmarshaller for case-classes of arity > 1") {
+    """Unmarshal("42").to[CantUnmarshall]""" shouldNot typeCheck
+  }
+
+  test("Unmarshalling value enums is type-safe") {
+    """Unmarshal(1L).to[LibraryItem]""" shouldNot typeCheck
+  }
+
+  test("Unmarshal from string") {
+    Unmarshal("42").to[I].futureValue shouldBe I(42)
   }
 
   test("Unmarshalling parameter") {
@@ -64,8 +99,8 @@ class Http4sStirUnmarshallersTests
     }
     Get("/?greeting=blah") ~> testRoute ~> check {
       rejection shouldEqual MalformedQueryParamRejection("greeting",
-                                                         "Invalid value 'blah'. Expected one of: Hello, GoodBye, Hi, Bye",
-                                                         None)
+        "Invalid value 'blah'. Expected one of: Hello, GoodBye, Hi, Bye",
+        None)
     }
   }
 
@@ -140,7 +175,7 @@ class Http4sStirUnmarshallersTests
         }
       }
 
-    Post("/test_form_fields", UrlForm("yearMonth" -> "2021-05")) ~> route ~> check {
+    Post("/test_form_fields", FormData("yearMonth" -> "2021-05")) ~> route ~> check {
       responseAs[String] shouldEqual "2021-05"
     }
   }
@@ -153,7 +188,7 @@ class Http4sStirUnmarshallersTests
         }
       }
 
-    Post("/test_form_fields", UrlForm("dayOfWeek" -> "1")) ~> route ~> check {
+    Post("/test_form_fields", FormData("dayOfWeek" -> "1")) ~> route ~> check {
       responseAs[String] shouldEqual "1"
     }
   }

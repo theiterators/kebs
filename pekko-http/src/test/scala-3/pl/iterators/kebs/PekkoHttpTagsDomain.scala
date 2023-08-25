@@ -6,7 +6,7 @@ import java.net.URI
 import java.util.UUID
 import pl.iterators.kebs.enums.ValueEnum
 
-object Domain  {
+object Domain {
   opaque type TestTaggedUri = URI
   object TestTaggedUri extends Opaque[TestTaggedUri, URI]
   opaque type TestId = UUID
@@ -22,13 +22,13 @@ object Domain  {
   enum Greeting {
     case Hello, GoodBye, Hi, Bye
   }
-  
+
 
   enum LibraryItem(val value: Int) extends ValueEnum[Int] {
-    case Book     extends LibraryItem(1)
-    case Movie    extends LibraryItem(2)
+    case Book extends LibraryItem(1)
+    case Movie extends LibraryItem(2)
     case Magazine extends LibraryItem(3)
-    case CD       extends LibraryItem(4)
+    case CD extends LibraryItem(4)
   }
 
   case class Red(value: Int)
@@ -36,15 +36,15 @@ object Domain  {
   case class Blue(value: Int)
   case class Color(red: Red, green: Green, blue: Blue)
 
-
   enum ShirtSize(val value: String) extends ValueEnum[String] {
-    case Small  extends ShirtSize("S")
+    case Small extends ShirtSize("S")
     case Medium extends ShirtSize("M")
-    case Large  extends ShirtSize("L")
+    case Large extends ShirtSize("L")
   }
 
   enum SortOrder {
     case Asc
     case Desc
   }
+
 }
