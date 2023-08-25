@@ -76,7 +76,7 @@ class PekkoHttpMatchersTests
       complete(id.toString)
     }
     Get("/test/ce7a7cf1-8c00-49a9-a963-9fd119dd0642") ~> testRoute ~> check {
-      responseAs[String] shouldEqual "TestTaggedUri(ce7a7cf1-8c00-49a9-a963-9fd119dd0642)"
+      responseAs[String] shouldEqual "ce7a7cf1-8c00-49a9-a963-9fd119dd0642"
     }
   }
 }

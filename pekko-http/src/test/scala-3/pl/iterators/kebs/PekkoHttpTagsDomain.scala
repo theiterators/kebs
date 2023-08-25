@@ -1,13 +1,18 @@
 package pl.iterators.kebs
 
+import pl.iterators.kebs.opaque.Opaque
+
 import java.net.URI
 import java.util.UUID
 import pl.iterators.kebs.enums.ValueEnum
 
 object Domain {
-  case class TestTaggedUri(uri: URI)
-  case class TestId(id: UUID)
-  case class Id(id: Long)
+  opaque type TestTaggedUri = URI
+  object TestTaggedUri extends Opaque[TestTaggedUri, URI]
+  opaque type TestId = UUID
+  object TestId extends Opaque[TestId, UUID]
+  opaque type Id = Long
+  object Id extends Opaque[Id, Long]
   case class I(i: Int)
   case class S(s: String)
   case class P[A](a: A)

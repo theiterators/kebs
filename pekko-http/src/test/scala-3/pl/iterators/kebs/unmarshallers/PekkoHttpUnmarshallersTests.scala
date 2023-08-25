@@ -202,7 +202,7 @@ class PekkoHttpUnmarshallersTests
       }
 
     Get("/test_tagged?tagged=123456") ~> route ~> check {
-      responseAs[String] shouldBe "Id(123456)"
+      responseAs[String] shouldBe "123456"
     }
   }
 
@@ -215,7 +215,7 @@ class PekkoHttpUnmarshallersTests
       }
 
     Get("/test_tagged?tagged=ce7a7cf1-8c00-49a9-a963-9fd119dd0642") ~> route ~> check {
-      responseAs[String] shouldBe "TestId(ce7a7cf1-8c00-49a9-a963-9fd119dd0642)"
+      responseAs[String] shouldBe "ce7a7cf1-8c00-49a9-a963-9fd119dd0642"
     }
   }
 
@@ -228,7 +228,7 @@ class PekkoHttpUnmarshallersTests
       }
 
     Get("/test_tagged?tagged=www.test.pl") ~> route ~> check {
-      responseAs[String] shouldBe "TestTaggedUri(www.test.pl)"
+      responseAs[String] shouldBe "www.test.pl"
     }
   }
 }

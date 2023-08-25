@@ -23,7 +23,7 @@ class Http4sStirMatchersTests
     with DayOfWeekInt
     with InstantEpochMilliLong
     with URIString {
-      implicit def runtime: cats.effect.unsafe.IORuntime = cats.effect.unsafe.IORuntime.global
+  implicit def runtime: cats.effect.unsafe.IORuntime = cats.effect.unsafe.IORuntime.global
 
   test("No CaseClass1Rep implicits derived") {
     import pl.iterators.kebs.macros.CaseClass1Rep
@@ -77,7 +77,7 @@ class Http4sStirMatchersTests
       complete(id.toString)
     }
     Get("/test/ce7a7cf1-8c00-49a9-a963-9fd119dd0642") ~> testRoute ~> check {
-      responseAs[String] shouldEqual "TestTaggedUri(ce7a7cf1-8c00-49a9-a963-9fd119dd0642)"
+      responseAs[String] shouldEqual "ce7a7cf1-8c00-49a9-a963-9fd119dd0642"
     }
   }
 }

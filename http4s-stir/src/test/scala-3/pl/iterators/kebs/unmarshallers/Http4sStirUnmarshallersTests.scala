@@ -24,7 +24,7 @@ class Http4sStirUnmarshallersTests
     with URIString
     with YearMonthString
     with DayOfWeekInt {
-      implicit def runtime: cats.effect.unsafe.IORuntime = cats.effect.unsafe.IORuntime.global
+  implicit def runtime: cats.effect.unsafe.IORuntime = cats.effect.unsafe.IORuntime.global
 
   test("No CaseClass1Rep implicits derived") {
     import pl.iterators.kebs.macros.CaseClass1Rep
@@ -167,7 +167,7 @@ class Http4sStirUnmarshallersTests
       }
 
     Get("/test_tagged?tagged=123456") ~> route ~> check {
-      responseAs[String] shouldBe "Id(123456)"
+      responseAs[String] shouldBe "123456"
     }
   }
 
@@ -180,7 +180,7 @@ class Http4sStirUnmarshallersTests
       }
 
     Get("/test_tagged?tagged=ce7a7cf1-8c00-49a9-a963-9fd119dd0642") ~> route ~> check {
-      responseAs[String] shouldBe "TestId(ce7a7cf1-8c00-49a9-a963-9fd119dd0642)"
+      responseAs[String] shouldBe "ce7a7cf1-8c00-49a9-a963-9fd119dd0642"
     }
   }
 
@@ -193,7 +193,7 @@ class Http4sStirUnmarshallersTests
       }
 
     Get("/test_tagged?tagged=www.test.pl") ~> route ~> check {
-      responseAs[String] shouldBe "TestTaggedUri(www.test.pl)"
+      responseAs[String] shouldBe "www.test.pl"
     }
   }
 }
