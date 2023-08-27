@@ -107,10 +107,10 @@ def paradisePlugin(scalaVersion: String): Seq[ModuleID] =
 
 val scalaTest       = Def.setting("org.scalatest" %%% "scalatest" % "3.2.16")
 val scalaCheck      = Def.setting("org.scalacheck" %%% "scalacheck" % "1.17.0")
-val slick           = "com.typesafe.slick" %% "slick" % "3.4.1"
+val slick           = "com.typesafe.slick" %% "slick" % "3.5.0-M4"
 val optionalSlick   = optional(slick)
 val playJson        = "com.typesafe.play" %% "play-json" % "2.9.4"
-val slickPg         = "com.github.tminglei" %% "slick-pg" % "0.21.1"
+val slickPg         = "com.github.tminglei" %% "slick-pg" % "0.22.0-M4"
 val doobie          = "org.tpolecat" %% "doobie-core" % "1.0.0-RC4"
 val doobiePg        = "org.tpolecat" %% "doobie-postgres" % "1.0.0-RC4"
 val sprayJson       = "io.spray" %% "spray-json" % "1.3.6"
@@ -164,9 +164,9 @@ lazy val commonSettings = baseSettings ++ Seq(
 )
 
 lazy val slickSettings = commonSettings ++ Seq(
-  libraryDependencies += slick.cross(CrossVersion.for3Use2_13),
+  libraryDependencies += slick,
   libraryDependencies += (slickPg % "test").cross(CrossVersion.for3Use2_13),
-  libraryDependencies += optionalEnumeratum.cross(CrossVersion.for3Use2_13)
+  libraryDependencies += optionalEnumeratum
 )
 
 lazy val doobieSettings = commonSettings ++ Seq(
@@ -292,7 +292,6 @@ lazy val slickSupport = project
   .dependsOn(core.jvm, instances % "test -> test")
   .settings(slickSettings: _*)
   .settings(publishSettings: _*)
-  .settings(disableScala(List("3")))
   .settings(
     name := "slick",
     description := "Library to eliminate the boilerplate code that comes with the use of Slick",
