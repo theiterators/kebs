@@ -25,7 +25,7 @@ class PekkoHttpMatchersTests
     with URIString {
 
   test("No CaseClass1Rep implicits derived") {
-    import pl.iterators.kebs.macros.CaseClass1Rep
+    import pl.iterators.kebs.macros.ValueClassLike
 
     "implicitly[CaseClass1Rep[DayOfWeek, Int]]" shouldNot typeCheck
     "implicitly[CaseClass1Rep[Int, DayOfWeek]]" shouldNot typeCheck

@@ -27,7 +27,7 @@ class Http4sStirUnmarshallersTests
   implicit def runtime: cats.effect.unsafe.IORuntime = cats.effect.unsafe.IORuntime.global
 
   test("No CaseClass1Rep implicits derived") {
-    import pl.iterators.kebs.macros.CaseClass1Rep
+    import pl.iterators.kebs.macros.ValueClassLike
 
     "implicitly[CaseClass1Rep[URI, String]]" shouldNot typeCheck
     "implicitly[CaseClass1Rep[String, URI]]" shouldNot typeCheck

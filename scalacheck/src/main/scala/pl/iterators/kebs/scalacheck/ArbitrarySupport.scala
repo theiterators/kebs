@@ -2,7 +2,7 @@ package pl.iterators.kebs.scalacheck
 
 import enumeratum.ScalacheckInstances
 import org.scalacheck.{Arbitrary, Gen, ScalacheckShapeless}
-import pl.iterators.kebs.macros.CaseClass1Rep
+import pl.iterators.kebs.macros.ValueClassLike
 
 import java.net.{URI, URL}
 import java.time.temporal.ChronoUnit

@@ -1,10 +1,10 @@
 package pl.iterators.kebs.support
 
-import pl.iterators.kebs.macros.CaseClass1Rep
+import pl.iterators.kebs.macros.ValueClassLike
 
 trait IntegralSupport {
 
-  implicit def integralFromCaseClass1Rep[A, Rep](implicit cc1Rep: CaseClass1Rep[A, Rep],
+  implicit def integralFromCaseClass1Rep[A, Rep](implicit cc1Rep: ValueClassLike[A, Rep],
                                                  integralRep: Integral[Rep],
                                                  numeric: Numeric[A]): Integral[A] =
     new Integral[A] {

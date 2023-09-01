@@ -1,7 +1,7 @@
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.opaque.Opaque
-import pl.iterators.kebs.macros.CaseClass1Rep
+import pl.iterators.kebs.macros.ValueClassLike
 
 object OpaqueTestDomain {
   opaque type TestWrappedInt = Int
@@ -24,7 +24,7 @@ object OpaqueTestTypeclass {
   }
 
   given Showable[Int] = (a: Int) => a.toString
-  given[S, A](using showable: Showable[S], cc1Rep: CaseClass1Rep[A, S]): Showable[A] = (a: A) => showable.show(cc1Rep.unapply(a))
+  given[S, A](using showable: Showable[S], cc1Rep: ValueClassLike[A, S]): Showable[A] = (a: A) => showable.show(cc1Rep.unapply(a))
 }
 
 class OpaqueTest extends AnyFunSuite with Matchers {
@@ -55,9 +55,9 @@ class OpaqueTest extends AnyFunSuite with Matchers {
 
   test("Basic derivation") {
     "implicitly[CaseClass1Rep[ValidatedTestWrappedString, String]]" should compile
-    implicitly[CaseClass1Rep[ValidatedTestWrappedString, String]].apply("foo") shouldEqual ValidatedTestWrappedString("foo")
-    implicitly[CaseClass1Rep[ValidatedTestWrappedString, String]].unapply(ValidatedTestWrappedString("foo")) shouldEqual "foo"
-    an[IllegalArgumentException] should be thrownBy implicitly[CaseClass1Rep[ValidatedTestWrappedString, String]].apply("")
+    implicitly[ValueClassLike[ValidatedTestWrappedString, String]].apply("foo") shouldEqual ValidatedTestWrappedString("foo")
+    implicitly[ValueClassLike[ValidatedTestWrappedString, String]].unapply(ValidatedTestWrappedString("foo")) shouldEqual "foo"
+    an[IllegalArgumentException] should be thrownBy implicitly[ValueClassLike[ValidatedTestWrappedString, String]].apply("")
   }
 
   test("Typeclass derivation") {

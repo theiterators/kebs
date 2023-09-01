@@ -1,6 +1,6 @@
 package pl.iterators.kebs.opaque
 
-import pl.iterators.kebs.macros.CaseClass1Rep
+import pl.iterators.kebs.macros.ValueClassLike
 
 trait Opaque[OpaqueType, Unwrapped](using ev: OpaqueType =:= Unwrapped) {
   /**
@@ -40,5 +40,5 @@ trait Opaque[OpaqueType, Unwrapped](using ev: OpaqueType =:= Unwrapped) {
     def unwrap: Unwrapped = ev.apply(w)
   }
 
-  given cc1Rep: CaseClass1Rep[OpaqueType, Unwrapped] = CaseClass1Rep(apply, _.unwrap)
+  given cc1Rep: ValueClassLike[OpaqueType, Unwrapped] = ValueClassLike(apply, _.unwrap)
 }

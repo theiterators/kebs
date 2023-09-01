@@ -3,7 +3,7 @@ package pl.iterators.kebs
 import enumeratum.EnumEntry
 
 import scala.util.Try
-import pl.iterators.kebs.macros.CaseClass1Rep
+import pl.iterators.kebs.macros.ValueClassLike
 import pl.iterators.kebs.macros.enums.EnumOf
 import org.http4s._
 import pl.iterators.kebs.instances.InstanceConverter
@@ -20,7 +20,7 @@ trait Http4s {
   }
 
   object WrappedString {
-    def apply[T](implicit rep: CaseClass1Rep[T, String]) = new PathVar[T](str => Try(rep.apply(str)))
+    def apply[T](implicit rep: ValueClassLike[T, String]) = new PathVar[T](str => Try(rep.apply(str)))
   }
 
   object InstanceString {
@@ -32,7 +32,7 @@ trait Http4s {
   }
 
   object WrappedInt {
-    def apply[T](implicit rep: CaseClass1Rep[T, Int]) = new PathVar[T](str => Try(rep.apply(str.toInt)))
+    def apply[T](implicit rep: ValueClassLike[T, Int]) = new PathVar[T](str => Try(rep.apply(str.toInt)))
   }
 
   object InstanceInt {
@@ -40,7 +40,7 @@ trait Http4s {
   }
 
   object WrappedLong {
-    def apply[T](implicit rep: CaseClass1Rep[T, Long]) = new PathVar[T](str => Try(rep.apply(str.toLong)))
+    def apply[T](implicit rep: ValueClassLike[T, Long]) = new PathVar[T](str => Try(rep.apply(str.toLong)))
   }
 
   object InstanceLong {
@@ -48,14 +48,14 @@ trait Http4s {
   }
 
   object WrappedUUID {
-    def apply[T](implicit rep: CaseClass1Rep[T, UUID]) = new PathVar[T](str => Try(rep.apply(UUID.fromString(str))))
+    def apply[T](implicit rep: ValueClassLike[T, UUID]) = new PathVar[T](str => Try(rep.apply(UUID.fromString(str))))
   }
 
   object InstanceUUID {
     def apply[T](implicit rep: InstanceConverter[T, UUID]) = new PathVar[T](str => Try(rep.decode(UUID.fromString(str))))
   }
 
-  implicit def cc1RepQueryParamDecoder[T, U](implicit rep: CaseClass1Rep[T, U], qpd: QueryParamDecoder[U]): QueryParamDecoder[T] = qpd.emap(u => Try(rep.apply(u)).toEither.left.map(t => ParseFailure(t.getMessage, t.getMessage)))
+  implicit def cc1RepQueryParamDecoder[T, U](implicit rep: ValueClassLike[T, U], qpd: QueryParamDecoder[U]): QueryParamDecoder[T] = qpd.emap(u => Try(rep.apply(u)).toEither.left.map(t => ParseFailure(t.getMessage, t.getMessage)))
   implicit def instanceConverterQueryParamDecoder[T, U](implicit rep: InstanceConverter[T, U], qpd: QueryParamDecoder[U]): QueryParamDecoder[T] = qpd.emap(u => Try(rep.decode(u)).toEither.left.map(t => ParseFailure(t.getMessage, t.getMessage)))
   implicit def enumQueryParamDecoder[E <: EnumEntry](implicit e: EnumOf[E]): QueryParamDecoder[E] = QueryParamDecoder[String].emap(str => Try(e.`enum`.values.find(_.toString.toUpperCase == str.toUpperCase).getOrElse(throw new IllegalArgumentException(s"enum case not found: $str"))).toEither.left.map(t => ParseFailure(t.getMessage, t.getMessage)))
 }

@@ -7,7 +7,7 @@ import pl.iterators.kebs.instances.time.LocalDateTimeString
 import pl.iterators.kebs.instances.time.mixins.{DurationNanosLong, InstantEpochMilliLong}
 import pl.iterators.kebs.instances.TimeInstances
 import pl.iterators.kebs.json.KebsSpray
-import pl.iterators.kebs.macros.CaseClass1Rep
+import pl.iterators.kebs.macros.ValueClassLike
 import spray.json._
 
 import java.time._

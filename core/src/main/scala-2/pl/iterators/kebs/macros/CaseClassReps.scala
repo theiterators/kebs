@@ -4,22 +4,22 @@ import scala.language.experimental.macros
 import scala.language.higherKinds
 import scala.reflect.macros.whitebox
 
-final class CaseClass1Rep[CC, F1](val apply: F1 => CC, val unapply: CC => F1)
+final class ValueClassLike[VC, F1](val apply: F1 => VC, val unapply: VC => F1)
 
-object CaseClass1Rep {
-  implicit def repFromCaseClass[CC <: Product, F1]: CaseClass1Rep[CC, F1] = macro CaseClassRepMacros.materializeCaseClass1Rep[CC, F1]
+object ValueClassLike {
+  implicit def repFromCaseClass[VC <: Product, F1]: ValueClassLike[VC, F1] = macro ValueClassRepMacros.materializeValueClassRep[VC, F1]
 }
 
-class CaseClassRepMacros(override val c: whitebox.Context) extends MacroUtils {
+class ValueClassRepMacros(override val c: whitebox.Context) extends MacroUtils {
   import c.universe._
 
-  def materializeCaseClass1Rep[CC <: Product: c.WeakTypeTag, F1: c.WeakTypeTag]: c.Expr[CaseClass1Rep[CC, F1]] = {
-    val CaseClass = weakTypeOf[CC]
-    assertCaseClass(CaseClass, s"To materialize case class representation, ${CaseClass.typeSymbol} must be a case class")
+  def materializeValueClassRep[VC <: Product: c.WeakTypeTag, F1: c.WeakTypeTag]: c.Expr[ValueClassLike[VC, F1]] = {
+    val ValueClass = weakTypeOf[VC]
+    assertCaseClass(ValueClass, s"To materialize value class representation, ${ValueClass.typeSymbol} must be a value class")
 
-    CaseClass match {
-      case Product1(_1) => c.Expr[CaseClass1Rep[CC, F1]](materializeRep1(CaseClass, _1))
-      case _            => c.abort(c.enclosingPosition, "To materialize CaseClass1Rep, case class must have arity == 1")
+    ValueClass match {
+      case Product1(_1) => c.Expr[ValueClassLike[VC, F1]](materializeRep1(ValueClass, _1))
+      case _            => c.abort(c.enclosingPosition, "To materialize ValueClassLike, case class must have arity == 1")
     }
   }
 

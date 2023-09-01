@@ -12,7 +12,7 @@ import java.time._
 class TimeInstancesTests extends AnyFunSuite with Matchers with DefaultJsonProtocol with KebsSpray with TimeInstances {
 
   test("No CaseClass1Rep implicits derived") {
-    import pl.iterators.kebs.macros.CaseClass1Rep
+    import pl.iterators.kebs.macros.ValueClassLike
 
     "implicitly[CaseClass1Rep[DayOfWeek, Int]]" shouldNot typeCheck
     "implicitly[CaseClass1Rep[Int, DayOfWeek]]" shouldNot typeCheck

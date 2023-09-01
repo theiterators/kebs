@@ -1,10 +1,10 @@
 package pl.iterators.kebs.support
 
-import pl.iterators.kebs.macros.CaseClass1Rep
+import pl.iterators.kebs.macros.ValueClassLike
 
 trait FractionalSupport {
 
-  implicit def fractionalFromCaseClass1Rep[A, Rep](implicit cc1Rep: CaseClass1Rep[A, Rep],
+  implicit def fractionalFromCaseClass1Rep[A, Rep](implicit cc1Rep: ValueClassLike[A, Rep],
                                                    fractionalRep: Fractional[Rep],
                                                    numeric: Numeric[A]): Fractional[A] =
     new Fractional[A] {
