@@ -16,7 +16,7 @@ A library maintained by [Iterators](https://www.iteratorshq.com).
   * [doobie](#--kebs-generates-doobie-mappers-for-your-case-class-wrappers-kebs-doobie)
   * [spray-json](#--kebs-eliminates-spray-json-induced-boilerplate-kebs-spray-json)
   * [play-json](#--kebs-eliminates-play-json-induced-boilerplate-kebs-play-json)
-  * [akka-http](#--kebs-generates-akka-http-unmarshaller-kebs-akka-http)
+  * [pekko-http](#--kebs-generates-pekko-http-unmarshaller-kebs-pekko-http)
   * [http4s](#--kebs-provides-helpers-for-http4s)
   * [circe](#--kebs-eliminates-circe-induced-boilerplate-kebs-circe)
 * [Tagged types](#tagged-types)
@@ -27,7 +27,7 @@ A library maintained by [Iterators](https://www.iteratorshq.com).
 ### Why?
 
 `kebs` is for eliminating some common sources of Scala boilerplate code that arise when you use 
-Slick (`kebs-slick`), Doobie (`kebs-doobie`), Spray (`kebs-spray-json`), Play (`kebs-play-json`), Circe (`kebs-circe`), Akka HTTP (`kebs-akka-http`), http4s (`kebs-http4s`).
+Slick (`kebs-slick`), Doobie (`kebs-doobie`), Spray (`kebs-spray-json`), Play (`kebs-play-json`), Circe (`kebs-circe`), Pekko HTTP (`kebs-pekko-http`), http4s (`kebs-http4s`).
 
 ### SBT
 
@@ -59,9 +59,9 @@ Support for `scalacheck`
 
 `libraryDependencies += "pl.iterators" %% "kebs-scalacheck" % "1.9.3"`
 
-Support for `akka-http`
+Support for `pekko-http`
 
-`libraryDependencies += "pl.iterators" %% "kebs-akka-http" % "1.9.3"`
+`libraryDependencies += "pl.iterators" %% "kebs-pekko-http" % "1.9.6"`
 
 Support for `http4s`
 
@@ -406,7 +406,7 @@ new JsonFormat[T] {
 }
 ```
 
-All of this can be left to `kebs-spray-json`. Let's pretend we are to write an `akka-http` router:
+All of this can be left to `kebs-spray-json`. Let's pretend we are to write an `pekko-http` router:
 
 ```scala
 class ThingRouter(thingsService: ThingsService)(implicit ec: ExecutionContext) {
@@ -604,7 +604,7 @@ Circe might be a source of boilerplate depending on the type of derivation you u
 have to write a lot of encoders/decoders for your case classes:
 ```scala
 object BeforeKebs {
-    object ThingProtocol extends CirceProtocol with CirceAkkaHttpSupport {
+    object ThingProtocol extends CirceProtocol with CircePekkoHttpSupport {
       import io.circe._
       import io.circe.generic.semiauto._
       implicit val thingCreateRequestEncoder: Encoder[ThingCreateRequest] = deriveEncoder
@@ -642,7 +642,7 @@ object BeforeKebs {
 Kebs can get rid of this for you: 
 ```scala
 object AfterKebs {
-    object ThingProtocol extends KebsCirce with CirceProtocol with CirceAkkaHttpSupport
+    object ThingProtocol extends KebsCirce with CirceProtocol with CircePekkoHttpSupport
     import ThingProtocol._
 
     class ThingRouter(thingsService: ThingsService)(implicit ec: ExecutionContext) {
@@ -691,7 +691,7 @@ case class R(a: Int, rs: Seq[R]) derives Decoder, Encoder.AsObject
    object KebsProtocol extends KebsCirce with KebsCirce.NoFlat
   import KebsProtocol._
  ```
-#### - kebs generates akka-http Unmarshaller (kebs-akka-http)
+#### - kebs generates pekko-http Unmarshaller (kebs-pekko-http)
 
 It makes it very easy to use 1-element case-classes or `enumeratum` enums/value enums in eg. `parameters` directive:
 
