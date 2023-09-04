@@ -1,6 +1,6 @@
 ## Version 1.9.3
 > 17.08.2021
-* Use InstanceConverter as mapper instead of ValueClassLike
+* Use InstanceConverter as mapper instead of CaseClass1Rep
 * Dependency updates
 ## Version 1.9.2
 > 14.07.2021
@@ -15,7 +15,7 @@
 * Dependency updates
 * Added ScalaCheck generators
 * Added json-schema support  
-* Added Numeric instances for tagged types using ValueClassLike
+* Added Numeric instances for tagged types using CaseClass1Rep
 * Fixed `examples` module not compiling on CI
 * Removed compiler warnings
 * Provide mappings for all standard Java types
@@ -87,7 +87,7 @@ This version si the same as 1.6.0 - it only exists to publish Scala 2.11.x build
 > 31.01.2018
 
 * Fixed issue https://github.com/theiterators/kebs/issues/11
-* Most projects do not use custom macros anymore, relying on single `ValueClassLike` instead. Same thing has been done to `enumeratum` macros.
+* Most projects do not use custom macros anymore, relying on single `CaseClass1Rep` instead. Same thing has been done to `enumeratum` macros.
 This should lead to shorter compilation times
 * `kebs-spray` has been rewritten - generation of `Spray` formats should incur less allocations
 
