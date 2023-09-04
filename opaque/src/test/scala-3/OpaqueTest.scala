@@ -24,7 +24,7 @@ object OpaqueTestTypeclass {
   }
 
   given Showable[Int] = (a: Int) => a.toString
-  given[S, A](using showable: Showable[S], cc1Rep: ValueClassLike[A, S]): Showable[A] = (a: A) => showable.show(cc1Rep.unapply(a))
+  given[S, A](using showable: Showable[S], vcLike: ValueClassLike[A, S]): Showable[A] = (a: A) => showable.show(vcLike.unapply(a))
 }
 
 class OpaqueTest extends AnyFunSuite with Matchers {

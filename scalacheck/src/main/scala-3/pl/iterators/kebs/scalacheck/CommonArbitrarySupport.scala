@@ -12,7 +12,7 @@ import scala.util.Random
 import io.github.martinhh.derived.scalacheck.given
 import enumeratum.ScalacheckInstances
 trait CommonArbitrarySupport extends ScalacheckInstances {
-  implicit def caseClass1RepArbitraryPredef[T, A](
+  implicit def ValueClassLikeArbitraryPredef[T, A](
                                                    implicit rep: ValueClassLike[T, A],
                                                    arbitrary: Arbitrary[A]
   ): Arbitrary[T] =

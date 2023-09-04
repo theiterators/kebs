@@ -25,15 +25,15 @@ class Http4sStirMatchersTests
     with URIString {
   implicit def runtime: cats.effect.unsafe.IORuntime = cats.effect.unsafe.IORuntime.global
 
-  test("No CaseClass1Rep implicits derived") {
+  test("No ValueClassLike implicits derived") {
     import pl.iterators.kebs.macros.ValueClassLike
 
-    "implicitly[CaseClass1Rep[DayOfWeek, Int]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[Int, DayOfWeek]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[Instant, Long]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[Long, Instant]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[URI, String]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[String, URI]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[DayOfWeek, Int]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[Int, DayOfWeek]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[Instant, Long]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[Long, Instant]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[URI, String]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[String, URI]]" shouldNot typeCheck
   }
 
   test("Extract String to ZonedDateTime") {

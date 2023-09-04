@@ -115,15 +115,15 @@ final class macroImpl(val c: whitebox.Context) {
       q"def apply[..$typeParams](arg: $baseTypeName[..$baseParams]) = $body"
     }
 
-    def generateCaseClass1RepImplicit: Tree = {
-      val caseClass1RepInstanceTree =
-        q"new _root_.pl.iterators.kebs.macros.CaseClass1Rep[$selfType, $baseTypeName[..$baseParams]](${name.toTermName}.apply(_), identity)"
-      val implicitName = TermName(name.decodedName.toString + "CaseClass1Rep")
+    def generateValueClassLikeImplicit: Tree = {
+      val ValueClassLikeInstanceTree =
+        q"new _root_.pl.iterators.kebs.macros.ValueClassLike[$selfType, $baseTypeName[..$baseParams]](${name.toTermName}.apply(_), identity)"
+      val implicitName = TermName(name.decodedName.toString + "ValueClassLike")
 
       if (typeParams.isEmpty)
-        q"implicit val $implicitName = $caseClass1RepInstanceTree"
+        q"implicit val $implicitName = $ValueClassLikeInstanceTree"
       else
-        q"implicit def $implicitName[..$typeParams] = $caseClass1RepInstanceTree"
+        q"implicit def $implicitName[..$typeParams] = $ValueClassLikeInstanceTree"
     }
 
     private def containsApply(trees: List[Tree]): Boolean = {
@@ -153,7 +153,7 @@ final class macroImpl(val c: whitebox.Context) {
   case class TagTypeRep(tagName: TypeName, maybeCompanion: Option[ModuleDef]) {
 
     def generateCompanion(taggedTypes: List[TaggedType]): Tree = {
-      val implicits = taggedTypes.map(_.generateCaseClass1RepImplicit)
+      val implicits = taggedTypes.map(_.generateValueClassLikeImplicit)
       maybeCompanion match {
         case Some(ModuleDef(mods, companionName, template)) =>
           ModuleDef(mods, companionName, Template(template.parents, template.self, template.body ++ implicits))

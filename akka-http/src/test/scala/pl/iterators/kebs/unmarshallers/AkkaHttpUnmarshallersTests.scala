@@ -26,15 +26,15 @@ class AkkaHttpUnmarshallersTests
     with YearMonthString
     with DayOfWeekInt {
 
-  test("No CaseClass1Rep implicits derived") {
+  test("No ValueClassLike implicits derived") {
     import pl.iterators.kebs.macros.ValueClassLike
 
-    "implicitly[CaseClass1Rep[URI, String]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[String, URI]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[YearMonth, String]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[String, YearMonth]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[DayOfWeek, Int]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[Int, DayOfWeek]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[URI, String]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[String, URI]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[YearMonth, String]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[String, YearMonth]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[DayOfWeek, Int]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[Int, DayOfWeek]]" shouldNot typeCheck
   }
 
   test("Unmarshal") {

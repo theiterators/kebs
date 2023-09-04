@@ -4,12 +4,12 @@ import pl.iterators.kebs.macros.ValueClassLike
 
 trait IntegralSupport {
 
-  implicit def integralFromCaseClass1Rep[A, Rep](implicit cc1Rep: ValueClassLike[A, Rep],
+  implicit def integralFromValueClassLike[A, Rep](implicit vcLike: ValueClassLike[A, Rep],
                                                  integralRep: Integral[Rep],
                                                  numeric: Numeric[A]): Integral[A] =
     new Integral[A] {
-      override def quot(x: A, y: A): A                 = cc1Rep.apply(integralRep.quot(cc1Rep.unapply(x), cc1Rep.unapply(y)))
-      override def rem(x: A, y: A): A                  = cc1Rep.apply(integralRep.rem(cc1Rep.unapply(x), cc1Rep.unapply(y)))
+      override def quot(x: A, y: A): A                 = vcLike.apply(integralRep.quot(vcLike.unapply(x), vcLike.unapply(y)))
+      override def rem(x: A, y: A): A                  = vcLike.apply(integralRep.rem(vcLike.unapply(x), vcLike.unapply(y)))
       override def plus(x: A, y: A): A                 = numeric.plus(x, y)
       override def minus(x: A, y: A): A                = numeric.minus(x, y)
       override def times(x: A, y: A): A                = numeric.times(x, y)

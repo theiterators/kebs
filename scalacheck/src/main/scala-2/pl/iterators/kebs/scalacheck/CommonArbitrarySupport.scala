@@ -12,7 +12,7 @@ import scala.reflect.ClassTag
 import scala.util.Random
 
 trait CommonArbitrarySupport extends ScalacheckShapeless with ScalacheckInstances {
-  implicit def caseClass1RepArbitraryPredef[T, A](
+  implicit def valueClassLikeArbitraryPredef[T, A](
                                                    implicit rep: ValueClassLike[T, A],
                                                    arbitrary: Arbitrary[A]
   ): Arbitrary[T] =

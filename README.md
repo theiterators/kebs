@@ -385,7 +385,7 @@ import MyPostgresProfile.api._
 
 kebs-doobie works similarly to [kebs-slick](#--kebs-generates-slick-mappers-for-your-case-class-wrappers-kebs-slick). It provides doobie's `Meta` instances for:
 
-* Instances of `CaseClass1Rep` (value classes, tagged types, opaque types)
+* Instances of `ValueClassLike` (value classes, tagged types, opaque types)
 * Instances of `InstanceConverter`
 * Enumeratum for Scala 2
 * Native enums for Scala 3
@@ -897,13 +897,13 @@ object Tags {
   }
   
   object PositiveIntTag {
-    implicit val PositiveIntCaseClass1Rep = new CaseClass1Rep[PositiveInt, Int](PositiveInt.apply(_), identity)
+    implicit val PositiveIntValueClassLike = new ValueClassLike[PositiveInt, Int](PositiveInt.apply(_), identity)
   }
   object IdTag {
-    implicit def IdCaseClass1Rep[A] = new CaseClass1Rep[Id[A], Int](Id.apply(_), identity)
+    implicit def IdValueClassLike[A] = new ValueClassLike[Id[A], Int](Id.apply(_), identity)
   }
   object NameTag {
-    implicit val NameCaseClass1Rep = new CaseClass1Rep[Name, String](Name.apply(_), identity)
+    implicit val NameValueClassLike = new ValueClassLike[Name, String](Name.apply(_), identity)
   }
 }
 ```
@@ -942,7 +942,7 @@ There are some conventions that are assumed during generation.
   * take a single argument
   * return Either (this is not enforced though - you'll have a compilation error later)
 
-Also, `CaseClass1Rep` is generated for each tag meaning you will get a lot of `kebs` machinery for free eg. spray formats etc.
+Also, `ValueClassLike` is generated for each tag meaning you will get a lot of `kebs` machinery for free eg. spray formats etc.
 
 ### Opaque types
 
@@ -950,7 +950,7 @@ As an alternative to tagged types, Scala 3 provides [opaque types](https://docs.
 The principles of opaque types are similar to tagged type. The basic usage of opaque types requires the
 same amount of boilerplate as tagged types - e.g. you have to write smart constructors, validations and unwrapping
 mechanisms all by hand. `kebs-opaque` is meant to help with that by generating a handful of methods and providing a
-`CaseClass1Rep` for an easy typclass derivation.
+`ValueClassLike` for an easy typclass derivation.
 
 ```scala
 import pl.iterators.kebs.opaque._
@@ -962,10 +962,10 @@ object MyDomain {
 ```
 
 That's the basic usage. Inside the companion object you will get methods like `from`, `apply`, `unsafe` and extension
-method `unwrap` plus an instance of `CaseClass1Rep[ISBN, String]`. A more complete example below.
+method `unwrap` plus an instance of `ValueClassLike[ISBN, String]`. A more complete example below.
 
 ```scala
-import pl.iterators.kebs.macros.CaseClass1Rep
+import pl.iterators.kebs.macros.ValueClassLike
 import pl.iterators.kebs.opaque._
 
 object MyDomain {
@@ -996,7 +996,7 @@ trait Showable[A] {
   def show(a: A): String
 }
 given Showable[String] = (a: String) => a
-given[S, A](using showable: Showable[S], cc1Rep: CaseClass1Rep[A, S]): Showable[A] = (a: A) => showable.show(cc1Rep.unapply(a))
+given[S, A](using showable: Showable[S], vcLike: ValueClassLike[A, S]): Showable[A] = (a: A) => showable.show(vcLike.unapply(a))
 implicitly[Showable[ISBN]].show(ISBN("1234567890")) // "1234567890"
 ```
 

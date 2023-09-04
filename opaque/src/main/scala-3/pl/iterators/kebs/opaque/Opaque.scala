@@ -40,5 +40,5 @@ trait Opaque[OpaqueType, Unwrapped](using ev: OpaqueType =:= Unwrapped) {
     def unwrap: Unwrapped = ev.apply(w)
   }
 
-  given cc1Rep: ValueClassLike[OpaqueType, Unwrapped] = ValueClassLike(apply, _.unwrap)
+  given vcLike: ValueClassLike[OpaqueType, Unwrapped] = ValueClassLike(apply, _.unwrap)
 }

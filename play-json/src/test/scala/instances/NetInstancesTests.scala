@@ -27,9 +27,9 @@ class NetInstancesTests extends AnyFunSuite with Matchers with URIString {
     assertThrows[DecodeErrorException](jf.reads(JsString(value)))
   }
 
-  test("No CaseClass1Rep implicits derived") {
+  test("No ValueClassLike implicits derived") {
 
-    "implicitly[CaseClass1Rep[URI, String]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[String, URI]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[URI, String]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[String, URI]]" shouldNot typeCheck
   }
 }

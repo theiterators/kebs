@@ -17,8 +17,8 @@ class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
     object TimeInstancesProtocol extends KebsCirce with InstantEpochMilliLong
     import TimeInstancesProtocol.{given, _}
 
-    "implicitly[CaseClass1Rep[Instant, Long]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[Long, Instant]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[Instant, Long]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[Long, Instant]]" shouldNot typeCheck
 
     val decoder    = implicitly[Decoder[Instant]]
     val encoder    = implicitly[Encoder[Instant]]
@@ -33,10 +33,10 @@ class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
     object TimeInstancesProtocol extends KebsCirce with DurationNanosLong with InstantEpochMilliLong
     import TimeInstancesProtocol.{given, _}
 
-    "implicitly[CaseClass1Rep[Instant, Long]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[Long, Instant]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[Duration, Long]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[Long, Duration]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[Instant, Long]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[Long, Instant]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[Duration, Long]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[Long, Duration]]" shouldNot typeCheck
 
     val decoder_duration    = implicitly[Decoder[Duration]]
     val encoder_duration    = implicitly[Encoder[Duration]]
@@ -64,8 +64,8 @@ class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
     }
     import TimeInstancesProtocol.{given, _}
 
-    "implicitly[CaseClass1Rep[LocalDateTime, String]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[String, LocalDateTime]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[LocalDateTime, String]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[String, LocalDateTime]]" shouldNot typeCheck
 
     val encoder    = implicitly[Encoder[LocalDateTime]]
     val decoder    = implicitly[Decoder[LocalDateTime]]
@@ -98,8 +98,8 @@ class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
     }
     import TimeInstancesProtocol.{given, _}
     
-    "implicitly[CaseClass1Rep[LocalDateTime, String]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[String, LocalDateTime]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[LocalDateTime, String]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[String, LocalDateTime]]" shouldNot typeCheck
 
     val encoder    = implicitly[Encoder[LocalDateTime]]
     val decoder    = implicitly[Decoder[LocalDateTime]]

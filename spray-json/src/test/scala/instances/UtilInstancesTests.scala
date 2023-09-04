@@ -11,15 +11,15 @@ import java.util.{Currency, Locale, UUID}
 
 class UtilInstancesTests extends AnyFunSuite with Matchers with DefaultJsonProtocol with KebsSpray with UtilInstances {
 
-  test("No CaseClass1Rep implicits derived") {
+  test("No ValueClassLike implicits derived") {
     import pl.iterators.kebs.macros.ValueClassLike
 
-    "implicitly[CaseClass1Rep[Currency, String]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[String, Currency]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[Locale, String]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[String, Locale]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[UUID, String]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[String, UUID]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[Currency, String]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[String, Currency]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[Locale, String]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[String, Locale]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[UUID, String]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[String, UUID]]" shouldNot typeCheck
   }
 
   test("Currency standard format") {

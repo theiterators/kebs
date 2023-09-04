@@ -4,11 +4,11 @@ import pl.iterators.kebs.macros.ValueClassLike
 
 trait FractionalSupport {
 
-  implicit def fractionalFromCaseClass1Rep[A, Rep](implicit cc1Rep: ValueClassLike[A, Rep],
+  implicit def fractionalFromValueClassLike[A, Rep](implicit vcLike: ValueClassLike[A, Rep],
                                                    fractionalRep: Fractional[Rep],
                                                    numeric: Numeric[A]): Fractional[A] =
     new Fractional[A] {
-      override def div(x: A, y: A): A                  = cc1Rep.apply(fractionalRep.div(cc1Rep.unapply(x), cc1Rep.unapply(y)))
+      override def div(x: A, y: A): A                  = vcLike.apply(fractionalRep.div(vcLike.unapply(x), vcLike.unapply(y)))
       override def plus(x: A, y: A): A                 = numeric.plus(x, y)
       override def minus(x: A, y: A): A                = numeric.minus(x, y)
       override def times(x: A, y: A): A                = numeric.times(x, y)

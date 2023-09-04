@@ -55,7 +55,7 @@ trait Http4s {
     def apply[T](implicit rep: InstanceConverter[T, UUID]) = new PathVar[T](str => Try(rep.decode(UUID.fromString(str))))
   }
 
-  implicit def cc1RepQueryParamDecoder[T, U](implicit rep: ValueClassLike[T, U], qpd: QueryParamDecoder[U]): QueryParamDecoder[T] = qpd.emap(u => Try(rep.apply(u)).toEither.left.map(t => ParseFailure(t.getMessage, t.getMessage)))
+  implicit def vcLikeQueryParamDecoder[T, U](implicit rep: ValueClassLike[T, U], qpd: QueryParamDecoder[U]): QueryParamDecoder[T] = qpd.emap(u => Try(rep.apply(u)).toEither.left.map(t => ParseFailure(t.getMessage, t.getMessage)))
   implicit def instanceConverterQueryParamDecoder[T, U](implicit rep: InstanceConverter[T, U], qpd: QueryParamDecoder[U]): QueryParamDecoder[T] = qpd.emap(u => Try(rep.decode(u)).toEither.left.map(t => ParseFailure(t.getMessage, t.getMessage)))
   implicit def enumQueryParamDecoder[E <: EnumEntry](implicit e: EnumOf[E]): QueryParamDecoder[E] = QueryParamDecoder[String].emap(str => Try(e.`enum`.values.find(_.toString.toUpperCase == str.toUpperCase).getOrElse(throw new IllegalArgumentException(s"enum case not found: $str"))).toEither.left.map(t => ParseFailure(t.getMessage, t.getMessage)))
 }

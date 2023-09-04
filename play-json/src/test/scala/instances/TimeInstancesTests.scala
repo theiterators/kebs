@@ -10,40 +10,40 @@ import java.time._
 
 class TimeInstancesTests extends AnyFunSuite with Matchers with TimeInstances {
   import pl.iterators.kebs.json._
-  test("No CaseClass1Rep implicits derived") {
+  test("No ValueClassLike implicits derived") {
 
-    "implicitly[CaseClass1Rep[DayOfWeek, Int]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[Int, DayOfWeek]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[Duration, String]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[String, Duration]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[Instant, String]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[String, Instant]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[LocalDate, String]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[String, LocalDate]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[LocalDateTime, String]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[String, LocalDateTime]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[LocalTime, String]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[String, LocalTime]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[Month, Int]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[Int, Month]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[MonthDay, String]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[String, MonthDay]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[OffsetDateTime, String]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[String, OffsetDateTime]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[OffsetTime, String]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[String, OffsetTime]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[Period, String]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[String, Period]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[Year, String]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[String, Year]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[YearMonth, String]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[String, YearMonth]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[ZoneId, String]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[String, ZoneId]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[ZoneOffset, String]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[String, ZoneOffset]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[ZonedDateTime, String]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[String, ZonedDateTime]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[DayOfWeek, Int]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[Int, DayOfWeek]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[Duration, String]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[String, Duration]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[Instant, String]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[String, Instant]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[LocalDate, String]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[String, LocalDate]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[LocalDateTime, String]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[String, LocalDateTime]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[LocalTime, String]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[String, LocalTime]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[Month, Int]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[Int, Month]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[MonthDay, String]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[String, MonthDay]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[OffsetDateTime, String]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[String, OffsetDateTime]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[OffsetTime, String]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[String, OffsetTime]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[Period, String]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[String, Period]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[Year, String]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[String, Year]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[YearMonth, String]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[String, YearMonth]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[ZoneId, String]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[String, ZoneId]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[ZoneOffset, String]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[String, ZoneOffset]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[ZonedDateTime, String]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[String, ZonedDateTime]]" shouldNot typeCheck
   }
 
   test("DayOfWeek standard format") {

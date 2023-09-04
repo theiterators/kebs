@@ -19,8 +19,8 @@ class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
     object TimeInstancesProtocol extends DefaultJsonProtocol with KebsSpray with InstantEpochMilliLong
     import TimeInstancesProtocol._
 
-    "implicitly[CaseClass1Rep[Instant, Long]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[Long, Instant]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[Instant, Long]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[Long, Instant]]" shouldNot typeCheck
 
     val jf    = implicitly[JsonFormat[Instant]]
     val value = 123456789
@@ -34,10 +34,10 @@ class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
     object TimeInstancesProtocol extends DefaultJsonProtocol with KebsSpray with DurationNanosLong with InstantEpochMilliLong
     import TimeInstancesProtocol._
 
-    "implicitly[CaseClass1Rep[Instant, Long]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[Long, Instant]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[Duration, Long]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[Long, Duration]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[Instant, Long]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[Long, Instant]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[Duration, Long]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[Long, Duration]]" shouldNot typeCheck
 
     val jf_duration    = implicitly[JsonFormat[Duration]]
     val value_duration = 123456789
@@ -63,8 +63,8 @@ class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
     }
     import TimeInstancesProtocol._
 
-    "implicitly[CaseClass1Rep[LocalDateTime, String]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[String, LocalDateTime]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[LocalDateTime, String]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[String, LocalDateTime]]" shouldNot typeCheck
 
     val jf    = implicitly[JsonFormat[LocalDateTime]]
     val value = "2007/12/03 10:30"
@@ -96,8 +96,8 @@ class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
     }
     import TimeInstancesProtocol._
 
-    "implicitly[CaseClass1Rep[LocalDateTime, String]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[String, LocalDateTime]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[LocalDateTime, String]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[String, LocalDateTime]]" shouldNot typeCheck
 
     val jf    = implicitly[JsonFormat[LocalDateTime]]
     val value = "2007/12/03 10:30"

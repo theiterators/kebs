@@ -41,11 +41,11 @@ class SlickPgHstoreTests extends AnyFunSuite with Matchers {
     override def * : ProvenShape[Test] = (id, hstoreMap) <> ((Test.apply _).tupled, Test.unapply)
   }
 
-  test("No CaseClass1Rep implicits derived") {
+  test("No ValueClassLike implicits derived") {
     import pl.iterators.kebs.macros.ValueClassLike
 
-    "implicitly[CaseClass1Rep[YearMonth, String]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[String, YearMonth]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[YearMonth, String]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[String, YearMonth]]" shouldNot typeCheck
   }
 
   test("Case class hstore extension methods") {

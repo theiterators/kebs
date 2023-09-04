@@ -4,11 +4,11 @@ import pl.iterators.kebs.macros.ValueClassLike
 
 trait PartialOrderingSupport {
 
-  implicit def partialOrderingFromCaseClass1Rep[A, Rep](implicit cc1Rep: ValueClassLike[A, Rep],
-                                                        partialOrderingRep: PartialOrdering[Rep]): PartialOrdering[A] =
+  implicit def partialOrderingFromValueClassLike[A, Rep](implicit vcLike: ValueClassLike[A, Rep],
+                                                         partialOrderingRep: PartialOrdering[Rep]): PartialOrdering[A] =
     new PartialOrdering[A] {
-      override def tryCompare(x: A, y: A): Option[Int] = partialOrderingRep.tryCompare(cc1Rep.unapply(x), cc1Rep.unapply(y))
-      override def lteq(x: A, y: A): Boolean           = partialOrderingRep.lteq(cc1Rep.unapply(x), cc1Rep.unapply(y))
+      override def tryCompare(x: A, y: A): Option[Int] = partialOrderingRep.tryCompare(vcLike.unapply(x), vcLike.unapply(y))
+      override def lteq(x: A, y: A): Boolean           = partialOrderingRep.lteq(vcLike.unapply(x), vcLike.unapply(y))
     }
 
 }

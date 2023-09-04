@@ -12,15 +12,15 @@ class MapIsomorphismTest extends AnyFunSuite with Matchers with YearMonthString 
   case class StringValue(value: String)
   case class IntValue(value: Int)
 
-  test("No CaseClass1Rep implicits derived") {
+  test("No ValueClassLike implicits derived") {
     import pl.iterators.kebs.macros.ValueClassLike
 
-    "implicitly[CaseClass1Rep[YearMonth, String]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[String, YearMonth]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[DayOfWeek, Int]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[Int, DayOfWeek]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[Instant, Long]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[Long, Instant]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[YearMonth, String]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[String, YearMonth]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[DayOfWeek, Int]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[Int, DayOfWeek]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[Instant, Long]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[Long, Instant]]" shouldNot typeCheck
   }
 
   test("Case classes isomorphisms implies string to int map isomorphism") {

@@ -20,15 +20,15 @@ class SlickPgHstoreColumnTypeTests extends AnyFunSuite with Matchers {
 
   import MyPostgresProfile.api._
 
-  test("No CaseClass1Rep implicits derived") {
+  test("No ValueClassLike implicits derived") {
     import pl.iterators.kebs.macros.ValueClassLike
 
-    "implicitly[CaseClass1Rep[YearMonth, String]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[String, YearMonth]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[DayOfWeek, Int]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[Int, DayOfWeek]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[Instant, Long]]" shouldNot typeCheck
-    "implicitly[CaseClass1Rep[Long, Instant]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[YearMonth, String]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[String, YearMonth]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[DayOfWeek, Int]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[Int, DayOfWeek]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[Instant, Long]]" shouldNot typeCheck
+    "implicitly[ValueClassLike[Long, Instant]]" shouldNot typeCheck
   }
 
   test("Value classes to HStore mapping") {
@@ -42,7 +42,7 @@ class SlickPgHstoreColumnTypeTests extends AnyFunSuite with Matchers {
       |""".stripMargin should compile
   }
 
-  /* CaseClass1Rep[Obj, String] */
+  /* ValueClassLike[Obj, String] */
   test("Map[Obj[String], String] column type") {
     """
       |class HStoreTestTable(tag: Tag) extends Table[(Long, Map[YearMonth, String])](tag, "HStoreTestTable") {
@@ -131,7 +131,7 @@ class SlickPgHstoreColumnTypeTests extends AnyFunSuite with Matchers {
       |""".stripMargin should compile
   }
 
-  /* CaseClass1Rep[Obj, Int] */
+  /* ValueClassLike[Obj, Int] */
   test("Map[Obj[Int], String] column type") {
     """
       |class HStoreTestTable(tag: Tag) extends Table[(Long, Map[DayOfWeek, String])](tag, "HStoreTestTable") {
@@ -220,7 +220,7 @@ class SlickPgHstoreColumnTypeTests extends AnyFunSuite with Matchers {
       |""".stripMargin should compile
   }
 
-  /* CaseClass1Rep[Obj, Long] */
+  /* ValueClassLike[Obj, Long] */
   test("Map[Obj[Long], String] column type") {
     """
       |class HStoreTestTable(tag: Tag) extends Table[(Long, Map[Instant, String])](tag, "HStoreTestTable") {

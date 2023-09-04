@@ -29,6 +29,6 @@ class ValueClassRepMacros(override val c: whitebox.Context) extends MacroUtils {
     val unapplyF = q"_.$caseAccessor"
     val applyF   = apply(caseClassType)
 
-    q"new _root_.pl.iterators.kebs.macros.CaseClass1Rep[$caseClassType, $f1]($applyF, $unapplyF)"
+    q"new _root_.pl.iterators.kebs.macros.ValueClassLike[$caseClassType, $f1]($applyF, $unapplyF)"
   }
 }
