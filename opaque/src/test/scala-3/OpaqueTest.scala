@@ -54,7 +54,7 @@ class OpaqueTest extends AnyFunSuite with Matchers {
   }
 
   test("Basic derivation") {
-    "implicitly[CaseClass1Rep[ValidatedTestWrappedString, String]]" should compile
+    "implicitly[ValueClassLike[ValidatedTestWrappedString, String]]" should compile
     implicitly[ValueClassLike[ValidatedTestWrappedString, String]].apply("foo") shouldEqual ValidatedTestWrappedString("foo")
     implicitly[ValueClassLike[ValidatedTestWrappedString, String]].unapply(ValidatedTestWrappedString("foo")) shouldEqual "foo"
     an[IllegalArgumentException] should be thrownBy implicitly[ValueClassLike[ValidatedTestWrappedString, String]].apply("")
