@@ -199,6 +199,19 @@ lazy val coreSettings = commonMacroSettings ++ Seq(
   libraryDependencies += optionalEnumeratum
 )
 
+lazy val enumSettings = commonMacroSettings ++ Seq(
+  libraryDependencies += scalaTest.value,
+  libraryDependencies += optionalEnumeratum,
+  libraryDependencies ++= paradisePlugin(scalaVersion.value),
+  scalacOptions ++= paradiseFlag(scalaVersion.value)
+)
+
+lazy val enumeratumSettings = commonMacroSettings ++ Seq(
+  libraryDependencies += optionalEnumeratum,
+  libraryDependencies ++= paradisePlugin(scalaVersion.value),
+  scalacOptions ++= paradiseFlag(scalaVersion.value)
+)
+
 lazy val sprayJsonMacroSettings = commonMacroSettings ++ Seq(
   libraryDependencies += sprayJson.cross(CrossVersion.for3Use2_13)
 )
@@ -560,6 +573,26 @@ lazy val instances = project
     moduleName := "kebs-instances"
   )
 
+lazy val enumSupport = project
+  .in(file("enum"))
+  .dependsOn(core.jvm)
+  .settings(enumSettings: _*)
+  .settings(publishSettings: _*)
+  .settings(
+    name := "enum",
+    moduleName := "kebs-enum"
+  )
+
+lazy val enumeratumSupport = project
+  .in(file("enumeratum"))
+  .dependsOn(core.jvm)
+  .settings(enumeratumSettings: _*)
+  .settings(
+    name := "enumeratum",
+    moduleName := "kebs-enumeratum"
+  )
+
+
 lazy val kebs = project
   .in(file("."))
   .aggregate(
@@ -584,7 +617,9 @@ lazy val kebs = project
     http4sSupport,
     http4sStirSupport,
     taggedMeta,
-    instances
+    instances,
+    enumSupport,
+    enumeratumSupport
   )
   .settings(baseSettings: _*)
   .settings(noPublishSettings)

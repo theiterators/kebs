@@ -5,9 +5,10 @@ import scala.quoted._
 import scala.compiletime.{constValue, erasedValue, error, summonInline}
 import scala.deriving.Mirror
 import scala.reflect.{ClassTag, Enum}
+import scala.collection.immutable
 
 trait EnumLike[T] {
-  def values: Array[T]
+  def values: immutable.Seq[T]
   def valueOf(name: String): T = values.find(_.toString == name).getOrElse(throw new IllegalArgumentException(s"enum case not found: $name"))
   def fromOrdinal(ordinal: Int): T = values.lift(ordinal).getOrElse(throw new NoSuchElementException(ordinal.toString))
 }
@@ -23,7 +24,7 @@ object EnumOf {
   inline given [E <: Enum](using m: Mirror.SumOf[E], ct: ClassTag[E]): EnumOf[E] = {
     val enumValues = summonCases[m.MirroredElemTypes, E]
     EnumOf[E](new EnumLike[E] {
-      override def values: Array[E] = enumValues.toArray
+      override def values: immutable.Seq[E] = enumValues.toSeq
     })
   }
 
@@ -41,7 +42,7 @@ object EnumOf {
 }
 
 trait ValueEnumLike[ValueType, T <: ValueEnum[ValueType]] {
-  def values: Array[T]
+  def values: immutable.Seq[T]
   def valueOf(value: ValueType): T = values.find(_.value == value).getOrElse(throw new IllegalArgumentException(s"enum case not found: $value"))
   def fromOrdinal(ordinal: Int): T = values.lift(ordinal).getOrElse(throw new NoSuchElementException(ordinal.toString))
 }
@@ -52,7 +53,7 @@ object ValueEnumOf {
   inline given [V, E <: ValueEnum[V] with Enum](using m: Mirror.SumOf[E], ct: ClassTag[E]): ValueEnumOf[V, E] = {
     val enumValues = summonValueCases[m.MirroredElemTypes, V, E]
     ValueEnumOf[V, E](new ValueEnumLike[V, E] {
-      override def values: Array[E] = enumValues.toArray
+      override def values: immutable.Seq[E] = enumValues.toSeq
     })
   }
 

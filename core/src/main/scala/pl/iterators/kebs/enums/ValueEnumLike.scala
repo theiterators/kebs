@@ -1,11 +1,13 @@
 package pl.iterators.kebs.enums
 
+import scala.collection.immutable
+
 trait ValueEnumLikeEntry[ValueType] {
   def value: ValueType
 }
 
 trait ValueEnumLike[ValueType, EntryType <: ValueEnumLikeEntry[ValueType]] {
-  def values: Array[EntryType]
+  def values: immutable.Seq[EntryType]
   def valueOf(value: ValueType): EntryType = values.find(entry => value == entry.value).getOrElse(throw new IllegalArgumentException(s"enum case not found: $value"))
   def valueOfOpt(value: ValueType): Option[EntryType] = values.find(entry => value == entry.value)
   def valueOfUnsafe(value: ValueType): EntryType = values.find(entry => value == entry.value).get

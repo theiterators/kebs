@@ -1,7 +1,9 @@
 package pl.iterators.kebs.enums
 
+import scala.collection.immutable
+
 trait EnumLike[T] {
-  def values: Array[T]
+  def values: immutable.Seq[T]
   def valueOf(name: String): T = values.find(_.toString == name).getOrElse(throw new IllegalArgumentException(s"enum case not found: $name"))
   def withNameUnsafe(name: String): T = values.find(_.toString == name).get
   def withNameSafe(name: String): Option[T] = values.find(_.toString == name)
