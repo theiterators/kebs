@@ -207,6 +207,7 @@ lazy val enumSettings = commonMacroSettings ++ Seq(
 )
 
 lazy val enumeratumSettings = commonMacroSettings ++ Seq(
+  libraryDependencies += scalaTest.value,
   libraryDependencies += optionalEnumeratum,
   libraryDependencies ++= paradisePlugin(scalaVersion.value),
   scalacOptions ++= paradiseFlag(scalaVersion.value)
@@ -587,6 +588,7 @@ lazy val enumeratumSupport = project
   .in(file("enumeratum"))
   .dependsOn(core.jvm)
   .settings(enumeratumSettings: _*)
+  .settings(publishSettings: _*)
   .settings(
     name := "enumeratum",
     moduleName := "kebs-enumeratum"
