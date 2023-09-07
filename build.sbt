@@ -1,10 +1,9 @@
 import sbt.librarymanagement.ConflictWarning
 
-val scala_2_12             = "2.12.18"
 val scala_2_13             = "2.13.11"
 val scala_3                = "3.3.0"
 val mainScalaVersion       = scala_3
-val supportedScalaVersions = Seq(scala_2_12, scala_2_13, scala_3)
+val supportedScalaVersions = Seq(scala_2_13, scala_3)
 
 ThisBuild / crossScalaVersions := supportedScalaVersions
 ThisBuild / scalaVersion := mainScalaVersion
@@ -28,7 +27,6 @@ lazy val commonMacroSettings = baseSettings ++ Seq(
 
 lazy val metaSettings = commonSettings ++ Seq(
   scalacOptions ++= paradiseFlag(scalaVersion.value),
-  libraryDependencies ++= paradisePlugin(scalaVersion.value)
 )
 
 lazy val crossBuildSettings = Seq(crossScalaVersions := supportedScalaVersions)
@@ -94,16 +92,10 @@ def sv[A](scalaVersion: String, scala2_12Version: => A, scala2_13Version: => A) 
   }
 
 def paradiseFlag(scalaVersion: String): Seq[String] =
-  if (scalaVersion == scala_2_12 || scalaVersion == scala_3)
+  if (scalaVersion == scala_3)
     Seq.empty
   else
     Seq("-Ymacro-annotations")
-
-def paradisePlugin(scalaVersion: String): Seq[ModuleID] =
-  if (scalaVersion == scala_2_12)
-    Seq(compilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full))
-  else
-    Seq.empty
 
 val scalaTest       = Def.setting("org.scalatest" %%% "scalatest" % "3.2.16")
 val scalaCheck      = Def.setting("org.scalacheck" %%% "scalacheck" % "1.17.0")
@@ -202,14 +194,12 @@ lazy val coreSettings = commonMacroSettings ++ Seq(
 lazy val enumSettings = commonMacroSettings ++ Seq(
   libraryDependencies += scalaTest.value,
   libraryDependencies += optionalEnumeratum,
-  libraryDependencies ++= paradisePlugin(scalaVersion.value),
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
 lazy val enumeratumSettings = commonMacroSettings ++ Seq(
   libraryDependencies += scalaTest.value,
   libraryDependencies += optionalEnumeratum,
-  libraryDependencies ++= paradisePlugin(scalaVersion.value),
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
@@ -239,7 +229,6 @@ lazy val akkaHttpSettings = commonSettings ++ Seq(
   libraryDependencies += (akkaStreamTestkit % "test").cross(CrossVersion.for3Use2_13),
   libraryDependencies += (akkaHttpTestkit   % "test").cross(CrossVersion.for3Use2_13),
   libraryDependencies += optionalEnumeratum,
-  libraryDependencies ++= paradisePlugin(scalaVersion.value),
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
@@ -249,14 +238,12 @@ lazy val pekkoHttpSettings = commonSettings ++ Seq(
   libraryDependencies += pekkoStreamTestkit % "test",
   libraryDependencies += pekkoHttpTestkit   % "test",
   libraryDependencies += optionalEnumeratum,
-  libraryDependencies ++= paradisePlugin(scalaVersion.value),
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
 lazy val http4sSettings = commonSettings ++ Seq(
   libraryDependencies += http4s,
   libraryDependencies += optionalEnumeratum,
-  libraryDependencies ++= paradisePlugin(scalaVersion.value),
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
@@ -265,7 +252,6 @@ lazy val http4sStirSettings = commonSettings ++ Seq(
   libraryDependencies += http4sStir,
   libraryDependencies += http4sStirTestkit % "test",
   libraryDependencies += optionalEnumeratum,
-  libraryDependencies ++= paradisePlugin(scalaVersion.value),
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
@@ -293,7 +279,6 @@ lazy val examplesSettings = commonSettings ++ Seq(
   libraryDependencies += circeParser,
   libraryDependencies ++= enumeratumInExamples,
   libraryDependencies ++= pekkoHttpInExamples,
-  libraryDependencies ++= paradisePlugin(scalaVersion.value),
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 

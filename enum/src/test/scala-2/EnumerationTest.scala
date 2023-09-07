@@ -14,7 +14,7 @@ object MyEnum extends Enumeration {
 
 class EnumerationTest extends AnyFunSuite with Matchers with KebsEnum {
 
-  def toEnumLike(enumeration: MyEnum)(implicit convertEnumeration: MyEnum.Value => EnumLike[MyEnum.Value]) =
+  def toEnumLike(enumeration: MyEnum)(implicit convertEnumeration: MyEnum.Value => EnumLike[MyEnum.Value]): EnumLike[MyEnum.Value] =
     convertEnumeration(enumeration)
 
   val enumLike: EnumLike[MyEnum.MyEnum] = implicitly[EnumLike[MyEnum.MyEnum]]
