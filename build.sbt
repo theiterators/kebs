@@ -192,6 +192,7 @@ lazy val coreSettings = commonMacroSettings ++ Seq(
 )
 
 lazy val enumSettings = commonMacroSettings ++ Seq(
+  libraryDependencies += scalaCheck.value % "test",
   libraryDependencies += scalaTest.value,
   libraryDependencies += optionalEnumeratum,
   scalacOptions ++= paradiseFlag(scalaVersion.value)
