@@ -1,9 +1,8 @@
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import enumeratum.values._
-import pl.iterators.kebs.enumeratum
-import pl.iterators.kebs.enumeratum.ValueEnumOf
-import pl.iterators.kebs.enums.{ValueEnumLike, ValueEnumLikeEntry}
+import pl.iterators.kebs.enumeratum._
+import pl.iterators.kebs.enums.ValueEnumLikeEntry
 
 
 sealed abstract class LibraryItem(val value: Int) extends IntEnumEntry
@@ -18,9 +17,15 @@ object LibraryItem extends IntEnum[LibraryItem] {
 
 class MyValueEnumTest extends AnyFunSuite with Matchers {
 
-  val valueEnumOf: ValueEnumOf[Int, IntEnumEntry with ValueEnumLikeEntry[Int]] = implicitly[ValueEnumOf[Int, IntEnumEntry with ValueEnumLikeEntry[Int]]]
+  val valueEnumOf: ValueEnumOf[Int, ValueEnumLikeEntry[Int]] = implicitly[ValueEnumOf[Int, ValueEnumLikeEntry[Int]]]
 
-  test("ValueEnumLike[MyValueEnum.type].values should return all values of MyValueEnum") {
+  val enumEntrySeq: Seq[ValueEnumLikeEntry[Int]] = LibraryItem.values.map(item =>
+    new ValueEnumLikeEntry[Int] {
+      override def value: Int = item.value
+  })
+  println(enumEntrySeq)
+
+  test("ValueEnumOf[Int, IntEnumEntry].valueEnum.values should return all values of IntEnum") {
     valueEnumOf.valueEnum.values should contain theSameElementsAs Seq(LibraryItem.Book, LibraryItem.Movie, LibraryItem.Magazine, LibraryItem.CD)
   }
 }
