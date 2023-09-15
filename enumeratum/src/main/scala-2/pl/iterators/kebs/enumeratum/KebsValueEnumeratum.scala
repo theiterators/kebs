@@ -42,7 +42,7 @@ class ValueEnumEntryMacros(override val c: blackbox.Context) extends EnumMacroUt
   }
 }
 
-// This works!
+// This works in ValueEnumeratumTest!
 //    val enumEntrySeq: Seq[ValueEnumLikeEntry[Int]] = LibraryItem.values.map(item =>
 //      new ValueEnumLikeEntry[Int] {
 //        override def value: Int = item.value
@@ -50,7 +50,7 @@ class ValueEnumEntryMacros(override val c: blackbox.Context) extends EnumMacroUt
 //    println(enumEntrySeq)
 
 
-// And this does not compile. I think there's something wrong with EnumeratumEntry usage since when there is
+// I think there's something wrong with EnumeratumEntry usage since when quasiquote is repleced by
 //    q"""
 //      new _root_.pl.iterators.kebs.enumeratum.ValueEnumOf[${ValueType}, ${EnumEntry}](
 //        new _root_.pl.iterators.kebs.enums.ValueEnumLike[${ValueType}, ${EnumEntry}] {
@@ -58,4 +58,4 @@ class ValueEnumEntryMacros(override val c: blackbox.Context) extends EnumMacroUt
 //        }
 //      )
 //    """
-// it compiles and the test just fails (but without any errors).
+// it suddenly compiles and the test just fails (but without any errors).
