@@ -19,6 +19,7 @@ class MyValueEnumTest extends AnyFunSuite with Matchers {
 
   val valueEnumOf: ValueEnumOf[Int, ValueEnumLikeEntry[Int]] = implicitly[ValueEnumOf[Int, ValueEnumLikeEntry[Int]]]
 
+  // It works but analogical code in quasiquote in KebsValueEnumeratum does not compile. Why?
   val enumEntrySeq: Seq[ValueEnumLikeEntry[Int]] = LibraryItem.values.map(item =>
     new ValueEnumLikeEntry[Int] {
       override def value: Int = item.value

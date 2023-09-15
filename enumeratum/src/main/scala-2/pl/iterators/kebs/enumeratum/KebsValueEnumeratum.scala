@@ -25,15 +25,6 @@ class ValueEnumEntryMacros(override val c: blackbox.Context) extends EnumMacroUt
     assertValueEnumEntry(EnumeratumEntry, s"${EnumeratumEntry.typeSymbol} must subclass enumeratum.values.ValueEnumEntry")
     val EnumEntry = weakTypeOf[T]
 
-// This works!
-//    val enumEntrySeq: Seq[ValueEnumLikeEntry[Int]] = LibraryItem.values.map(item =>
-//      new ValueEnumLikeEntry[Int] {
-//        override def value: Int = item.value
-//      })
-//    println(enumEntrySeq)
-
-
-// And this does not work
     val ValueType = weakTypeOf[ValueType]
     c.Expr[ValueEnumOf[ValueType, T]](
       q"""
@@ -50,3 +41,21 @@ class ValueEnumEntryMacros(override val c: blackbox.Context) extends EnumMacroUt
     )
   }
 }
+
+// This works!
+//    val enumEntrySeq: Seq[ValueEnumLikeEntry[Int]] = LibraryItem.values.map(item =>
+//      new ValueEnumLikeEntry[Int] {
+//        override def value: Int = item.value
+//      })
+//    println(enumEntrySeq)
+
+
+// And this does not compile. I think there's something wrong with EnumeratumEntry usage since when there is
+//    q"""
+//      new _root_.pl.iterators.kebs.enumeratum.ValueEnumOf[${ValueType}, ${EnumEntry}](
+//        new _root_.pl.iterators.kebs.enums.ValueEnumLike[${ValueType}, ${EnumEntry}] {
+//          override def values: Seq[$EnumEntry] = null
+//        }
+//      )
+//    """
+// it compiles and the test just fails (but without any errors).
