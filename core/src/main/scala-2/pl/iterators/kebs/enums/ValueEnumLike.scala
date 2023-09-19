@@ -1,12 +1,9 @@
 package pl.iterators.kebs.enums
 
 import scala.collection.immutable
+import scala.language.reflectiveCalls
 
-trait ValueEnumLikeEntry[ValueType] {
-  def value: ValueType
-}
-
-trait ValueEnumLike[ValueType, EntryType <: ValueEnumLikeEntry[ValueType]] {
+trait ValueEnumLike[ValueType, EntryType <: { def value: ValueType }] {
   def values: immutable.Seq[EntryType]
   def valueOf(value: ValueType): EntryType = values.find(entry => value == entry.value).getOrElse(throw new IllegalArgumentException(s"enum case not found: $value"))
   def valueOfOpt(value: ValueType): Option[EntryType] = values.find(entry => value == entry.value)

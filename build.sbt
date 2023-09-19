@@ -202,7 +202,7 @@ lazy val enumeratumSettings = commonMacroSettings ++ Seq(
   libraryDependencies += scalaCheck.value % "test",
   libraryDependencies += scalaTest.value,
   libraryDependencies += optionalEnumeratum,
-  scalacOptions ++= paradiseFlag(scalaVersion.value)
+  scalacOptions ++= paradiseFlag(scalaVersion.value) ++ (if (scalaVersion.value.startsWith("3")) Seq("-Yretain-trees") else Seq.empty)
 )
 
 lazy val sprayJsonMacroSettings = commonMacroSettings ++ Seq(
@@ -451,7 +451,7 @@ lazy val http4sStirSupport = project
     description := "Automatic generation of http4s-stir deserializers for 1-element case classes, opaque and tagged types",
     moduleName := "kebs-http4s-stir",
     crossScalaVersions := supportedScalaVersions
-  ).settings(disableScala(List("2.12")))
+  )
 
 lazy val jsonschemaSupport = project
   .in(file("jsonschema"))
@@ -506,7 +506,7 @@ lazy val opaque = crossProject(JSPlatform, JVMPlatform)
     moduleName := "kebs-opaque",
     crossScalaVersions := supportedScalaVersions
  )
-  .settings(disableScala(List("2.12", "2.13")))
+  .settings(disableScala(List("2.13")))
 
 lazy val taggedMeta = project
   .in(file("tagged-meta"))

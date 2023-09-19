@@ -1,11 +1,10 @@
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Gen, Properties}
 import pl.iterators.kebs.enums.ValueEnumOf
-import pl.iterators.kebs.enums.ValueEnumLikeEntry
 
 object DerivingSpecification extends Properties("Deriving") {
 
-  enum ColorButRGB(val value: Int) extends ValueEnumLikeEntry[Int] {
+  enum ColorButRGB(val value: Int) {
     case Red extends ColorButRGB(0xFF0000)
     case Green extends ColorButRGB(0x00FF00)
     case Blue extends ColorButRGB(0x0000FF)
