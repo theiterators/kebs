@@ -2,8 +2,6 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import enumeratum.values._
 import pl.iterators.kebs.enumeratum._
-import pl.iterators.kebs.enums.ValueEnumLikeEntry
-
 
 sealed abstract class LibraryItem(val value: Int) extends IntEnumEntry
 object LibraryItem extends IntEnum[LibraryItem] {
@@ -17,14 +15,15 @@ object LibraryItem extends IntEnum[LibraryItem] {
 
 class MyValueEnumTest extends AnyFunSuite with Matchers {
 
-  val valueEnumOf: ValueEnumOf[Int, ValueEnumLikeEntry[Int]] = implicitly[ValueEnumOf[Int, ValueEnumLikeEntry[Int]]]
+//  ValueEnumOf.valueEnumOf[ValueEnumOf[Int, LibraryItem]]
+  val valueEnumOf: ValueEnumOf[Int, LibraryItem] = implicitly[ValueEnumOf[Int, LibraryItem]]
 
   // It works but analogical code in quasiquote in KebsValueEnumeratum does not compile. Why?
-  val enumEntrySeq: Seq[ValueEnumLikeEntry[Int]] = LibraryItem.values.map(item =>
-    new ValueEnumLikeEntry[Int] {
-      override def value: Int = item.value
-  })
-  println(enumEntrySeq)
+//  val enumEntrySeq: Seq[ValueEnumLikeEntry[Int]] = LibraryItem.values.map(item =>
+//    new ValueEnumLikeEntry[Int] {
+//      override def value: Int = item.value
+//  })
+//  println(enumEntrySeq)
 
   test("ValueEnumOf[Int, IntEnumEntry].valueEnum.values should return all values of IntEnum") {
     valueEnumOf.valueEnum.values should contain theSameElementsAs Seq(LibraryItem.Book, LibraryItem.Movie, LibraryItem.Magazine, LibraryItem.CD)

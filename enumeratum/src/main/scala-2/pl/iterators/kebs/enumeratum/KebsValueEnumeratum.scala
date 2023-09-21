@@ -1,47 +1,35 @@
 package pl.iterators.kebs.enumeratum
 
 import enumeratum.values._
-import pl.iterators.kebs.enums.{ValueEnumLike, ValueEnumLikeEntry}
+import pl.iterators.kebs.enums.ValueEnumLike
 import pl.iterators.kebs.macros.enums.EnumMacroUtils
 
 import scala.language.experimental.macros
 import scala.reflect.macros.blackbox
 
-class ValueEnumOf[ValueType, E <: ValueEnumLikeEntry[ValueType]](val valueEnum: ValueEnumLike[ValueType, E])
+class ValueEnumOf[ValueType, E <: ValueEnumEntry[ValueType]](val valueEnum: ValueEnumLike[ValueType, E])
 
 object ValueEnumOf {
-  implicit def intValueEnumOf[E <: IntEnumEntry]: ValueEnumOf[Int, ValueEnumLikeEntry[Int]] = macro ValueEnumEntryMacros.valueEnumOfImpl[Int, E]
-//  implicit def shortValueEnumOf[E <: ShortEnumEntry, T <: ValueEnumLikeEntry[Short]]: ValueEnumOf[Short, T] = macro ValueEnumEntryMacros.valueEnumOfImpl[Short, E, T]
-//  implicit def longValueEnumOf[E <: LongEnumEntry, T <: ValueEnumLikeEntry[Long]]: ValueEnumOf[Long, T] = macro ValueEnumEntryMacros.valueEnumOfImpl[Long, E, T]
-//  implicit def byteValueEnumOf[E <: ByteEnumEntry, T <: ValueEnumLikeEntry[Byte]]: ValueEnumOf[Byte, T] = macro ValueEnumEntryMacros.valueEnumOfImpl[Byte, E, T]
-//  implicit def stringValueEnumOf[E <: StringEnumEntry, T <: ValueEnumLikeEntry[String]]: ValueEnumOf[String, T] = macro ValueEnumEntryMacros.valueEnumOfImpl[String, E, T]
+  implicit def valueEnumOf[ValueType, E <: ValueEnumEntry[ValueType]]: ValueEnumOf[ValueType, E] = macro ValueEnumEntryMacros.valueEnumOfImpl[ValueType, E]
 }
 
 class ValueEnumEntryMacros(override val c: blackbox.Context) extends EnumMacroUtils {
   import c.universe._
 
-  def valueEnumOfImpl[ValueType: c.WeakTypeTag, E <: ValueEnumEntry[ValueType]: c.WeakTypeTag]: c.Expr[ValueEnumOf[ValueType, ValueEnumLikeEntry[ValueType]]] = {
-    val EnumEntry = weakTypeOf[ValueEnumLikeEntry[ValueType]]
-    val EnumeratumEntry = weakTypeOf[E]
-    assertValueEnumEntry(EnumeratumEntry, s"${EnumEntry.typeSymbol} must subclass enumeratum.values.ValueEnumEntry")
-    val qqEnum = q"""${EnumEntry}"""
-    val qqEnumeratum = q"""${EnumeratumEntry}"""
-    println(qqEnum)
-    println(qqEnumeratum)
+  def valueEnumOfImpl[ValueType: c.WeakTypeTag, E <: ValueEnumEntry[ValueType]: c.WeakTypeTag]: c.Expr[ValueEnumOf[ValueType, E]] = {
     val ValueType = weakTypeOf[ValueType]
-    c.Expr[ValueEnumOf[ValueType, ValueEnumLikeEntry[ValueType]]](
+    val EnumEntry = weakTypeOf[E]
+
+    c.Expr[ValueEnumOf[ValueType, E]](
       q"""
         new _root_.pl.iterators.kebs.enumeratum.ValueEnumOf[${ValueType}, ${EnumEntry}](
           new _root_.pl.iterators.kebs.enums.ValueEnumLike[${ValueType}, ${EnumEntry}] {
-            override def values: Seq[$EnumEntry] = ${EnumeratumEntry.typeSymbol.companion}.values.map(item =>
-              new _root_.pl.iterators.kebs.enums.ValueEnumLikeEntry[$ValueType] {
-                override def value: $ValueType = item.value
-              }
-            )
+            override def values: Seq[$EnumEntry] = ${companion(EnumEntry)}.values
           }
         )
       """
     )
+//    c.Expr[ValueEnumOf[ValueType, E]](q"""new _root_.pl.iterators.kebs.enumeratum.ValueEnumOf[${weakTypeOf[ValueType]}, ${weakTypeOf[E]}](${companion(EnumEntry)}.values)""")
   }
 }
 

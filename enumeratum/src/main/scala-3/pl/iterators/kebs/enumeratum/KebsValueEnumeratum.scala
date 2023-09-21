@@ -1,6 +1,6 @@
 package pl.iterators.kebs.enumeratum
 
-import pl.iterators.kebs.enums.{ValueEnumLike, ValueEnumLikeEntry}
+import pl.iterators.kebs.enums.{ValueEnumLike}
 import scala.collection.immutable
 import enumeratum.values._
 import scala.quoted._
@@ -8,7 +8,7 @@ import scala.compiletime.{constValue, erasedValue, error, summonInline}
 import scala.deriving._
 import scala.reflect.{ClassTag, Enum}
 
-class ValueEnumOf[V, E <: ValueEnumLikeEntry[V]](val `enum`: ValueEnumLike[V, E])
+class ValueEnumOf[V, E <: ValueEnumEntry[V]](val `enum`: ValueEnumLike[V, E])
 
 inline private def widen[A, B] (a: A): A & B =
   inline a match {
@@ -16,13 +16,10 @@ inline private def widen[A, B] (a: A): A & B =
   }
 
 object ValueEnumOf {
-  inline given [V, E <: ValueEnumEntry[V]](using ct: ClassTag[E]): ValueEnumOf[V, ValueEnumLikeEntry[V]] = {
+  inline given [V, E <: ValueEnumEntry[V]](using m: Mirror.SumOf[E], ct: ClassTag[E]): ValueEnumOf[V, E] = {
     val enumValues = summonValueCases[m.MirroredElemTypes, V, E]
-    ValueEnumOf[V, ValueEnumLikeEntry[V]](new ValueEnumLike[V, ValueEnumLikeEntry[V]] {
-      override def values: immutable.Seq[ValueEnumLikeEntry[V]] = enumValues.map(item =>
-        new ValueEnumLikeEntry[V] {
-          override def value: V = item.value
-        })
+    ValueEnumOf[V, E](new ValueEnumLike[V, E] {
+      override def values: immutable.Seq[E] = enumValues
     })
   }
 

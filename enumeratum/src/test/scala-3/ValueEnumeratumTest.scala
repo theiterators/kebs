@@ -1,7 +1,6 @@
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Gen, Properties}
 import pl.iterators.kebs.enumeratum.ValueEnumOf
-import pl.iterators.kebs.enums.ValueEnumLikeEntry
 import enumeratum.values._
 
 object ValueEnumTest extends Properties("Deriving") {
@@ -15,7 +14,7 @@ object ValueEnumTest extends Properties("Deriving") {
   }
 
   property("ValueEnumOf derives properly for a value enum") = forAll(Gen.oneOf(LibraryItem.values.toList)) { (libraryItem: LibraryItem) =>
-    val tc: ValueEnumOf[Int, ValueEnumLikeEntry[Int]] = implicitly[ValueEnumOf[Int, ValueEnumLikeEntry[Int]]]
+    val tc: ValueEnumOf[Int, LibraryItem] = implicitly[ValueEnumOf[Int, LibraryItem]]
     tc.`enum`.values.contains(libraryItem) && tc.`enum`.valueOf(libraryItem.value) == libraryItem
   }
 }
