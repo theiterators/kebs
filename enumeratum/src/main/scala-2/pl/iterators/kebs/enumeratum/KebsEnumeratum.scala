@@ -9,13 +9,13 @@ import scala.reflect.macros.blackbox
 import enumeratum.EnumEntry
 
 trait KebsEnumeratum {
-  implicit def enumeratumScala2[E <: EnumEntry]: EnumLike[E] = macro EnumerationEntryMacros.enumOfImpl[E]
+  implicit def enumeratumScala2[E <: EnumEntry]: EnumLike[E] = macro EnumeratumEntryMacros.enumeratumOfImpl[E]
 }
 
-class EnumerationEntryMacros(override val c: blackbox.Context) extends EnumMacroUtils {
+class EnumeratumEntryMacros(override val c: blackbox.Context) extends EnumMacroUtils {
   import c.universe._
 
-  def enumOfImpl[E <: EnumEntry: c.WeakTypeTag]: c.Expr[EnumLike[E]] = {
+  def enumeratumOfImpl[E <: EnumEntry: c.WeakTypeTag]: c.Expr[EnumLike[E]] = {
     val EnumEntry = weakTypeOf[E]
     assertEnumEntry(EnumEntry, s"${EnumEntry.typeSymbol} must subclass EnumEntry")
 
