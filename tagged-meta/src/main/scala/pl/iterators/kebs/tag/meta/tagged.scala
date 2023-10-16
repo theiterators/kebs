@@ -121,9 +121,9 @@ final class macroImpl(val c: whitebox.Context) {
       val implicitName = TermName(name.decodedName.toString + "CaseClass1Rep")
 
       if (typeParams.isEmpty)
-        q"implicit val $implicitName = $caseClass1RepInstanceTree"
+        q"implicit val $implicitName: _root_.pl.iterators.kebs.macros.CaseClass1Rep[$selfType, $baseTypeName[..$baseParams]] = $caseClass1RepInstanceTree"
       else
-        q"implicit def $implicitName[..$typeParams] = $caseClass1RepInstanceTree"
+        q"implicit def $implicitName[..$typeParams]: _root_.pl.iterators.kebs.macros.CaseClass1Rep[$selfType, $baseTypeName[..$baseParams]] = $caseClass1RepInstanceTree"
     }
 
     private def containsApply(trees: List[Tree]): Boolean = {
