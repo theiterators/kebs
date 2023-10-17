@@ -8,7 +8,7 @@ import scala.language.experimental.macros
 import scala.reflect.macros.blackbox
 
 trait KebsValueEnumeratum {
-  implicit def enumeratumScala2[ValueType, E <: ValueEnumEntry[ValueType]]: ValueEnumLike[ValueType, E] = macro ValueEnumEntryMacros.valueEnumOfImpl[ValueType, E]
+  implicit def valueEnumeratumScala2[ValueType, E <: ValueEnumEntry[ValueType]]: ValueEnumLike[ValueType, E] = macro ValueEnumEntryMacros.valueEnumOfImpl[ValueType, E]
 }
 
 
