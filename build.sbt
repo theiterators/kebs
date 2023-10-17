@@ -1,7 +1,7 @@
 import sbt.librarymanagement.ConflictWarning
 
 val scala_2_13             = "2.13.11"
-val scala_3                = "3.3.0"
+val scala_3                = "3.3.1"
 val mainScalaVersion       = scala_3
 val supportedScalaVersions = Seq(scala_2_13, scala_3)
 
@@ -97,16 +97,16 @@ def paradiseFlag(scalaVersion: String): Seq[String] =
   else
     Seq("-Ymacro-annotations")
 
-val scalaTest       = Def.setting("org.scalatest" %%% "scalatest" % "3.2.16")
+val scalaTest       = Def.setting("org.scalatest" %%% "scalatest" % "3.2.17")
 val scalaCheck      = Def.setting("org.scalacheck" %%% "scalacheck" % "1.17.0")
 val slick           = "com.typesafe.slick" %% "slick" % "3.4.1"
 val optionalSlick   = optional(slick)
-val playJson        = "com.typesafe.play" %% "play-json" % "2.9.4"
+val playJson        = "com.typesafe.play" %% "play-json" % "2.10.1"
 val slickPg         = "com.github.tminglei" %% "slick-pg" % "0.21.1"
 val doobie          = "org.tpolecat" %% "doobie-core" % "1.0.0-RC4"
 val doobiePg        = "org.tpolecat" %% "doobie-postgres" % "1.0.0-RC4"
 val sprayJson       = "io.spray" %% "spray-json" % "1.3.6"
-val circeV = "0.14.5"
+val circeV = "0.14.6"
 val circe           = "io.circe" %% "circe-core" % circeV
 val circeAuto       = "io.circe" %% "circe-generic" % circeV
 val circeAutoExtras = "io.circe" %% "circe-generic-extras" % "0.14.3"
@@ -116,7 +116,7 @@ val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.11"
 
 val scalacheck           = "org.scalacheck"             %% "scalacheck"                % "1.17.0" % "test"
 val scalacheckShapeless  = "com.github.alexarchambault" %% "scalacheck-shapeless_1.15" % "1.3.0"
-val scalacheckDerived  = "io.github.martinhh" %% "scalacheck-derived" % "0.4.1"
+val scalacheckDerived  = "io.github.martinhh" %% "scalacheck-derived" % "0.4.2"
 val scalacheckEnumeratum = "com.beachape"               %% "enumeratum-scalacheck"     % "1.7.3"
 
 val enumeratumVersion         = "1.7.3"

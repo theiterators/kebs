@@ -16,7 +16,7 @@ A library maintained by [Iterators](https://www.iteratorshq.com).
   * [doobie](#--kebs-generates-doobie-mappers-for-your-case-class-wrappers-kebs-doobie)
   * [spray-json](#--kebs-eliminates-spray-json-induced-boilerplate-kebs-spray-json)
   * [play-json](#--kebs-eliminates-play-json-induced-boilerplate-kebs-play-json)
-  * [akka-http](#--kebs-generates-akka-http-unmarshaller-kebs-akka-http)
+  * [akka-http](#--kebs-generates-akka-http--pekko-http-unmarshaller-kebs-akka-http--kebs-pekko-http)
   * [http4s](#--kebs-provides-helpers-for-http4s)
   * [circe](#--kebs-eliminates-circe-induced-boilerplate-kebs-circe)
 * [Tagged types](#tagged-types)
@@ -27,58 +27,62 @@ A library maintained by [Iterators](https://www.iteratorshq.com).
 ### Why?
 
 `kebs` is for eliminating some common sources of Scala boilerplate code that arise when you use 
-Slick (`kebs-slick`), Doobie (`kebs-doobie`), Spray (`kebs-spray-json`), Play (`kebs-play-json`), Circe (`kebs-circe`), Akka HTTP (`kebs-akka-http`), http4s (`kebs-http4s`).
+Slick (`kebs-slick`), Doobie (`kebs-doobie`), Spray (`kebs-spray-json`), Play (`kebs-play-json`), Circe (`kebs-circe`), Akka HTTP (`kebs-akka-http`), Pekko HTTP (`kebs-pekko-http`), http4s (`kebs-http4s`).
 
 ### SBT
 
 Support for `slick`
 
-`libraryDependencies += "pl.iterators" %% "kebs-slick" % "1.9.3"`
+`libraryDependencies += "pl.iterators" %% "kebs-slick" % "1.9.6"`
 
 Support for `doobie`
 
-`libraryDependencies += "pl.iterators" %% "kebs-doobie" % "1.9.3"`
+`libraryDependencies += "pl.iterators" %% "kebs-doobie" % "1.9.6"`
 
 Support for `spray-json`
 
-`libraryDependencies += "pl.iterators" %% "kebs-spray-json" % "1.9.3"`
+`libraryDependencies += "pl.iterators" %% "kebs-spray-json" % "1.9.6"`
 
 Support for `play-json`
 
-`libraryDependencies += "pl.iterators" %% "kebs-play-json" % "1.9.3"`
+`libraryDependencies += "pl.iterators" %% "kebs-play-json" % "1.9.6"`
 
 Support for `circe`
 
-`libraryDependencies += "pl.iterators" %% "kebs-circe" % "1.9.3"`
+`libraryDependencies += "pl.iterators" %% "kebs-circe" % "1.9.6"`
 
 Support for `json-schema`
 
-`libraryDependencies += "pl.iterators" %% "kebs-jsonschema" % "1.9.3"`
+`libraryDependencies += "pl.iterators" %% "kebs-jsonschema" % "1.9.6"`
 
 Support for `scalacheck`
 
-`libraryDependencies += "pl.iterators" %% "kebs-scalacheck" % "1.9.3"`
+`libraryDependencies += "pl.iterators" %% "kebs-scalacheck" % "1.9.6"`
 
 Support for `akka-http`
 
-`libraryDependencies += "pl.iterators" %% "kebs-akka-http" % "1.9.3"`
+`libraryDependencies += "pl.iterators" %% "kebs-akka-http" % "1.9.6"`
+
+Support for `pekko-http`
+
+`libraryDependencies += "pl.iterators" %% "kebs-pekko-http" % "1.9.6"`
 
 Support for `http4s`
 
-`libraryDependencies += "pl.iterators" %% "kebs-http4s" % "1.9.3"`
+`libraryDependencies += "pl.iterators" %% "kebs-http4s" % "1.9.6"`
 
 Support for `tagged types`
 
-`libraryDependencies += "pl.iterators" %% "kebs-tagged" % "1.9.3"`
+`libraryDependencies += "pl.iterators" %% "kebs-tagged" % "1.9.6"`
 
 or for tagged-types code generation support
 
-`libraryDependencies += "pl.iterators" %% "kebs-tagged-meta" % "1.9.3"`
+`libraryDependencies += "pl.iterators" %% "kebs-tagged-meta" % "1.9.6"`
 `addCompilerPlugin("org.scalameta" % "paradise" % "3.0.0-M11" cross CrossVersion.full)`
 
 Support for `instances`
 
-`libraryDependencies += "pl.iterators" %% "kebs-instances" % "1.9.3"`
+`libraryDependencies += "pl.iterators" %% "kebs-instances" % "1.9.6"`
 
 Builds for Scala `2.12` and `2.13` are provided.
 
@@ -691,7 +695,7 @@ case class R(a: Int, rs: Seq[R]) derives Decoder, Encoder.AsObject
    object KebsProtocol extends KebsCirce with KebsCirce.NoFlat
   import KebsProtocol._
  ```
-#### - kebs generates akka-http Unmarshaller (kebs-akka-http)
+#### - kebs generates akka-http / pekko-http Unmarshaller (kebs-akka-http / kebs-pekko-http)
 
 It makes it very easy to use 1-element case-classes or `enumeratum` enums/value enums in eg. `parameters` directive:
 
