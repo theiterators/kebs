@@ -1,7 +1,8 @@
+package pl.iterators.kebs.enumeratum
+
 import enumeratum.values._
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Gen, Properties}
-import pl.iterators.kebs.enumeratum.KebsValueEnumeratum
 import pl.iterators.kebs.enums.ValueEnumLike
 
 object ValueEnumTest extends Properties("Deriving") with KebsValueEnumeratum {

@@ -1,6 +1,7 @@
+package pl.iterators.kebs.enums
+
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Gen, Properties}
-import pl.iterators.kebs.enums.{KebsValueEnum, ValueEnumLike}
 
 object DerivingSpecification extends Properties("Deriving") with KebsValueEnum {
 

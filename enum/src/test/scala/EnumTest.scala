@@ -1,7 +1,8 @@
+package pl.iterators.kebs.enums
+
 import domain.ColorDomain
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Gen, Properties}
-import pl.iterators.kebs.enums.{EnumLike, KebsEnum}
 import scala.collection.immutable
 
 object EnumTest extends Properties("Deriving") with KebsEnum {
