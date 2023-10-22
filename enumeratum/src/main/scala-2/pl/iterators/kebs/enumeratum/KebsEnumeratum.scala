@@ -1,19 +1,21 @@
 package pl.iterators.kebs.enumeratum
 
 import pl.iterators.kebs.enums.EnumLike
-import pl.iterators.kebs.macros.enums.EnumMacroUtils
 
 import scala.language.experimental.macros
 import scala.language.implicitConversions
 import scala.reflect.macros.blackbox
 import enumeratum.EnumEntry
+import pl.iterators.kebs.macros.MacroUtils
 
 trait KebsEnumeratum {
   implicit def enumeratumScala2[E <: EnumEntry]: EnumLike[E] = macro EnumeratumEntryMacros.enumeratumOfImpl[E]
 }
 
-class EnumeratumEntryMacros(override val c: blackbox.Context) extends EnumMacroUtils {
+class EnumeratumEntryMacros(val c: blackbox.Context) extends MacroUtils {
   import c.universe._
+
+  private def assertEnumEntry(t: Type, msg: => String) = if (!(t <:< typeOf[EnumEntry])) c.abort(c.enclosingPosition, msg)
 
   def enumeratumOfImpl[E <: EnumEntry: c.WeakTypeTag]: c.Expr[EnumLike[E]] = {
     val EnumEntry = weakTypeOf[E]

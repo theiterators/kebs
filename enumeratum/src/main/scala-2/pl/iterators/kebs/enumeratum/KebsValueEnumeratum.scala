@@ -2,7 +2,6 @@ package pl.iterators.kebs.enumeratum
 
 import enumeratum.values._
 import pl.iterators.kebs.enums.ValueEnumLike
-import pl.iterators.kebs.macros.enums.EnumMacroUtils
 
 import scala.language.experimental.macros
 import scala.reflect.macros.blackbox
@@ -12,7 +11,7 @@ trait KebsValueEnumeratum {
 }
 
 
-class ValueEnumEntryMacros(override val c: blackbox.Context) extends EnumMacroUtils {
+class ValueEnumEntryMacros(val c: blackbox.Context) {
   import c.universe._
 
   def valueEnumOfImpl[ValueType: c.WeakTypeTag, E <: ValueEnumEntry[ValueType]: c.WeakTypeTag]: c.Expr[ValueEnumLike[ValueType, E]] = {
@@ -22,7 +21,7 @@ class ValueEnumEntryMacros(override val c: blackbox.Context) extends EnumMacroUt
     c.Expr[ValueEnumLike[ValueType, E]](
       q"""
         new _root_.pl.iterators.kebs.enums.ValueEnumLike[${ValueType}, ${EnumEntry}] {
-          override def values: Seq[$EnumEntry] = ${companion(EnumEntry)}.values.toSeq
+          override def values: Seq[$EnumEntry] = ${EnumEntry.typeSymbol.companion}.values.toSeq
         }
       """
     )

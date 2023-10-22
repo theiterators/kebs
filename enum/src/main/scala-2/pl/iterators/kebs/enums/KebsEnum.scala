@@ -1,7 +1,5 @@
 package pl.iterators.kebs.enums
 
-import pl.iterators.kebs.macros.enums.EnumMacroUtils
-
 import scala.language.experimental.macros
 import scala.language.implicitConversions
 import scala.reflect.macros.blackbox
@@ -10,7 +8,7 @@ trait KebsEnum {
   implicit def enumScala2[E <: Enumeration#Value]: EnumLike[E] = macro EnumerationEntryMacros.enumOfImpl[E]
 }
 
-class EnumerationEntryMacros(override val c: blackbox.Context) extends EnumMacroUtils {
+class EnumerationEntryMacros(val c: blackbox.Context) {
   import c.universe._
 
   def enumOfImpl[E <: Enumeration#Value : c.WeakTypeTag]: c.Expr[EnumLike[E]] = {

@@ -4,8 +4,9 @@ import com.github.tminglei.slickpg._
 import enumeratum.{Enum, EnumEntry}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import pl.iterators.kebs.enumeratum.KebsEnumeratum
 
-class SlickPgArrayColumnTypeTests extends AnyFunSuite with Matchers {
+class SlickPgArrayColumnTypeTests extends AnyFunSuite with Matchers with KebsEnumeratum {
   case class Institution(value: Long)
   case class MarketFinancialProduct(value: String)
 

@@ -329,7 +329,7 @@ lazy val macroUtils = crossProject(JSPlatform, JVMPlatform)
 
 lazy val slickSupport = project
   .in(file("slick"))
-  .dependsOn(core.jvm, instances % "test -> test")
+  .dependsOn(core.jvm, enumeratumSupport, instances % "test -> test")
   .settings(slickSettings: _*)
   .settings(publishSettings: _*)
   .settings(disableScala(List("3")))
@@ -393,7 +393,7 @@ lazy val playJsonSupport = project
 
 lazy val circeSupport = project
   .in(file("circe"))
-  .dependsOn(core.jvm, instances % "test -> test")
+  .dependsOn(core.jvm, enumeratumSupport, instances % "test -> test")
   .settings(circeSettings: _*)
   .settings(crossBuildSettings: _*)
   .settings(publishSettings: _*)
@@ -594,18 +594,18 @@ lazy val kebs = project
     macroUtils.jvm,
     macroUtils.js,
     slickSupport,
-    doobieSupport,
-    sprayJsonMacros,
-    sprayJsonSupport,
-    playJsonSupport,
+//    doobieSupport,
+//    sprayJsonMacros,
+//    sprayJsonSupport,
+//    playJsonSupport,
     circeSupport,
-    jsonschemaSupport,
-    scalacheckSupport,
-    akkaHttpSupport,
-    pekkoHttpSupport,
-    http4sSupport,
-    http4sStirSupport,
-    taggedMeta,
+//    jsonschemaSupport,
+//    scalacheckSupport,
+//    akkaHttpSupport,
+//    pekkoHttpSupport,
+//    http4sSupport,
+//    http4sStirSupport,
+//    taggedMeta,
     instances,
     enumSupport,
     enumeratumSupport

@@ -4,8 +4,9 @@ import enumeratum.{Enum, EnumEntry}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import slick.lifted.Isomorphism
+import pl.iterators.kebs.enumeratum.KebsEnumeratum
 
-class EnumIsomorphismTests extends AnyFunSuite with Matchers {
+class EnumIsomorphismTests extends AnyFunSuite with Matchers with KebsEnumeratum {
 
   sealed trait Greeting extends EnumEntry
 
