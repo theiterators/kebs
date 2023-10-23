@@ -1,4 +1,4 @@
-package pl.iterators.kebs
+package pl.iterators.kebs.domain
 
 import enumeratum.{Enum, EnumEntry}
 import pl.iterators.kebs.tag.meta.tagged

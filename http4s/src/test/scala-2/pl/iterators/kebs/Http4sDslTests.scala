@@ -15,7 +15,7 @@ import pl.iterators.kebs.http4s._
 import pl.iterators.kebs.enumeratum.KebsEnumeratum
 
 class Http4sDslTests extends AnyFunSuite with Matchers with KebsEnumeratum {
-  import Domain._
+  import pl.iterators.kebs.domain.Domain._
 
   implicit val runtime: IORuntime = cats.effect.unsafe.IORuntime.global
 
