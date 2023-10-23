@@ -1,4 +1,4 @@
-package pl.iterators.kebs
+package pl.iterators.kebs.domain
 
 import enumeratum.values.{IntEnum, IntEnumEntry, StringEnum, StringEnumEntry}
 import enumeratum.{Enum, EnumEntry}

@@ -3,12 +3,10 @@ package pl.iterators.kebs.unmarshallers.enums
 import pl.iterators.stir.unmarshalling.PredefinedFromStringUnmarshallers._
 import pl.iterators.stir.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
 import cats.effect.IO
-import enumeratum.values._
-import enumeratum.{Enum, EnumEntry}
-import pl.iterators.kebs.macros.enums.{EnumOf, ValueEnumOf}
+import pl.iterators.kebs.enums.{EnumLike, ValueEnumLike}
 
 trait EnumUnmarshallers {
-  final def enumUnmarshaller[E <: EnumEntry](`enum`: Enum[E]): FromStringUnmarshaller[E] = Unmarshaller { name =>
+  final def enumUnmarshaller[E](`enum`: EnumLike[E]): FromStringUnmarshaller[E] = Unmarshaller { name =>
     `enum`.withNameInsensitiveOption(name) match {
       case Some(enumEntry) => IO.pure(enumEntry)
       case None =>
@@ -17,12 +15,12 @@ trait EnumUnmarshallers {
     }
   }
 
-  implicit def kebsEnumUnmarshaller[E <: EnumEntry](implicit ev: EnumOf[E]): FromStringUnmarshaller[E] =
-    enumUnmarshaller(ev.`enum`)
+  implicit def kebsEnumUnmarshaller[E](implicit ev: EnumLike[E]): FromStringUnmarshaller[E] =
+    enumUnmarshaller(ev)
 }
 
 trait ValueEnumUnmarshallers {
-  final def valueEnumUnmarshaller[V, E <: ValueEnumEntry[V]](`enum`: ValueEnum[V, E]): Unmarshaller[V, E] = Unmarshaller { v =>
+  final def valueEnumUnmarshaller[V, E <: { def value: V }](`enum`: ValueEnumLike[V, E]): Unmarshaller[V, E] = Unmarshaller { v =>
     `enum`.withValueOpt(v) match {
       case Some(enumEntry) => IO.pure(enumEntry)
       case None =>
@@ -31,18 +29,18 @@ trait ValueEnumUnmarshallers {
     }
   }
 
-  implicit def kebsValueEnumUnmarshaller[V, E <: ValueEnumEntry[V]](implicit ev: ValueEnumOf[V, E]): Unmarshaller[V, E] =
-    valueEnumUnmarshaller(ev.valueEnum)
+  implicit def kebsValueEnumUnmarshaller[V, E <: { def value: V }](implicit ev: ValueEnumLike[V, E]): Unmarshaller[V, E] =
+    valueEnumUnmarshaller(ev)
 
-  implicit def kebsIntValueEnumFromStringUnmarshaller[E <: IntEnumEntry](implicit ev: ValueEnumOf[Int, E]): FromStringUnmarshaller[E] =
-    intFromStringUnmarshaller andThen valueEnumUnmarshaller(ev.valueEnum)
-  implicit def kebsLongValueEnumFromStringUnmarshaller[E <: LongEnumEntry](implicit ev: ValueEnumOf[Long, E]): FromStringUnmarshaller[E] =
-    longFromStringUnmarshaller andThen valueEnumUnmarshaller(ev.valueEnum)
-  implicit def kebsShortValueEnumFromStringUnmarshaller[E <: ShortEnumEntry](
-      implicit ev: ValueEnumOf[Short, E]): FromStringUnmarshaller[E] =
-    shortFromStringUnmarshaller andThen valueEnumUnmarshaller(ev.valueEnum)
-  implicit def kebsByteValueEnumFromStringUnmarshaller[E <: ByteEnumEntry](implicit ev: ValueEnumOf[Byte, E]): FromStringUnmarshaller[E] =
-    byteFromStringUnmarshaller andThen valueEnumUnmarshaller(ev.valueEnum)
+  implicit def kebsIntValueEnumFromStringUnmarshaller[E <: { def value: Int }](implicit ev: ValueEnumLike[Int, E]): FromStringUnmarshaller[E] =
+    intFromStringUnmarshaller andThen valueEnumUnmarshaller(ev)
+  implicit def kebsLongValueEnumFromStringUnmarshaller[E <: { def value: Long }](implicit ev: ValueEnumLike[Long, E]): FromStringUnmarshaller[E] =
+    longFromStringUnmarshaller andThen valueEnumUnmarshaller(ev)
+  implicit def kebsShortValueEnumFromStringUnmarshaller[E <: { def value: Short }](
+      implicit ev: ValueEnumLike[Short, E]): FromStringUnmarshaller[E] =
+    shortFromStringUnmarshaller andThen valueEnumUnmarshaller(ev)
+  implicit def kebsByteValueEnumFromStringUnmarshaller[E <: { def value: Byte }](implicit ev: ValueEnumLike[Byte, E]): FromStringUnmarshaller[E] =
+    byteFromStringUnmarshaller andThen valueEnumUnmarshaller(ev)
 }
 
 trait KebsEnumUnmarshallers extends EnumUnmarshallers with ValueEnumUnmarshallers {}

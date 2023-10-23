@@ -1,6 +1,5 @@
 package pl.iterators.kebs.enums
 
-import enumeratum.values.{ValueEnum, ValueEnumEntry}
 import slick.lifted.Isomorphism
 
 trait SlickEnum {

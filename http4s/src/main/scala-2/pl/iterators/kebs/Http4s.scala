@@ -1,11 +1,9 @@
 package pl.iterators.kebs
 
-import enumeratum.EnumEntry
-
 import scala.util.Try
 import pl.iterators.kebs.macros.ValueClassLike
-import pl.iterators.kebs.macros.enums.EnumOf
 import org.http4s._
+import pl.iterators.kebs.enums.EnumLike
 import pl.iterators.kebs.instances.InstanceConverter
 
 import java.util.UUID
@@ -28,7 +26,7 @@ trait Http4s {
   }
 
   object EnumString {
-    def apply[T <: EnumEntry](implicit e: EnumOf[T]) = new PathVar[T](str => Try(e.`enum`.values.find(_.toString.toUpperCase == str.toUpperCase).getOrElse(throw new IllegalArgumentException(s"enum case not found: $str"))))
+    def apply[T](implicit e: EnumLike[T]) = new PathVar[T](str => Try(e.values.find(_.toString.toUpperCase == str.toUpperCase).getOrElse(throw new IllegalArgumentException(s"enum case not found: $str"))))
   }
 
   object WrappedInt {
@@ -57,5 +55,5 @@ trait Http4s {
 
   implicit def vcLikeQueryParamDecoder[T, U](implicit rep: ValueClassLike[T, U], qpd: QueryParamDecoder[U]): QueryParamDecoder[T] = qpd.emap(u => Try(rep.apply(u)).toEither.left.map(t => ParseFailure(t.getMessage, t.getMessage)))
   implicit def instanceConverterQueryParamDecoder[T, U](implicit rep: InstanceConverter[T, U], qpd: QueryParamDecoder[U]): QueryParamDecoder[T] = qpd.emap(u => Try(rep.decode(u)).toEither.left.map(t => ParseFailure(t.getMessage, t.getMessage)))
-  implicit def enumQueryParamDecoder[E <: EnumEntry](implicit e: EnumOf[E]): QueryParamDecoder[E] = QueryParamDecoder[String].emap(str => Try(e.`enum`.values.find(_.toString.toUpperCase == str.toUpperCase).getOrElse(throw new IllegalArgumentException(s"enum case not found: $str"))).toEither.left.map(t => ParseFailure(t.getMessage, t.getMessage)))
+  implicit def enumQueryParamDecoder[E](implicit e: EnumLike[E]): QueryParamDecoder[E] = QueryParamDecoder[String].emap(str => Try(e.values.find(_.toString.toUpperCase == str.toUpperCase).getOrElse(throw new IllegalArgumentException(s"enum case not found: $str"))).toEither.left.map(t => ParseFailure(t.getMessage, t.getMessage)))
 }

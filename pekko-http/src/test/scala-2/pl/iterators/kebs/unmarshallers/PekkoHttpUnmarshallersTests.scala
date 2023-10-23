@@ -7,7 +7,8 @@ import org.apache.pekko.http.scaladsl.unmarshalling.Unmarshal
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.Domain._
+import pl.iterators.kebs.domain.Domain._
+import pl.iterators.kebs.enumeratum.{KebsEnumeratum, KebsValueEnumeratum}
 import pl.iterators.kebs.instances.net.URIString
 import pl.iterators.kebs.instances.time.{DayOfWeekInt, YearMonthString}
 import pl.iterators.kebs.unmarshallers.enums.KebsEnumUnmarshallers
@@ -15,7 +16,7 @@ import pl.iterators.kebs.unmarshallers.enums.KebsEnumUnmarshallers
 import java.time.{DayOfWeek, YearMonth}
 
 class PekkoHttpUnmarshallersTests
-    extends AnyFunSuite
+  extends AnyFunSuite
     with Matchers
     with ScalatestRouteTest
     with ScalaFutures
@@ -24,7 +25,9 @@ class PekkoHttpUnmarshallersTests
     with KebsEnumUnmarshallers
     with URIString
     with YearMonthString
-    with DayOfWeekInt {
+    with DayOfWeekInt
+    with KebsEnumeratum
+    with KebsValueEnumeratum {
 
   test("No ValueClassLike implicits derived") {
     import pl.iterators.kebs.macros.ValueClassLike
@@ -99,8 +102,8 @@ class PekkoHttpUnmarshallersTests
     }
     Get("/?greeting=blah") ~> testRoute ~> check {
       rejection shouldEqual MalformedQueryParamRejection("greeting",
-                                                         "Invalid value 'blah'. Expected one of: Hello, GoodBye, Hi, Bye",
-                                                         None)
+        "Invalid value 'blah'. Expected one of: Hello, GoodBye, Hi, Bye",
+        None)
     }
   }
 
@@ -123,7 +126,9 @@ class PekkoHttpUnmarshallersTests
           complete(color.toString)
         }
       }
-    Get("/color?red=1&green=2&blue=3") ~> route ~> check { responseAs[String] shouldEqual "Color(Red(1),Green(2),Blue(3))" }
+    Get("/color?red=1&green=2&blue=3") ~> route ~> check {
+      responseAs[String] shouldEqual "Color(Red(1),Green(2),Blue(3))"
+    }
   }
 
   test("Unmarshalling instances parameter") {

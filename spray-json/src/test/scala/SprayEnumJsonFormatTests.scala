@@ -3,8 +3,9 @@ import pl.iterators.kebs.json.{KebsEnumFormats, KebsSpray}
 import spray.json._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import pl.iterators.kebs.enumeratum.KebsEnumeratum
 
-class SprayEnumJsonFormatTests extends AnyFunSuite with Matchers {
+class SprayEnumJsonFormatTests extends AnyFunSuite with Matchers with KebsEnumeratum {
   sealed trait Greeting extends EnumEntry
 
   object Greeting extends Enum[Greeting] {

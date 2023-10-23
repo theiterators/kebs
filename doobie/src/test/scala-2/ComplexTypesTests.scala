@@ -1,6 +1,7 @@
 import enumeratum.{Enum, EnumEntry}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import pl.iterators.kebs.enumeratum.KebsEnumeratum
 
 import java.util.Currency
 import doobie._
@@ -11,7 +12,7 @@ import pl.iterators.kebs.enums._
 import pl.iterators.kebs._
 import pl.iterators.kebs.instances.KebsInstances._
 
-class ComplexTypesTests extends AnyFunSuite with Matchers {
+class ComplexTypesTests extends AnyFunSuite with Matchers with KebsEnumeratum {
   case class Name(name: String)
   sealed trait EyeColor extends EnumEntry
   object EyeColor extends Enum[EyeColor] {

@@ -5,7 +5,7 @@ import akka.http.scaladsl.testkit.ScalatestRouteTest
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.Domain._
+import pl.iterators.kebs.domain.Domain._
 import pl.iterators.kebs.instances.net.URIString
 import pl.iterators.kebs.instances.time.mixins.InstantEpochMilliLong
 import pl.iterators.kebs.instances.time.{DayOfWeekInt, ZonedDateTimeString}

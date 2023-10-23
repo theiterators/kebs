@@ -342,7 +342,7 @@ lazy val slickSupport = project
 
 lazy val doobieSupport = project
   .in(file("doobie"))
-  .dependsOn(instances, opaque.jvm % "test -> test")
+  .dependsOn(instances, enumeratumSupport, opaque.jvm % "test -> test")
   .settings(doobieSettings: _*)
   .settings(publishSettings: _*)
   .settings(
@@ -367,7 +367,7 @@ lazy val sprayJsonMacros = project
 
 lazy val sprayJsonSupport = project
   .in(file("spray-json"))
-  .dependsOn(sprayJsonMacros, instances % "test -> test")
+  .dependsOn(sprayJsonMacros, enumeratumSupport, instances % "test -> test")
   .settings(sprayJsonSettings: _*)
   .settings(publishSettings: _*)
   .settings(disableScala(List("3")))
@@ -405,7 +405,7 @@ lazy val circeSupport = project
 
 lazy val akkaHttpSupport = project
   .in(file("akka-http"))
-  .dependsOn(core.jvm, instances % "test -> test", tagged.jvm % "test -> test", taggedMeta % "test -> test")
+  .dependsOn(core.jvm, enumeratumSupport, instances % "test -> test", tagged.jvm % "test -> test", taggedMeta % "test -> test")
   .settings(akkaHttpSettings: _*)
   .settings(publishSettings: _*)
   .settings(disableScala(List("3")))
@@ -418,7 +418,7 @@ lazy val akkaHttpSupport = project
 
 lazy val pekkoHttpSupport = project
   .in(file("pekko-http"))
-  .dependsOn(core.jvm, instances % "test -> test", tagged.jvm % "test -> test", taggedMeta % "test -> test")
+  .dependsOn(core.jvm, enumeratumSupport, instances % "test -> test", tagged.jvm % "test -> test", taggedMeta % "test -> test")
   .settings(pekkoHttpSettings: _*)
   .settings(publishSettings: _*)
   .settings(
@@ -594,18 +594,18 @@ lazy val kebs = project
     macroUtils.jvm,
     macroUtils.js,
     slickSupport,
-//    doobieSupport,
-//    sprayJsonMacros,
-//    sprayJsonSupport,
-//    playJsonSupport,
+    doobieSupport,
+    sprayJsonMacros,
+    sprayJsonSupport,
+    playJsonSupport,
     circeSupport,
-//    jsonschemaSupport,
-//    scalacheckSupport,
-//    akkaHttpSupport,
-//    pekkoHttpSupport,
-//    http4sSupport,
-//    http4sStirSupport,
-//    taggedMeta,
+    jsonschemaSupport,
+    scalacheckSupport,
+    akkaHttpSupport,
+    pekkoHttpSupport,
+    http4sSupport,
+    http4sStirSupport,
+    taggedMeta,
     instances,
     enumSupport,
     enumeratumSupport
