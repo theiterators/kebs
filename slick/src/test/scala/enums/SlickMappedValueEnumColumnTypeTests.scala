@@ -19,20 +19,20 @@ class SlickMappedValueEnumColumnTypeTests extends AnyFunSuite with Matchers with
   }
 
   // TODO: FIX THIS TEST
-//  test("MappedColumnType for value enum entries") {
-//    val x = implicitly[BaseColumnType[WorkerAccountStatusInt]]
-//    "implicitly[BaseColumnType[WorkerAccountStatusInt]]" should compile
-//  }
-//
-//  test("Slick mapping") {
-//    """
-//      |class ATable(tag: Tag) extends Table[(Long, String, WorkerAccountStatusInt)](tag, "A_TABLE") {
-//      |      def id       = column[Long]("id")
-//      |      def name     = column[String]("name")
-//      |      def status   = column[WorkerAccountStatusInt]("status")
-//      |
-//      |      override def * = (id, name, status)
-//      |}
-//    """.stripMargin should compile
-//  }
+  test("MappedColumnType for value enum entries") {
+    val x = implicitly[BaseColumnType[WorkerAccountStatusInt]] // this variable is just to show implicit hints for debug
+    "implicitly[BaseColumnType[WorkerAccountStatusInt]]" should compile
+  }
+
+  test("Slick mapping") {
+    """
+      |class ATable(tag: Tag) extends Table[(Long, String, WorkerAccountStatusInt)](tag, "A_TABLE") {
+      |      def id       = column[Long]("id")
+      |      def name     = column[String]("name")
+      |      def status   = column[WorkerAccountStatusInt]("status")
+      |
+      |      override def * = (id, name, status)
+      |}
+    """.stripMargin should compile
+  }
 }
