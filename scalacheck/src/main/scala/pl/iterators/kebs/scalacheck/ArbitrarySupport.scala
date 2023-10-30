@@ -93,10 +93,10 @@ trait KebsArbitraryPredefs {
 
   implicit val arbUri: Arbitrary[URI] = Arbitrary {
     for {
-      protocol <- Gen.oneOf("http", "https", "ftp", "file")
-      domain <- Gen.alphaNumStr
+      protocol  <- Gen.oneOf("http", "https", "ftp", "file")
+      domain    <- Gen.alphaNumStr
       subdomain <- Gen.alphaNumStr
-      path <- Gen.alphaNumStr
+      path      <- Gen.alphaNumStr
     } yield new URI(s"$protocol://$subdomain.$domain.test/$path")
   }
 
