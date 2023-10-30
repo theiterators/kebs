@@ -11,12 +11,13 @@ import java.util.concurrent.TimeUnit
 import scala.reflect.ClassTag
 import scala.util.Random
 import magnolify.scalacheck.auto._
+import magnolify.scalacheck.semiauto._
 
-trait CommonArbitrarySupport extends ScalacheckInstances {
+trait CommonArbitrarySupport extends ScalacheckInstances with ScalacheckInstancesSupport {
+  
   implicit def caseClass1RepArbitraryPredef[T, A](
       implicit rep: CaseClass1Rep[T, A],
       arb: Arbitrary[A]
-  ): Arbitrary[T] = {
-    Arbitrary(arb.arbitrary.map(rep.apply(_)))
-  }
+  ): Arbitrary[T] = Arbitrary(arb.arbitrary.map(rep.apply(_)))
+  
 }
