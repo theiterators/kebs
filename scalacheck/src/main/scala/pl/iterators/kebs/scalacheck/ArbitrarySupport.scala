@@ -1,7 +1,7 @@
 package pl.iterators.kebs.scalacheck
 
 import enumeratum.ScalacheckInstances
-import org.scalacheck.{Arbitrary, Gen, ScalacheckShapeless}
+import org.scalacheck.{Arbitrary, Gen}
 import pl.iterators.kebs.macros.CaseClass1Rep
 
 import java.net.{URI, URL}

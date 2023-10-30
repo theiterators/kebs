@@ -123,7 +123,7 @@ val circeParser     = "io.circe" %% "circe-parser" % circeV
 val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.11"
 
 val scalacheck           = "org.scalacheck"             %% "scalacheck"                % "1.17.0" % "test"
-val scalacheckShapeless  = "com.github.alexarchambault" %% "scalacheck-shapeless_1.15" % "1.3.0"
+val scalacheckMagnolify  = "com.spotify" % "magnolify-scalacheck" % "0.6.4"
 val scalacheckDerived  = "io.github.martinhh" %% "scalacheck-derived" % "0.4.2"
 val scalacheckEnumeratum = "com.beachape"               %% "enumeratum-scalacheck"     % "1.7.3"
 
@@ -262,10 +262,9 @@ lazy val jsonschemaSettings = commonSettings ++ Seq(
 lazy val scalacheckSettings = commonSettings ++ Seq(
   libraryDependencies += scalacheck.cross(CrossVersion.for3Use2_13),
   libraryDependencies += scalacheckEnumeratum.cross(CrossVersion.for3Use2_13),
-  libraryDependencies += scalacheckShapeless.cross(CrossVersion.for3Use2_13),
 ) ++ Seq(
   libraryDependencies ++= (if (scalaVersion.value.startsWith("3")) Seq(scalacheckDerived)
-  else Nil))
+  else Nil)) ++ Seq(libraryDependencies ++= (if(scalaVersion.value.startsWith("2")) Seq(scalacheckMagnolify.cross(CrossVersion.for3Use2_13)) else Nil))
 
 lazy val taggedSettings = commonSettings ++ Seq(
   libraryDependencies += optionalSlick.cross(CrossVersion.for3Use2_13),
