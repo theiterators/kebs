@@ -10,8 +10,8 @@ import java.util.concurrent.TimeUnit
 import scala.reflect.ClassTag
 import scala.util.Random
 import io.github.martinhh.derived.scalacheck.given
-import enumeratum.ScalacheckInstances
-trait CommonArbitrarySupport extends ScalacheckInstances {
+import enumeratum.{ScalacheckInstances => EnumScalacheckInstances}
+trait CommonArbitrarySupport extends EnumScalacheckInstances {
   implicit def caseClass1RepArbitraryPredef[T, A](
       implicit rep: CaseClass1Rep[T, A],
       arbitrary: Arbitrary[A]

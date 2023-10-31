@@ -1,19 +1,10 @@
 package pl.iterators.kebs.scalacheck
 
-import enumeratum.ScalacheckInstances
-import org.scalacheck.{Arbitrary, Gen}
+import enumeratum.{ScalacheckInstances => EnumScalacheckInstances}
+import org.scalacheck.Arbitrary
 import pl.iterators.kebs.macros.CaseClass1Rep
 
-import java.net.{URI, URL}
-import java.time.temporal.ChronoUnit
-import java.time._
-import java.util.concurrent.TimeUnit
-import scala.reflect.ClassTag
-import scala.util.Random
-import magnolify.scalacheck.auto._
-import magnolify.scalacheck.semiauto._
-
-trait CommonArbitrarySupport extends ScalacheckInstances with ScalacheckInstancesSupport {
+trait CommonArbitrarySupport extends EnumScalacheckInstances with ScalacheckInstancesSupport {
   
   implicit def caseClass1RepArbitraryPredef[T, A](
       implicit rep: CaseClass1Rep[T, A],
