@@ -33,21 +33,25 @@ trait ValueEnumUnmarshallers extends EnumUnmarshallers {
           FastFuture.failed(new IllegalArgumentException(s"""Invalid value '$v'. Expected one of: ${`enum`.values.map(_.value).mkString(", ")}"""))
       }
   }
+}
 
-  given kebsValueEnumUnmarshaller[V, E <: { def value: V }](using `enum`: ValueEnumLike[V, E], cls: ClassTag[V]): Unmarshaller[V, E] =
+trait LowPriorityImplicits extends ValueEnumUnmarshallers {
+  given kebsValueEnumUnmarshaller[V, E <: {def value: V}](using `enum`: ValueEnumLike[V, E], cls: ClassTag[V]): Unmarshaller[V, E] =
     valueEnumUnmarshaller
+}
 
-  given kebsIntValueEnumFromStringUnmarshaller[E <: { def value: Int }](using ev: ValueEnumLike[Int, E]): FromStringUnmarshaller[E] =
+trait HighPriorityImplicits extends LowPriorityImplicits {
+  given kebsIntValueEnumFromStringUnmarshaller[E <: {def value: Int}](using ev: ValueEnumLike[Int, E]): FromStringUnmarshaller[E] =
     intFromStringUnmarshaller andThen valueEnumUnmarshaller
 
-  given kebsLongValueEnumFromStringUnmarshaller[E <: { def value: Long }](using ev: ValueEnumLike[Long, E]): FromStringUnmarshaller[E] =
-    longFromStringUnmarshaller andThen valueEnumUnmarshaller
+//  given kebsLongValueEnumFromStringUnmarshaller[E <: {def value: Long}](using ev: ValueEnumLike[Long, E]): FromStringUnmarshaller[E] =
+//    longFromStringUnmarshaller andThen valueEnumUnmarshaller
 
-  given kebsShortValueEnumFromStringUnmarshaller[E <: { def value: Short }](using ev: ValueEnumLike[Short, E]): FromStringUnmarshaller[E] =
+  given kebsShortValueEnumFromStringUnmarshaller[E <: {def value: Short}](using ev: ValueEnumLike[Short, E]): FromStringUnmarshaller[E] =
     shortFromStringUnmarshaller andThen valueEnumUnmarshaller
 
-  given kebsByteValueEnumFromStringUnmarshaller[E <: { def value: Byte }](using ev: ValueEnumLike[Byte, E]): FromStringUnmarshaller[E] =
+  given kebsByteValueEnumFromStringUnmarshaller[E <: {def value: Byte}](using ev: ValueEnumLike[Byte, E]): FromStringUnmarshaller[E] =
     byteFromStringUnmarshaller andThen valueEnumUnmarshaller
 }
 
-trait KebsEnumUnmarshallers extends ValueEnumUnmarshallers {}
+trait KebsEnumUnmarshallers extends HighPriorityImplicits with LowPriorityImplicits {}

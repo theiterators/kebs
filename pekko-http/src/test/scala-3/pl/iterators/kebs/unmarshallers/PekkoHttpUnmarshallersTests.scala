@@ -1,5 +1,6 @@
 package pl.iterators.kebs.unmarshallers
 
+import org.apache.pekko.http.scaladsl.common.ToNameReceptacleEnhancements
 import org.apache.pekko.http.scaladsl.model.FormData
 import org.apache.pekko.http.scaladsl.server.{Directives, MalformedQueryParamRejection}
 import org.apache.pekko.http.scaladsl.testkit.ScalatestRouteTest
@@ -7,8 +8,8 @@ import org.apache.pekko.http.scaladsl.unmarshalling.Unmarshal
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.Domain._
-import pl.iterators.kebs.enums.{KebsValueEnum, KebsEnum}
+import pl.iterators.kebs.Domain.*
+import pl.iterators.kebs.enums.{KebsEnum, KebsValueEnum}
 import pl.iterators.kebs.instances.net.URIString
 import pl.iterators.kebs.instances.time.{DayOfWeekInt, YearMonthString}
 import pl.iterators.kebs.unmarshallers.enums.KebsEnumUnmarshallers
@@ -109,15 +110,15 @@ class PekkoHttpUnmarshallersTests
   }
 
   test("Unmarshalling value enum parameter") {
-    val testRoute = parameters(Symbol("libraryItem").as[LibraryItem]) { item =>
+    val testRoute = parameters(ToNameReceptacleEnhancements._symbol2NR(Symbol("libraryItem")).as[LibraryItem]) { item =>
       complete(item.toString)
     }
-//    Get("/?libraryItem=1") ~> testRoute ~> check {
-//      responseAs[String] shouldEqual "Book"
-//    }
-//    Get("/?libraryItem=10") ~> testRoute ~> check {
-//      rejection shouldEqual MalformedQueryParamRejection("libraryItem", "Invalid value '10'. Expected one of: 1, 2, 3, 4", None)
-//    }
+    Get("/?libraryItem=1") ~> testRoute ~> check {
+      responseAs[String] shouldEqual "Book"
+    }
+    Get("/?libraryItem=10") ~> testRoute ~> check {
+      rejection shouldEqual MalformedQueryParamRejection("libraryItem", "Invalid value '10'. Expected one of: 1, 2, 3, 4", None)
+    }
   }
 
   test("Case class extraction") {
