@@ -34,8 +34,8 @@ trait ValueEnumUnmarshallers extends EnumUnmarshallers {
       }
   }
 
-//  given kebsValueEnumUnmarshaller[V, E <: { def value: V }](using `enum`: ValueEnumLike[V, E], cls: ClassTag[V]): Unmarshaller[V, E] =
-//    valueEnumUnmarshaller
+  given kebsValueEnumUnmarshaller[V, E <: { def value: V }](using `enum`: ValueEnumLike[V, E], cls: ClassTag[V]): Unmarshaller[V, E] =
+    valueEnumUnmarshaller
 
   given kebsIntValueEnumFromStringUnmarshaller[E <: { def value: Int }](using ev: ValueEnumLike[Int, E]): FromStringUnmarshaller[E] =
     intFromStringUnmarshaller andThen valueEnumUnmarshaller
