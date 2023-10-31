@@ -2,9 +2,9 @@ package pl.iterators.kebs.matchers
 
 import pl.iterators.stir.server.PathMatcher1
 import pl.iterators.kebs.instances.InstanceConverter
-import pl.iterators.kebs.macros.ValueClassLike
-import pl.iterators.kebs.macros.enums.EnumOf
 import scala.reflect.Enum
+import pl.iterators.kebs.enums.EnumLike
+import pl.iterators.kebs.macros.ValueClassLike
 
 import scala.language.implicitConversions
 
@@ -19,8 +19,8 @@ trait KebsMatchers extends pl.iterators.stir.server.PathMatchers {
   }
 
   object EnumSegment {
-    def as[T <: Enum](using e: EnumOf[T]): PathMatcher1[T] = {
-      Segment.map(s => e.`enum`.values.find(_.toString().toLowerCase() == s.toLowerCase()).getOrElse(throw new IllegalArgumentException(s"""Invalid value '$s'. Expected one of: ${e.`enum`.values.mkString(", ")}""")))
+    def as[T <: Enum](using e: EnumLike[T]): PathMatcher1[T] = {
+      Segment.map(s => e.values.find(_.toString().toLowerCase() == s.toLowerCase()).getOrElse(throw new IllegalArgumentException(s"""Invalid value '$s'. Expected one of: ${e.values.mkString(", ")}""")))
     }
   }
 }

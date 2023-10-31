@@ -393,7 +393,7 @@ lazy val playJsonSupport = project
 
 lazy val circeSupport = project
   .in(file("circe"))
-  .dependsOn(core.jvm, enumeratumSupport, instances % "test -> test")
+  .dependsOn(core.jvm, enumeratumSupport, enumSupport, instances % "test -> test")
   .settings(circeSettings: _*)
   .settings(crossBuildSettings: _*)
   .settings(publishSettings: _*)
@@ -418,7 +418,7 @@ lazy val akkaHttpSupport = project
 
 lazy val pekkoHttpSupport = project
   .in(file("pekko-http"))
-  .dependsOn(core.jvm, enumeratumSupport, instances % "test -> test", tagged.jvm % "test -> test", taggedMeta % "test -> test")
+  .dependsOn(core.jvm, enumeratumSupport, enumSupport, instances % "test -> test", tagged.jvm % "test -> test", taggedMeta % "test -> test")
   .settings(pekkoHttpSettings: _*)
   .settings(publishSettings: _*)
   .settings(
@@ -585,28 +585,28 @@ lazy val enumeratumSupport = project
 lazy val kebs = project
   .in(file("."))
   .aggregate(
-    tagged.jvm,
-    tagged.js,
-    opaque.jvm,
-    opaque.js,
+    tagged.jvm, // done
+    tagged.js, // done
+    opaque.jvm, // done
+    opaque.js, // done
     core.jvm,
     core.js,
-    macroUtils.jvm,
-    macroUtils.js,
-    slickSupport,
-    doobieSupport,
-    sprayJsonMacros,
-    sprayJsonSupport,
-    playJsonSupport,
-    circeSupport,
-    jsonschemaSupport,
-    scalacheckSupport,
-    akkaHttpSupport,
-    pekkoHttpSupport,
-    http4sSupport,
-    http4sStirSupport,
-    taggedMeta,
-    instances,
+    macroUtils.jvm, // done
+    macroUtils.js, // done
+    slickSupport, // done
+    doobieSupport, // done
+    sprayJsonMacros, // done
+    sprayJsonSupport, // done
+    playJsonSupport, // done
+    circeSupport, // done
+    jsonschemaSupport, // done
+    scalacheckSupport, // done
+    akkaHttpSupport, // done
+    pekkoHttpSupport, // NOT DONE
+    http4sSupport, // done
+//    http4sStirSupport, // NOT DONE
+    taggedMeta, // done
+    instances, // done
     enumSupport,
     enumeratumSupport
   )

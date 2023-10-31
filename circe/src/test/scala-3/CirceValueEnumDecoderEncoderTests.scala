@@ -3,13 +3,13 @@ import io.circe._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.circe.KebsEnumFormats
-import pl.iterators.kebs.enums.ValueEnum
+import pl.iterators.kebs.enums.KebsValueEnum
 
-class CirceValueEnumDecoderEncoderTests extends AnyFunSuite with Matchers {
+class CirceValueEnumDecoderEncoderTests extends AnyFunSuite with Matchers with KebsValueEnum {
 
   object KebsProtocol extends KebsEnumFormats
 
-  enum LongGreeting(val value: Long) extends ValueEnum[Long] {
+  enum LongGreeting(val value: Long) {
     case  Hello   extends LongGreeting(0L)
     case  GoodBye extends LongGreeting(1L)
     case  Hi      extends LongGreeting(2L)

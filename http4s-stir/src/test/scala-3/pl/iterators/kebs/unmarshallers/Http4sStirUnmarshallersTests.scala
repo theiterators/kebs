@@ -10,6 +10,7 @@ import pl.iterators.kebs.Domain._
 import pl.iterators.kebs.instances.net.URIString
 import pl.iterators.kebs.instances.time.{DayOfWeekInt, YearMonthString}
 import pl.iterators.kebs.unmarshallers.enums.KebsEnumUnmarshallers
+import pl.iterators.kebs.enums.{KebsEnum, KebsValueEnum}
 
 import java.time.{DayOfWeek, YearMonth}
 
@@ -23,7 +24,10 @@ class Http4sStirUnmarshallersTests
     with KebsEnumUnmarshallers
     with URIString
     with YearMonthString
-    with DayOfWeekInt {
+    with DayOfWeekInt
+    with KebsEnum
+    with KebsValueEnum
+    {
   implicit def runtime: cats.effect.unsafe.IORuntime = cats.effect.unsafe.IORuntime.global
 
   test("No ValueClassLike implicits derived") {

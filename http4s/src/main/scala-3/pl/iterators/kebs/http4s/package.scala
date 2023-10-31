@@ -3,10 +3,10 @@ package pl.iterators.kebs.http4s
 import scala.util.Try
 import scala.reflect.Enum
 import pl.iterators.kebs.macros.ValueClassLike
-import pl.iterators.kebs.macros.enums.EnumOf
 import org.http4s._
 import pl.iterators.kebs.instances.InstanceConverter
 import java.util.UUID
+import pl.iterators.kebs.enums.EnumLike
 
 protected class PathVar[A](cast: String => Try[A]) {
   def unapply(str: String): Option[A] =
@@ -25,7 +25,7 @@ object InstanceString {
 }
 
 object EnumString {
-  def apply[T <: Enum](using e: EnumOf[T]) = new PathVar[T](str => Try(e.`enum`.values.find(_.toString.toUpperCase == str.toUpperCase).getOrElse(throw new IllegalArgumentException(s"enum case not found: $str"))))
+  def apply[T <: Enum](using e: EnumLike[T]) = new PathVar[T](str => Try(e.values.find(_.toString.toUpperCase == str.toUpperCase).getOrElse(throw new IllegalArgumentException(s"enum case not found: $str"))))
 }
 
 object WrappedInt {
@@ -54,4 +54,4 @@ object InstanceUUID {
 
 given[T, U](using rep: ValueClassLike[T, U], qpd: QueryParamDecoder[U]): QueryParamDecoder[T] = qpd.emap(u => Try(rep.apply(u)).toEither.left.map(t => ParseFailure(t.getMessage, t.getMessage)))
 given[T, U](using rep: InstanceConverter[T, U], qpd: QueryParamDecoder[U]): QueryParamDecoder[T] = qpd.emap(u => Try(rep.decode(u)).toEither.left.map(t => ParseFailure(t.getMessage, t.getMessage)))
-given[E <: Enum](using e: EnumOf[E]): QueryParamDecoder[E] = QueryParamDecoder[String].emap(str => Try(e.`enum`.values.find(_.toString.toUpperCase == str.toUpperCase).getOrElse(throw new IllegalArgumentException(s"enum case not found: $str"))).toEither.left.map(t => ParseFailure(t.getMessage, t.getMessage)))
+given[E <: Enum](using e: EnumLike[E]): QueryParamDecoder[E] = QueryParamDecoder[String].emap(str => Try(e.values.find(_.toString.toUpperCase == str.toUpperCase).getOrElse(throw new IllegalArgumentException(s"enum case not found: $str"))).toEither.left.map(t => ParseFailure(t.getMessage, t.getMessage)))

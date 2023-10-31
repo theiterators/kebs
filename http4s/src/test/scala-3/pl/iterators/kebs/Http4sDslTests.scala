@@ -12,8 +12,9 @@ import java.util.Currency
 
 import pl.iterators.kebs.instances.KebsInstances._
 import pl.iterators.kebs.http4s.{given, _}
+import pl.iterators.kebs.enums.KebsEnum
 
-class Http4sDslTests extends AnyFunSuite with Matchers {
+class Http4sDslTests extends AnyFunSuite with Matchers with KebsEnum {
   import Domain._
 
   given runtime: IORuntime = cats.effect.unsafe.IORuntime.global
