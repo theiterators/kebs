@@ -8,9 +8,6 @@ import pl.iterators.kebs.enums.{EnumLike, ValueEnumLike}
 import scala.reflect.ClassTag
 import reflect.Selectable._
 
-import io.github.gaeljw.typetrees.TypeTree
-import io.github.gaeljw.typetrees.TypeTreeTag
-
 trait EnumUnmarshallers {
   final def enumUnmarshaller[E](using e: EnumLike[E]): FromStringUnmarshaller[E] = org.apache.pekko.http.scaladsl.unmarshalling.Unmarshaller { _ => name =>
     e.values.find(_.toString().toLowerCase() == name.toLowerCase()) match {
@@ -43,7 +40,7 @@ trait ValueEnumUnmarshallers extends EnumUnmarshallers {
 }
 
 trait LowPriorityImplicits extends ValueEnumUnmarshallers {
-  given kebsValueEnumUnmarshaller[V, E <: {def value: V}](using `enum`: ValueEnumLike[V, E], cls: ClassTag[V], tp: TypeTree[E]): Unmarshaller[V, E] =
+  given kebsValueEnumUnmarshaller[V, E <: {def value: V}](using `enum`: ValueEnumLike[V, E], cls: ClassTag[V]): Unmarshaller[V, E] =
     valueEnumUnmarshaller
 }
 
