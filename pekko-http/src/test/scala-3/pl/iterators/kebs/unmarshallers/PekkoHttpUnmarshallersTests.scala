@@ -13,6 +13,8 @@ import pl.iterators.kebs.enums.{KebsEnum, KebsValueEnum}
 import pl.iterators.kebs.instances.net.URIString
 import pl.iterators.kebs.instances.time.{DayOfWeekInt, YearMonthString}
 import pl.iterators.kebs.unmarshallers.enums.KebsEnumUnmarshallers
+import pl.iterators.kebs.enums.ValueEnumLike
+import org.apache.pekko.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
 
 import java.time.{DayOfWeek, YearMonth}
 
@@ -70,7 +72,8 @@ class PekkoHttpUnmarshallersTests
   }
 
   test("Unmarshalling value enums is type-safe") {
-    """Unmarshal(1L).to[LibraryItem]""" shouldNot typeCheck
+    Unmarshal(1L).to[LibraryItem].failed.futureValue shouldBe a[IllegalArgumentException] // test w nowej wersji, gdzie rzucany jest IllegalArgumentException
+//    """Unmarshal(1L).to[LibraryItem]""" shouldNot typeCheck // test w poprzedniej wersji, gdzie żądany jest type error
   }
 
   test("Unmarshal from string") {

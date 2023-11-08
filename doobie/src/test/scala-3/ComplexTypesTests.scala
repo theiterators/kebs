@@ -11,6 +11,8 @@ import pl.iterators.kebs.enums.given
 import pl.iterators.kebs.instances.KebsInstances.given
 import pl.iterators.kebs.opaque.Opaque
 
+import pl.iterators.kebs.enums.{KebsEnum, KebsValueEnum}
+
 opaque type Name = String
 object Name extends Opaque[Name, String]
 
@@ -19,7 +21,7 @@ enum EyeColor {
 }
 case class Person(name: Name, eyeColor: EyeColor, preferredCurrency: Currency, relatives: List[Name], eyeballsInTheJar: Array[EyeColor])
 
-class ComplexTypesTests extends AnyFunSuite with Matchers {
+class ComplexTypesTests extends AnyFunSuite with Matchers with KebsEnum {
   test("Put & Get exist") {
     "implicitly[Get[Name]]" should compile
     "implicitly[Put[Name]]" should compile

@@ -15,7 +15,7 @@ lazy val baseSettings = Seq(
   organizationName := "Iterators",
   organizationHomepage := Some(url("https://iterato.rs")),
   homepage := Some(url("https://github.com/theiterators/kebs")),
-  scalacOptions ++= Seq("-deprecation", "-explain", "-unchecked", "-feature", "-encoding", "utf8")
+  scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature", "-encoding", "utf8")
 )
 
 lazy val commonMacroSettings = baseSettings ++ Seq(
@@ -342,7 +342,7 @@ lazy val slickSupport = project
 
 lazy val doobieSupport = project
   .in(file("doobie"))
-  .dependsOn(instances, enumeratumSupport, opaque.jvm % "test -> test")
+  .dependsOn(instances, enumeratumSupport, enumSupport, opaque.jvm % "test -> test")
   .settings(doobieSettings: _*)
   .settings(publishSettings: _*)
   .settings(

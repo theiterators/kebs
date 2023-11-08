@@ -21,7 +21,7 @@ trait EnumUnmarshallers {
 
 trait ValueEnumUnmarshallers {
   final def valueEnumUnmarshaller[V, E <: { def value: V }](`enum`: ValueEnumLike[V, E]): Unmarshaller[V, E] = Unmarshaller { _ =>v =>
-    `enum`.withValueOpt(v) match {
+    `enum`.values.find(e => e.value == v && e.value.getClass == v.getClass) match {
       case Some(enumEntry) => FastFuture.successful(enumEntry)
       case None =>
         FastFuture.failed(new IllegalArgumentException(s"""Invalid value '$v'. Expected one of: ${`enum`.valuesToEntriesMap.keysIterator
