@@ -585,30 +585,30 @@ lazy val enumeratumSupport = project
 lazy val kebs = project
   .in(file("."))
   .aggregate(
-    tagged.jvm, // done
-    tagged.js, // done
-    opaque.jvm, // done
-    opaque.js, // done
+//    tagged.jvm,
+//    tagged.js,
+//    opaque.jvm,
+//    opaque.js,
     core.jvm,
     core.js,
-    macroUtils.jvm, // done
-    macroUtils.js, // done
-    slickSupport, // done
-    doobieSupport, // done
-    sprayJsonMacros, // done
-    sprayJsonSupport, // done
-    playJsonSupport, // done
-    circeSupport, // done
-    jsonschemaSupport, // done
-    scalacheckSupport, // done
-    akkaHttpSupport, // done
-    pekkoHttpSupport, // NOT DONE
-    http4sSupport, // done
-//    http4sStirSupport, // NOT DONE
-    taggedMeta, // done
-    instances, // done
+//    macroUtils.jvm,
+//    macroUtils.js,
+//    slickSupport,
+//    doobieSupport,
+//    sprayJsonMacros,
+//    sprayJsonSupport,
+//    playJsonSupport,
+//    circeSupport,
+//    jsonschemaSupport,
+//    scalacheckSupport,
+//    akkaHttpSupport,
+//    pekkoHttpSupport,
+//    http4sSupport,
+////    http4sStirSupport, // NOT DONE
+//    taggedMeta,
+//    instances,
     enumSupport,
-    enumeratumSupport
+//    enumeratumSupport
   )
   .settings(baseSettings: _*)
   .settings(noPublishSettings)

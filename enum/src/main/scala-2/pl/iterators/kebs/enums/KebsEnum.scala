@@ -5,7 +5,7 @@ import scala.language.implicitConversions
 import scala.reflect.macros.blackbox
 
 trait KebsEnum {
-  implicit def enumScala2[E <: Enumeration#Value]: EnumLike[E] = macro EnumerationEntryMacros.enumOfImpl[E]
+  implicit def enumScala[E <: Enumeration#Value]: EnumLike[E] = macro EnumerationEntryMacros.enumOfImpl[E]
 }
 
 class EnumerationEntryMacros(val c: blackbox.Context) {

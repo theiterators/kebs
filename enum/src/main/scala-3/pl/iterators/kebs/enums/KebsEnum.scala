@@ -8,7 +8,7 @@ import scala.deriving.Mirror
 import scala.reflect.{ClassTag, Enum}
 
 trait KebsEnum {
-  inline given [E <: Enum](using m: Mirror.SumOf[E], ct: ClassTag[E]): EnumLike[E] = {
+  inline implicit def kebsEnumScala[E <: Enum](using m: Mirror.SumOf[E], ct: ClassTag[E]): EnumLike[E] = {
     val enumValues = summonCases[m.MirroredElemTypes, E]
     new EnumLike[E] {
       override def values: immutable.Seq[E] = enumValues.toSeq

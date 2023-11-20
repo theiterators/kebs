@@ -6,9 +6,9 @@ import org.apache.pekko.http.scaladsl.util.FastFuture
 import pl.iterators.kebs.enums.{EnumLike, ValueEnumLike}
 
 import scala.reflect.ClassTag
-import reflect.Selectable._
-
+import scala.reflect.Selectable.reflectiveSelectable
 trait EnumUnmarshallers {
+
   final def enumUnmarshaller[E](using e: EnumLike[E]): FromStringUnmarshaller[E] = org.apache.pekko.http.scaladsl.unmarshalling.Unmarshaller { _ => name =>
     e.values.find(_.toString().toLowerCase() == name.toLowerCase()) match {
       case Some(enumEntry) => FastFuture.successful(enumEntry)
@@ -30,7 +30,8 @@ trait ValueEnumUnmarshallers extends EnumUnmarshallers {
             FastFuture.successful(enumEntry)
           case _ =>
             `enum`.values.find(e => e.value == v) match {
-              case Some(_) =>
+              case Some(enumEntry) =>
+//                val a: v.type = enumEntry.value
                 FastFuture.failed(new IllegalArgumentException(s"""Invalid value '$v'"""))
               case None =>
                 FastFuture.failed(new IllegalArgumentException(s"""Invalid value '$v'. Expected one of: ${`enum`.values.map(_.value).mkString(", ")}"""))

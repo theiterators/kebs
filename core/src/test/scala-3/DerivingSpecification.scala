@@ -1,7 +1,6 @@
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Gen, Properties}
 import pl.iterators.kebs.macros.ValueClassLike
-import pl.iterators.kebs.enums.{EnumLike, ValueEnumLike}
 
 object DerivingSpecification extends Properties("Deriving") {
   case class CC1Ex(whatever: String)
