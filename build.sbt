@@ -149,7 +149,7 @@ def akkaHttpInExamples = {
     akkaHttpSprayJson.cross(CrossVersion.for3Use2_13))
 }
 
-val pekkoVersion       = "1.0.1"
+val pekkoVersion       = "1.0.2"
 val pekkoHttpVersion   = "1.0.0"
 val pekkoHttpJsonV     = "2.0.0"
 val pekkoStream        = "org.apache.pekko" %% "pekko-stream" % pekkoVersion
