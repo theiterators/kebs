@@ -5,7 +5,7 @@ import pl.iterators.stir.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
 import cats.effect.IO
 import scala.reflect.Enum
 import scala.reflect.ClassTag
-import pl.iterators.kebs.enums.{ValueEnumLike, EnumLike}
+import pl.iterators.kebs.enums.{ValueEnumLike, ValueEnumLikeEntry, EnumLike}
 
 import reflect.Selectable.reflectiveSelectable
 
@@ -23,7 +23,7 @@ trait EnumUnmarshallers {
 }
 
 trait ValueEnumUnmarshallers extends EnumUnmarshallers {
-  final def valueEnumUnmarshaller[V, E <: { def value: V }](using `enum`: ValueEnumLike[V, E], cls: ClassTag[V]): Unmarshaller[V, E] = Unmarshaller { v =>
+  final def valueEnumUnmarshaller[V, E <: ValueEnumLikeEntry[V]](using `enum`: ValueEnumLike[V, E], cls: ClassTag[V]): Unmarshaller[V, E] = Unmarshaller { v =>
     `enum`.values.find(e => e.value == v) match {
       case Some(enumEntry) => IO.pure(enumEntry)
       case None =>
@@ -31,17 +31,17 @@ trait ValueEnumUnmarshallers extends EnumUnmarshallers {
     }
   }
 
-  given kebsValueEnumUnmarshaller[V, E <: { def value: V }](using `enum`: ValueEnumLike[V, E], cls: ClassTag[V]): Unmarshaller[V, E] =
+  given kebsValueEnumUnmarshaller[V, E <: ValueEnumLikeEntry[V]](using `enum`: ValueEnumLike[V, E], cls: ClassTag[V]): Unmarshaller[V, E] =
     valueEnumUnmarshaller
 
-  given kebsIntValueEnumFromStringUnmarshaller[E <: { def value: Int }](using ev: ValueEnumLike[Int, E]): FromStringUnmarshaller[E] =
+  given kebsIntValueEnumFromStringUnmarshaller[E <: ValueEnumLikeEntry[Int]](using ev: ValueEnumLike[Int, E]): FromStringUnmarshaller[E] =
     intFromStringUnmarshaller andThen valueEnumUnmarshaller
-  given kebsLongValueEnumFromStringUnmarshaller[E <: { def value: Long }](using ev: ValueEnumLike[Long, E]): FromStringUnmarshaller[E] =
+  given kebsLongValueEnumFromStringUnmarshaller[E <: ValueEnumLikeEntry[Long]](using ev: ValueEnumLike[Long, E]): FromStringUnmarshaller[E] =
     longFromStringUnmarshaller andThen valueEnumUnmarshaller
-  given kebsShortValueEnumFromStringUnmarshaller[E <: { def value: Short }](
+  given kebsShortValueEnumFromStringUnmarshaller[E <: ValueEnumLikeEntry[Short]](
       using ev: ValueEnumLike[Short, E]): FromStringUnmarshaller[E] =
     shortFromStringUnmarshaller andThen valueEnumUnmarshaller
-  given kebsByteValueEnumFromStringUnmarshaller[E <: { def value: Byte }](using ev: ValueEnumLike[Byte, E]): FromStringUnmarshaller[E] =
+  given kebsByteValueEnumFromStringUnmarshaller[E <: ValueEnumLikeEntry[Byte]](using ev: ValueEnumLike[Byte, E]): FromStringUnmarshaller[E] =
     byteFromStringUnmarshaller andThen valueEnumUnmarshaller
 }
 

@@ -72,9 +72,7 @@ class PekkoHttpUnmarshallersTests
   }
 
   test("Unmarshalling value enums is type-safe") {
-    val x = implicitly[Unmarshaller[Long, LibraryItem]]
-    Unmarshal(1L).to[LibraryItem].failed.futureValue shouldBe a[IllegalArgumentException] // test w nowej wersji, gdzie rzucany jest IllegalArgumentException
-    """Unmarshal(1L).to[LibraryItem]""" shouldNot typeCheck // test w poprzedniej wersji, gdzie żądany jest type error
+    """Unmarshal(1L).to[LibraryItem]""" shouldNot typeCheck
   }
 
   test("Unmarshal from string") {

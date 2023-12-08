@@ -16,13 +16,13 @@ trait SlickEnum {
 }
 
 trait SlickValueEnum {
-  def valueEnumIsomorphism[V, E <: { def value: V }](`enum`: ValueEnumLike[V, E]): Isomorphism[E, V] =
+  def valueEnumIsomorphism[V, E <: ValueEnumLikeEntry[V]](`enum`: ValueEnumLike[V, E]): Isomorphism[E, V] =
     new Isomorphism[E, V](_.value, `enum`.withValue)
 }
 
 trait KebsEnums extends SlickEnum with SlickValueEnum {
   implicit def enumValueColumn[E](implicit ev: EnumLike[E]): Isomorphism[E, String] = enumIsomorphism(ev)
-  implicit def valueEnumColumn[V, E <: { def value: V }](implicit ev: ValueEnumLike[V, E]): Isomorphism[E, V] =
+  implicit def valueEnumColumn[V, E <: ValueEnumLikeEntry[V]](implicit ev: ValueEnumLike[V, E]): Isomorphism[E, V] =
     valueEnumIsomorphism(ev)
 
   trait Uppercase extends SlickEnum {

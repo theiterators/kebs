@@ -4,6 +4,7 @@ import enumeratum.values.{IntEnum, IntEnumEntry, StringEnum, StringEnumEntry}
 import enumeratum.{Enum, EnumEntry}
 import pl.iterators.kebs.tag.meta.tagged
 import pl.iterators.kebs.tagged._
+import pl.iterators.kebs.enums.ValueEnumLikeEntry
 
 import java.net.URI
 import java.util.UUID
@@ -47,7 +48,7 @@ object Domain extends Tags {
     val values = findValues
   }
 
-  sealed abstract class LibraryItem(val value: Int) extends IntEnumEntry
+  sealed abstract class LibraryItem(val value: Int) extends IntEnumEntry with ValueEnumLikeEntry[Int]
 
   object LibraryItem extends IntEnum[LibraryItem] {
     case object Book     extends LibraryItem(1)
@@ -63,7 +64,7 @@ object Domain extends Tags {
   case class Blue(value: Int)
   case class Color(red: Red, green: Green, blue: Blue)
 
-  sealed abstract class ShirtSize(val value: String) extends StringEnumEntry
+  sealed abstract class ShirtSize(val value: String) extends StringEnumEntry with ValueEnumLikeEntry[String]
   object ShirtSize extends StringEnum[ShirtSize] {
     case object Small  extends ShirtSize("S")
     case object Medium extends ShirtSize("M")

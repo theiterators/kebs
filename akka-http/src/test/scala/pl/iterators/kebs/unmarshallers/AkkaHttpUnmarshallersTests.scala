@@ -12,6 +12,7 @@ import pl.iterators.kebs.enumeratum.{KebsEnumeratum, KebsValueEnumeratum}
 import pl.iterators.kebs.instances.net.URIString
 import pl.iterators.kebs.instances.time.{DayOfWeekInt, YearMonthString}
 import pl.iterators.kebs.unmarshallers.enums.KebsEnumUnmarshallers
+import pl.iterators.kebs.enums.ValueEnumLikeEntry
 
 import java.time.{DayOfWeek, YearMonth}
 

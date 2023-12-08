@@ -3,10 +3,10 @@ package pl.iterators.kebs.enumeratum
 import enumeratum.values._
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Gen, Properties}
-import pl.iterators.kebs.enums.ValueEnumLike
+import pl.iterators.kebs.enums.{ValueEnumLike, ValueEnumLikeEntry}
 
 object ValueEnumTest extends Properties("Deriving") with KebsValueEnumeratum {
-  sealed abstract class LibraryItem(val value: Int) extends IntEnumEntry
+  sealed abstract class LibraryItem(val value: Int) extends IntEnumEntry with ValueEnumLikeEntry[Int]
   object LibraryItem extends IntEnum[LibraryItem] {
     case object Book extends LibraryItem(value = 1)
     case object Movie extends LibraryItem(value = 2)

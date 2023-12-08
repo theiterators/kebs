@@ -1,6 +1,6 @@
 package pl.iterators.kebs.json
 
-import pl.iterators.kebs.enums.{EnumLike, ValueEnumLike}
+import pl.iterators.kebs.enums.{EnumLike, ValueEnumLike, ValueEnumLikeEntry}
 import spray.json.{JsString, JsValue, JsonFormat}
 
 trait SprayJsonEnum {
@@ -29,12 +29,12 @@ trait SprayJsonEnum {
 }
 
 trait SprayJsonValueEnum {
-  @inline protected final def valueEnumDeserializationError[V, E <: { def value: V }](`enum`: ValueEnumLike[V, E], value: V) = {
+  @inline protected final def valueEnumDeserializationError[V, E <: ValueEnumLikeEntry[V]](`enum`: ValueEnumLike[V, E], value: V) = {
     val enumValues = `enum`.valuesToEntriesMap.keys.mkString(", ")
     spray.json.deserializationError(s"$value is not a member of $enumValues")
   }
 
-  def jsonFormatValue[V, E <: { def value: V }](`enum`: ValueEnumLike[V, E])(implicit baseJsonFormat: JsonFormat[V]) = new JsonFormat[E] {
+  def jsonFormatValue[V, E <: ValueEnumLikeEntry[V]](`enum`: ValueEnumLike[V, E])(implicit baseJsonFormat: JsonFormat[V]) = new JsonFormat[E] {
     override def write(obj: E): JsValue = baseJsonFormat.write(obj.value)
     override def read(json: JsValue): E = {
       val value = baseJsonFormat.read(json)
@@ -45,7 +45,7 @@ trait SprayJsonValueEnum {
 
 trait KebsEnumFormats extends SprayJsonEnum with SprayJsonValueEnum {
   implicit def jsonEnumFormat[E](implicit ev: EnumLike[E]): JsonFormat[E] = jsonFormat(ev)
-  implicit def jsonValueEnumFormat[V, E <: { def value: V }](implicit ev: ValueEnumLike[V, E],
+  implicit def jsonValueEnumFormat[V, E <: ValueEnumLikeEntry[V]](implicit ev: ValueEnumLike[V, E],
                                                               baseJsonFormat: JsonFormat[V]): JsonFormat[E] = jsonFormatValue(ev)
 
   trait Uppercase extends SprayJsonEnum {

@@ -4,6 +4,7 @@ import pl.iterators.kebs.opaque.Opaque
 
 import java.net.URI
 import java.util.UUID
+import pl.iterators.kebs.enums.ValueEnumLikeEntry
 
 object Domain {
   opaque type TestTaggedUri = URI
@@ -23,7 +24,7 @@ object Domain {
   }
 
 
-  enum LibraryItem(val value: Int) {
+  enum LibraryItem(val value: Int) extends ValueEnumLikeEntry[Int] {
     case Book extends LibraryItem(1)
     case Movie extends LibraryItem(2)
     case Magazine extends LibraryItem(3)
@@ -35,7 +36,7 @@ object Domain {
   case class Blue(value: Int)
   case class Color(red: Red, green: Green, blue: Blue)
 
-  enum ShirtSize(val value: String) {
+  enum ShirtSize(val value: String) extends ValueEnumLikeEntry[String] {
     case Small extends ShirtSize("S")
     case Medium extends ShirtSize("M")
     case Large extends ShirtSize("L")

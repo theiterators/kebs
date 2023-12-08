@@ -4,9 +4,10 @@ import spray.json._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.enumeratum.KebsValueEnumeratum
+import pl.iterators.kebs.enums.ValueEnumLikeEntry
 
 class SprayValueEnumJsonFormatTests extends AnyFunSuite with Matchers with KebsValueEnumeratum {
-  sealed abstract class LongGreeting(val value: Long) extends LongEnumEntry
+  sealed abstract class LongGreeting(val value: Long) extends LongEnumEntry with ValueEnumLikeEntry[Long]
 
   object LongGreeting extends LongEnum[LongGreeting] {
     val values = findValues

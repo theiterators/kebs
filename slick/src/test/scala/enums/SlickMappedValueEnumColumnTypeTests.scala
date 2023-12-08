@@ -9,7 +9,7 @@ class SlickMappedValueEnumColumnTypeTests extends AnyFunSuite with Matchers with
   import slick.jdbc.PostgresProfile.api._
   import pl.iterators.kebs.enums._
 
-  sealed abstract class WorkerAccountStatusInt(val value: Int) extends IntEnumEntry
+  sealed abstract class WorkerAccountStatusInt(val value: Int) extends IntEnumEntry with ValueEnumLikeEntry[Int]
   object WorkerAccountStatusInt extends IntEnum[WorkerAccountStatusInt] {
     case object Unapproved extends WorkerAccountStatusInt(0)
     case object Active     extends WorkerAccountStatusInt(1)
@@ -17,10 +17,8 @@ class SlickMappedValueEnumColumnTypeTests extends AnyFunSuite with Matchers with
 
     override val values = findValues
   }
-
-  // TODO: FIX THIS TEST
+  
   test("MappedColumnType for value enum entries") {
-    val x = implicitly[BaseColumnType[WorkerAccountStatusInt]] // this variable is just to show implicit hints for debug
     "implicitly[BaseColumnType[WorkerAccountStatusInt]]" should compile
   }
 

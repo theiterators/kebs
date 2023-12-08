@@ -5,10 +5,11 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import slick.lifted.Isomorphism
 import pl.iterators.kebs.enumeratum.KebsEnumeratum
+import pl.iterators.kebs.enums.ValueEnumLikeEntry
 
 class ValueEnumIsomorphismTests extends AnyFunSuite with Matchers with KebsEnumeratum {
 
-  sealed abstract class IntGreeting(val value: Int) extends IntEnumEntry
+  sealed abstract class IntGreeting(val value: Int) extends IntEnumEntry with ValueEnumLikeEntry[Int]
 
   object IntGreeting extends IntEnum[IntGreeting] {
     case object Hello   extends IntGreeting(0)

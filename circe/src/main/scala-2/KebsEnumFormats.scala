@@ -2,7 +2,7 @@ package pl.iterators.kebs.circe
 
 import io.circe.Decoder.Result
 import io.circe._
-import pl.iterators.kebs.enums.{EnumLike, ValueEnumLike}
+import pl.iterators.kebs.enums.{EnumLike, ValueEnumLike, ValueEnumLikeEntry}
 
 trait CirceEnum {
   @inline protected final def enumNameDeserializationError[E](`enum`: EnumLike[E], name: String): String = {
@@ -39,16 +39,16 @@ trait CirceEnum {
 }
 
 trait CirceValueEnum {
-  @inline protected final def valueEnumDeserializationError[V, E <: { def value: V }](`enum`: ValueEnumLike[V, E], value: Json): String = {
+  @inline protected final def valueEnumDeserializationError[V, E <: ValueEnumLikeEntry[V]](`enum`: ValueEnumLike[V, E], value: Json): String = {
     val enumValues = `enum`.valuesToEntriesMap.keys.mkString(", ")
     s"$value is not a member of $enumValues"
   }
 
-  def valueEnumDecoder[V, E <: { def value: V }](`enum`: ValueEnumLike[V, E])(implicit decoder: Decoder[V]): Decoder[E] =
+  def valueEnumDecoder[V, E <: ValueEnumLikeEntry[V]](`enum`: ValueEnumLike[V, E])(implicit decoder: Decoder[V]): Decoder[E] =
     (c: HCursor) =>
       decoder.emap(obj => `enum`.withValueOpt(obj).toRight("")).withErrorMessage(valueEnumDeserializationError(`enum`, c.value))(c)
 
-  def valueEnumEncoder[V, E <: { def value: V }](`enum`: ValueEnumLike[V, E])(implicit encoder: Encoder[V]): Encoder[E] =
+  def valueEnumEncoder[V, E <: ValueEnumLikeEntry[V]](`enum`: ValueEnumLike[V, E])(implicit encoder: Encoder[V]): Encoder[E] =
     (obj: E) => encoder(obj.value)
 }
 
@@ -57,10 +57,10 @@ trait KebsEnumFormats extends CirceEnum with CirceValueEnum {
 
   implicit def enumEncoderImpl[E](implicit ev: EnumLike[E]): Encoder[E] = enumEncoder(ev)
 
-  implicit def valueEnumDecoderImpl[V, E <: { def value: V }](implicit ev: ValueEnumLike[V, E], decoder: Decoder[V]): Decoder[E] =
+  implicit def valueEnumDecoderImpl[V, E <: ValueEnumLikeEntry[V]](implicit ev: ValueEnumLike[V, E], decoder: Decoder[V]): Decoder[E] =
     valueEnumDecoder(ev)
 
-  implicit def valueEnumEncoderImpl[V, E <: { def value: V }](implicit ev: ValueEnumLike[V, E], encoder: Encoder[V]): Encoder[E] =
+  implicit def valueEnumEncoderImpl[V, E <: ValueEnumLikeEntry[V]](implicit ev: ValueEnumLike[V, E], encoder: Encoder[V]): Encoder[E] =
     valueEnumEncoder(ev)
 
   trait Uppercase extends CirceEnum {
