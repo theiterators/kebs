@@ -37,14 +37,10 @@ trait ValueEnumUnmarshallers extends EnumUnmarshallers {
             }
         }
     }
-}
 
-trait LowPriorityImplicits extends ValueEnumUnmarshallers {
   given kebsValueEnumUnmarshaller[V, E <: ValueEnumLikeEntry[V]](using `enum`: ValueEnumLike[V, E], cls: ClassTag[V]): Unmarshaller[V, E] =
     valueEnumUnmarshaller
-}
 
-trait HighPriorityImplicits extends LowPriorityImplicits {
   given kebsIntValueEnumFromStringUnmarshaller[E <: ValueEnumLikeEntry[Int]](using ev: ValueEnumLike[Int, E]): FromStringUnmarshaller[E] =
     intFromStringUnmarshaller andThen valueEnumUnmarshaller
 
@@ -58,5 +54,4 @@ trait HighPriorityImplicits extends LowPriorityImplicits {
     byteFromStringUnmarshaller andThen valueEnumUnmarshaller
 }
 
-
-trait KebsEnumUnmarshallers extends HighPriorityImplicits with LowPriorityImplicits {}
+trait KebsEnumUnmarshallers extends ValueEnumUnmarshallers {}
