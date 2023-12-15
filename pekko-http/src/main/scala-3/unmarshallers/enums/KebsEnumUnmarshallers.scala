@@ -22,7 +22,7 @@ trait EnumUnmarshallers {
 }
 
 trait ValueEnumUnmarshallers extends EnumUnmarshallers {
-  final def valueEnumUnmarshaller[V, E <: ValueEnumLikeEntry[V]](using `enum`: ValueEnumLike[V, E]): Unmarshaller[V, E] =
+  final def valueEnumUnmarshaller[V, E <: ValueEnumLikeEntry[V]](using `enum`: ValueEnumLike[V, E], cls: ClassTag[V]): Unmarshaller[V, E] =
     Unmarshaller { _ =>
       v =>
         `enum`.values.find(e => e.value == v && e.value.getClass == v.getClass) match {
