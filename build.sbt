@@ -162,7 +162,7 @@ def pekkoHttpInExamples = {
   Seq(pekkoStream, pekkoHttp, pekkoHttpSprayJson)
 }
 
-val http4sVersion = "0.23.24"
+val http4sVersion = "0.23.25"
 val http4s = "org.http4s" %% "http4s-dsl" % http4sVersion
 
 val http4sStirVersion = "0.2"
