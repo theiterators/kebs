@@ -2,9 +2,9 @@ package pl.iterators.kebs.unmarshallers
 
 import pl.iterators.stir.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
 import pl.iterators.kebs.instances.InstanceConverter
-import pl.iterators.kebs.macros.{ValueClassLike, FlatCaseClass1}
+import pl.iterators.kebs.macros.{ValueClassLike, CaseClass1ToValueClass}
 
-trait KebsUnmarshallers extends LowPriorityKebsUnmarshallers with FlatCaseClass1 {
+trait KebsUnmarshallers extends LowPriorityKebsUnmarshallers with CaseClass1ToValueClass {
   @inline
   implicit def kebsFromStringUnmarshaller[A, B](implicit rep: ValueClassLike[B, A],
                                                 fsu: FromStringUnmarshaller[A]): FromStringUnmarshaller[B] =

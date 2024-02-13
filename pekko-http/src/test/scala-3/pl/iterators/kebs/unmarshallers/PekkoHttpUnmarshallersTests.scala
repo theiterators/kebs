@@ -14,7 +14,7 @@ import pl.iterators.kebs.instances.net.URIString
 import pl.iterators.kebs.instances.time.{DayOfWeekInt, YearMonthString}
 import pl.iterators.kebs.unmarshallers.enums.KebsEnumUnmarshallers
 import pl.iterators.kebs.enums.ValueEnumLike
-import pl.iterators.kebs.macros.FlatCaseClass1
+import pl.iterators.kebs.macros.CaseClass1ToValueClass
 import org.apache.pekko.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
 
 import java.time.{DayOfWeek, YearMonth}
@@ -32,7 +32,7 @@ class PekkoHttpUnmarshallersTests
     with DayOfWeekInt
     with KebsEnum
     with KebsValueEnum
-    with FlatCaseClass1 {
+    with CaseClass1ToValueClass {
 
   test("No ValueClassLike implicits derived") {
     import pl.iterators.kebs.macros.ValueClassLike

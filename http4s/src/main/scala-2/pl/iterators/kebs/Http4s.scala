@@ -1,14 +1,14 @@
 package pl.iterators.kebs
 
 import scala.util.Try
-import pl.iterators.kebs.macros.{ValueClassLike, FlatCaseClass1}
+import pl.iterators.kebs.macros.{ValueClassLike, CaseClass1ToValueClass}
 import org.http4s._
 import pl.iterators.kebs.enums.EnumLike
 import pl.iterators.kebs.instances.InstanceConverter
 
 import java.util.UUID
 
-trait Http4s extends FlatCaseClass1 {
+trait Http4s extends CaseClass1ToValueClass {
   protected class PathVar[A](cast: String => Try[A]) {
     def unapply(str: String): Option[A] =
       if (str.nonEmpty)

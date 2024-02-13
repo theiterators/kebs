@@ -6,10 +6,10 @@ import scala.reflect.macros.whitebox
 
 final class ValueClassLike[VC, F1](val apply: F1 => VC, val unapply: VC => F1)
 
-trait FlatCaseClass1 {
+trait CaseClass1ToValueClass {
   implicit def repFromCaseClass[VC <: Product, F1]: ValueClassLike[VC, F1] = macro ValueClassRepMacros.materializeValueClassRep[VC, F1]
 }
-object FlatCaseClass1 extends FlatCaseClass1
+object CaseClass1ToValueClass extends CaseClass1ToValueClass
 
 class ValueClassRepMacros(override val c: whitebox.Context) extends MacroUtils {
   import c.universe._

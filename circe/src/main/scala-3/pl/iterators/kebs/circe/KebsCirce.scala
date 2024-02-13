@@ -5,7 +5,7 @@ import scala.deriving._
 import scala.util.Try
 import scala.quoted.Quotes
 import io.circe.HCursor
-import pl.iterators.kebs.macros.{ValueClassLike, FlatCaseClass1}
+import pl.iterators.kebs.macros.{ValueClassLike, CaseClass1ToValueClass}
 import pl.iterators.kebs.instances.InstanceConverter
 import io.circe.generic.AutoDerivation
 import scala.quoted.Type
@@ -17,7 +17,7 @@ import io.circe.EncoderDerivation
 import io.circe.derivation.ConfiguredEncoder
 import scala.NonEmptyTuple
 
-private[circe] trait KebsAutoDerivation extends FlatCaseClass1 {
+private[circe] trait KebsAutoDerivation extends CaseClass1ToValueClass {
   
   implicit val configuration: Configuration = Configuration.default
 

@@ -13,9 +13,9 @@ import java.util.Currency
 import pl.iterators.kebs.instances.KebsInstances._
 import pl.iterators.kebs.http4s.{given, _}
 import pl.iterators.kebs.enums.KebsEnum
-import pl.iterators.kebs.macros.FlatCaseClass1
+import pl.iterators.kebs.macros.CaseClass1ToValueClass
 
-class Http4sDslTests extends AnyFunSuite with Matchers with KebsEnum with FlatCaseClass1 {
+class Http4sDslTests extends AnyFunSuite with Matchers with KebsEnum with CaseClass1ToValueClass {
   import Domain._
 
   given runtime: IORuntime = cats.effect.unsafe.IORuntime.global

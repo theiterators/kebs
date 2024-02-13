@@ -2,14 +2,14 @@ package pl.iterators.kebs
 
 import pl.iterators.kebs.hstore.KebsHStoreColumnExtensionMethods
 import pl.iterators.kebs.instances.InstanceConverter
-import pl.iterators.kebs.macros.{ValueClassLike, FlatCaseClass1}
+import pl.iterators.kebs.macros.{ValueClassLike, CaseClass1ToValueClass}
 import slick.ast.{BaseTypedType, NumericTypedType}
 import slick.jdbc.JdbcType
 import slick.lifted._
 
 import scala.language.implicitConversions
 
-trait KebsColumnExtensionMethods extends FlatCaseClass1 {
+trait KebsColumnExtensionMethods extends CaseClass1ToValueClass {
   implicit def stringValueColumnExt[CC](rep: Rep[CC])(implicit ev: ValueClassLike[CC, String]): StringColumnExtensionMethods[CC] =
     new StringColumnExtensionMethods[CC](rep)
   implicit def stringValueOptionColumnExt[CC](rep: Rep[Option[CC]])(
