@@ -2,9 +2,9 @@ package pl.iterators.kebs.unmarshallers
 
 import org.apache.pekko.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
 import pl.iterators.kebs.instances.InstanceConverter
-import pl.iterators.kebs.macros.ValueClassLike
+import pl.iterators.kebs.macros.{ValueClassLike, FlatCaseClass1}
 
-trait KebsUnmarshallers extends LowPriorityKebsUnmarshallers {
+trait KebsUnmarshallers extends LowPriorityKebsUnmarshallers with FlatCaseClass1 {
   @inline
   implicit def kebsFromStringUnmarshaller[A, B](implicit rep: ValueClassLike[B, A],
                                                 fsu: FromStringUnmarshaller[A]): FromStringUnmarshaller[B] =

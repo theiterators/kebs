@@ -11,6 +11,7 @@ import pl.iterators.kebs.instances.net.URIString
 import pl.iterators.kebs.instances.time.{DayOfWeekInt, YearMonthString}
 import pl.iterators.kebs.unmarshallers.enums.KebsEnumUnmarshallers
 import pl.iterators.kebs.enums.{KebsEnum, KebsValueEnum}
+import pl.iterators.kebs.macros.FlatCaseClass1
 
 import java.time.{DayOfWeek, YearMonth}
 
@@ -27,6 +28,7 @@ class Http4sStirUnmarshallersTests
     with DayOfWeekInt
     with KebsEnum
     with KebsValueEnum
+    with FlatCaseClass1
     {
   implicit def runtime: cats.effect.unsafe.IORuntime = cats.effect.unsafe.IORuntime.global
 
