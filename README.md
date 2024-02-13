@@ -1110,7 +1110,8 @@ You can also use this web page: https://plugins.jetbrains.com/plugin/16069-kebs.
 ### Kebs 2.0 migration guide
 
 Please be aware that recent changes in the source code might require some changes in your codebase. Follow the guide below to migrate your code to Kebs 2.0:
-* Rename `pl.iterators.kebs.macros.CaseClass1Rep` to `pl.iterators.kebs.macros.ValueClassLike`.
+* Rename `pl.iterators.kebs.macros.CaseClass1Rep` to `pl.iterators.kebs.macros.ValueClassLike`. 
+* In cases where previously an implicit conversion from a 1-element case class to a `ValueClassLike` occured, please mix in the `CaseClass1ToValueClass` trait.
 * Extend your value-enums with `pl.iterators.kebs.enums.ValueEnumLikeEntry` parameterized with the type of the value.
   * Native Scala 3 value-enums:
     ```scala
