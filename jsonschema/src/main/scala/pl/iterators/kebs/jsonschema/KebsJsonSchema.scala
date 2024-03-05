@@ -1,6 +1,6 @@
 package pl.iterators.kebs.jsonschema
 
-import pl.iterators.kebs.macros.ValueClassLike
+import pl.iterators.kebs.core.macros.ValueClassLike
 
 trait KebsJsonSchema {
   import macros.KebsJsonSchemaMacros

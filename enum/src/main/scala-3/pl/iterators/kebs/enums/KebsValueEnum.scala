@@ -1,6 +1,4 @@
-package pl.iterators.kebs.enums
-
-import pl.iterators.kebs.enums.ValueEnumLike
+package pl.iterators.kebs.slick.enums
 
 import scala.collection.immutable
 import scala.quoted.*

@@ -1,6 +1,5 @@
 package pl.iterators.kebs.enumeratum
 
-import pl.iterators.kebs.enums.{ValueEnumLike, ValueEnumLikeEntry}
 import scala.collection.immutable
 import enumeratum.values._
 import scala.quoted._

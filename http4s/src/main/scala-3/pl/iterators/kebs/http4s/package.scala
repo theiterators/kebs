@@ -4,9 +4,7 @@ import scala.util.Try
 import scala.reflect.Enum
 import pl.iterators.kebs.macros.ValueClassLike
 import org.http4s._
-import pl.iterators.kebs.instances.InstanceConverter
 import java.util.UUID
-import pl.iterators.kebs.enums.EnumLike
 
 protected class PathVar[A](cast: String => Try[A]) {
   def unapply(str: String): Option[A] =

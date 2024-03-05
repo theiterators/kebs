@@ -1,5 +1,7 @@
 package pl.iterators.kebs.enums
 
+import pl.iterators.kebs.core.enums.EnumLike
+
 import scala.language.experimental.macros
 import scala.language.implicitConversions
 import scala.reflect.macros.blackbox
@@ -16,7 +18,6 @@ class EnumerationEntryMacros(val c: blackbox.Context) {
     val valueType = implicitly[c.WeakTypeTag[E]].tpe.dealias
     val objectStr = valueType.toString.replaceFirst(".Value$", "")
     val objectName = c.typecheck(c.parse(s"$objectStr: $objectStr.type"))
-    c.Expr[EnumLike[E]](q"new _root_.pl.iterators.kebs.enums.EnumLike[$valueType] { override def values: immutable.Seq[${valueType}] = ($objectName).values.toSeq }")
+    c.Expr[EnumLike[E]](q"new _root_.pl.iterators.kebs.core.enums.EnumLike[$valueType] { override def values: immutable.Seq[${valueType}] = ($objectName).values.toSeq }")
   }
 }
-

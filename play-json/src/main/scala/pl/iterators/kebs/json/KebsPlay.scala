@@ -1,7 +1,7 @@
 package pl.iterators.kebs.json
 
-import pl.iterators.kebs.instances.InstanceConverter
-import pl.iterators.kebs.macros.{ValueClassLike, CaseClass1ToValueClass}
+import pl.iterators.kebs.core.instances.InstanceConverter
+import pl.iterators.kebs.core.macros.{CaseClass1ToValueClass, ValueClassLike}
 import play.api.libs.json._
 
 trait KebsPlay extends CaseClass1ToValueClass {

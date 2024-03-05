@@ -1,6 +1,6 @@
 package pl.iterators.kebs.json
 
-import pl.iterators.kebs.enums.{EnumLike, ValueEnumLike, ValueEnumLikeEntry}
+import pl.iterators.kebs.core.enums.{EnumLike, ValueEnumLike, ValueEnumLikeEntry}
 import spray.json.{JsString, JsValue, JsonFormat}
 
 trait SprayJsonEnum {

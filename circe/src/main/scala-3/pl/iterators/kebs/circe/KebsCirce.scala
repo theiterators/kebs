@@ -5,8 +5,6 @@ import scala.deriving._
 import scala.util.Try
 import scala.quoted.Quotes
 import io.circe.HCursor
-import pl.iterators.kebs.macros.{ValueClassLike, CaseClass1ToValueClass}
-import pl.iterators.kebs.instances.InstanceConverter
 import io.circe.generic.AutoDerivation
 import scala.quoted.Type
 import io.circe.derivation.ConfiguredDecoder

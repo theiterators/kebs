@@ -4,7 +4,6 @@ import io.circe.Decoder.Result
 import io.circe._
 import scala.reflect.Enum
 import scala.util.Try
-import pl.iterators.kebs.enums.{ValueEnumLike, ValueEnumLikeEntry, EnumLike}
 
 import reflect.Selectable.reflectiveSelectable
 

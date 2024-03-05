@@ -1,6 +1,5 @@
-package pl.iterators.kebs.enums
+package pl.iterators.kebs.slick.enums
 
-import pl.iterators.kebs.enums.EnumLike
 import scala.collection.immutable
 import scala.quoted._
 import scala.compiletime.{constValue, erasedValue, error, summonInline}

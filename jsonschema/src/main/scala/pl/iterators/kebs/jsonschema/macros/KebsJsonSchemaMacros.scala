@@ -1,9 +1,8 @@
 package pl.iterators.kebs.jsonschema.macros
 
-import pl.iterators.kebs.macros.MacroUtils
-
 import scala.reflect.macros._
 import json._
+import pl.iterators.kebs.core.macros.MacroUtils
 import pl.iterators.kebs.jsonschema.JsonSchemaWrapper
 
 class KebsJsonSchemaMacros(override val c: whitebox.Context) extends MacroUtils {

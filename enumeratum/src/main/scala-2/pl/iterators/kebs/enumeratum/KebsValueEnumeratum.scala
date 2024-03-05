@@ -1,7 +1,7 @@
 package pl.iterators.kebs.enumeratum
 
 import enumeratum.values._
-import pl.iterators.kebs.enums.{ValueEnumLike, ValueEnumLikeEntry}
+import pl.iterators.kebs.core.enums.{ValueEnumLike, ValueEnumLikeEntry}
 
 import scala.language.experimental.macros
 import scala.reflect.macros.blackbox
@@ -25,7 +25,7 @@ class ValueEnumEntryMacros(val c: blackbox.Context) {
 
     c.Expr[ValueEnumLike[ValueType, E]](
       q"""
-        new _root_.pl.iterators.kebs.enums.ValueEnumLike[${ValueType}, ${EnumEntry}] {
+        new _root_.pl.iterators.kebs.core.enums.ValueEnumLike[${ValueType}, ${EnumEntry}] {
           override def values: Seq[$EnumEntry] = ${EnumEntry.typeSymbol.companion}.values.toSeq
         }
       """

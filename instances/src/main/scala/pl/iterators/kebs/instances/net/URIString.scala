@@ -1,7 +1,7 @@
 package pl.iterators.kebs.instances.net
 
-import pl.iterators.kebs.instances.InstanceConverter
-import pl.iterators.kebs.instances.net.URIString.URIFormat
+import URIString.URIFormat
+import pl.iterators.kebs.core.instances.InstanceConverter
 
 import java.net.URI
 

@@ -2,8 +2,8 @@ package pl.iterators.kebs.circe
 
 import io.circe.generic.AutoDerivation
 import io.circe.{Decoder, Encoder}
-import pl.iterators.kebs.instances.InstanceConverter
-import pl.iterators.kebs.macros.{ValueClassLike, CaseClass1ToValueClass}
+import pl.iterators.kebs.core.instances.InstanceConverter
+import pl.iterators.kebs.core.macros.{CaseClass1ToValueClass, ValueClassLike}
 
 import scala.language.experimental.macros
 import scala.util.Try

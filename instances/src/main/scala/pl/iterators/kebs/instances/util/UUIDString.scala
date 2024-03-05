@@ -1,7 +1,7 @@
 package pl.iterators.kebs.instances.util
 
-import pl.iterators.kebs.instances.InstanceConverter
-import pl.iterators.kebs.instances.util.UUIDString.UUIDFormat
+import UUIDString.UUIDFormat
+import pl.iterators.kebs.core.instances.InstanceConverter
 
 import java.util.UUID
 
