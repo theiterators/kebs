@@ -1111,7 +1111,7 @@ You can also use this web page: https://plugins.jetbrains.com/plugin/16069-kebs.
 
 Please be aware that recent changes in the source code might require some changes in your codebase. Follow the guide below to migrate your code to Kebs 2.0:
 * If you are using value classes instead of tagged/opaque types, please mix in the `CaseClass1ToValueClass` trait.
-* Extend your value-enums with `pl.iterators.kebs.slick.enums.ValueEnumLikeEntry` parameterized with the type of the value.
+* Extend your value-enums with `pl.iterators.kebs.enums.ValueEnumLikeEntry` parameterized with the type of the value.
   * Native Scala 3 value-enums:
     ```scala
     enum ColorButRGB(val value: Int) extends ValueEnumLikeEntry[Int] {
@@ -1134,6 +1134,6 @@ Please be aware that recent changes in the source code might require some change
 * Extend your traits/classes/objects, if inside of one an implicit enum (or value-enum) conversion for `kebs` library's needs should occur, with one of the following traits:
     * For Scala 2 and Scala 3 enums from `enumeratum` library: `pl.iterators.kebs.enumeratum.KebsEnumeratum`
     * For Scala 2 and Scala 3 value-enums from `enumeratum` library: `pl.iterators.kebs.enumeratum.KebsValueEnumeratum`
-    * For Scala 3 native value-enums: `pl.iterators.kebs.slick.enums.KebsValueEnum`
+    * For Scala 3 native value-enums: `pl.iterators.kebs.enums.KebsValueEnum`
     * For Scala 2 `scala.Enumeration` enums or Scala 3 native enums: `pl.iterators.kebs.enums.KebsEnum`
  
