@@ -1,4 +1,4 @@
-package pl.iterators.kebs.unmarshallers
+package pl.iterators.kebs.http4sstir.unmarshallers
 
 import org.http4s.UrlForm
 import pl.iterators.stir.server.{Directives, MalformedQueryParamRejection}
@@ -95,7 +95,7 @@ class Http4sStirUnmarshallersTests
     Get("/color?red=1&green=2&blue=3") ~> route ~> check { responseAs[String] shouldEqual "Color(Red(1),Green(2),Blue(3))" }
   }
 
-  test("Unmarshalling pl.iterators.kebs.json.instances parameter") {
+  test("Unmarshalling instances parameter") {
     val testRoute = path("instances") {
       parameters(Symbol("year").as[YearMonth]) { year =>
         complete(year.toString)

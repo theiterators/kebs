@@ -5,5 +5,5 @@ enum Color {
 }
 object ColorDomain {
   val colorValues = Color.values.toList
-  type colorType = Color
+  type ColorType = Color
 }

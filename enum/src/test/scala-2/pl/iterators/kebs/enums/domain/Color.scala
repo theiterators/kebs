@@ -6,5 +6,5 @@ object Color extends Enumeration {
 }
 object ColorDomain {
   val colorValues = Color.values.toList
-  type colorType = Color.Color
+  type ColorType = Color.Color
 }

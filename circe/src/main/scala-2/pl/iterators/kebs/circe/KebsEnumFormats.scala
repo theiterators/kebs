@@ -6,12 +6,12 @@ import pl.iterators.kebs.core.enums.{EnumLike, ValueEnumLike, ValueEnumLikeEntry
 
 trait CirceEnum {
   @inline protected final def enumNameDeserializationError[E](`enum`: EnumLike[E], name: String): String = {
-    val enumNames = `enum`.namesToValuesMap.values.mkString(", ")
+    val enumNames = `enum`.getNamesToValuesMap.values.mkString(", ")
     s"$name should be one of $enumNames"
   }
 
   @inline protected final def enumValueDeserializationError[E](`enum`: EnumLike[E], value: Json): String = {
-    val enumNames = `enum`.namesToValuesMap.values.mkString(", ")
+    val enumNames = `enum`.getNamesToValuesMap.values.mkString(", ")
     s"$value should be a string of value $enumNames"
   }
 
@@ -40,13 +40,13 @@ trait CirceEnum {
 
 trait CirceValueEnum {
   @inline protected final def valueEnumDeserializationError[V, E <: ValueEnumLikeEntry[V]](`enum`: ValueEnumLike[V, E], value: Json): String = {
-    val enumValues = `enum`.valuesToEntriesMap.keys.mkString(", ")
+    val enumValues = `enum`.getValuesToEntriesMap.keys.mkString(", ")
     s"$value is not a member of $enumValues"
   }
 
   def valueEnumDecoder[V, E <: ValueEnumLikeEntry[V]](`enum`: ValueEnumLike[V, E])(implicit decoder: Decoder[V]): Decoder[E] =
     (c: HCursor) =>
-      decoder.emap(obj => `enum`.withValueOpt(obj).toRight("")).withErrorMessage(valueEnumDeserializationError(`enum`, c.value))(c)
+      decoder.emap(obj => `enum`.withValueOption(obj).toRight("")).withErrorMessage(valueEnumDeserializationError(`enum`, c.value))(c)
 
   def valueEnumEncoder[V, E <: ValueEnumLikeEntry[V]](`enum`: ValueEnumLike[V, E])(implicit encoder: Encoder[V]): Encoder[E] =
     (obj: E) => encoder(obj.value)

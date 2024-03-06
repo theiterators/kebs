@@ -10,7 +10,7 @@ trait EnumUnmarshallers {
     `enum`.withNameInsensitiveOption(name) match {
       case Some(enumEntry) => IO.pure(enumEntry)
       case None =>
-        IO.raiseError(new IllegalArgumentException(s"""Invalid value '$name'. Expected one of: ${`enum`.namesToValuesMap.keysIterator
+        IO.raiseError(new IllegalArgumentException(s"""Invalid value '$name'. Expected one of: ${`enum`.getNamesToValuesMap.keysIterator
           .mkString(", ")}"""))
     }
   }
@@ -21,10 +21,10 @@ trait EnumUnmarshallers {
 
 trait ValueEnumUnmarshallers {
   final def valueEnumUnmarshaller[V, E <: ValueEnumLikeEntry[V]](`enum`: ValueEnumLike[V, E]): Unmarshaller[V, E] = Unmarshaller { v =>
-    `enum`.withValueOpt(v) match {
+    `enum`.withValueOption(v) match {
       case Some(enumEntry) => IO.pure(enumEntry)
       case None =>
-        IO.raiseError(new IllegalArgumentException(s"""Invalid value '$v'. Expected one of: ${`enum`.valuesToEntriesMap.keysIterator
+        IO.raiseError(new IllegalArgumentException(s"""Invalid value '$v'. Expected one of: ${`enum`.getValuesToEntriesMap.keysIterator
           .mkString(", ")}"""))
     }
   }

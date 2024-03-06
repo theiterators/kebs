@@ -5,12 +5,12 @@ import spray.json.{JsString, JsValue, JsonFormat}
 
 trait SprayJsonEnum {
   @inline protected final def enumNameDeserializationError[E](`enum`: EnumLike[E], name: String) = {
-    val enumNames = `enum`.namesToValuesMap.values.mkString(", ")
+    val enumNames = `enum`.getNamesToValuesMap.values.mkString(", ")
     spray.json.deserializationError(s"$name should be one of $enumNames")
   }
 
   @inline protected final def enumValueDeserializationError[E](`enum`: EnumLike[E], value: JsValue) = {
-    val enumNames = `enum`.namesToValuesMap.values.mkString(", ")
+    val enumNames = `enum`.getNamesToValuesMap.values.mkString(", ")
     spray.json.deserializationError(s"$value should be a string of value $enumNames")
   }
 
@@ -30,7 +30,7 @@ trait SprayJsonEnum {
 
 trait SprayJsonValueEnum {
   @inline protected final def valueEnumDeserializationError[V, E <: ValueEnumLikeEntry[V]](`enum`: ValueEnumLike[V, E], value: V) = {
-    val enumValues = `enum`.valuesToEntriesMap.keys.mkString(", ")
+    val enumValues = `enum`.getValuesToEntriesMap.keys.mkString(", ")
     spray.json.deserializationError(s"$value is not a member of $enumValues")
   }
 
@@ -38,7 +38,7 @@ trait SprayJsonValueEnum {
     override def write(obj: E): JsValue = baseJsonFormat.write(obj.value)
     override def read(json: JsValue): E = {
       val value = baseJsonFormat.read(json)
-      `enum`.withValueOpt(value).getOrElse(valueEnumDeserializationError(`enum`, value))
+      `enum`.withValueOption(value).getOrElse(valueEnumDeserializationError(`enum`, value))
     }
   }
 }

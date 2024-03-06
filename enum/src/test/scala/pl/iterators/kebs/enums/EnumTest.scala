@@ -8,8 +8,8 @@ import pl.iterators.kebs.enums.domain.ColorDomain
 
 object EnumTest extends Properties("Deriving") with KebsEnum {
 
-  property("EnumLike derives properly for an enum") = forAll(Gen.oneOf(ColorDomain.colorValues)) { (color: ColorDomain.colorType) =>
-    val tc = implicitly[EnumLike[ColorDomain.colorType]]
+  property("EnumLike derives properly for an enum") = forAll(Gen.oneOf(ColorDomain.colorValues)) { (color: ColorDomain.ColorType) =>
+    val tc = implicitly[EnumLike[ColorDomain.ColorType]]
     tc.values.contains(color) && tc.valueOf(color.toString) == color
   }
 }

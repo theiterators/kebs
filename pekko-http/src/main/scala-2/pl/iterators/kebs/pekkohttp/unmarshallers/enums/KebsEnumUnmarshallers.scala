@@ -10,7 +10,7 @@ trait EnumUnmarshallers {
     `enum`.withNameInsensitiveOption(name) match {
       case Some(enumEntry) => FastFuture.successful(enumEntry)
       case None =>
-        FastFuture.failed(new IllegalArgumentException(s"""Invalid value '$name'. Expected one of: ${`enum`.namesToValuesMap.keysIterator
+        FastFuture.failed(new IllegalArgumentException(s"""Invalid value '$name'. Expected one of: ${`enum`.getNamesToValuesMap.keysIterator
           .mkString(", ")}"""))
     }
   }
@@ -24,7 +24,7 @@ trait ValueEnumUnmarshallers {
     `enum`.values.find(e => e.value == v && e.value.getClass == v.getClass) match {
       case Some(enumEntry) => FastFuture.successful(enumEntry)
       case None =>
-        FastFuture.failed(new IllegalArgumentException(s"""Invalid value '$v'. Expected one of: ${`enum`.valuesToEntriesMap.keysIterator
+        FastFuture.failed(new IllegalArgumentException(s"""Invalid value '$v'. Expected one of: ${`enum`.getValuesToEntriesMap.keysIterator
           .mkString(", ")}"""))
     }
   }
