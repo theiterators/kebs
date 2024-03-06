@@ -1,8 +1,13 @@
+package pl.iterators.kebs.circe
+
 import enumeratum.values.{LongEnum, LongEnumEntry}
 import io.circe._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.circe.KebsEnumFormats
+
+import pl.iterators.kebs.enums.KebsValueEnum
+import pl.iterators.kebs.core.enums.ValueEnumLikeEntry
 
 class CirceValueEnumDecoderEncoderTests extends AnyFunSuite with Matchers with KebsValueEnum {
 

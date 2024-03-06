@@ -1,4 +1,4 @@
-package pl.iterators.kebs.unmarshallers
+package pl.iterators.kebs.http4sstir.unmarshallers
 
 import org.http4s.UrlForm
 import pl.iterators.stir.server.{Directives, MalformedQueryParamRejection}
@@ -6,8 +6,13 @@ import pl.iterators.stir.testkit.ScalatestRouteTest
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.Domain._
-import pl.iterators.kebs.macros.CaseClass1ToValueClass
+import pl.iterators.kebs.http4sstir.domain.Domain._
+import pl.iterators.kebs.instances.net.URIString
+import pl.iterators.kebs.instances.time.{DayOfWeekInt, ZonedDateTimeString, YearMonthString}
+import pl.iterators.kebs.instances.time.mixins.InstantEpochMilliLong
+import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
+import pl.iterators.kebs.enums.{KebsEnum, KebsValueEnum}
+import pl.iterators.kebs.http4sstir.unmarshallers.enums.KebsEnumUnmarshallers
 
 import java.time.{DayOfWeek, YearMonth}
 
@@ -29,7 +34,7 @@ class Http4sStirUnmarshallersTests
   implicit def runtime: cats.effect.unsafe.IORuntime = cats.effect.unsafe.IORuntime.global
 
   test("No ValueClassLike implicits derived") {
-    import pl.iterators.kebs.macros.ValueClassLike
+    import pl.iterators.kebs.core.macros.ValueClassLike
 
     "implicitly[ValueClassLike[URI, String]]" shouldNot typeCheck
     "implicitly[ValueClassLike[String, URI]]" shouldNot typeCheck
@@ -93,13 +98,13 @@ class Http4sStirUnmarshallersTests
     Get("/color?red=1&green=2&blue=3") ~> route ~> check { responseAs[String] shouldEqual "Color(Red(1),Green(2),Blue(3))" }
   }
 
-  test("Unmarshalling pl.iterators.kebs.json.instances parameter") {
+  test("Unmarshalling instances parameter") {
     val testRoute = path("instances") {
       parameters(Symbol("year").as[YearMonth]) { year =>
         complete(year.toString)
       }
     }
-    Get("/instances") ~> testRoute ~> check {
+    Get("/instances?year=2021-05") ~> testRoute ~> check {
       responseAs[String] shouldEqual "2021-05"
     }
   }

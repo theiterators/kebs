@@ -1,6 +1,6 @@
 package pl.iterators.kebs.opaque
 
-import pl.iterators.kebs.macros.ValueClassLike
+import pl.iterators.kebs.core.macros.ValueClassLike
 
 trait Opaque[OpaqueType, Unwrapped](using ev: OpaqueType =:= Unwrapped) {
   /**

@@ -15,6 +15,9 @@ import io.circe.EncoderDerivation
 import io.circe.derivation.ConfiguredEncoder
 import scala.NonEmptyTuple
 
+import pl.iterators.kebs.core.macros.{CaseClass1ToValueClass, ValueClassLike}
+import pl.iterators.kebs.core.instances.InstanceConverter
+
 private[circe] trait KebsAutoDerivation extends CaseClass1ToValueClass {
   
   implicit val configuration: Configuration = Configuration.default

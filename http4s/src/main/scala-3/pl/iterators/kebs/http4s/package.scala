@@ -2,7 +2,9 @@ package pl.iterators.kebs.http4s
 
 import scala.util.Try
 import scala.reflect.Enum
-import pl.iterators.kebs.macros.ValueClassLike
+import pl.iterators.kebs.core.enums.EnumLike
+import pl.iterators.kebs.core.macros.ValueClassLike
+import pl.iterators.kebs.core.instances.InstanceConverter
 import org.http4s._
 import java.util.UUID
 

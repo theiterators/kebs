@@ -1,4 +1,4 @@
-package pl.iterators.kebs.unmarshallers.enums
+package pl.iterators.kebs.pekkohttp.unmarshallers.enums
 
 import org.apache.pekko.http.scaladsl.unmarshalling.PredefinedFromStringUnmarshallers.*
 import org.apache.pekko.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
@@ -6,6 +6,9 @@ import org.apache.pekko.http.scaladsl.util.FastFuture
 
 import scala.reflect.ClassTag
 import scala.reflect.Selectable.reflectiveSelectable
+
+import pl.iterators.kebs.core.enums.{EnumLike, ValueEnumLike, ValueEnumLikeEntry}
+
 trait EnumUnmarshallers {
 
   final def enumUnmarshaller[E](using e: EnumLike[E]): FromStringUnmarshaller[E] = org.apache.pekko.http.scaladsl.unmarshalling.Unmarshaller { _ => name =>

@@ -1,9 +1,12 @@
-package pl.iterators.kebs.matchers
+package pl.iterators.kebs.pekkohttp.matchers
 
 import org.apache.pekko.http.scaladsl.server.PathMatcher1
-import pl.iterators.kebs.macros.ValueClassLike
+import pl.iterators.kebs.core.macros.ValueClassLike
 import org.apache.pekko.stream.Materializer
 import scala.reflect.Enum
+
+import pl.iterators.kebs.core.enums.EnumLike
+import pl.iterators.kebs.core.instances.InstanceConverter
 
 import scala.language.implicitConversions
 

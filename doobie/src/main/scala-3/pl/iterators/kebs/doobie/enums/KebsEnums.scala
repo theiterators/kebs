@@ -1,8 +1,10 @@
-package pl.iterators.kebs.slick.enums
+package pl.iterators.kebs.doobie.enums
 
 import doobie.Meta
 import scala.reflect.ClassTag
 import scala.reflect.Enum
+
+import pl.iterators.kebs.core.enums.EnumLike
 
 trait KebsEnums {
   inline given enumMeta[E <: Enum](using e: EnumLike[E]): Meta[E] = Meta.StringMeta.imap(e.valueOf)(_.toString)

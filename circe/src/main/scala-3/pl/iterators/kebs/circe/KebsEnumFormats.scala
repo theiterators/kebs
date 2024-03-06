@@ -5,6 +5,8 @@ import io.circe._
 import scala.reflect.Enum
 import scala.util.Try
 
+import pl.iterators.kebs.core.enums.{EnumLike, ValueEnumLike, ValueEnumLikeEntry}
+
 import reflect.Selectable.reflectiveSelectable
 
 trait CirceEnum {

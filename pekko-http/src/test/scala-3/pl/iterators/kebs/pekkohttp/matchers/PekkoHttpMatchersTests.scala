@@ -1,14 +1,19 @@
-package pl.iterators.kebs.matchers
+package pl.iterators.kebs.pekkohttp.matchers
 
 import org.apache.pekko.http.scaladsl.server.Directives
 import org.apache.pekko.http.scaladsl.testkit.ScalatestRouteTest
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.Domain._
+import pl.iterators.kebs.instances.net.URIString
+import pl.iterators.kebs.instances.time.{DayOfWeekInt, ZonedDateTimeString, YearMonthString}
+import pl.iterators.kebs.instances.time.mixins.InstantEpochMilliLong
+import pl.iterators.kebs.pekkohttp.domain.Domain._
 
 import java.net.URI
 import java.time.{DayOfWeek, Instant, ZonedDateTime}
+
+import pl.iterators.kebs.enums.KebsEnum
 
 class PekkoHttpMatchersTests
   extends AnyFunSuite
@@ -23,7 +28,7 @@ class PekkoHttpMatchersTests
     with KebsEnum {
 
   test("No ValueClassLike implicits derived") {
-    import pl.iterators.kebs.macros.ValueClassLike
+    import pl.iterators.kebs.core.macros.ValueClassLike
 
     "implicitly[ValueClassLike[DayOfWeek, Int]]" shouldNot typeCheck
     "implicitly[ValueClassLike[Int, DayOfWeek]]" shouldNot typeCheck

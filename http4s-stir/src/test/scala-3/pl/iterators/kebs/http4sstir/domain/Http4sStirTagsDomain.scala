@@ -1,9 +1,11 @@
-package pl.iterators.kebs
+package pl.iterators.kebs.http4sstir.domain
 
 import pl.iterators.kebs.opaque.Opaque
 
 import java.net.URI
 import java.util.UUID
+
+import pl.iterators.kebs.core.enums.ValueEnumLikeEntry
 
 object Domain  {
   opaque type TestTaggedUri = URI

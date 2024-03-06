@@ -1,8 +1,12 @@
+package pl.iterators.kebs.circe
+
 import io.circe._
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.funsuite.AnyFunSuite
 import pl.iterators.kebs.circe.KebsEnumFormats
 import scala.reflect.Enum
+
+import pl.iterators.kebs.enums.KebsEnum
 
 class CirceEnumDecoderEncoderTests extends AnyFunSuite with Matchers with KebsEnum {
 

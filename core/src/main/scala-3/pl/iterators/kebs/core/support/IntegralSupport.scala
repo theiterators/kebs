@@ -1,6 +1,6 @@
-package pl.iterators.kebs.support
+package pl.iterators.kebs.core.support
 
-import pl.iterators.kebs.macros.ValueClassLike
+import pl.iterators.kebs.core.macros.ValueClassLike
 
 trait IntegralSupport {
 

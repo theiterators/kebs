@@ -1,4 +1,4 @@
-package pl.iterators.kebs.slick.enums.domain
+package pl.iterators.kebs.enums.domain
 
 enum Color {
   case Red, Green, Blue

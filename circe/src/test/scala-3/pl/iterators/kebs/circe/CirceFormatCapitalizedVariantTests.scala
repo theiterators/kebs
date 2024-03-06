@@ -1,3 +1,5 @@
+package pl.iterators.kebs.circe
+
 import io.circe.{Decoder, Encoder, Json, JsonNumber}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers

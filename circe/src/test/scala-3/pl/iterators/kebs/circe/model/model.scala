@@ -1,3 +1,4 @@
+package pl.iterators.kebs.circe
 
 import io.circe.Decoder
 import io.circe.Encoder

@@ -1,4 +1,4 @@
-
+package pl.iterators.kebs.circe.instances
 
 import io.circe.{Decoder, Encoder, Json}
 import org.scalatest.funsuite.AnyFunSuite
@@ -7,6 +7,11 @@ import pl.iterators.kebs.circe.KebsCirce
 
 import java.time._
 import java.time.format.DateTimeFormatter
+
+import pl.iterators.kebs.core.instances.InstanceConverter
+import pl.iterators.kebs.instances.TimeInstances
+import pl.iterators.kebs.instances.time.LocalDateTimeString
+import pl.iterators.kebs.instances.time.mixins.{InstantEpochMilliLong, DurationNanosLong}
 
 class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
 

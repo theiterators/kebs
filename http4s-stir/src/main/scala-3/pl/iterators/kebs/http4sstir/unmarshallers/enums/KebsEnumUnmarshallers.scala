@@ -1,4 +1,4 @@
-package pl.iterators.kebs.unmarshallers.enums
+package pl.iterators.kebs.http4sstir.unmarshallers.enums
 
 import cats.effect.IO
 import pl.iterators.stir.unmarshalling.PredefinedFromStringUnmarshallers.*
@@ -6,6 +6,8 @@ import pl.iterators.stir.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
 
 import scala.reflect.{ClassTag, Enum}
 import scala.reflect.Selectable.reflectiveSelectable
+
+import pl.iterators.kebs.core.enums.{EnumLike, ValueEnumLike, ValueEnumLikeEntry}
 
 trait EnumUnmarshallers {
   final def enumUnmarshaller[E <: Enum](using e: EnumLike[E]): FromStringUnmarshaller[E] = Unmarshaller { name =>

@@ -1,7 +1,7 @@
 package pl.iterators.kebs.scalacheck
 
 import org.scalacheck.{Arbitrary, Gen}
-import pl.iterators.kebs.macros.ValueClassLike
+import pl.iterators.kebs.core.macros.ValueClassLike
 
 import java.net.{URI, URL}
 import java.time.temporal.ChronoUnit

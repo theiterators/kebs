@@ -1,14 +1,19 @@
-import org.scalatest.funsuite.AnyFunSuite
-import org.scalatest.matchers.should.Matchers
+package pl.iterators.kebs.doobie
 
-import java.util.Currency
-import doobie.{*, given}
 import doobie.implicits.given
 import doobie.postgres.given
 import doobie.postgres.implicits.given
-import pl.iterators.kebs.given
-import pl.iterators.kebs.circe.instances.KebsInstances.given
+import doobie.{*, given}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
+import pl.iterators.kebs.doobie.EyeColor
+import pl.iterators.kebs.enums.KebsEnum
+import pl.iterators.kebs.doobie.given 
+import pl.iterators.kebs.doobie.enums.given 
+import pl.iterators.kebs.instances.KebsInstances.given
 import pl.iterators.kebs.opaque.Opaque
+
+import java.util.Currency
 
 opaque type Name = String
 object Name extends Opaque[Name, String]

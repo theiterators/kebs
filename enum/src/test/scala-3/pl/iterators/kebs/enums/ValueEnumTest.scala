@@ -1,9 +1,11 @@
-package pl.iterators.kebs.slick.enums
+package pl.iterators.kebs.enums
 
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Gen, Properties}
 import scala.deriving.Mirror
 import scala.reflect.{ClassTag, Enum}
+
+import pl.iterators.kebs.core.enums.{ValueEnumLike, ValueEnumLikeEntry}
 
 object DerivingSpecification extends Properties("Deriving") with KebsValueEnum {
 

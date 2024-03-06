@@ -1,3 +1,5 @@
+package pl.iterators.kebs.circe
+
 import java.time.ZonedDateTime
 
 import io.circe.{Decoder, Encoder, Json}

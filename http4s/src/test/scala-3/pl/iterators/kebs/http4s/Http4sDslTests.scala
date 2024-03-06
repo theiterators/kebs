@@ -1,4 +1,4 @@
-package pl.iterators.kebs
+package pl.iterators.kebs.http4s
 
 import cats.effect.IO
 import cats.effect.unsafe.IORuntime
@@ -10,9 +10,10 @@ import org.scalatest.matchers.should.Matchers
 import java.time.Year
 import java.util.Currency
 
-import pl.iterators.kebs.circe.instances.KebsInstances._
+import pl.iterators.kebs.instances.KebsInstances._
 import pl.iterators.kebs.http4s.{given, _}
-import pl.iterators.kebs.macros.CaseClass1ToValueClass
+import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
+import pl.iterators.kebs.enums.KebsEnum
 
 class Http4sDslTests extends AnyFunSuite with Matchers with KebsEnum with CaseClass1ToValueClass {
   import Domain._

@@ -1,3 +1,3 @@
-package pl.iterators.kebs.unmarshallers
+package pl.iterators.kebs.pekkohttp.unmarshallers
 
 package object enums extends KebsEnumUnmarshallers
