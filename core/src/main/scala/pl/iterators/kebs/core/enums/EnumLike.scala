@@ -5,7 +5,6 @@ import scala.collection.immutable
 trait EnumLike[T] {
   def values: immutable.Seq[T]
   def getNamesToValuesMap: Map[String, T] = EnumLike.namesToValuesMap(this)
-  def extraNamesToValuesMap: Map[String, T] = Map.empty[String, T]
   def withNameOption(name: String): Option[T] = EnumLike.namesToValuesMap(this).get(name)
   def withNameUppercaseOnlyOption(name: String): Option[T] = EnumLike.upperCaseNameValuesToMap(this).get(name)
   def withNameInsensitiveOption(name: String): Option[T] = EnumLike.lowerCaseNamesToValuesMap(this).get(name.toLowerCase)
@@ -22,7 +21,7 @@ trait EnumLike[T] {
 }
 
 private[core] object EnumLike {
-  private def namesToValuesMap[T](`enum`: EnumLike[T]): Map[String, T] = `enum`.values.map(v => v.toString -> v).toMap ++ `enum`.extraNamesToValuesMap
+  private def namesToValuesMap[T](`enum`: EnumLike[T]): Map[String, T] = `enum`.values.map(v => v.toString -> v).toMap
   private def upperCaseNameValuesToMap[T](`enum`: EnumLike[T]): Map[String, T] = namesToValuesMap(`enum`).map { case (k, v) => k.toUpperCase() -> v }
   private def lowerCaseNamesToValuesMap[T](`enum`: EnumLike[T]): Map[String, T] = namesToValuesMap(`enum`).map { case (k, v) => k.toLowerCase() -> v }
   private def existingEntriesString[T](`enum`: EnumLike[T]): String = `enum`.values.map(_.toString).mkString(", ")

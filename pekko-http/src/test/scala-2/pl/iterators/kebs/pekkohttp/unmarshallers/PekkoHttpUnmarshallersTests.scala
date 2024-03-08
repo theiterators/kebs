@@ -132,7 +132,7 @@ class PekkoHttpUnmarshallersTests
     }
   }
 
-  test("Unmarshalling pl.iterators.kebs.json.instances parameter") {
+  test("Unmarshalling instances parameter") {
     val testRoute = path("instances") {
       parameters(Symbol("year").as[YearMonth]) { year =>
         complete(year.toString)

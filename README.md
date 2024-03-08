@@ -81,7 +81,7 @@ or for tagged-types code generation support
 `libraryDependencies += "pl.iterators" %% "kebs-tagged-meta" % "1.9.6"`
 `addCompilerPlugin("org.scalameta" % "paradise" % "3.0.0-M11" cross CrossVersion.full)`
 
-Support for `pl.iterators.kebs.json.instances`
+Support for `instances`
 
 `libraryDependencies += "pl.iterators" %% "kebs-instances" % "1.9.6"`
 
@@ -751,7 +751,7 @@ import org.http4s.implicits._
 
 import pl.iterators.kebs.opaque.Opaque
 import pl.iterators.kebs.http4s.{given, _}
-import pl.iterators.kebs.instances.KebsInstances._ // optional, if you want inpl.iterators.kebs.json.stances support, ex. java.util.Currency
+import pl.iterators.kebs.instances.KebsInstances._ // optional, if you want instances support, ex. java.util.Currency
 
 opaque type Age = Int
 object Age extends Opaque[Age, Int] {

@@ -34,7 +34,7 @@ class Http4sDslTests extends AnyFunSuite with Matchers with KebsEnumeratum {
   val ColorVar = EnumString[Color]
 
   val routes = HttpRoutes.of[IO] {
-    case GET -> Root / "pl.iterators.kebs.jsonschema.WrappedInt" / AgeVar(age) => Ok(age.toString)
+    case GET -> Root / "WrappedInt" / AgeVar(age) => Ok(age.toString)
     case GET -> Root / "InstanceString" / CurrencyVar(currency) => Ok(currency.getClass.toString)
     case GET -> Root / "EnumString" / ColorVar(color) => Ok(color.toString)
     case GET -> Root / "WrappedUUID" / UserIdVar(userId) => Ok(userId.toString)
@@ -47,9 +47,9 @@ class Http4sDslTests extends AnyFunSuite with Matchers with KebsEnumeratum {
     routes.orNotFound.run(Request(method = Method.GET, uri = path)).unsafeRunSync().body.compile.fold[String]("")(_ + _.toChar).unsafeRunSync()
   }
 
-  test("pl.iterators.kebs.jsonschema.WrappedInt + Opaque") {
-    runPathGetBody(uri"/pl.iterators.kebs.jsonschema.WrappedInt/42") shouldBe "42"
-    runPathGetBody(uri"/pl.iterators.kebs.jsonschema.WrappedInt/-42") shouldBe "Not found"
+  test("WrappedInt + Opaque") {
+    runPathGetBody(uri"/WrappedInt/42") shouldBe "42"
+    runPathGetBody(uri"/WrappedInt/-42") shouldBe "Not found"
   }
 
   test("InstanceString + Currency") {
