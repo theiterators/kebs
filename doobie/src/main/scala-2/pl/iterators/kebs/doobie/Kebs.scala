@@ -7,11 +7,11 @@ import pl.iterators.kebs.core.macros.{CaseClass1ToValueClass, ValueClassLike}
 import scala.reflect.ClassTag
 
 trait Kebs extends CaseClass1ToValueClass {
-  implicit def ValueClassLikeMeta[A, M](implicit vcLike: ValueClassLike[A, M], m: Meta[M]): Meta[A] = m.imap(vcLike.apply)(vcLike.unapply)
+  implicit def valueClassLikeMeta[A, M](implicit vcLike: ValueClassLike[A, M], m: Meta[M]): Meta[A] = m.imap(vcLike.apply)(vcLike.unapply)
 
-  implicit def ValueClassLikeArrayMeta[A, M](implicit vcLike: ValueClassLike[A, M], m: Meta[Array[M]], cta: ClassTag[A], ctm: ClassTag[M]): Meta[Array[A]] = m.imap(_.map(vcLike.apply))(_.map(vcLike.unapply))
+  implicit def valueClassLikeArrayMeta[A, M](implicit vcLike: ValueClassLike[A, M], m: Meta[Array[M]], cta: ClassTag[A], ctm: ClassTag[M]): Meta[Array[A]] = m.imap(_.map(vcLike.apply))(_.map(vcLike.unapply))
 
-  implicit def ValueClassLikeOptionArrayMeta[A, M](implicit vcLike: ValueClassLike[A, M], m: Meta[Array[Option[M]]], cta: ClassTag[A], ctm: ClassTag[M]): Meta[Array[Option[A]]] = m.imap(_.map(_.map(vcLike.apply)))(_.map(_.map(vcLike.unapply)))
+  implicit def valueClassLikeOptionArrayMeta[A, M](implicit vcLike: ValueClassLike[A, M], m: Meta[Array[Option[M]]], cta: ClassTag[A], ctm: ClassTag[M]): Meta[Array[Option[A]]] = m.imap(_.map(_.map(vcLike.apply)))(_.map(_.map(vcLike.unapply)))
 
   implicit def instanceConverterMeta[A, M](implicit instanceConverter: InstanceConverter[A, M], m: Meta[M]): Meta[A] = m.imap(instanceConverter.decode)(instanceConverter.encode)
 

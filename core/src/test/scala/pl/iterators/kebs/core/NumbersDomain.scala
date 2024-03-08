@@ -10,13 +10,13 @@ object NumbersDomain {
     def apply(value: BigDecimal): TaggedBigDecimal = value.asInstanceOf[TaggedBigDecimal]
   }
   object Tag1 {
-    implicit val TaggedBigDecimalValueClassLike: ValueClassLike[TaggedBigDecimal, BigDecimal] =
+    implicit val taggedBigDecimalValueClassLike: ValueClassLike[TaggedBigDecimal, BigDecimal] =
       new ValueClassLike[TaggedBigDecimal, BigDecimal](TaggedBigDecimal.apply, identity)
   }
 
   case class BoxedBigDecimal(value: BigDecimal)
   object BoxedBigDecimal {
-    implicit val BoxedBigDecimalValueClassLike: ValueClassLike[BoxedBigDecimal, BigDecimal] =
+    implicit val boxedBigDecimalValueClassLike: ValueClassLike[BoxedBigDecimal, BigDecimal] =
       new ValueClassLike[BoxedBigDecimal, BigDecimal](BoxedBigDecimal.apply, _.value)
   }
 
@@ -26,13 +26,13 @@ object NumbersDomain {
     def apply(value: Int): TaggedInt = value.asInstanceOf[TaggedInt]
   }
   object Tag2 {
-    implicit val TaggedIntValueClassLike: ValueClassLike[TaggedInt, Int] =
+    implicit val taggedIntValueClassLike: ValueClassLike[TaggedInt, Int] =
       new ValueClassLike[TaggedInt, Int](TaggedInt.apply, identity)
   }
 
   case class BoxedInt(value: Int)
   object BoxedInt {
-    implicit val BoxedIntValueClassLike: ValueClassLike[BoxedInt, Int] =
+    implicit val boxedIntValueClassLike: ValueClassLike[BoxedInt, Int] =
       new ValueClassLike[BoxedInt, Int](BoxedInt.apply, _.value)
   }
 }
