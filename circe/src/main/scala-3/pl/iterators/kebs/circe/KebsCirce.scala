@@ -5,8 +5,6 @@ import scala.deriving._
 import scala.util.Try
 import scala.quoted.Quotes
 import io.circe.HCursor
-import pl.iterators.kebs.macros.CaseClass1Rep
-import pl.iterators.kebs.instances.InstanceConverter
 import io.circe.generic.AutoDerivation
 import scala.quoted.Type
 import io.circe.derivation.ConfiguredDecoder
@@ -17,7 +15,10 @@ import io.circe.EncoderDerivation
 import io.circe.derivation.ConfiguredEncoder
 import scala.NonEmptyTuple
 
-private[circe] trait KebsAutoDerivation {
+import pl.iterators.kebs.core.macros.{CaseClass1ToValueClass, ValueClassLike}
+import pl.iterators.kebs.core.instances.InstanceConverter
+
+private[circe] trait KebsAutoDerivation extends CaseClass1ToValueClass {
   
   implicit val configuration: Configuration = Configuration.default
 
@@ -29,11 +30,11 @@ private[circe] trait KebsAutoDerivation {
 }
 trait KebsCirce extends KebsAutoDerivation {
 
-   inline given[T, A](using rep: CaseClass1Rep[T, A], decoder: Decoder[A]): Decoder[T] = {
+   inline given[T, A](using rep: ValueClassLike[T, A], decoder: Decoder[A]): Decoder[T] = {
     decoder.emap(obj => Try(rep.apply(obj)).toEither.left.map(_.getMessage))
    }
 
-   inline given[T, A](using rep: CaseClass1Rep[T, A], encoder: Encoder[A]): Encoder[T] =
+   inline given[T, A](using rep: ValueClassLike[T, A], encoder: Encoder[A]): Encoder[T] =
     encoder.contramap(rep.unapply)
 
    inline given[T, A](using rep: InstanceConverter[T, A], encoder: Encoder[A]): Encoder[T] =

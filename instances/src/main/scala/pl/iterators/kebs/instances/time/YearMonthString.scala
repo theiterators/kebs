@@ -1,7 +1,7 @@
 package pl.iterators.kebs.instances.time
 
-import pl.iterators.kebs.instances.InstanceConverter
-import pl.iterators.kebs.instances.time.YearMonthString.{YearMonthFormat, formatter}
+import YearMonthString.{YearMonthFormat, formatter}
+import pl.iterators.kebs.core.instances.InstanceConverter
 
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter

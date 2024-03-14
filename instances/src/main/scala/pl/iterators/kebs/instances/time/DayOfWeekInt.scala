@@ -1,7 +1,7 @@
 package pl.iterators.kebs.instances.time
 
-import pl.iterators.kebs.instances.InstanceConverter
-import pl.iterators.kebs.instances.time.DayOfWeekInt._
+import DayOfWeekInt._
+import pl.iterators.kebs.core.instances.InstanceConverter
 
 import java.time.DayOfWeek
 

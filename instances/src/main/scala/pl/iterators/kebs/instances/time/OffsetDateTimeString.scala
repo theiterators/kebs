@@ -1,7 +1,7 @@
 package pl.iterators.kebs.instances.time
 
-import pl.iterators.kebs.instances.InstanceConverter
-import pl.iterators.kebs.instances.time.OffsetDateTimeString.{OffsetDateTimeFormat, formatter}
+import OffsetDateTimeString.{OffsetDateTimeFormat, formatter}
+import pl.iterators.kebs.core.instances.InstanceConverter
 
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter

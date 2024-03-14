@@ -1,7 +1,7 @@
 package pl.iterators.kebs.instances.time
 
-import pl.iterators.kebs.instances.InstanceConverter
-import pl.iterators.kebs.instances.time.LocalDateTimeString.{LocalDateTimeFormat, formatter}
+import LocalDateTimeString.{LocalDateTimeFormat, formatter}
+import pl.iterators.kebs.core.instances.InstanceConverter
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter

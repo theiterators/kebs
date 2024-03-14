@@ -1,13 +1,13 @@
 package pl.iterators.kebs.json
 
-import pl.iterators.kebs.macros.CaseClass1Rep
+import pl.iterators.kebs.core.instances.InstanceConverter
+import pl.iterators.kebs.core.macros.{CaseClass1ToValueClass, ValueClassLike}
 import spray.json.{DefaultJsonProtocol, JsValue, JsonFormat, JsonReader, RootJsonFormat}
-import pl.iterators.kebs.instances.InstanceConverter
 
-trait KebsSpray { self: DefaultJsonProtocol =>
+trait KebsSpray extends CaseClass1ToValueClass { self: DefaultJsonProtocol =>
   import macros.KebsSprayMacros
   implicit def jsonFormatN[T <: Product]: RootJsonFormat[T] = macro KebsSprayMacros.materializeRootFormat[T]
-  implicit def jsonFlatFormat[T, A](implicit rep: CaseClass1Rep[T, A], baseJsonFormat: JsonFormat[A]): JsonFormat[T] = {
+  implicit def jsonFlatFormat[T, A](implicit rep: ValueClassLike[T, A], baseJsonFormat: JsonFormat[A]): JsonFormat[T] = {
     val reader: JsValue => T = json => rep.apply(baseJsonFormat.read(json))
     val writer: T => JsValue = obj => baseJsonFormat.write(rep.unapply(obj))
     jsonFormat[T](reader, writer)
