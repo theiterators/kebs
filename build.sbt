@@ -246,6 +246,7 @@ lazy val http4sStirSettings = commonSettings ++ Seq(
   libraryDependencies += http4s,
   libraryDependencies += http4sStir,
   libraryDependencies += http4sStirTestkit % "test",
+  libraryDependencies += enumeratum % "test",
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
