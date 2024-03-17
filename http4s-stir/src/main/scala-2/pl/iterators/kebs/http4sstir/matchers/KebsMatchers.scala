@@ -1,9 +1,9 @@
 package pl.iterators.kebs.http4sstir.matchers
 
 import pl.iterators.stir.server.PathMatcher1
-import enumeratum.{Enum, EnumEntry}
 import pl.iterators.kebs.core.instances.InstanceConverter
 import pl.iterators.kebs.core.macros.{CaseClass1ToValueClass, ValueClassLike}
+import pl.iterators.kebs.core.enums._
 
 import scala.language.implicitConversions
 
@@ -18,9 +18,8 @@ trait KebsMatchers extends pl.iterators.stir.server.PathMatchers with CaseClass1
   }
 
   object EnumSegment {
-    def as[T <: EnumEntry: Enum]: PathMatcher1[T] = {
-      val enumCompanion = implicitly[Enum[T]]
-      Segment.map(enumCompanion.withNameInsensitive)
+    def as[T](implicit e: EnumLike[T]): PathMatcher1[T] = {
+      Segment.map(e.withNameIgnoreCase)
     }
   }
 }

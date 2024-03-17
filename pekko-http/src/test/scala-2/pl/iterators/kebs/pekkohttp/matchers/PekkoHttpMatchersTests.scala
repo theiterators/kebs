@@ -9,7 +9,7 @@ import pl.iterators.kebs.instances.net.URIString
 import pl.iterators.kebs.instances.time.{DayOfWeekInt, ZonedDateTimeString}
 import pl.iterators.kebs.instances.time.mixins.InstantEpochMilliLong
 import pl.iterators.kebs.pekkohttp.domain.Domain._
-
+import pl.iterators.kebs.enumeratum._
 import java.net.URI
 import java.time.{DayOfWeek, Instant, ZonedDateTime}
 
@@ -22,7 +22,8 @@ class PekkoHttpMatchersTests
     with ZonedDateTimeString
     with DayOfWeekInt
     with InstantEpochMilliLong
-    with URIString {
+    with URIString
+    with KebsEnumeratum {
 
   test("No ValueClassLike implicits derived") {
     import pl.iterators.kebs.core.macros.ValueClassLike

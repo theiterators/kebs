@@ -22,10 +22,6 @@ trait KebsCirce extends AutoDerivation with CaseClass1ToValueClass {
 }
 
 object KebsCirce {
-  trait NoFlat extends KebsCirce {
-    implicit def genericNoFlatDecoder[T <: Product]: Decoder[T] = macro KebsCirceMacros.NoflatVariant.materializeDecoder[T]
-    implicit def genericNoFlatEncoder[T <: Product]: Encoder[T] = macro KebsCirceMacros.NoflatVariant.materializeEncoder[T]
-  }
 
   trait Snakified extends KebsCirce {
     implicit def genericSnakifiedDecoder[T <: Product]: Decoder[T] = macro KebsCirceMacros.SnakifyVariant.materializeDecoder[T]

@@ -45,8 +45,6 @@ trait KebsCirce extends KebsAutoDerivation {
 }
 
 object KebsCirce {
-  trait NoFlat extends KebsCirce {
-  }
 
   trait Snakified extends KebsCirce {
     override implicit val configuration: Configuration = Configuration.default.withSnakeCaseMemberNames

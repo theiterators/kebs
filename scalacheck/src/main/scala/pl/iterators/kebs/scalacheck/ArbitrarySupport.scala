@@ -1,6 +1,5 @@
 package pl.iterators.kebs.scalacheck
 
-import enumeratum.ScalacheckInstances
 import org.scalacheck.{Arbitrary, Gen, ScalacheckShapeless}
 import pl.iterators.kebs.core.macros.ValueClassLike
 

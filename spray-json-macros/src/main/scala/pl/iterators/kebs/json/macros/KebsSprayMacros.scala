@@ -1,7 +1,6 @@
 package pl.iterators.kebs.json.macros
 
 import pl.iterators.kebs.core.macros.MacroUtils
-import pl.iterators.kebs.json.noflat
 import spray.json.{JsonFormat, JsonReader, JsonWriter, NullOptions, RootJsonFormat}
 
 import scala.collection.immutable.Seq
@@ -10,7 +9,6 @@ import scala.reflect.macros._
 class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
   import c.universe._
 
-  private val noflatType            = typeOf[noflat]
   private val jsonFormat            = typeOf[JsonFormat[_]]
   private val jsonReader            = typeOf[JsonReader[_]]
   private val jsonWriter            = typeOf[JsonWriter[_]]
@@ -72,12 +70,11 @@ class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
     assertCaseClass(T, s"To materialize RootJsonFormat, ${T.typeSymbol} must be a case class")
 
     def isLookingFor(t: Type) = c.enclosingImplicits.headOption.exists(_.pt.typeSymbol == t.typeSymbol)
-    def noflat(t: Type)       = t.typeSymbol.annotations.exists(_.tree.tpe =:= noflatType)
 
     val jsonFormat = caseAccessors(T) match {
       case Nil => materializeJsonFormat0(T)
       case (_1 :: Nil) =>
-        if (preferFlat && (isLookingFor(jsonFormatOf(T)) || isLookingFor(jsonWriterOf(T)) || isLookingFor(jsonReaderOf(T))) && !noflat(T))
+        if (preferFlat && (isLookingFor(jsonFormatOf(T)) || isLookingFor(jsonWriterOf(T)) || isLookingFor(jsonReaderOf(T))))
           c.abort(c.enclosingPosition, "Flat format preferred")
         else materializeRootJsonFormat(T, List(_1))
       case fields => materializeRootJsonFormat(T, fields)
@@ -102,9 +99,7 @@ class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
 }
 
 object KebsSprayMacros {
-  class NoflatVariant(context: whitebox.Context) extends KebsSprayMacros(context) {
-    override protected val preferFlat = false
-  }
+
   class SnakifyVariant(context: whitebox.Context) extends KebsSprayMacros(context) {
     import pl.iterators.kebs.core.macros.namingconventions.SnakifyVariant.snakify
     import c.universe._
@@ -117,4 +112,5 @@ object KebsSprayMacros {
 
     override protected def extractJsonFieldNames(fields: List[MethodSymbol]) = super.extractJsonFieldNames(fields).map(_.capitalize)
   }
+  
 }
