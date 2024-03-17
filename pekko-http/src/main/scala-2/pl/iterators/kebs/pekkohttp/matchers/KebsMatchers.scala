@@ -19,8 +19,7 @@ trait KebsMatchers extends PathMatchers {
 
   object EnumSegment {
     def as[T](implicit e: EnumLike[T]): PathMatcher1[T] = {
-      val enumCompanion = implicitly[EnumLike[T]]
-      Segment.map(enumCompanion.withNameIgnoreCase)
+      Segment.map(e.withNameIgnoreCase)
     }
   }
 }
