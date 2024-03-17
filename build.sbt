@@ -178,6 +178,7 @@ lazy val slickSettings = commonSettings ++ Seq(
 lazy val doobieSettings = commonSettings ++ Seq(
   libraryDependencies += doobie,
   libraryDependencies += (doobiePg % "test"),
+  libraryDependencies += (enumeratum % "test"),
 )
 
 lazy val coreSettings = commonMacroSettings ++ Seq(
