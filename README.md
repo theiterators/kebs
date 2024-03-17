@@ -520,18 +520,6 @@ test("work with nested single field objects") {
 }
 ```
 
-* mix-in `KebsSpray.NonFlat` if you want _flat_ format to become globally turned off for a protocol
-```scala
-object KebsProtocol extends DefaultJsonProtocol with KebsSpray.NoFlat
-```
-
-* use `noflat` annotation on selected case-classes (thanks to @dbronecki)
-```scala
-case class Book(name: String, chapters: List[Chapter])
-@noflat case class Chapter(name: String)
-```
-
-
 Often you have to deal with convention to have **`snake-case` fields in JSON**.
 That's something `kebs-spray-json` can do for you as well
 
@@ -663,10 +651,7 @@ object AfterKebs {
     }
   }
 ```
-If you want to disable flat formats, you can mix-in `KebsCirce.NoFlat`:
-```scala
-object KebsProtocol extends KebsCirce with KebsCirce.NoFlat
-```
+
 You can also support snake-case fields in JSON:
 ```scala
 object KebsProtocol extends KebsCirce with KebsCirce.Snakified
@@ -678,8 +663,7 @@ And capitalized:
 ```
 
 **NOTE for Scala 3 version of kebs-circe**:
-1. As of today, there is no support for the @noflat annotation - using it will have no effect.
-2. If you're using recursive types - due to [this issue](https://github.com/circe/circe/issues/1980) you'll have to add codecs explicitly in the following way:
+If you're using recursive types - due to [this issue](https://github.com/circe/circe/issues/1980) you'll have to add codecs explicitly in the following way:
 ```scala
 case class R(a: Int, rs: Seq[R]) derives Decoder, Encoder.AsObject
 ```
@@ -691,11 +675,6 @@ case class R(a: Int, rs: Seq[R]) derives Decoder, Encoder.AsObject
   import KebsProtocol.{given, _}
   ```
  
- as for NoFlat, it should stay the same:
- ```scala
-   object KebsProtocol extends KebsCirce with KebsCirce.NoFlat
-  import KebsProtocol._
- ```
 #### - kebs generates akka-http / pekko-http Unmarshaller (kebs-akka-http / kebs-pekko-http)
 
 It makes it very easy to use 1-element case-classes or `enumeratum` enums/value enums in eg. `parameters` directive:

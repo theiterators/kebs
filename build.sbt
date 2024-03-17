@@ -101,7 +101,7 @@ val scalaTest       = Def.setting("org.scalatest" %%% "scalatest" % "3.2.17")
 val scalaCheck      = Def.setting("org.scalacheck" %%% "scalacheck" % "1.17.0")
 val slick           = "com.typesafe.slick" %% "slick" % "3.4.1"
 val optionalSlick   = optional(slick)
-val playJson        = "com.typesafe.play" %% "play-json" % "2.10.1"
+val playJson        = "org.playframework" %% "play-json" % "3.0.2"
 val slickPg         = "com.github.tminglei" %% "slick-pg" % "0.21.1"
 val doobie          = "org.tpolecat" %% "doobie-core" % "1.0.0-RC4"
 val doobiePg        = "org.tpolecat" %% "doobie-postgres" % "1.0.0-RC4"
@@ -124,7 +124,7 @@ val enumeratumPlayJsonVersion = "1.5.16"
 val enumeratum                = "com.beachape" %% "enumeratum" % enumeratumVersion
 def enumeratumInExamples = {
   val playJsonSupport = "com.beachape" %% "enumeratum-play-json" % enumeratumPlayJsonVersion
-  Seq(enumeratum, playJsonSupport.cross(CrossVersion.for3Use2_13))
+  Seq(enumeratum, playJsonSupport)
 }
 val optionalEnumeratum = optional(enumeratum)
 
@@ -161,10 +161,6 @@ val http4sStirVersion = "0.2"
 val http4sStir = "pl.iterators" %% "http4s-stir" % http4sStirVersion
 val http4sStirTestkit = "pl.iterators" %% "http4s-stir-testkit" % http4sStirVersion
 
-def akkaHttpInBenchmarks = akkaHttpInExamples :+ (akkaHttpTestkit).cross(CrossVersion.for3Use2_13)
-
-def pekkoHttpInBenchmarks = pekkoHttpInExamples :+ pekkoHttpTestkit
-
 lazy val commonSettings = baseSettings ++ Seq(
   scalacOptions ++=
     (if (scalaVersion.value.startsWith("3"))
@@ -176,25 +172,21 @@ lazy val commonSettings = baseSettings ++ Seq(
 
 lazy val slickSettings = commonSettings ++ Seq(
   libraryDependencies += slick.cross(CrossVersion.for3Use2_13),
-  libraryDependencies += (slickPg % "test").cross(CrossVersion.for3Use2_13),
-  libraryDependencies += optionalEnumeratum
+  libraryDependencies += (slickPg % "test").cross(CrossVersion.for3Use2_13)
 )
 
 lazy val doobieSettings = commonSettings ++ Seq(
   libraryDependencies += doobie,
   libraryDependencies += (doobiePg % "test"),
-  libraryDependencies += optionalEnumeratum,
 )
 
 lazy val coreSettings = commonMacroSettings ++ Seq(
-  libraryDependencies += (scalaCheck.value % "test").cross(CrossVersion.for3Use2_13),
-  libraryDependencies += optionalEnumeratum
+  libraryDependencies += (scalaCheck.value % "test").cross(CrossVersion.for3Use2_13)
 )
 
 lazy val enumSettings = commonMacroSettings ++ Seq(
   libraryDependencies += scalaCheck.value % "test",
   libraryDependencies += scalaTest.value,
-  libraryDependencies += optionalEnumeratum,
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
@@ -214,7 +206,7 @@ lazy val sprayJsonSettings = commonSettings ++ Seq(
 )
 
 lazy val playJsonSettings = commonSettings ++ Seq(
-  libraryDependencies += playJson.cross(CrossVersion.for3Use2_13)
+  libraryDependencies += playJson
 )
 
 lazy val circeSettings = commonSettings ++ Seq(
@@ -239,13 +231,11 @@ lazy val pekkoHttpSettings = commonSettings ++ Seq(
   libraryDependencies += pekkoStream,
   libraryDependencies += pekkoStreamTestkit % "test",
   libraryDependencies += pekkoHttpTestkit   % "test",
-  libraryDependencies += optionalEnumeratum,
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
 lazy val http4sSettings = commonSettings ++ Seq(
   libraryDependencies += http4s,
-  libraryDependencies += optionalEnumeratum,
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
@@ -253,7 +243,6 @@ lazy val http4sStirSettings = commonSettings ++ Seq(
   libraryDependencies += http4s,
   libraryDependencies += http4sStir,
   libraryDependencies += http4sStirTestkit % "test",
-  libraryDependencies += optionalEnumeratum,
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
@@ -284,24 +273,12 @@ lazy val examplesSettings = commonSettings ++ Seq(
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
-lazy val benchmarkSettings = commonSettings ++ Seq(
-  libraryDependencies += scalaTest.value,
-  libraryDependencies ++= pekkoHttpInBenchmarks,
-  libraryDependencies += enumeratum,
-  libraryDependencies ++= akkaHttpInBenchmarks
-)
-
 lazy val taggedMetaSettings = metaSettings ++ Seq(
   libraryDependencies += optional(sprayJson.cross(CrossVersion.for3Use2_13)),
   libraryDependencies += optional(circe)
 )
 
 lazy val instancesSettings = commonSettings
-
-lazy val macroUtilsSettings = coreSettings ++ Seq(
-  Compile / scalaSource := baseDirectory.value  / ".." / ".." / "core" / "src" / "main" / "scala",
-  Test / scalaSource := baseDirectory.value / ".." / ".." / "core" / "src" / "test" / "scala"
-)
 
 lazy val core = crossProject(JSPlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
@@ -314,18 +291,6 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
     description := "Macros and utils supporting Kebs library",
     moduleName := "kebs-core",
 )
-
-lazy val macroUtils = crossProject(JSPlatform, JVMPlatform)
-  .withoutSuffixFor(JVMPlatform)
-  .crossType(CrossType.Pure)
-  .in(file("macro-utils"))
-  .settings(macroUtilsSettings: _*)
-  .settings(publishSettings: _*)
-  .settings(
-    name := "macro-utils",
-    description := "Macros and utils supporting Kebs library",
-    moduleName := "kebs-macro-utils",
-  )
 
 lazy val slickSupport = project
   .in(file("slick"))
@@ -383,7 +348,6 @@ lazy val playJsonSupport = project
   .dependsOn(core.jvm, instances % "test -> test")
   .settings(playJsonSettings: _*)
   .settings(publishSettings: _*)
-  .settings(disableScala(List("3")))
   .settings(
     name := "play-json",
     description := "Automatic generation of Play json formats for case-classes",
@@ -539,17 +503,6 @@ lazy val examples = project
     moduleName := "kebs-examples"
   )
 
-lazy val benchmarks = project
-  .in(file("benchmarks"))
-  .dependsOn(sprayJsonSupport)
-  .enablePlugins(JmhPlugin)
-  .settings(benchmarkSettings: _*)
-  .settings(noPublishSettings: _*)
-  .settings(
-    name := "benchmarks",
-    moduleName := "kebs-benchmarks"
-  )
-
 lazy val instances = project
   .in(file("instances"))
   .dependsOn(core.jvm)
@@ -591,8 +544,6 @@ lazy val kebs = project
     opaque.js,
     core.jvm,
     core.js,
-    macroUtils.jvm,
-    macroUtils.js,
     slickSupport,
     doobieSupport,
     sprayJsonMacros,

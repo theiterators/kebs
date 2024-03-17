@@ -20,7 +20,7 @@ class KebsCirceMacros(override val c: whitebox.Context) extends MacroUtils {
       case Nil =>
         q"""_root_.io.circe.Decoder.decodeJsonObject.emap(obj => if(obj.isEmpty) Right(${T.termSymbol}) else Left("Empty JsonObject"))"""
       case _1 :: Nil =>
-        if (preferFlat && (isLookingFor(decoderOf(T)) && !noflat(T)))
+        if (preferFlat && (isLookingFor(decoderOf(T))))
           c.abort(c.enclosingPosition, "Flat format preferred")
         else
           _materializeDecoder(T, List(_1))
@@ -52,7 +52,7 @@ class KebsCirceMacros(override val c: whitebox.Context) extends MacroUtils {
       case Nil =>
         q"""_root_.io.circe.Encoder.instance[${T.typeSymbol}](_ => _root_.io.circe.Json.fromJsonObject(_root_.io.circe.JsonObject.empty))"""
       case _1 :: Nil =>
-        if (preferFlat && (isLookingFor(encoderOf(T)) && !noflat(T)))
+        if (preferFlat && (isLookingFor(encoderOf(T))))
           c.abort(c.enclosingPosition, "Flat format preferred")
         else
           _materializeEncoder(T, List(_1))
@@ -76,9 +76,7 @@ class KebsCirceMacros(override val c: whitebox.Context) extends MacroUtils {
     }
   }
 
-  private val noflatType                                                       = typeOf[noflat]
   private def isLookingFor(t: Type)                                            = c.enclosingImplicits.headOption.exists(_.pt.typeSymbol == t.typeSymbol)
-  private def noflat(t: Type)                                                  = t.typeSymbol.annotations.exists(_.tree.tpe =:= noflatType)
   private val decoderType                                                      = typeOf[Decoder[_]]
   private val encoderType                                                      = typeOf[Encoder[_]]
   private def decoderOf(p: Type)                                               = appliedType(decoderType, p)
@@ -94,10 +92,6 @@ class KebsCirceMacros(override val c: whitebox.Context) extends MacroUtils {
 }
 
 object KebsCirceMacros {
-
-  class NoflatVariant(context: whitebox.Context) extends KebsCirceMacros(context) {
-    override protected val preferFlat = false
-  }
 
   class CapitalizedCamelCase(context: whitebox.Context) extends KebsCirceMacros(context) {
     import c.universe._
