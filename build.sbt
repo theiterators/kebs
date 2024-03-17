@@ -233,6 +233,7 @@ lazy val pekkoHttpSettings = commonSettings ++ Seq(
   libraryDependencies += pekkoStream,
   libraryDependencies += pekkoStreamTestkit % "test",
   libraryDependencies += pekkoHttpTestkit   % "test",
+  libraryDependencies += enumeratum % "test",
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
