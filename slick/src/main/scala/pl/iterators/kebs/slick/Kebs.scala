@@ -55,8 +55,8 @@ trait KebsColumnExtensionMethods extends CaseClass1ToValueClass {
 }
 
 trait Kebs extends KebsColumnExtensionMethods {
-implicit def valueColumnType[CC, B](implicit rep1: ValueClassLike[CC, B], bct: JdbcProfile#BaseColumnType[B], ct: ClassTag[CC], jp: JdbcProfile): JdbcType[CC] with BaseTypedType[CC] = {
-  jp.MappedColumnType.base[CC, B](rep1.unapply, rep1.apply)
+implicit def valueColumnType[CC, B](implicit rep1: ValueClassLike[CC, B], bct: JdbcProfile#BaseColumnType[B], ct: ClassTag[CC], jp: JdbcProfile): slick.jdbc.JdbcTypesComponent#MappedJdbcType[CC,B] = {
+  jp.MappedColumnType.base[CC, B](rep1.unapply, rep1.apply).asInstanceOf[slick.jdbc.JdbcTypesComponent#MappedJdbcType[CC, B]]
 }
 
   //  implicit def valueTransitionColumnType[CC, B](implicit ico: InstanceConverter[CC, B]): Isomorphism[CC, B] =

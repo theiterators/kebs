@@ -12,10 +12,9 @@ class CaseClassIsomorphismTests extends AnyFunSuite with Matchers with Kebs {
 
   test("Implicit isomorphism for case class of arity 1") {
     import _root_.slick.jdbc.PostgresProfile.api._
-    val iso: _root_.slick.jdbc.JdbcProfile#BaseColumnType[Simple1] = implicitly[_root_.slick.jdbc.JdbcProfile#BaseColumnType[Simple1]]
-    val iso2 = iso.asInstanceOf[_root_.slick.jdbc.JdbcTypesComponent#MappedJdbcType[Simple1, Int]]
-    iso2.map(Simple1(10)) shouldBe 10
-    iso2.comap(10) shouldBe Simple1(10)
+    val mjt = implicitly[_root_.slick.jdbc.JdbcTypesComponent#MappedJdbcType[Simple1, Int]]
+    mjt.map(Simple1(10)) shouldBe 10
+    mjt.comap(10) shouldBe Simple1(10)
   }
 
 //  test("Implicit isomorphism for case class of arity 1 - parametrized return type") {
