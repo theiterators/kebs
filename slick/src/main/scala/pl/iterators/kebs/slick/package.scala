@@ -1,3 +1,3 @@
-package pl.iterators.kebs
-
-package object slick extends Kebs
+//package pl.iterators.kebs
+//
+//package object slick extends Kebs
