@@ -123,7 +123,7 @@ val circeParser     = "io.circe" %% "circe-parser" % circeV
 val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.11"
 
 val scalacheck           = "org.scalacheck"             %% "scalacheck"                % "1.17.0" % "test"
-val scalacheckMagnolify  = "com.spotify" % "magnolify-scalacheck" % "0.7.0"
+val scalacheckMagnolify  = "com.spotify" % "magnolify-scalacheck" % "0.7.1"
 val scalacheckDerived  = "io.github.martinhh" %% "scalacheck-derived" % "0.4.2"
 val scalacheckEnumeratum = "com.beachape"               %% "enumeratum-scalacheck"     % "1.7.3"
 
