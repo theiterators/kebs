@@ -6,7 +6,7 @@ import doobie.postgres.implicits.given
 import doobie.{*, given}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.doobie.EyeColor
+import pl.iterators.kebs.doobie.model._
 import pl.iterators.kebs.enums.KebsEnum
 import pl.iterators.kebs.doobie.given 
 import pl.iterators.kebs.doobie.enums.given 
@@ -14,14 +14,6 @@ import pl.iterators.kebs.instances.KebsInstances.given
 import pl.iterators.kebs.opaque.Opaque
 
 import java.util.Currency
-
-opaque type Name = String
-object Name extends Opaque[Name, String]
-
-enum EyeColor {
-  case Blue, Green, Brown, Other
-}
-case class Person(name: Name, eyeColor: EyeColor, preferredCurrency: Currency, relatives: List[Name], eyeballsInTheJar: Array[EyeColor])
 
 class ComplexTypesTests extends AnyFunSuite with Matchers with KebsEnum {
   test("Put & Get exist") {
