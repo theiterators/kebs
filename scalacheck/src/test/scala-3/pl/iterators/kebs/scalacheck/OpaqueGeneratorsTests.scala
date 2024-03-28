@@ -5,21 +5,7 @@ import org.scalatest.matchers.should.Matchers
 import java.net.{URI, URL}
 import java.time.{Duration, Instant, LocalDate, LocalDateTime, LocalTime, ZonedDateTime}
 import pl.iterators.kebs.opaque.Opaque
-
-
-case class WrappedInt(int: Int)
-
-opaque type OpaqueInt = Int
-object OpaqueInt extends Opaque[OpaqueInt, Int] {
-  override def apply(value: Int) = value
-}
-
-case class BasicSampleWithOpaque(
-    someNumber: Int,
-    someText: String,
-    wrappedNumber: WrappedInt,
-    opaqueInt: OpaqueInt
-)
+import pl.iterators.kebs.scalacheck.model._
 
 class OpaqueGeneratorsTests extends AnyFunSuite with Matchers {
 
