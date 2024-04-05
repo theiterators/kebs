@@ -8,17 +8,12 @@ import pl.iterators.kebs.circe.KebsEnumFormats
 
 import pl.iterators.kebs.enums.KebsValueEnum
 import pl.iterators.kebs.core.enums.ValueEnumLikeEntry
+import pl.iterators.kebs.circe.model.LongGreeting
+import pl.iterators.kebs.circe.model.LongGreeting._
 
 class CirceValueEnumDecoderEncoderTests extends AnyFunSuite with Matchers with KebsValueEnum {
 
   object KebsProtocol extends KebsEnumFormats
-
-  enum LongGreeting(val value: Long) extends ValueEnumLikeEntry[Long] {
-    case  Hello   extends LongGreeting(0L)
-    case  GoodBye extends LongGreeting(1L)
-    case  Hi      extends LongGreeting(2L)
-    case  Bye     extends LongGreeting(3L) 
-  }
 
   import LongGreeting._
 

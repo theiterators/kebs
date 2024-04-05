@@ -1,6 +1,47 @@
 package pl.iterators.kebs.circe
 
+import java.time.ZonedDateTime
+import enumeratum.values.{LongEnum, LongEnumEntry}
+import enumeratum.{Enum, EnumEntry}
+import pl.iterators.kebs.core.enums.ValueEnumLikeEntry
+
 package object model {
+
+  sealed abstract class LongGreeting(val value: Long) extends LongEnumEntry with ValueEnumLikeEntry[Long]
+
+  object LongGreeting extends LongEnum[LongGreeting] {
+    val values = findValues
+
+    case object Hello   extends LongGreeting(0L)
+    case object GoodBye extends LongGreeting(1L)
+    case object Hi      extends LongGreeting(2L)
+    case object Bye     extends LongGreeting(3L)
+  }
+
+  sealed trait Greeting extends EnumEntry
+
+  object Greeting extends Enum[Greeting] {
+    val values = findValues
+
+    case object Hello   extends Greeting
+    case object GoodBye extends Greeting
+    case object Hi      extends Greeting
+    case object Bye     extends Greeting
+  }
+
+  case class C(anInteger: Int)
+  case class D(intField: Int, stringField: String)
+  case class E(noFormat: ZonedDateTime)
+  case object F
+
+  case class DTO1(c: C, i: Int)
+  case class DTO2(c: Option[C], i: Int)
+  case class Compound(CField: C, DField: D)
+
+  case class Parametrized1[T](field: T)
+  case class Parametrized2[T0, T1](field1: T0, field2: T1)
+
+  case class R(a: Int, rs: Seq[R])
 
   case class F1(f1: String) extends AnyVal
 

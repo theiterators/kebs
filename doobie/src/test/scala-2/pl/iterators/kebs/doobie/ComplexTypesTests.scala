@@ -1,11 +1,10 @@
 package pl.iterators.kebs.doobie
 
-import _root_.enumeratum.{Enum, EnumEntry}
+import enumeratum.{Enum, EnumEntry}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.enumeratum.KebsEnumeratum
 
-import java.util.Currency
 import doobie._
 import doobie.implicits._
 import doobie.postgres._
@@ -13,25 +12,10 @@ import doobie.postgres.implicits._
 import pl.iterators.kebs.doobie.enums._
 import pl.iterators.kebs.doobie._
 import pl.iterators.kebs.instances.KebsInstances._
+import pl.iterators.kebs.doobie.model._
+import java.util.Currency
 
 class ComplexTypesTests extends AnyFunSuite with Matchers with KebsEnumeratum {
-  case class Name(name: String)
-
-  sealed trait EyeColor extends EnumEntry
-
-  object EyeColor extends Enum[EyeColor] {
-    case object Blue extends EyeColor
-
-    case object Green extends EyeColor
-
-    case object Brown extends EyeColor
-
-    case object Other extends EyeColor
-
-    def values = findValues
-  }
-
-  case class Person(name: Name, eyeColor: EyeColor, preferredCurrency: Currency, relatives: List[Name], eyeballsInTheJar: Array[EyeColor])
 
   test("Put & Get exist") {
     "implicitly[Get[Name]]" should compile

@@ -1,26 +1,16 @@
 package pl.iterators.kebs.circe
 
-import _root_.enumeratum.{Enum, EnumEntry}
+import enumeratum.{Enum, EnumEntry}
 import io.circe._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.funsuite.AnyFunSuite
 import pl.iterators.kebs.circe.KebsEnumFormats
 import pl.iterators.kebs.enumeratum.KebsEnumeratum
+import pl.iterators.kebs.circe.model._
+import pl.iterators.kebs.circe.model.Greeting._
 
 class CirceEnumDecoderEncoderTests extends AnyFunSuite with Matchers with KebsEnumeratum {
-  sealed trait Greeting extends EnumEntry
-
-  object Greeting extends Enum[Greeting] {
-    val values = findValues
-
-    case object Hello   extends Greeting
-    case object GoodBye extends Greeting
-    case object Hi      extends Greeting
-    case object Bye     extends Greeting
-  }
-
-  import Greeting._
 
   object KebsProtocol          extends KebsEnumFormats
   object KebsProtocolUppercase extends KebsEnumFormats.Uppercase

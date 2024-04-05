@@ -7,20 +7,10 @@ import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.circe.KebsEnumFormats
 import pl.iterators.kebs.enumeratum.KebsValueEnumeratum
 import pl.iterators.kebs.core.enums.ValueEnumLikeEntry
+import pl.iterators.kebs.circe.model.LongGreeting
+import pl.iterators.kebs.circe.model.LongGreeting._
 
 class CirceValueEnumDecoderEncoderTests extends AnyFunSuite with Matchers with KebsValueEnumeratum {
-  sealed abstract class LongGreeting(val value: Long) extends LongEnumEntry with ValueEnumLikeEntry[Long]
-
-  object LongGreeting extends LongEnum[LongGreeting] {
-    val values = findValues
-
-    case object Hello   extends LongGreeting(0L)
-    case object GoodBye extends LongGreeting(1L)
-    case object Hi      extends LongGreeting(2L)
-    case object Bye     extends LongGreeting(3L)
-  }
-
-  import LongGreeting._
 
   object KebsProtocol extends KebsEnumFormats
 

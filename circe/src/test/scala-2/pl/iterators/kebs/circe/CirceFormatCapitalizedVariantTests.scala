@@ -4,16 +4,11 @@ import io.circe.{Decoder, Encoder, Json}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.circe.KebsCirce
+import pl.iterators.kebs.circe.model._
 
 class CirceFormatCapitalizedVariantTests extends AnyFunSuite with Matchers {
   object KebsProtocol extends KebsCirce with KebsCirce.Capitalized
   import KebsProtocol._
-
-  case class C(anInteger: Int)
-  case class D(intField: Int, stringField: String)
-  case object F
-
-  case class Compound(CField: C, DField: D)
 
   test("Flat format remains unchanged") {
     val decoder = implicitly[Decoder[C]]

@@ -9,22 +9,11 @@ import org.scalatest.matchers.should.Matchers
 import scala.util.Try
 import io.circe.derivation.ConfiguredDecoder
 import io.circe.derivation.Configuration
+import pl.iterators.kebs.circe.model._
+
 class CirceFormatTests extends AnyFunSuite with Matchers {
   object KebsProtocol extends KebsCirce
   import KebsProtocol.{given, _}
-
-
-  case class C(i: Int)
-  case class D(i: Int, s: String)
-  case class E(noFormat: ZonedDateTime)
-  case object F
-
-  case class DTO1(c: C, i: Int)
-  case class DTO2(c: Option[C], i: Int)
-  case class Compound(c: C, d: D)
-
-  case class Parametrized1[T](field: T)
-  case class Parametrized2[T0, T1](field1: T0, field2: T1)
 
   // https://github.com/circe/circe/issues/1980
   case class R(a: Int, rs: Seq[R]) derives Decoder, Encoder.AsObject
@@ -52,8 +41,8 @@ class CirceFormatTests extends AnyFunSuite with Matchers {
   test("Format 1") {
     val decoder = implicitly[Decoder[D]]
     val encoder = implicitly[Encoder[D]]
-    decoder.apply(Json.fromFields(Seq("i" -> Json.fromInt(10), "s" -> Json.fromString("abcdef"))).hcursor) shouldBe Right(D(10, "abcdef"))
-    encoder.apply(D(10, "abcdef")) shouldBe Json.fromFields(Seq("i" -> Json.fromInt(10), "s" -> Json.fromString("abcdef")))
+    decoder.apply(Json.fromFields(Seq("intField" -> Json.fromInt(10), "stringField" -> Json.fromString("abcdef"))).hcursor) shouldBe Right(D(10, "abcdef"))
+    encoder.apply(D(10, "abcdef")) shouldBe Json.fromFields(Seq("intField" -> Json.fromInt(10), "stringField" -> Json.fromString("abcdef")))
   }
 
   test("Format - parametrized") {
@@ -85,10 +74,10 @@ class CirceFormatTests extends AnyFunSuite with Matchers {
 
     decoder.apply(
       Json
-        .fromFields(Seq("c" -> Json.fromInt(10), "d" -> Json.fromFields(Seq("i" -> Json.fromInt(100), "s" -> Json.fromString("abb")))))
+        .fromFields(Seq("CField" -> Json.fromInt(10), "DField" -> Json.fromFields(Seq("intField" -> Json.fromInt(100), "stringField" -> Json.fromString("abb")))))
         .hcursor) shouldBe Right(Compound(C(10), D(100, "abb")))
     encoder.apply(Compound(C(5), D(10, "abcd"))) shouldBe Json.fromFields(
-      Seq("c" -> Json.fromInt(5), "d" -> Json.fromFields(Seq("i" -> Json.fromInt(10), "s" -> Json.fromString("abcd")))))
+      Seq("CField" -> Json.fromInt(5), "DField" -> Json.fromFields(Seq("intField" -> Json.fromInt(10), "stringField" -> Json.fromString("abcd")))))
   }
 
   test("Recursive format") {
