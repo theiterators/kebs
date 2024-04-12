@@ -2,11 +2,12 @@ package pl.iterators.kebs.slick.caseclasses
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import pl.iterators.kebs.slick.Kebs
+import slick.jdbc.PostgresProfile.api._
 
-class CaseClassIsomorphismTests extends AnyFunSuite with Matchers {
+class CaseClassIsomorphismTests extends AnyFunSuite with Matchers with Kebs {
   import pl.iterators.kebs.slick._
   import pl.iterators.kebs.core.macros.CaseClass1ToValueClass._
-  import slick.jdbc.PostgresProfile.api._
 
   case class Simple1(a: Int)
   case class Simple2(a: Option[Int])
@@ -17,11 +18,11 @@ class CaseClassIsomorphismTests extends AnyFunSuite with Matchers {
     iso.comap(10) shouldBe Simple1(10)
   }
 
-  //  test("Implicit isomorphism for case class of arity 1 - parametrized return type") {
-  //    val iso = implicitly[slick.jdbc.JdbcTypesComponent#MappedJdbcType[Simple2, Option[Int]]]
-  //    iso.map(Simple2(Some(10))) shouldBe Some(10)
-  //    iso.comap(Some(10)) shouldBe Simple2(Some(10))
-  //  }
+    test("Implicit isomorphism for case class of arity 1 - parametrized return type") {
+      val iso = implicitly[slick.jdbc.JdbcTypesComponent#MappedJdbcType[Simple2, Option[Int]]]
+      iso.map(Simple2(Some(10))) shouldBe Some(10)
+      iso.comap(Some(10)) shouldBe Simple2(Some(10))
+    }
 
   case class TooBig(a: Int, b: Int)
 
@@ -49,9 +50,9 @@ class CaseClassIsomorphismTests extends AnyFunSuite with Matchers {
     iso.comap(10) shouldBe Parametrized(10)
   }
 
-  //  test("Implicit isomorphism for parametrized case class of arity 1 - unrefined type parameter") {
-  //    def iso[P]: slick.jdbc.JdbcTypesComponent#MappedJdbcType[Parametrized[P], P] = implicitly[slick.jdbc.JdbcTypesComponent#MappedJdbcType[Parametrized[P], P]]
-  //    iso[Int].map(Parametrized(10)) shouldBe 10
-  //    iso[Option[Int]].comap(Some(10)) shouldBe Parametrized(Some(10))
-  //  }
+  test("Implicit isomorphism for parametrized case class of arity 1 - unrefined type parameter") {
+    def iso[P]: slick.jdbc.JdbcTypesComponent#MappedJdbcType[Parametrized[P], P] = implicitly[slick.jdbc.JdbcTypesComponent#MappedJdbcType[Parametrized[P], P]]
+    iso[Int].map(Parametrized(10)) shouldBe 10
+    iso[Option[Int]].comap(Some(10)) shouldBe Parametrized(Some(10))
+  }
 }

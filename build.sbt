@@ -176,7 +176,7 @@ lazy val commonSettings = baseSettings ++ Seq(
 
 lazy val slickSettings = commonSettings ++ Seq(
   libraryDependencies += slick.cross(CrossVersion.for3Use2_13),
-  libraryDependencies += (slickPg % "test").cross(CrossVersion.for3Use2_13),
+  libraryDependencies += (slickPg).cross(CrossVersion.for3Use2_13),
   libraryDependencies += optionalEnumeratum
 )
 

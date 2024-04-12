@@ -3,6 +3,7 @@ package pl.iterators.kebs.slick.enums
 import enumeratum.values.{ValueEnum, ValueEnumEntry}
 import pl.iterators.kebs.slick.Kebs
 import pl.iterators.kebs.core.enums.{EnumLike, ValueEnumLike, ValueEnumLikeEntry}
+import pl.iterators.kebs.slick.types.ListJdbcType
 import slick.jdbc.{JdbcProfile, JdbcType}
 
 import scala.reflect.ClassTag
