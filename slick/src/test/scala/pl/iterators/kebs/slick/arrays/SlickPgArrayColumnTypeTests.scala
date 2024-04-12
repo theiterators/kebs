@@ -1,21 +1,20 @@
-//package pl.iterators.kebs.slick.arrays
+//package arrays
 //
 //import com.github.tminglei.slickpg._
 //import enumeratum.{Enum, EnumEntry}
 //import org.scalatest.funsuite.AnyFunSuite
 //import org.scalatest.matchers.should.Matchers
-//import pl.iterators.kebs.enumeratum.KebsEnumeratum
-//import pl.iterators.kebs.slick.enums.KebsEnums
 //
-//class SlickPgArrayColumnTypeTests extends AnyFunSuite with Matchers with KebsEnumeratum {
+//class SlickPgArrayColumnTypeTests extends AnyFunSuite with Matchers {
 //  case class Institution(value: Long)
 //  case class MarketFinancialProduct(value: String)
 //
-//  import pl.iterators.kebs.slick.Kebs
+//  import pl.iterators.kebs.Kebs
+//  import pl.iterators.kebs.enums.KebsEnums
 //
 //  object MyPostgresProfile extends ExPostgresProfile with PgArraySupport {
 //    override val api: APIWithArrays = new APIWithArrays {}
-//    trait APIWithArrays extends super.API with ArrayImplicits with Kebs with KebsEnums
+//    trait APIWithArrays extends ExPostgresProfile with ArrayImplicits with Kebs with KebsEnums
 //  }
 //
 //  import MyPostgresProfile.api._

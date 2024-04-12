@@ -1,10 +1,10 @@
 import pl.iterators.kebs.tagged.slick.SlickSupport
-import slick.lifted.Isomorphism
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
 class TaggedTypeIsomorphismTests extends AnyFunSuite with Matchers with SlickSupport {
   import pl.iterators.kebs.tagged._
+  import _root_.slick.jdbc.PostgresProfile.api._
 
   trait Tag1
 
@@ -14,13 +14,13 @@ class TaggedTypeIsomorphismTests extends AnyFunSuite with Matchers with SlickSup
   }
 
   test("implicit isomorphism between bare type and type with tag") {
-    val iso = implicitly[Isomorphism[Int @@ Tag1, Int]]
+    val iso = implicitly[_root_.slick.jdbc.JdbcTypesComponent#MappedJdbcType[Int @@ Tag1, Int]]
     iso.map(Simple(10)) shouldBe 10
     iso.comap(10) shouldBe Simple(10)
   }
 
   test("implicit isomorphism between bare type and type with tag (alias)") {
-    val iso = implicitly[Isomorphism[Simple, Int]]
+    val iso = implicitly[_root_.slick.jdbc.JdbcTypesComponent#MappedJdbcType[Simple, Int]]
     iso.map(Simple(10)) shouldBe 10
     iso.comap(10) shouldBe Simple(10)
   }

@@ -7,11 +7,11 @@ import slick.jdbc.JdbcType
 import slick.lifted.{ExtensionMethods, FunctionSymbolExtensionMethods, Rep}
 
 class KebsHStoreColumnExtensionMethods[KEY, VALUE, P1](val c: Rep[P1])(
-    implicit tm0: JdbcType[KEY],
-    tm1: JdbcType[VALUE],
-    tm2: JdbcType[List[KEY]],
-    tm3: JdbcType[List[VALUE]],
-    tm4: JdbcType[Map[KEY, VALUE]]
+  implicit tm0: JdbcType[KEY],
+  tm1: JdbcType[VALUE],
+  tm2: JdbcType[List[KEY]],
+  tm3: JdbcType[List[VALUE]],
+  tm4: JdbcType[Map[KEY, VALUE]]
 ) extends ExtensionMethods[Map[KEY, VALUE], P1] {
   import FunctionSymbolExtensionMethods._
 

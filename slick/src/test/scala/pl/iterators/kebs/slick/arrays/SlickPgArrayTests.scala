@@ -1,4 +1,4 @@
-//package pl.iterators.kebs.slick.arrays
+//package arrays
 //
 //import com.github.tminglei.slickpg._
 //import org.scalatest.funsuite.AnyFunSuite
@@ -9,8 +9,8 @@
 //import java.util.UUID
 //
 //class SlickPgArrayTests extends AnyFunSuite with Matchers {
+//  import pl.iterators.kebs.Kebs
 //  import pl.iterators.kebs.instances.time.YearMonthString
-//  import pl.iterators.kebs.slick.Kebs
 //
 //  trait PostgresDriver extends ExPostgresProfile with PgArraySupport {
 //    override val api: ArrayAPI = new ArrayAPI {}
@@ -40,11 +40,11 @@
 //    override def * : ProvenShape[Test] = (id, ccList) <> ((Test.apply _).tupled, Test.unapply)
 //  }
 //
-//  test("No ValueClassLike implicits derived") {
-//    import pl.iterators.kebs.core.macros.ValueClassLike
+//  test("No CaseClass1Rep implicits derived") {
+//    import pl.iterators.kebs.macros.CaseClass1Rep
 //
-//    "implicitly[ValueClassLike[YearMonth, String]]" shouldNot typeCheck
-//    "implicitly[ValueClassLike[String, YearMonth]]" shouldNot typeCheck
+//    "implicitly[CaseClass1Rep[YearMonth, String]]" shouldNot typeCheck
+//    "implicitly[CaseClass1Rep[String, YearMonth]]" shouldNot typeCheck
 //  }
 //
 //  test("Case class list extension methods") {
