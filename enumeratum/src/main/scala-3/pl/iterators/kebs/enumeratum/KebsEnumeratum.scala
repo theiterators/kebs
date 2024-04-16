@@ -10,7 +10,7 @@ import scala.reflect.{ClassTag, Enum}
 import pl.iterators.kebs.core.enums.EnumLike
 
 trait KebsEnumeratum {
-  inline given [E <: EnumEntry](using m: Mirror.SumOf[E], ct: ClassTag[E]): EnumLike[E] = {
+  implicit inline def enumLike[E <: EnumEntry](using m: Mirror.SumOf[E], ct: ClassTag[E]): EnumLike[E] = {
     val enumValues = summonCases[m.MirroredElemTypes, E]
     new EnumLike[E] {
       override def values: immutable.Seq[E] = enumValues.toSeq
