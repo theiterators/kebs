@@ -30,17 +30,17 @@ private[circe] trait KebsAutoDerivation extends CaseClass1ToValueClass {
 }
 trait KebsCirce extends KebsAutoDerivation {
 
-   inline given[T, A](using rep: ValueClassLike[T, A], decoder: Decoder[A]): Decoder[T] = {
+   implicit inline def kebsDecoder[T, A](using rep: ValueClassLike[T, A], decoder: Decoder[A]): Decoder[T] = {
     decoder.emap(obj => Try(rep.apply(obj)).toEither.left.map(_.getMessage))
    }
 
-   inline given[T, A](using rep: ValueClassLike[T, A], encoder: Encoder[A]): Encoder[T] =
+   implicit inline def kebsEncoder[T, A](using rep: ValueClassLike[T, A], encoder: Encoder[A]): Encoder[T] =
     encoder.contramap(rep.unapply)
 
-   inline given[T, A](using rep: InstanceConverter[T, A], encoder: Encoder[A]): Encoder[T] =
+   implicit inline def kebsEncoder[T, A](using rep: InstanceConverter[T, A], encoder: Encoder[A]): Encoder[T] =
     encoder.contramap(rep.encode)
 
-   inline given[T, A](using rep: InstanceConverter[T, A], decoder: Decoder[A]): Decoder[T] =
+   implicit inline def kebsDecoder[T, A](using rep: InstanceConverter[T, A], decoder: Decoder[A]): Decoder[T] =
     decoder.emap(obj => Try(rep.decode(obj)).toEither.left.map(_.getMessage))
 }
 

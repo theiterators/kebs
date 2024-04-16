@@ -12,7 +12,7 @@ import io.circe.derivation.Configuration
 
 class CirceFormatSnakifiedVariantTests extends AnyFunSuite with Matchers {
   object KebsProtocol extends KebsCirce with KebsCirce.Snakified
-  import KebsProtocol.{given, _}
+  import KebsProtocol._
 
   test("Flat format remains unchanged") {
     val decoder = implicitly[Decoder[C]]

@@ -17,7 +17,7 @@ class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
 
   test("Instant epoch milli format") {
     object TimeInstancesProtocol extends KebsCirce with InstantEpochMilliLong
-    import TimeInstancesProtocol.{given, _}
+    import TimeInstancesProtocol._
 
     "implicitly[ValueClassLike[Instant, Long]]" shouldNot typeCheck
     "implicitly[ValueClassLike[Long, Instant]]" shouldNot typeCheck
@@ -33,7 +33,7 @@ class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
 
   test("Duration nanos format, Instant epoch milli format") {
     object TimeInstancesProtocol extends KebsCirce with DurationNanosLong with InstantEpochMilliLong
-    import TimeInstancesProtocol.{given, _}
+    import TimeInstancesProtocol._
 
     "implicitly[ValueClassLike[Instant, Long]]" shouldNot typeCheck
     "implicitly[ValueClassLike[Long, Instant]]" shouldNot typeCheck
@@ -64,7 +64,7 @@ class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
       override implicit val localDateTimeFormatter: InstanceConverter[LocalDateTime, String] =
         InstanceConverter.apply[LocalDateTime, String](_.format(formatter), LocalDateTime.parse(_, formatter))
     }
-    import TimeInstancesProtocol.{given, _}
+    import TimeInstancesProtocol._
 
     "implicitly[ValueClassLike[LocalDateTime, String]]" shouldNot typeCheck
     "implicitly[ValueClassLike[String, LocalDateTime]]" shouldNot typeCheck
@@ -98,7 +98,7 @@ class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
             }
         }
     }
-    import TimeInstancesProtocol.{given, _}
+    import TimeInstancesProtocol._
     
     "implicitly[ValueClassLike[LocalDateTime, String]]" shouldNot typeCheck
     "implicitly[ValueClassLike[String, LocalDateTime]]" shouldNot typeCheck

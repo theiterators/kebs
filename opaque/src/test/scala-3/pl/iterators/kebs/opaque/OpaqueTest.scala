@@ -23,8 +23,11 @@ object OpaqueTestTypeclass {
     def show(a: A): String
   }
 
-  given Showable[Int] = (a: Int) => a.toString
-  given[S, A](using showable: Showable[S], vcLike: ValueClassLike[A, S]): Showable[A] = (a: A) => showable.show(vcLike.unapply(a))
+  implicit val intShowable: Showable[Int] = new Showable[Int] {
+    override def show(a: Int): String = a.toString
+  }
+  
+  implicit def show[S, A](using showable: Showable[S], vcLike: ValueClassLike[A, S]): Showable[A] = (a: A) => showable.show(vcLike.unapply(a))
 }
 
 class OpaqueTest extends AnyFunSuite with Matchers {

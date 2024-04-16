@@ -60,29 +60,29 @@ trait CirceValueEnum {
 }
 
 trait KebsEnumFormats extends CirceEnum with CirceValueEnum {
-  implicit inline given[E <: Enum](using ev: EnumLike[E]): Decoder[E] = enumDecoder(ev)
+  implicit inline def kebsEnumDecoder[E <: Enum](using ev: EnumLike[E]): Decoder[E] = enumDecoder(ev)
 
-  implicit inline given[E <: Enum](using ev: EnumLike[E]): Encoder[E] = enumEncoder(ev)
+  implicit inline def kebsEnumEncoder[E <: Enum](using ev: EnumLike[E]): Encoder[E] = enumEncoder(ev)
 
-  implicit inline given[V, E <: ValueEnumLikeEntry[V]](using ev: ValueEnumLike[V, E], decoder: Decoder[V]): Decoder[E] =
+  implicit inline def kebsValueEnumDecoder[V, E <: ValueEnumLikeEntry[V]](using ev: ValueEnumLike[V, E], decoder: Decoder[V]): Decoder[E] =
     valueEnumDecoder(ev)
 
-  implicit inline given[V, E <: ValueEnumLikeEntry[V]](using ev: ValueEnumLike[V, E], encoder: Encoder[V]): Encoder[E] =
+  implicit inline def kebsValueEnumEncoder[V, E <: ValueEnumLikeEntry[V]](using ev: ValueEnumLike[V, E], encoder: Encoder[V]): Encoder[E] =
     valueEnumEncoder(ev)
 
   trait Uppercase extends CirceEnum {
-    implicit inline given[E <: Enum](using ev: EnumLike[E]): Decoder[E] =
+    implicit inline def kebsUppercaseEnumDecoder[E <: Enum](using ev: EnumLike[E]): Decoder[E] =
       uppercaseEnumDecoder(ev)
 
-    implicit inline given[E <: Enum](using ev: EnumLike[E]): Encoder[E] =
+    implicit inline def kebsUppercaseEnumEncoder[E <: Enum](using ev: EnumLike[E]): Encoder[E] =
       uppercaseEnumEncoder(ev)
   }
 
   trait Lowercase extends CirceEnum {
-    implicit inline given[E <: Enum](using ev: EnumLike[E]): Decoder[E] =
+    implicit inline def kebsLowercaseEnumDecoder[E <: Enum](using ev: EnumLike[E]): Decoder[E] =
       lowercaseEnumDecoder(ev)
 
-    implicit inline given[E <: Enum](using ev: EnumLike[E]): Encoder[E] =
+    implicit inline def kebsLowercaseEnumEncoder[E <: Enum](using ev: EnumLike[E]): Encoder[E] =
       lowercaseEnumEncoder(ev)
   }
 }
