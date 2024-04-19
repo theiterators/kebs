@@ -106,7 +106,7 @@ def paradisePlugin(scalaVersion: String): Seq[ModuleID] =
     Seq.empty
 
 val scalaTest       = Def.setting("org.scalatest" %%% "scalatest" % "3.2.18")
-val scalaCheck      = Def.setting("org.scalacheck" %%% "scalacheck" % "1.17.1")
+val scalaCheck      = Def.setting("org.scalacheck" %%% "scalacheck" % "1.18.0")
 val slick           = "com.typesafe.slick" %% "slick" % "3.4.1"
 val optionalSlick   = optional(slick)
 val playJson        = "org.playframework" %% "play-json" % "3.0.2"
@@ -122,7 +122,7 @@ val circeParser     = "io.circe" %% "circe-parser" % circeV
 
 val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.11"
 
-val scalacheck           = "org.scalacheck"             %% "scalacheck"                % "1.17.1" % "test"
+val scalacheck           = "org.scalacheck"             %% "scalacheck"                % "1.18.0" % "test"
 val scalacheckMagnolify  = "com.spotify" % "magnolify-scalacheck" % "0.7.2"
 val scalacheckDerived  = "io.github.martinhh" %% "scalacheck-derived" % "0.4.2"
 val scalacheckEnumeratum = "com.beachape"               %% "enumeratum-scalacheck"     % "1.7.3"
