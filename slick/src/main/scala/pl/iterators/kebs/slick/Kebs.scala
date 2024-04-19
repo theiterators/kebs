@@ -67,10 +67,10 @@ trait KebsColumnExtensionMethods {
 }
 
 trait Kebs extends KebsColumnExtensionMethods {
+
   import pl.iterators.kebs.core.macros.CaseClass1ToValueClass._
-  implicit def optionJdbcType[A]: GenericJdbcType[Option[A]] = new GenericJdbcType[Option[A]]("text", s => Some(s.asInstanceOf[A]), _.toString, java.sql.Types.OTHER)
-  implicit def parametrizedJdbcType[VC, B](implicit cc: ValueClassLike[VC, B], ct: ClassTag[B]): JdbcType[B] =
-    new GenericJdbcType[B]("text", s => s.asInstanceOf[B], _.toString, java.sql.Types.OTHER)
+
+  protected implicit def optionJdbcType[CC, A]: GenericJdbcType[Option[A]] = new GenericJdbcType[Option[A]]("text", s => Some(s.asInstanceOf[A]), _.toString, java.sql.Types.OTHER)
 
   private type MyMappedJdbcType[CC, B] = slick.jdbc.JdbcTypesComponent#MappedJdbcType[CC, B]
 
