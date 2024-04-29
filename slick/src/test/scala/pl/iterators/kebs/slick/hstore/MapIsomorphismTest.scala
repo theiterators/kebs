@@ -4,9 +4,9 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.instances.time.mixins.InstantEpochMilliLong
 import pl.iterators.kebs.instances.time.{DayOfWeekInt, YearMonthString}
+import pl.iterators.kebs.slick.Kebs
 
-class MapIsomorphismTest extends AnyFunSuite with Matchers with YearMonthString with DayOfWeekInt with InstantEpochMilliLong {
-  import pl.iterators.kebs.slick._
+class MapIsomorphismTest extends AnyFunSuite with Matchers with YearMonthString with DayOfWeekInt with InstantEpochMilliLong with Kebs {
   import pl.iterators.kebs.core.macros.CaseClass1ToValueClass._
   import slick.jdbc.PostgresProfile.api._
 
@@ -30,11 +30,11 @@ class MapIsomorphismTest extends AnyFunSuite with Matchers with YearMonthString 
     iso.comap(Map("a"            -> 0, "b"                        -> 1)) shouldBe Map(StringValue("a") -> IntValue(0), StringValue("b") -> IntValue(1))
   }
 
-  //  test("Case classes isomorphisms implies string to string map isomorphism") {
-  //    val iso = implicitly[slick.jdbc.JdbcTypesComponent#MappedJdbcType[Map[StringValue, IntValue], Map[String, String]]]
-  //    iso.map(Map(StringValue("a") -> IntValue(0), StringValue("b") -> IntValue(1))) shouldBe Map("a"      -> "0", "b"                      -> "1")
-  //    iso.comap(Map("a"            -> "0", "b"                      -> "1")) shouldBe Map(StringValue("a") -> IntValue(0), StringValue("b") -> IntValue(1))
-  //  }
+    test("Case classes isomorphisms implies string to string map isomorphism") {
+      val iso = implicitly[slick.jdbc.JdbcTypesComponent#MappedJdbcType[Map[StringValue, IntValue], Map[String, String]]]
+      iso.map(Map(StringValue("a") -> IntValue(0), StringValue("b") -> IntValue(1))) shouldBe Map("a"      -> "0", "b"                      -> "1")
+      iso.comap(Map("a"            -> "0", "b"                      -> "1")) shouldBe Map(StringValue("a") -> IntValue(0), StringValue("b") -> IntValue(1))
+    }
 
   test("Case classes isomorphisms implies int to string map isomorphism") {
     val iso = implicitly[slick.jdbc.JdbcTypesComponent#MappedJdbcType[Map[IntValue, StringValue], Map[Int, String]]]
@@ -42,11 +42,11 @@ class MapIsomorphismTest extends AnyFunSuite with Matchers with YearMonthString 
     iso.comap(Map(0         -> "a", 1                        -> "b")) shouldBe Map(IntValue(0)    -> StringValue("a"), IntValue(1) -> StringValue("b"))
   }
 
-  //  test("Case classes isomorphisms implies string to string map isomorphism 2") {
-  //    val iso = implicitly[slick.jdbc.JdbcTypesComponent#MappedJdbcType[Map[IntValue, StringValue], Map[String, String]]]
-  //    iso.map(Map(IntValue(0) -> StringValue("a"), IntValue(1) -> StringValue("b"))) shouldBe Map("0" -> "a", "1"                      -> "b")
-  //    iso.comap(Map("0"       -> "a", "1"                      -> "b")) shouldBe Map(IntValue(0)      -> StringValue("a"), IntValue(1) -> StringValue("b"))
-  //  }
+    test("Case classes isomorphisms implies string to string map isomorphism 2") {
+      val iso = implicitly[slick.jdbc.JdbcTypesComponent#MappedJdbcType[Map[IntValue, StringValue], Map[String, String]]]
+      iso.map(Map(IntValue(0) -> StringValue("a"), IntValue(1) -> StringValue("b"))) shouldBe Map("0" -> "a", "1"                      -> "b")
+      iso.comap(Map("0"       -> "a", "1"                      -> "b")) shouldBe Map(IntValue(0)      -> StringValue("a"), IntValue(1) -> StringValue("b"))
+    }
 
   import java.time.{DayOfWeek, YearMonth, Instant}
 

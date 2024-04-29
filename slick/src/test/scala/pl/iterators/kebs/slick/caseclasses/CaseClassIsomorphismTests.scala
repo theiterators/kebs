@@ -5,6 +5,8 @@ import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.slick.Kebs
 import slick.jdbc.PostgresProfile.api._
 
+import scala.reflect.ClassTag
+
 class CaseClassIsomorphismTests extends AnyFunSuite with Matchers with Kebs {
   import pl.iterators.kebs.slick._
   import pl.iterators.kebs.core.macros.CaseClass1ToValueClass._
@@ -50,9 +52,10 @@ class CaseClassIsomorphismTests extends AnyFunSuite with Matchers with Kebs {
     iso.comap(10) shouldBe Parametrized(10)
   }
 
-//  test("Implicit isomorphism for parametrized case class of arity 1 - unrefined type parameter") {
-//    def iso[P]: slick.jdbc.JdbcTypesComponent#MappedJdbcType[Parametrized[P], P] = implicitly[slick.jdbc.JdbcTypesComponent#MappedJdbcType[Parametrized[P], P]]
-//    iso[Int].map(Parametrized(10)) shouldBe 10
-//    iso[Option[Int]].comap(Some(10)) shouldBe Parametrized(Some(10))
-//  }
+  test("Implicit isomorphism for parametrized case class of arity 1 - unrefined type parameter") {
+    implicit def ct[P]: ClassTag[P] = ClassTag(classOf[Int])
+    def iso[P]: slick.jdbc.JdbcTypesComponent#MappedJdbcType[Parametrized[P], P] = implicitly[slick.jdbc.JdbcTypesComponent#MappedJdbcType[Parametrized[P], P]]
+    iso[Int].map(Parametrized(10)) shouldBe 10
+    iso[Option[Int]].comap(Some(10)) shouldBe Parametrized(Some(10))
+  }
 }

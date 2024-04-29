@@ -1,16 +1,12 @@
 package pl.iterators.kebs.slick.enums
 
-import enumeratum.values.{ValueEnum, ValueEnumEntry}
 import pl.iterators.kebs.slick.Kebs
 import pl.iterators.kebs.core.enums.{EnumLike, ValueEnumLike, ValueEnumLikeEntry}
-import pl.iterators.kebs.slick.types.ListJdbcType
 import slick.jdbc.{JdbcProfile, JdbcType}
 
 import scala.reflect.ClassTag
 
 trait SlickEnum extends Kebs {
-
-  import slick.jdbc.PostgresProfile.api._
 
   def enumIsomorphism[E](
                                        `enum`: EnumLike[E])(
@@ -30,12 +26,10 @@ trait SlickEnum extends Kebs {
                                                 jp: JdbcProfile): slick.jdbc.JdbcTypesComponent#MappedJdbcType[E, String] = jp.MappedColumnType.base[E, String](_.toString.toLowerCase, `enum`.withNameLowercaseOnly).asInstanceOf[slick.jdbc.JdbcTypesComponent#MappedJdbcType[E, String]]
 
   implicit def enumListColumnType[E](implicit iso: slick.jdbc.JdbcTypesComponent#MappedJdbcType[E, String], jp: JdbcProfile): slick.jdbc.JdbcTypesComponent#MappedJdbcType[List[E], List[String]] = {
-    implicit val jt: JdbcType[List[String]] = new ListJdbcType[List[String]].asInstanceOf[JdbcType[List[String]]]
     jp.MappedColumnType.base[List[E], List[String]](_.map(iso.map), _.map(iso.comap)).asInstanceOf[slick.jdbc.JdbcTypesComponent#MappedJdbcType[List[E], List[String]]]
   }
 
   implicit def enumSeqColumnType[E](implicit iso: slick.jdbc.JdbcTypesComponent#MappedJdbcType[E, String], jp: JdbcProfile): slick.jdbc.JdbcTypesComponent#MappedJdbcType[Seq[E], List[String]] = {
-    implicit val jt: JdbcType[List[String]] = new ListJdbcType[List[String]].asInstanceOf[JdbcType[List[String]]]
     jp.MappedColumnType.base[Seq[E], List[String]](_.map(iso.map).toList, _.map(iso.comap)).asInstanceOf[slick.jdbc.JdbcTypesComponent#MappedJdbcType[Seq[E], List[String]]]
   }
 }
