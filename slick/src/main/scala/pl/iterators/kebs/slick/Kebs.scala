@@ -102,20 +102,16 @@ trait Kebs extends KebsColumnExtensionMethods {
       comap _
     ).asInstanceOf[MyMappedJdbcType[Map[String, A], Map[String, String]]]
   }
-
-  implicit final def intMapValueColumnType(implicit jp: JdbcProfile): MyMappedJdbcType[Map[String, Int], Map[String, String]] = {
-    val smi = new StringMapIsomorphism[Int](_.toInt, implicitly[JdbcProfile])
-    smi.mjt
-  }
-  implicit final def longMapValueColumnType(implicit jp: JdbcProfile): MyMappedJdbcType[Map[String, Long], Map[String, String]] = {
-    val smi = new StringMapIsomorphism[Long](_.toLong, implicitly[JdbcProfile])
-    smi.mjt
+  private object StringMapIsomorphism {
+    def apply[A](fromStringMap: String => A, jp: JdbcProfile): StringMapIsomorphism[A] = new StringMapIsomorphism(fromStringMap, jp)
   }
 
-  implicit final def boolMapValueColumnType(implicit jp: JdbcProfile): MyMappedJdbcType[Map[String, Boolean], Map[String, String]] = {
-    val smi = new StringMapIsomorphism[Boolean](_.toBoolean, implicitly[JdbcProfile])
-    smi.mjt
-  }
+  implicit final def intMapValueColumnType(implicit jp: JdbcProfile): MyMappedJdbcType[Map[String, Int], Map[String, String]] =
+    StringMapIsomorphism[Int](_.toInt, implicitly[JdbcProfile]).mjt
+  implicit final def longMapValueColumnType(implicit jp: JdbcProfile): MyMappedJdbcType[Map[String, Long], Map[String, String]] =
+    StringMapIsomorphism[Long](_.toLong, implicitly[JdbcProfile]).mjt
+  implicit final def boolMapValueColumnType(implicit jp: JdbcProfile): MyMappedJdbcType[Map[String, Boolean], Map[String, String]] =
+    StringMapIsomorphism[Boolean](_.toBoolean, implicitly[JdbcProfile]).mjt
 
   private class StringValueMapIsomorphism[A](fromStringMap: String => A, jp: JdbcProfile) {
     def map(t: Map[A, String]): Map[String, String] =   t.map { case (a, str)     => (a.toString, str) }
@@ -125,18 +121,16 @@ trait Kebs extends KebsColumnExtensionMethods {
       comap _
     ).asInstanceOf[MyMappedJdbcType[Map[A, String], Map[String, String]]]
   }
-  implicit final def intMapValueColumnType1(implicit jp: JdbcProfile): MyMappedJdbcType[Map[Int, String], Map[String, String]] = {
-    val mi = new StringValueMapIsomorphism[Int](_.toInt, jp)
-    mi.mjt
+  private object StringValueMapIsomorphism {
+    def apply[A](fromStringMap: String => A, jp: JdbcProfile): StringValueMapIsomorphism[A] = new StringValueMapIsomorphism(fromStringMap, jp)
   }
-  implicit final def longMapValueColumnType1(implicit jp: JdbcProfile): MyMappedJdbcType[Map[Long, String], Map[String, String]] = {
-    val mi = new StringValueMapIsomorphism[Long](_.toLong, jp)
-    mi.mjt
-  }
-  implicit final def boolMapValueColumnType1(implicit jp: JdbcProfile): MyMappedJdbcType[Map[Boolean, String], Map[String, String]] = {
-    val mi = new StringValueMapIsomorphism[Boolean](_.toBoolean, jp)
-    mi.mjt
-  }
+
+  implicit final def intMapValueColumnType1(implicit jp: JdbcProfile): MyMappedJdbcType[Map[Int, String], Map[String, String]] =
+    StringValueMapIsomorphism[Int](_.toInt, jp).mjt
+  implicit final def longMapValueColumnType1(implicit jp: JdbcProfile): MyMappedJdbcType[Map[Long, String], Map[String, String]] =
+    StringValueMapIsomorphism[Long](_.toLong, jp).mjt
+  implicit final def boolMapValueColumnType1(implicit jp: JdbcProfile): MyMappedJdbcType[Map[Boolean, String], Map[String, String]] =
+    StringValueMapIsomorphism[Boolean](_.toBoolean, jp).mjt
 
   implicit def hstoreColumnType[CC1, CC2, A, B](
                                                  implicit iso1: MyMappedJdbcType[Map[CC1, CC2], Map[A, B]],
