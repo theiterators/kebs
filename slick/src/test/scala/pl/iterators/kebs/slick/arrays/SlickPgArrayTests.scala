@@ -14,8 +14,8 @@ class SlickPgArrayTests extends AnyFunSuite with Matchers {
   import pl.iterators.kebs.core.macros.CaseClass1ToValueClass._
 
   trait PostgresDriver extends ExPostgresProfile with PgArraySupport {
-    override val api: ExtPostgresAPI = new ExtPostgresAPI {}
-    trait ArrayAPI extends JdbcAPI with ArrayImplicits with Kebs with YearMonthString
+    override val api: ArrayAPI = new ArrayAPI {}
+    trait ArrayAPI extends ExtPostgresAPI with ArrayImplicits with Kebs with YearMonthString
   }
   object PostgresDriver extends PostgresDriver
 
@@ -48,40 +48,40 @@ class SlickPgArrayTests extends AnyFunSuite with Matchers {
     "implicitly[ValueClassLike[String, YearMonth]]" shouldNot typeCheck
   }
 
-//  test("Case class list extension methods") {
-//    """
-//      |class TestRepository1 {
-//      |      import PostgresDriver.api._
-//      |
-//      |      def contains(arr: List[TestCC]) =
-//      |        tests.map(_.ccList @> arr)
-//      |
-//      |      private val tests = TableQuery[Tests]
-//      |}
-//      |""".stripMargin should compile
-//  }
+  test("Case class list extension methods") {
+    """
+      |class TestRepository1 {
+      |      import PostgresDriver.api._
+      |
+      |      def contains(arr: List[TestCC]) =
+      |        tests.map(_.ccList @> arr)
+      |
+      |      private val tests = TableQuery[Tests]
+      |}
+      |""".stripMargin should compile
+  }
 
-//  case class ObjectTest(id: TestId, objList: List[YearMonth])
-//
-//  class ObjectTests(tag: BaseTable.Tag) extends BaseTable[ObjectTest](tag, "test") {
-//    import driver.api._
-//
-//    def id      = column[TestId]("id")
-//    def objList = column[List[YearMonth]]("obj_list")
-//
-//    override def * : ProvenShape[ObjectTest] = (id, objList) <> ((ObjectTest.apply _).tupled, ObjectTest.unapply)
-//  }
-//
-//  test("Object list extension methods") {
-//    """
-//      |class TestRepository1 {
-//      |      import PostgresDriver.api._
-//      |
-//      |      def contains(arr: List[YearMonth]) =
-//      |        tests.map(_.objList @> arr)
-//      |
-//      |      private val tests = TableQuery[ObjectTests]
-//      |}
-//      |""".stripMargin should compile
-//  }
+  case class ObjectTest(id: TestId, objList: List[YearMonth])
+
+  class ObjectTests(tag: BaseTable.Tag) extends BaseTable[ObjectTest](tag, "test") {
+    import driver.api._
+
+    def id      = column[TestId]("id")
+    def objList = column[List[YearMonth]]("obj_list")
+
+    override def * : ProvenShape[ObjectTest] = (id, objList) <> ((ObjectTest.apply _).tupled, ObjectTest.unapply)
+  }
+
+  test("Object list extension methods") {
+    """
+      |class TestRepository1 {
+      |      import PostgresDriver.api._
+      |
+      |      def contains(arr: List[YearMonth]) =
+      |        tests.map(_.objList @> arr)
+      |
+      |      private val tests = TableQuery[ObjectTests]
+      |}
+      |""".stripMargin should compile
+  }
 }
