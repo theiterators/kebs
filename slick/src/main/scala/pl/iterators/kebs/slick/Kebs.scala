@@ -98,8 +98,8 @@ trait Kebs extends KebsColumnExtensionMethods {
     def map(t: Map[String, A]): Map[String, String] =   t.map { case (str, a)     => (str, a.toString) }
     def comap(u: Map[String, String]): Map[String, A] = u.map { case (str1, str2) => (str1, fromStringMap(str2)) }
     val mjt: MyMappedJdbcType[Map[String, A], Map[String, String]] = jp.MappedJdbcType.base[Map[String, A], Map[String, String]](
-      map _,
-      comap _
+      map,
+      comap
     ).asInstanceOf[MyMappedJdbcType[Map[String, A], Map[String, String]]]
   }
   private object StringMapIsomorphism {
@@ -117,8 +117,8 @@ trait Kebs extends KebsColumnExtensionMethods {
     def map(t: Map[A, String]): Map[String, String] =   t.map { case (a, str)     => (a.toString, str) }
     def comap(u: Map[String, String]): Map[A, String] = u.map { case (str1, str2) => (fromStringMap(str1), str2) }
     val mjt = jp.MappedJdbcType.base[Map[A, String], Map[String, String]](
-      map _,
-      comap _
+      map,
+      comap
     ).asInstanceOf[MyMappedJdbcType[Map[A, String], Map[String, String]]]
   }
   private object StringValueMapIsomorphism {
