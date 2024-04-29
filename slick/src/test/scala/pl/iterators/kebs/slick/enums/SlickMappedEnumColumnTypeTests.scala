@@ -7,7 +7,6 @@ import org.scalatest.matchers.should.Matchers
 class SlickMappedEnumColumnTypeTests extends AnyFunSuite with Matchers {
   import slick.jdbc.PostgresProfile.api._
   import pl.iterators.kebs.enumeratum._
-  import pl.iterators.kebs.slick.enums.lowercase._
 
   sealed trait WorkerAccountStatus extends EnumEntry
   object WorkerAccountStatus extends Enum[WorkerAccountStatus] {

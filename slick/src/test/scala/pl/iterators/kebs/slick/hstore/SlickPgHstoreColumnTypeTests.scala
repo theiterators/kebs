@@ -21,8 +21,7 @@ class SlickPgHstoreColumnTypeTests extends AnyFunSuite with Matchers {
 
   import MyPostgresProfile.api._
 
-  test("No CaseClass1Rep implicits derived") {
-    import pl.iterators.kebs.core.macros.ValueClassLike
+  test("No ValueClassLike implicits derived") {
 
     "implicitly[ValueClassLike[YearMonth, String]]" shouldNot typeCheck
     "implicitly[ValueClassLike[String, YearMonth]]" shouldNot typeCheck

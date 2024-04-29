@@ -8,7 +8,6 @@ import slick.jdbc.PostgresProfile.api._
 import scala.reflect.ClassTag
 
 class CaseClassIsomorphismTests extends AnyFunSuite with Matchers with Kebs {
-  import pl.iterators.kebs.slick._
   import pl.iterators.kebs.core.macros.CaseClass1ToValueClass._
 
   case class Simple1(a: Int)

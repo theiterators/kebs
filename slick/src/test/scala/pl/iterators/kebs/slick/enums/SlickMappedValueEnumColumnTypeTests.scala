@@ -7,9 +7,7 @@ import pl.iterators.kebs.core.enums.ValueEnumLikeEntry
 
 class SlickMappedValueEnumColumnTypeTests extends AnyFunSuite with Matchers {
   import slick.jdbc.PostgresProfile.api._
-  import pl.iterators.kebs.slick._
   import pl.iterators.kebs.enumeratum._
-  import pl.iterators.kebs.core.macros.CaseClass1ToValueClass._
 
   sealed abstract class WorkerAccountStatusInt(val value: Int) extends IntEnumEntry with ValueEnumLikeEntry[Int]
   object WorkerAccountStatusInt extends IntEnum[WorkerAccountStatusInt] {

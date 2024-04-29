@@ -6,7 +6,6 @@ import org.scalatest.matchers.should.Matchers
 class SlickMappedColumnTypeTests extends AnyFunSuite with Matchers {
   import slick.lifted.ProvenShape
   import slick.jdbc.PostgresProfile.api._
-  import pl.iterators.kebs.slick._
   import pl.iterators.kebs.core.macros.CaseClass1ToValueClass._
 
   case class Id(id: Long)

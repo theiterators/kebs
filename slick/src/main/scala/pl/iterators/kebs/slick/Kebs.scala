@@ -2,7 +2,7 @@ package pl.iterators.kebs.slick
 
 import pl.iterators.kebs.slick.hstore.KebsHStoreColumnExtensionMethods
 import pl.iterators.kebs.core.instances.InstanceConverter
-import pl.iterators.kebs.core.macros.{CaseClass1ToValueClass, ValueClassLike}
+import pl.iterators.kebs.core.macros.ValueClassLike
 import pl.iterators.kebs.slick.types.GenericJdbcType
 import slick.ast.{BaseTypedType, NumericTypedType}
 import slick.jdbc.{JdbcProfile, JdbcType}
@@ -64,8 +64,6 @@ trait KebsColumnExtensionMethods {
 }
 
 trait Kebs extends KebsColumnExtensionMethods {
-
-  import pl.iterators.kebs.core.macros.CaseClass1ToValueClass._
 
   protected implicit def genericJdbcType[T](implicit ct: ClassTag[T]): GenericJdbcType[T] = new GenericJdbcType[T]("text", _.asInstanceOf[T], _.toString, java.sql.Types.OTHER)
 
