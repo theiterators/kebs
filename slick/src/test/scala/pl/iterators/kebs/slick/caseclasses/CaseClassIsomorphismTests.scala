@@ -53,8 +53,7 @@ class CaseClassIsomorphismTests extends AnyFunSuite with Matchers with Kebs {
   }
 
   test("Implicit isomorphism for parametrized case class of arity 1 - unrefined type parameter") {
-    implicit def ct[P]: ClassTag[P] = ClassTag(classOf[Int])
-    def iso[P]: slick.jdbc.JdbcTypesComponent#MappedJdbcType[Parametrized[P], P] = implicitly[slick.jdbc.JdbcTypesComponent#MappedJdbcType[Parametrized[P], P]]
+    def iso[P](implicit cls: ClassTag[P]): slick.jdbc.JdbcTypesComponent#MappedJdbcType[Parametrized[P], P] = implicitly[slick.jdbc.JdbcTypesComponent#MappedJdbcType[Parametrized[P], P]]
     iso[Int].map(Parametrized(10)) shouldBe 10
     iso[Option[Int]].comap(Some(10)) shouldBe Parametrized(Some(10))
   }
