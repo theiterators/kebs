@@ -195,7 +195,7 @@ lazy val doobieSettings = commonSettings ++ Seq(
 )
 
 lazy val coreSettings = commonMacroSettings ++ Seq(
-  libraryDependencies += (scalaCheck.value % "test").cross(CrossVersion.for3Use2_13),
+  libraryDependencies += (scalaCheck.value % "test"),
   libraryDependencies += optionalEnumeratum
 )
 
@@ -260,8 +260,8 @@ lazy val jsonschemaSettings = commonSettings ++ Seq(
 )
 
 lazy val scalacheckSettings = commonSettings ++ Seq(
-  libraryDependencies += scalacheck.cross(CrossVersion.for3Use2_13),
-  libraryDependencies += scalacheckEnumeratum.cross(CrossVersion.for3Use2_13),
+  libraryDependencies += scalacheck,
+  libraryDependencies += scalacheckEnumeratum,
 ) ++ Seq(
   libraryDependencies ++= (if (scalaVersion.value.startsWith("3")) Seq(scalacheckDerived)
   else Nil)) ++ Seq(libraryDependencies ++= (if(scalaVersion.value.startsWith("2")) Seq(scalacheckMagnolify.cross(CrossVersion.for3Use2_13)) else Nil))
