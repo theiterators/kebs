@@ -329,7 +329,7 @@ lazy val macroUtils = crossProject(JSPlatform, JVMPlatform)
 
 lazy val slickSupport = project
   .in(file("slick"))
-  .dependsOn(core.jvm, enumeratumSupport, instances % "test -> test")
+  .dependsOn(core.jvm, enumeratumSupport, instances)
   .settings(slickSettings: _*)
   .settings(publishSettings: _*)
   .settings(disableScala(List("3")))

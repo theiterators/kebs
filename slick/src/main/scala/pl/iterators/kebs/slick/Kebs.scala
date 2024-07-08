@@ -3,11 +3,14 @@ package pl.iterators.kebs.slick
 import pl.iterators.kebs.slick.hstore.KebsHStoreColumnExtensionMethods
 import pl.iterators.kebs.core.instances.InstanceConverter
 import pl.iterators.kebs.core.macros.ValueClassLike
+import pl.iterators.kebs.instances.KebsInstances
+import pl.iterators.kebs.instances.util.UUIDString
 import pl.iterators.kebs.slick.types.GenericJdbcType
 import slick.ast.{BaseTypedType, NumericTypedType}
 import slick.jdbc.{JdbcProfile, JdbcType}
 import slick.lifted._
 
+import java.util.UUID
 import scala.language.{implicitConversions, reflectiveCalls}
 import scala.reflect.ClassTag
 
@@ -65,7 +68,29 @@ trait KebsColumnExtensionMethods {
 
 trait Kebs extends KebsColumnExtensionMethods {
 
-  protected implicit def genericJdbcType[T](implicit ct: ClassTag[T]): GenericJdbcType[T] = new GenericJdbcType[T]("text", _.asInstanceOf[T], _.toString, java.sql.Types.OTHER)
+  import scala.reflect.ClassTag
+  import scala.annotation.implicitNotFound
+
+  @implicitNotFound("No InstanceConverter found")
+  trait InstanceConverterNotFound
+  implicit object DefaultInstanceConverterNotFound extends InstanceConverterNotFound
+
+  implicit def stringInstanceConverterToEither[T](implicit ico: InstanceConverter[T, String]): Option[InstanceConverter[T, String]] = Some(ico)
+
+  implicit def notFoundToEither[T](implicit notFound: InstanceConverterNotFound): Either[InstanceConverterNotFound, InstanceConverter[T, String]] = Left(notFound)
+
+  protected implicit def genericJdbcType[T](implicit ct: ClassTag[T], icoOrNot: Either[InstanceConverterNotFound, InstanceConverter[T, String]]): GenericJdbcType[T] = {
+    icoOrNot match {
+      case Right(ico) =>
+        println("InstanceConverter found!!")
+        new GenericJdbcType[T]("text", ico.decode, ico.encode, java.sql.Types.OTHER)
+      case Left(_) =>
+        println("No nstanceConverter found")
+        new GenericJdbcType[T]("text", _.asInstanceOf[T], _.toString, java.sql.Types.OTHER)
+    }
+  }
+
+//  protected implicit def genericJdbcType[T](implicit ct: ClassTag[T]): GenericJdbcType[T] = new GenericJdbcType[T]("text", _.asInstanceOf[T], _.toString, java.sql.Types.OTHER)
 
   private type MyMappedJdbcType[CC, B] = slick.jdbc.JdbcTypesComponent#MappedJdbcType[CC, B]
 
