@@ -125,9 +125,9 @@ val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.11"
 val scalacheck           = "org.scalacheck"             %% "scalacheck"                % "1.18.0" % "test"
 val scalacheckMagnolify  = "com.spotify" % "magnolify-scalacheck" % "0.7.3"
 val scalacheckDerived  = "io.github.martinhh" %% "scalacheck-derived" % "0.5.0"
-val scalacheckEnumeratum = "com.beachape"               %% "enumeratum-scalacheck"     % "1.7.3"
+val scalacheckEnumeratum = "com.beachape"               %% "enumeratum-scalacheck"     % "1.7.4"
 
-val enumeratumVersion         = "1.7.3"
+val enumeratumVersion         = "1.7.4"
 val enumeratumPlayJsonVersion = "1.5.16"
 val enumeratum                = "com.beachape" %% "enumeratum" % enumeratumVersion
 def enumeratumInExamples = {
