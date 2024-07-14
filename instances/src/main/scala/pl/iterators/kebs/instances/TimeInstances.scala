@@ -1,6 +1,23 @@
 package pl.iterators.kebs.instances
 
-import pl.iterators.kebs.instances.time.{DayOfWeekInt, DurationString, InstantString, LocalDateString, LocalDateTimeString, LocalTimeString, MonthDayString, MonthInt, OffsetDateTimeString, OffsetTimeString, PeriodString, YearInt, YearMonthString, ZoneIdString, ZoneOffsetString, ZonedDateTimeString}
+import pl.iterators.kebs.instances.time.{
+  DayOfWeekInt,
+  DurationString,
+  InstantString,
+  LocalDateString,
+  LocalDateTimeString,
+  LocalTimeString,
+  MonthDayString,
+  MonthInt,
+  OffsetDateTimeString,
+  OffsetTimeString,
+  PeriodString,
+  YearInt,
+  YearMonthString,
+  ZoneIdString,
+  ZoneOffsetString,
+  ZonedDateTimeString
+}
 
 trait TimeInstances
     extends InstantString
