@@ -3,21 +3,22 @@ package pl.iterators.kebs.slick.caseclasses
 import com.github.tminglei.slickpg._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
 
 import java.util.UUID
 
 class SlickPgTests extends AnyFunSuite with Matchers {
 
-  import pl.iterators.kebs.slick.Kebs
+  import pl.iterators.kebs.slick.BasicSlickSupport
   import slick.lifted.ProvenShape
 
   case class ServiceLineName(name: String)
   case class Id(id: Int)
   case class ServiceLine(id: Id, name: ServiceLineName)
 
-  trait PostgresDriver extends ExPostgresProfile {
-    override val api = PostgresApi
-    object PostgresApi extends API with Kebs
+  trait PostgresDriver extends ExPostgresProfile with BasicSlickSupport {
+    override val api: PostgresApi.type = PostgresApi
+    object PostgresApi extends ExtPostgresAPI with ValueClassLikeImplicits with CaseClass1ToValueClass with BasicSlickImplicits
   }
   object PostgresDriver extends PostgresDriver
 
@@ -38,7 +39,7 @@ class SlickPgTests extends AnyFunSuite with Matchers {
       |      def id: Rep[Id] = column[Id]("id", O.PrimaryKey)
       |      def name: Rep[ServiceLineName] = column[ServiceLineName]("name")
       |
-      |      override def * : ProvenShape[ServiceLine] = (id, name) <> (ServiceLine.tupled, ServiceLine.unapply)
+      |      override def * : ProvenShape[ServiceLine] = (id, name) <> ((ServiceLine.apply _).tupled, ServiceLine.unapply)
       |    }
     """.stripMargin should compile
   }

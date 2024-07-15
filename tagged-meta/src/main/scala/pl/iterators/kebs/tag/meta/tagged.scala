@@ -121,9 +121,9 @@ final class macroImpl(val c: whitebox.Context) {
       val implicitName = TermName(name.decodedName.toString + "ValueClassLike")
 
       if (typeParams.isEmpty)
-        q"implicit val $implicitName = $valueClassLikeInstanceTree"
+        q"implicit val $implicitName: _root_.pl.iterators.kebs.core.macros.ValueClassLike[$selfType, $baseTypeName] = $valueClassLikeInstanceTree"
       else
-        q"implicit def $implicitName[..$typeParams] = $valueClassLikeInstanceTree"
+        q"implicit def $implicitName[..$typeParams]: _root_.pl.iterators.kebs.core.macros.ValueClassLike[$selfType, $baseTypeName[..$baseParams]] = $valueClassLikeInstanceTree"
     }
 
     private def containsApply(trees: List[Tree]): Boolean = {

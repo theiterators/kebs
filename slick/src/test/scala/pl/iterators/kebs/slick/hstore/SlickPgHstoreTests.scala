@@ -3,6 +3,7 @@ package pl.iterators.kebs.slick.hstore
 import com.github.tminglei.slickpg._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
 import slick.lifted.ProvenShape
 
 import java.time.YearMonth
@@ -10,11 +11,11 @@ import java.util.UUID
 
 class SlickPgHstoreTests extends AnyFunSuite with Matchers {
   import pl.iterators.kebs.instances.time.YearMonthString
-  import pl.iterators.kebs.slick.Kebs
+  import pl.iterators.kebs.slick.BasicSlickSupport
 
-  trait PostgresDriver extends ExPostgresProfile with PgArraySupport with PgHStoreSupport {
+  trait PostgresDriver extends ExPostgresProfile with PgArraySupport with PgHStoreSupport with BasicSlickSupport {
     override val api: HstoreAPI = new HstoreAPI {}
-    trait HstoreAPI extends super.API with ArrayImplicits with HStoreImplicits with Kebs with YearMonthString
+    trait HstoreAPI extends ExtPostgresAPI with ArrayImplicits with HStoreImplicits with BasicSlickImplicits with YearMonthString with ValueClassLikeImplicits with CaseClass1ToValueClass with InstanceConverterImplicits
   }
   object PostgresDriver extends PostgresDriver
 

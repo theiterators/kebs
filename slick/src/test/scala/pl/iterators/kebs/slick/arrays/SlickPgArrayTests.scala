@@ -3,6 +3,7 @@ package pl.iterators.kebs.slick.arrays
 import com.github.tminglei.slickpg._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import pl.iterators.kebs.core.macros.{CaseClass1ToValueClass, ValueClassLike}
 import slick.lifted.ProvenShape
 
 import java.time.YearMonth
@@ -10,11 +11,11 @@ import java.util.UUID
 
 class SlickPgArrayTests extends AnyFunSuite with Matchers {
   import pl.iterators.kebs.instances.time.YearMonthString
-  import pl.iterators.kebs.slick.Kebs
+  import pl.iterators.kebs.slick.BasicSlickSupport
 
-  trait PostgresDriver extends ExPostgresProfile with PgArraySupport {
+  trait PostgresDriver extends ExPostgresProfile with PgArraySupport with BasicSlickSupport  {
     override val api: ArrayAPI = new ArrayAPI {}
-    trait ArrayAPI extends super.API with ArrayImplicits with Kebs with YearMonthString
+    trait ArrayAPI extends ExtPostgresAPI with ArrayImplicits with ValueClassLikeImplicits with CaseClass1ToValueClass with InstanceConverterImplicits with YearMonthString
   }
   object PostgresDriver extends PostgresDriver
 

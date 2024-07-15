@@ -2,11 +2,18 @@ package pl.iterators.kebs.slick.caseclasses
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
+import pl.iterators.kebs.slick.BasicSlickSupport
+import slick.jdbc.PostgresProfile
 
 class SlickMappedColumnTypeTests extends AnyFunSuite with Matchers {
+  object MyPostgresProfile extends PostgresProfile with BasicSlickSupport {
+    override val api: APITagged = new APITagged {}
+    trait APITagged extends JdbcAPI with BasicSlickImplicits with ValueClassLikeImplicits with CaseClass1ToValueClass
+  }
+
+  import MyPostgresProfile.api._
   import slick.lifted.ProvenShape
-  import slick.jdbc.PostgresProfile.api._
-  import pl.iterators.kebs._
 
   case class Id(id: Long)
   case class Row(id: Id, name: String, num: Long)
@@ -37,10 +44,12 @@ class SlickMappedColumnTypeTests extends AnyFunSuite with Matchers {
       |      def name = column[String]("name")
       |      def num  = column[Long]("num")
       |
-      |      override def * : ProvenShape[Row] = (id, name, num) <> (Row.tupled, Row.unapply)
+      |      override def * : ProvenShape[Row] = (id, name, num) <> ((Row.apply _).tupled, Row.unapply)
       |    }
     """.stripMargin should compile
   }
+
+  // for the tests below, Name.unapply (etc.) works fine, Scala 3 is more picky here
 
   test("Slick mapping - one element wrapper") {
     """
@@ -56,7 +65,7 @@ class SlickMappedColumnTypeTests extends AnyFunSuite with Matchers {
     """
       |class Matryoshka(tag: Tag) extends Table[WrappedName](tag, "MATRYOSHKA") {
       |      def name                                  = column[Name]("name")
-      |      
+      |
       |      override def * : ProvenShape[WrappedName] = name <> (WrappedName.apply, WrappedName.unapply)
       |}
     """.stripMargin should compile

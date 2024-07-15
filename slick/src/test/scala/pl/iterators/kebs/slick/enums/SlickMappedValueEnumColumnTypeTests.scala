@@ -5,10 +5,16 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.core.enums.ValueEnumLikeEntry
 import pl.iterators.kebs.enumeratum.KebsValueEnumeratum
+import pl.iterators.kebs.slick.BasicSlickSupport
+import slick.jdbc.PostgresProfile
 
 class SlickMappedValueEnumColumnTypeTests extends AnyFunSuite with Matchers with KebsValueEnumeratum {
-  import slick.jdbc.PostgresProfile.api._
-  import pl.iterators.kebs.slick.enums._
+  object MyPostgresProfile extends PostgresProfile with BasicSlickSupport {
+    override val api: APITagged = new APITagged {}
+    trait APITagged extends JdbcAPI with EnumImplicits
+  }
+
+  import MyPostgresProfile.api._
 
   sealed abstract class WorkerAccountStatusInt(val value: Int) extends IntEnumEntry with ValueEnumLikeEntry[Int]
   object WorkerAccountStatusInt extends IntEnum[WorkerAccountStatusInt] {

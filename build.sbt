@@ -15,7 +15,7 @@ lazy val baseSettings = Seq(
   organizationName := "Iterators",
   organizationHomepage := Some(url("https://iterato.rs")),
   homepage := Some(url("https://github.com/theiterators/kebs")),
-  scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature", "-encoding", "utf8", "Xsource:3") ++ (if (scalaVersion.value.startsWith("3")) Seq("-Xmax-inlines", "64") else Seq.empty),
+  scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature", "-encoding", "utf8") ++ (if (scalaVersion.value.startsWith("3")) Seq("-Xmax-inlines", "64", "-Yretain-trees") else Seq("-Xsource:3")),
 )
 
 lazy val commonMacroSettings = baseSettings ++ Seq(
@@ -99,10 +99,10 @@ def paradiseFlag(scalaVersion: String): Seq[String] =
 
 val scalaTest       = Def.setting("org.scalatest" %%% "scalatest" % "3.2.17")
 val scalaCheck      = Def.setting("org.scalacheck" %%% "scalacheck" % "1.17.0")
-val slick           = "com.typesafe.slick" %% "slick" % "3.4.1"
+val slick           = "com.typesafe.slick" %% "slick" % "3.5.1"
 val optionalSlick   = optional(slick)
 val playJson        = "org.playframework" %% "play-json" % "3.0.4"
-val slickPg         = "com.github.tminglei" %% "slick-pg" % "0.21.1"
+val slickPg         = "com.github.tminglei" %% "slick-pg" % "0.22.2"
 val doobie          = "org.tpolecat" %% "doobie-core" % "1.0.0-RC4"
 val doobiePg        = "org.tpolecat" %% "doobie-postgres" % "1.0.0-RC4"
 val sprayJson       = "io.spray" %% "spray-json" % "1.3.6"
@@ -171,8 +171,8 @@ lazy val commonSettings = baseSettings ++ Seq(
 )
 
 lazy val slickSettings = commonSettings ++ Seq(
-  libraryDependencies += slick.cross(CrossVersion.for3Use2_13),
-  libraryDependencies += (slickPg % "test").cross(CrossVersion.for3Use2_13),
+  libraryDependencies += slick,
+  libraryDependencies += (slickPg % "test"),
   libraryDependencies += (enumeratum % "test")
 )
 
@@ -263,14 +263,14 @@ lazy val scalacheckSettings = commonSettings ++ Seq(
   else Nil))
 
 lazy val taggedSettings = commonSettings ++ Seq(
-  libraryDependencies += optionalSlick.cross(CrossVersion.for3Use2_13),
+  libraryDependencies += optionalSlick,
   libraryDependencies += optional(circe)
 )
 
 lazy val opaqueSettings = commonSettings
 
 lazy val examplesSettings = commonSettings ++ Seq(
-  libraryDependencies += slickPg.cross(CrossVersion.for3Use2_13),
+  libraryDependencies += slickPg,
   libraryDependencies += circeParser,
   libraryDependencies ++= enumeratumInExamples,
   libraryDependencies ++= pekkoHttpInExamples,
@@ -301,7 +301,6 @@ lazy val slickSupport = project
   .dependsOn(core.jvm, enumeratumSupport, instances % "test -> test")
   .settings(slickSettings*)
   .settings(publishSettings*)
-  .settings(disableScala(List("3")))
   .settings(
     name := "slick",
     description := "Library to eliminate the boilerplate code that comes with the use of Slick",

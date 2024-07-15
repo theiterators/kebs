@@ -73,11 +73,11 @@ object HStoreColumnType {
 
   object AfterKebs {
     import pl.iterators.kebs.circe.instances.time.YearMonthString
-    import pl.iterators.kebs.slick.Kebs
+    import pl.iterators.kebs.slick.BasicSlickSupport
 
     object MyPostgresProfile extends ExPostgresProfile with PgHStoreSupport {
       override val api: APIWithHstore = new APIWithHstore {}
-      trait APIWithHstore extends super.API with HStoreImplicits with Kebs with YearMonthString
+      trait APIWithHstore extends super.API with HStoreImplicits with BasicSlickSupport with YearMonthString
     }
 
     import MyPostgresProfile.api._
