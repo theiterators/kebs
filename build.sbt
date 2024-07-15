@@ -2,7 +2,7 @@ import sbt.librarymanagement.ConflictWarning
 
 val scala_2_13             = "2.13.14"
 val scala_3                = "3.3.3"
-val mainScalaVersion       = scala_3
+val mainScalaVersion       = scala_2_13
 val supportedScalaVersions = Seq(scala_2_13, scala_3)
 
 ThisBuild / crossScalaVersions := supportedScalaVersions
@@ -15,7 +15,7 @@ lazy val baseSettings = Seq(
   organizationName := "Iterators",
   organizationHomepage := Some(url("https://iterato.rs")),
   homepage := Some(url("https://github.com/theiterators/kebs")),
-  scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature", "-encoding", "utf8") ++ (if (scalaVersion.value.startsWith("3")) Seq("-Xmax-inlines", "64", "-Yretain-trees") else Seq("-Xsource:3")),
+  scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature", "-encoding", "utf8") ++ (if (scalaVersion.value.startsWith("3")) Seq("-Xmax-inlines", "64", "-Yretain-trees") else Seq.empty),
 )
 
 lazy val commonMacroSettings = baseSettings ++ Seq(
