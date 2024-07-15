@@ -16,6 +16,7 @@ class CirceFormatTests extends AnyFunSuite with Matchers {
   import KebsProtocol._
   import pl.iterators.kebs.core.macros.CaseClass1ToValueClass._
 
+
   // https://github.com/circe/circe/issues/1980
   case class R(a: Int, rs: Seq[R]) derives Decoder, Encoder.AsObject
 

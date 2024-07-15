@@ -29,18 +29,17 @@ private[circe] trait KebsAutoDerivation {
     ConfiguredEncoder.derived[A]
 }
 trait KebsCirce extends KebsAutoDerivation {
-
-   inline implicit def flatDecoder[T, A](using rep: ValueClassLike[T, A], decoder: Decoder[A]): Decoder[T] = {
+   implicit inline def kebsDecoder[T, A](using rep: ValueClassLike[T, A], decoder: Decoder[A]): Decoder[T] = {
     decoder.emap(obj => Try(rep.apply(obj)).toEither.left.map(_.getMessage))
    }
 
-   inline implicit def flatEncoder[T, A](using rep: ValueClassLike[T, A], encoder: Encoder[A]): Encoder[T] =
+   implicit inline def kebsEncoder[T, A](using rep: ValueClassLike[T, A], encoder: Encoder[A]): Encoder[T] =
     encoder.contramap(rep.unapply)
 
-   inline implicit def instanceConverterEncoder[T, A](using rep: InstanceConverter[T, A], encoder: Encoder[A]): Encoder[T] =
+   implicit inline def kebsEncoder[T, A](using rep: InstanceConverter[T, A], encoder: Encoder[A]): Encoder[T] =
     encoder.contramap(rep.encode)
 
-   inline implicit def instanceConverterDecoder[T, A](using rep: InstanceConverter[T, A], decoder: Decoder[A]): Decoder[T] =
+   implicit inline def kebsDecoder[T, A](using rep: InstanceConverter[T, A], decoder: Decoder[A]): Decoder[T] =
     decoder.emap(obj => Try(rep.decode(obj)).toEither.left.map(_.getMessage))
 }
 

@@ -8,9 +8,9 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.doobie.model._
 import pl.iterators.kebs.enums.KebsEnum
-import pl.iterators.kebs.doobie.given 
-import pl.iterators.kebs.doobie.enums.given 
-import pl.iterators.kebs.instances.KebsInstances.given
+import pl.iterators.kebs.doobie._ 
+import pl.iterators.kebs.doobie.enums._ 
+import pl.iterators.kebs.instances.KebsInstances._
 import pl.iterators.kebs.opaque.Opaque
 
 import java.util.Currency

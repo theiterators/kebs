@@ -196,7 +196,7 @@ lazy val enumeratumSettings = commonMacroSettings ++ Seq(
   libraryDependencies += scalaCheck.value % "test",
   libraryDependencies += scalaTest.value,
   libraryDependencies += optionalEnumeratum,
-  scalacOptions ++= paradiseFlag(scalaVersion.value) ++ (if (scalaVersion.value.startsWith("3")) Seq("-Yretain-trees") else Seq.empty)
+  scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
 lazy val sprayJsonMacroSettings = commonMacroSettings ++ Seq(

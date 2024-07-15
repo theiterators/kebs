@@ -13,6 +13,7 @@ class CirceFormatCapitalizedVariantTests extends AnyFunSuite with Matchers {
   import KebsProtocol._
   import pl.iterators.kebs.core.macros.CaseClass1ToValueClass._
 
+
   test("Flat format remains unchanged") {
     val decoder = implicitly[Decoder[C]]
     val encoder = implicitly[Encoder[C]]
