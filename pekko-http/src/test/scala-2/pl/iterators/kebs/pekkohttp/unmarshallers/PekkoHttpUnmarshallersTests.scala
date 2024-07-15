@@ -7,6 +7,7 @@ import org.apache.pekko.http.scaladsl.unmarshalling.Unmarshal
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
 import pl.iterators.kebs.instances.net.URIString
 import pl.iterators.kebs.instances.time.{DayOfWeekInt, YearMonthString}
 import pl.iterators.kebs.pekkohttp.domain.Domain._
@@ -14,6 +15,7 @@ import pl.iterators.kebs.enumeratum.{KebsEnumeratum, KebsValueEnumeratum}
 import pl.iterators.kebs.instances.net.URIString
 import pl.iterators.kebs.instances.time.{DayOfWeekInt, YearMonthString}
 import pl.iterators.kebs.pekkohttp.unmarshallers.enums.KebsEnumUnmarshallers
+
 import java.time.{DayOfWeek, YearMonth}
 
 class PekkoHttpUnmarshallersTests
@@ -28,7 +30,8 @@ class PekkoHttpUnmarshallersTests
     with YearMonthString
     with DayOfWeekInt
     with KebsEnumeratum
-    with KebsValueEnumeratum {
+    with KebsValueEnumeratum
+    with CaseClass1ToValueClass {
 
   test("No ValueClassLike implicits derived") {
     import pl.iterators.kebs.core.macros.ValueClassLike

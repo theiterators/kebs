@@ -6,14 +6,13 @@ import pl.iterators.kebs.instances.TimeInstances
 import pl.iterators.kebs.instances.time.LocalDateTimeString
 import pl.iterators.kebs.instances.time.mixins.{DurationNanosLong, InstantEpochMilliLong}
 import pl.iterators.kebs.core.instances.InstanceConverter
+import pl.iterators.kebs.json.KebsPlay
 import play.api.libs.json.{Format, JsNumber, JsString, JsSuccess}
 
-import java.time._
+import java.time.*
 import java.time.format.DateTimeFormatter
 
-class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
-  import pl.iterators.kebs.json._
-
+class TimeInstancesMixinTests extends AnyFunSuite with Matchers with KebsPlay {
   test("Instant epoch milli format") {
     object TimeInstancesProtocol extends  InstantEpochMilliLong
     import TimeInstancesProtocol._

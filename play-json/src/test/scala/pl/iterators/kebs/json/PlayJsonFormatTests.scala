@@ -2,12 +2,13 @@ package pl.iterators.kebs.json
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
 import play.api.libs.json._
 
 import java.util.UUID
 
-class PlayJsonFormatTests extends AnyFunSuite with Matchers {
-  import pl.iterators.kebs.json._
+class PlayJsonFormatTests extends AnyFunSuite with Matchers with KebsPlay {
+  import CaseClass1ToValueClass._
 
   case class C(i: Int)
   case class D(s: String)

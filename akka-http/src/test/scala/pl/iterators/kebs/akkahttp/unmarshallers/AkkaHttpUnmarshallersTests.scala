@@ -17,6 +17,7 @@ import pl.iterators.kebs.instances.net.URIString
 import pl.iterators.kebs.instances.time.{DayOfWeekInt, YearMonthString}
 import pl.iterators.kebs.akkahttp.unmarshallers.enums.KebsEnumUnmarshallers
 import pl.iterators.kebs.core.enums.ValueEnumLikeEntry
+import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
 
 import java.time.{DayOfWeek, YearMonth}
 
@@ -32,7 +33,8 @@ class AkkaHttpUnmarshallersTests
     with YearMonthString
     with DayOfWeekInt
     with KebsEnumeratum
-    with KebsValueEnumeratum {
+    with KebsValueEnumeratum
+    with CaseClass1ToValueClass {
 
   test("No ValueClassLike implicits derived") {
     import pl.iterators.kebs.core.macros.ValueClassLike

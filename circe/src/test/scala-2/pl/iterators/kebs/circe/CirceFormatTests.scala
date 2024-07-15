@@ -5,9 +5,11 @@ import org.scalatest.funsuite.AnyFunSuite
 import pl.iterators.kebs.circe.KebsCirce
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.circe.model._
+import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
+
 import java.time.ZonedDateTime
 
-class CirceFormatTests extends AnyFunSuite with Matchers {
+class CirceFormatTests extends AnyFunSuite with Matchers with CaseClass1ToValueClass {
   object KebsProtocol extends KebsCirce
   import KebsProtocol._
 

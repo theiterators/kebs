@@ -2,11 +2,11 @@ package pl.iterators.kebs.doobie
 
 import doobie.Meta
 import pl.iterators.kebs.core.instances.InstanceConverter
-import pl.iterators.kebs.core.macros.{CaseClass1ToValueClass, ValueClassLike}
+import pl.iterators.kebs.core.macros.ValueClassLike
 
 import scala.reflect.ClassTag
 
-trait Kebs extends CaseClass1ToValueClass {
+trait Kebs {
   implicit def valueClassLikeMeta[A, M](implicit vcLike: ValueClassLike[A, M], m: Meta[M]): Meta[A] = m.imap(vcLike.apply)(vcLike.unapply)
 
   implicit def valueClassLikeArrayMeta[A, M](implicit vcLike: ValueClassLike[A, M], m: Meta[Array[M]], cta: ClassTag[A], ctm: ClassTag[M]): Meta[Array[A]] = m.imap(_.map(vcLike.apply))(_.map(vcLike.unapply))

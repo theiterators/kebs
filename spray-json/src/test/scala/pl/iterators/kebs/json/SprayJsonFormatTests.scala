@@ -7,6 +7,7 @@ import spray.json._
 import java.util.UUID
 
 class SprayJsonFormatTests extends AnyFunSuite with Matchers {
+  import pl.iterators.kebs.core.macros.CaseClass1ToValueClass._
   object KebsProtocol extends DefaultJsonProtocol with KebsSpray
   import KebsProtocol._
 

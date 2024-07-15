@@ -15,10 +15,10 @@ import io.circe.EncoderDerivation
 import io.circe.derivation.ConfiguredEncoder
 import scala.NonEmptyTuple
 
-import pl.iterators.kebs.core.macros.{CaseClass1ToValueClass, ValueClassLike}
+import pl.iterators.kebs.core.macros.ValueClassLike
 import pl.iterators.kebs.core.instances.InstanceConverter
 
-private[circe] trait KebsAutoDerivation extends CaseClass1ToValueClass {
+private[circe] trait KebsAutoDerivation {
   
   implicit val configuration: Configuration = Configuration.default
 
@@ -30,17 +30,17 @@ private[circe] trait KebsAutoDerivation extends CaseClass1ToValueClass {
 }
 trait KebsCirce extends KebsAutoDerivation {
 
-   inline given[T, A](using rep: ValueClassLike[T, A], decoder: Decoder[A]): Decoder[T] = {
+   inline implicit def flatDecoder[T, A](using rep: ValueClassLike[T, A], decoder: Decoder[A]): Decoder[T] = {
     decoder.emap(obj => Try(rep.apply(obj)).toEither.left.map(_.getMessage))
    }
 
-   inline given[T, A](using rep: ValueClassLike[T, A], encoder: Encoder[A]): Encoder[T] =
+   inline implicit def flatEncoder[T, A](using rep: ValueClassLike[T, A], encoder: Encoder[A]): Encoder[T] =
     encoder.contramap(rep.unapply)
 
-   inline given[T, A](using rep: InstanceConverter[T, A], encoder: Encoder[A]): Encoder[T] =
+   inline implicit def instanceConverterEncoder[T, A](using rep: InstanceConverter[T, A], encoder: Encoder[A]): Encoder[T] =
     encoder.contramap(rep.encode)
 
-   inline given[T, A](using rep: InstanceConverter[T, A], decoder: Decoder[A]): Decoder[T] =
+   inline implicit def instanceConverterDecoder[T, A](using rep: InstanceConverter[T, A], decoder: Decoder[A]): Decoder[T] =
     decoder.emap(obj => Try(rep.decode(obj)).toEither.left.map(_.getMessage))
 }
 

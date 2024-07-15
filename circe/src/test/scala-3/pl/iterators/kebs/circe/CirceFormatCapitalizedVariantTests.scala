@@ -10,7 +10,8 @@ import pl.iterators.kebs.circe.model._
 
 class CirceFormatCapitalizedVariantTests extends AnyFunSuite with Matchers {
   object KebsProtocol extends KebsCirce with KebsCirce.Capitalized
-  import KebsProtocol.{given, _}
+  import KebsProtocol._
+  import pl.iterators.kebs.core.macros.CaseClass1ToValueClass._
 
   test("Flat format remains unchanged") {
     val decoder = implicitly[Decoder[C]]

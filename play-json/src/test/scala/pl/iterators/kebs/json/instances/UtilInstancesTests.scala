@@ -4,12 +4,12 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.core.instances.InstanceConverter.DecodeErrorException
 import pl.iterators.kebs.instances.UtilInstances
+import pl.iterators.kebs.json.KebsPlay
 import play.api.libs.json.{Format, JsString, JsSuccess}
 
 import java.util.{Currency, Locale, UUID}
 
-class UtilInstancesTests extends AnyFunSuite with Matchers with UtilInstances {
-  import pl.iterators.kebs.json._
+class UtilInstancesTests extends AnyFunSuite with Matchers with UtilInstances with KebsPlay {
   test("No ValueClassLike implicits derived") {
 
     "implicitly[ValueClassLike[Currency, String]]" shouldNot typeCheck

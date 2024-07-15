@@ -3,7 +3,7 @@ package pl.iterators.kebs.doobie
 import doobie.implicits.given
 import doobie.postgres.given
 import doobie.postgres.implicits.given
-import doobie.{*, given}
+import doobie._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.doobie.model._

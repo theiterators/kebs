@@ -15,7 +15,7 @@ lazy val baseSettings = Seq(
   organizationName := "Iterators",
   organizationHomepage := Some(url("https://iterato.rs")),
   homepage := Some(url("https://github.com/theiterators/kebs")),
-  scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature", "-encoding", "utf8") ++ (if (scalaVersion.value.startsWith("3")) Seq("-Xmax-inlines", "64", "-Yretain-trees") else Seq.empty),
+  scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature", "-encoding", "utf8") ++ (if (scalaVersion.value.startsWith("3")) Seq("-Xmax-inlines", "64", "-Yretain-trees") else Seq("-Xsource:3")),
 )
 
 lazy val commonMacroSettings = baseSettings ++ Seq(

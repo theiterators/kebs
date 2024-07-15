@@ -4,12 +4,12 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.core.instances.InstanceConverter.DecodeErrorException
 import pl.iterators.kebs.instances.net.URIString
+import pl.iterators.kebs.json.KebsPlay
 import play.api.libs.json.{Format, JsString, JsSuccess}
 
 import java.net.URI
 
-class NetInstancesTests extends AnyFunSuite with Matchers with URIString {
-  import pl.iterators.kebs.json._
+class NetInstancesTests extends AnyFunSuite with Matchers with URIString with KebsPlay {
 
   test("URI standard format") {
     val jf    = implicitly[Format[URI]]

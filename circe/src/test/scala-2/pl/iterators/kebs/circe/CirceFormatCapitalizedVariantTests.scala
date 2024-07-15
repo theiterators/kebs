@@ -5,8 +5,9 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.circe.KebsCirce
 import pl.iterators.kebs.circe.model._
+import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
 
-class CirceFormatCapitalizedVariantTests extends AnyFunSuite with Matchers {
+class CirceFormatCapitalizedVariantTests extends AnyFunSuite with Matchers with CaseClass1ToValueClass {
   object KebsProtocol extends KebsCirce with KebsCirce.Capitalized
   import KebsProtocol._
 
