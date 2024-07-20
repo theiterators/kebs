@@ -98,11 +98,11 @@ object EnumValueColumnType {
 
   object AfterKebsTraitStyle {
 
-    import pl.iterators.kebs.slick.Kebs
+    import pl.iterators.kebs.slick.KebsSlickSupport
 
     object MyPostgresProfile extends ExPostgresProfile {
       override val api: APIWithKebsAndEnums = new APIWithKebsAndEnums {}
-      trait APIWithKebsAndEnums extends super.API with Kebs with KebsEnums.Lowercase
+      trait APIWithKebsAndEnums extends super.API with KebsSlickSupport with KebsEnums.Lowercase
     }
 
     import MyPostgresProfile.api._

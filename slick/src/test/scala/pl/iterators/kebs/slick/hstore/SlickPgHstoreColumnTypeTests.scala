@@ -3,16 +3,17 @@ package pl.iterators.kebs.slick.hstore
 import com.github.tminglei.slickpg._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
 
 class SlickPgHstoreColumnTypeTests extends AnyFunSuite with Matchers {
   import pl.iterators.kebs.instances.time.{DayOfWeekInt, YearMonthString}
   import pl.iterators.kebs.instances.time.mixins.InstantEpochMilliLong
-  import pl.iterators.kebs.slick.Kebs
+  import pl.iterators.kebs.slick.KebsSlickSupport
   import java.time.{DayOfWeek, YearMonth, Instant}
 
-  object MyPostgresProfile extends ExPostgresProfile with PgHStoreSupport {
+  object MyPostgresProfile extends ExPostgresProfile with PgHStoreSupport with KebsSlickSupport {
     override val api: APIWithHStore = new APIWithHStore {}
-    trait APIWithHStore extends super.API with HStoreImplicits with Kebs with YearMonthString with DayOfWeekInt with InstantEpochMilliLong
+    trait APIWithHStore extends ExtPostgresAPI with HStoreImplicits with KebsBasicImplicits with KebsInstanceConverterImplicits with YearMonthString with DayOfWeekInt with InstantEpochMilliLong with KebsValueClassLikeImplicits with CaseClass1ToValueClass
   }
 
   case class CategoryName(name: String)

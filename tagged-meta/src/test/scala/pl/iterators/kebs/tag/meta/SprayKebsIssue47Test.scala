@@ -9,6 +9,7 @@ import pl.iterators.kebs.tag.meta.tagged
 import pl.iterators.kebs.tagged._
 import util.Properties.versionNumberString
 import spray.json.{DefaultJsonProtocol, JsonFormat}
+import pl.iterators.kebs.core.macros.CaseClass1ToValueClass._
 
 package object domain extends Domain {}
 

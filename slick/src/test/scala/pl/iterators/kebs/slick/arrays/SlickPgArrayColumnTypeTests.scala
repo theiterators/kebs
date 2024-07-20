@@ -4,18 +4,18 @@ import com.github.tminglei.slickpg._
 import enumeratum.{Enum, EnumEntry}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
 import pl.iterators.kebs.enumeratum.KebsEnumeratum
-import pl.iterators.kebs.slick.enums.KebsEnums
 
 class SlickPgArrayColumnTypeTests extends AnyFunSuite with Matchers with KebsEnumeratum {
   case class Institution(value: Long)
   case class MarketFinancialProduct(value: String)
 
-  import pl.iterators.kebs.slick.Kebs
+  import pl.iterators.kebs.slick.KebsSlickSupport
 
-  object MyPostgresProfile extends ExPostgresProfile with PgArraySupport {
+  object MyPostgresProfile extends ExPostgresProfile with PgArraySupport with KebsSlickSupport {
     override val api: APIWithArrays = new APIWithArrays {}
-    trait APIWithArrays extends super.API with ArrayImplicits with Kebs with KebsEnums
+    trait APIWithArrays extends ExtPostgresAPI with ArrayImplicits with KebsBasicImplicits with KebsValueClassLikeImplicits with CaseClass1ToValueClass with EnumImplicits
   }
 
   import MyPostgresProfile.api._
@@ -24,18 +24,6 @@ class SlickPgArrayColumnTypeTests extends AnyFunSuite with Matchers with KebsEnu
       |    class ArrayTestTable(tag: Tag) extends Table[(Long, List[Institution], Option[List[MarketFinancialProduct]])](tag, "ArrayTest") {
       |      def id = column[Long]("id", O.AutoInc, O.PrimaryKey)
       |      def institutions = column[List[Institution]]("institutions")
-      |      def mktFinancialProducts = column[Option[List[MarketFinancialProduct]]]("mktFinancialProducts")
-      |
-      |      def * = (id, institutions, mktFinancialProducts)
-      |    }
-    """.stripMargin should compile
-  }
-
-  test("Seq column type") {
-    """
-      |    class SeqTestTable(tag: Tag) extends Table[(Long, Seq[Institution], Option[List[MarketFinancialProduct]])](tag, "SeqTest") {
-      |      def id = column[Long]("id", O.AutoInc, O.PrimaryKey)
-      |      def institutions = column[Seq[Institution]]("institutions")
       |      def mktFinancialProducts = column[Option[List[MarketFinancialProduct]]]("mktFinancialProducts")
       |
       |      def * = (id, institutions, mktFinancialProducts)
@@ -52,23 +40,23 @@ class SlickPgArrayColumnTypeTests extends AnyFunSuite with Matchers with KebsEnu
   }
   import enums._
 
-  test("Seq column type with enums") {
+  test("List column type with enums") {
     """
-      |    class EnumSeqTestTable(tag: Tag) extends Table[(Long, Seq[AnEnum])](tag, "EnumSeqTest") {
+      |    class EnumSeqTestTable(tag: Tag) extends Table[(Long, List[AnEnum])](tag, "EnumSeqTest") {
       |      def id    = column[Long]("id", O.AutoInc, O.PrimaryKey)
-      |      def enums = column[Seq[AnEnum]]("enums")
+      |      def enums = column[List[AnEnum]]("enums")
       |
       |      def * = (id, enums)
       |    }
     """.stripMargin should compile
   }
 
-  test("Seq column type with enums and not enums") {
+  test("List column type with enums and not enums") {
     """
-      |    class EnumSeqTestTable(tag: Tag) extends Table[(Long, Seq[Institution], Seq[AnEnum])](tag, "EnumSeqTest") {
+      |    class EnumSeqTestTable(tag: Tag) extends Table[(Long, List[Institution], List[AnEnum])](tag, "EnumSeqTest") {
       |      def id = column[Long]("id", O.AutoInc, O.PrimaryKey)
-      |      def institutions = column[Seq[Institution]]("institutions")
-      |      def enums = column[Seq[AnEnum]]("enums")
+      |      def institutions = column[List[Institution]]("institutions")
+      |      def enums = column[List[AnEnum]]("enums")
       |
       |      def * = (id, institutions, enums)
       |    }
