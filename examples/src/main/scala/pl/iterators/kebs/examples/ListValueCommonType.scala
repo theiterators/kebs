@@ -47,10 +47,10 @@ object ListValueCommonType {
 
   object AfterKebsTraitStyle {
 
-    import pl.iterators.kebs.slick.BasicSlickSupport
+    import pl.iterators.kebs.slick.KebsSlickSupport
     object MyPostgresProfile extends ExPostgresProfile with PgArraySupport {
       override val api: APIWithArraysAndKebs = new APIWithArraysAndKebs {}
-      trait APIWithArraysAndKebs extends super.API with ArrayImplicits with BasicSlickSupport
+      trait APIWithArraysAndKebs extends super.API with ArrayImplicits with KebsSlickSupport
     }
 
     import MyPostgresProfile.api._

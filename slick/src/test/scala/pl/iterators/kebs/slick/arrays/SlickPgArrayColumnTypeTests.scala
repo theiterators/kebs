@@ -11,11 +11,11 @@ class SlickPgArrayColumnTypeTests extends AnyFunSuite with Matchers with KebsEnu
   case class Institution(value: Long)
   case class MarketFinancialProduct(value: String)
 
-  import pl.iterators.kebs.slick.BasicSlickSupport
+  import pl.iterators.kebs.slick.KebsSlickSupport
 
-  object MyPostgresProfile extends ExPostgresProfile with PgArraySupport with BasicSlickSupport {
+  object MyPostgresProfile extends ExPostgresProfile with PgArraySupport with KebsSlickSupport {
     override val api: APIWithArrays = new APIWithArrays {}
-    trait APIWithArrays extends ExtPostgresAPI with ArrayImplicits with BasicSlickImplicits with ValueClassLikeImplicits with CaseClass1ToValueClass with EnumImplicits
+    trait APIWithArrays extends ExtPostgresAPI with ArrayImplicits with KebsBasicImplicits with KebsValueClassLikeImplicits with CaseClass1ToValueClass with EnumImplicits
   }
 
   import MyPostgresProfile.api._

@@ -8,11 +8,11 @@ import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.enumeratum.KebsEnumeratum
 
 class SlickMappedEnumColumnTypeTests extends AnyFunSuite with Matchers with KebsEnumeratum {
-  import pl.iterators.kebs.slick.BasicSlickSupport
+  import pl.iterators.kebs.slick.KebsSlickSupport
 
-  trait PostgresDriver extends ExPostgresProfile with BasicSlickSupport  {
+  trait PostgresDriver extends ExPostgresProfile with KebsSlickSupport  {
     override val api: EnumAPI = new EnumAPI {}
-    trait EnumAPI extends ExtPostgresAPI with BasicSlickImplicits with ValueClassLikeImplicits with EnumImplicits
+    trait EnumAPI extends ExtPostgresAPI with KebsBasicImplicits with KebsValueClassLikeImplicits with EnumImplicits
   }
   object PostgresDriver extends PostgresDriver
 

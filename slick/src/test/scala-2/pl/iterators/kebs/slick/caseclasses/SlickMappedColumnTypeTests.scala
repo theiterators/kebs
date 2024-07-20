@@ -3,13 +3,13 @@ package pl.iterators.kebs.slick.caseclasses
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
-import pl.iterators.kebs.slick.BasicSlickSupport
+import pl.iterators.kebs.slick.KebsSlickSupport
 import slick.jdbc.PostgresProfile
 
 class SlickMappedColumnTypeTests extends AnyFunSuite with Matchers {
-  object MyPostgresProfile extends PostgresProfile with BasicSlickSupport {
+  object MyPostgresProfile extends PostgresProfile with KebsSlickSupport {
     override val api: APITagged = new APITagged {}
-    trait APITagged extends JdbcAPI with BasicSlickImplicits with ValueClassLikeImplicits with CaseClass1ToValueClass
+    trait APITagged extends JdbcAPI with KebsBasicImplicits with KebsValueClassLikeImplicits with CaseClass1ToValueClass
   }
 
   import MyPostgresProfile.api._

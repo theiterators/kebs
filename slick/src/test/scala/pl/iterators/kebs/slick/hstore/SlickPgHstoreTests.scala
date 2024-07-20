@@ -11,11 +11,11 @@ import java.util.UUID
 
 class SlickPgHstoreTests extends AnyFunSuite with Matchers {
   import pl.iterators.kebs.instances.time.YearMonthString
-  import pl.iterators.kebs.slick.BasicSlickSupport
+  import pl.iterators.kebs.slick.KebsSlickSupport
 
-  trait PostgresDriver extends ExPostgresProfile with PgArraySupport with PgHStoreSupport with BasicSlickSupport {
+  trait PostgresDriver extends ExPostgresProfile with PgArraySupport with PgHStoreSupport with KebsSlickSupport {
     override val api: HstoreAPI = new HstoreAPI {}
-    trait HstoreAPI extends ExtPostgresAPI with ArrayImplicits with HStoreImplicits with BasicSlickImplicits with YearMonthString with ValueClassLikeImplicits with CaseClass1ToValueClass with InstanceConverterImplicits
+    trait HstoreAPI extends ExtPostgresAPI with ArrayImplicits with HStoreImplicits with KebsBasicImplicits with YearMonthString with KebsValueClassLikeImplicits with CaseClass1ToValueClass with KebsInstanceConverterImplicits
   }
   object PostgresDriver extends PostgresDriver
 

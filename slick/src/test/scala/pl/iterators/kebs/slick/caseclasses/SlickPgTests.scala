@@ -9,16 +9,16 @@ import java.util.UUID
 
 class SlickPgTests extends AnyFunSuite with Matchers {
 
-  import pl.iterators.kebs.slick.BasicSlickSupport
+  import pl.iterators.kebs.slick.KebsSlickSupport
   import slick.lifted.ProvenShape
 
   case class ServiceLineName(name: String)
   case class Id(id: Int)
   case class ServiceLine(id: Id, name: ServiceLineName)
 
-  trait PostgresDriver extends ExPostgresProfile with BasicSlickSupport {
+  trait PostgresDriver extends ExPostgresProfile with KebsSlickSupport {
     override val api: PostgresApi.type = PostgresApi
-    object PostgresApi extends ExtPostgresAPI with ValueClassLikeImplicits with CaseClass1ToValueClass with BasicSlickImplicits
+    object PostgresApi extends ExtPostgresAPI with KebsValueClassLikeImplicits with CaseClass1ToValueClass with KebsBasicImplicits
   }
   object PostgresDriver extends PostgresDriver
 
