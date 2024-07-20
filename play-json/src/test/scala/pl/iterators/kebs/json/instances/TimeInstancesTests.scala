@@ -4,12 +4,13 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.core.instances.InstanceConverter.DecodeErrorException
 import pl.iterators.kebs.instances.TimeInstances
+import pl.iterators.kebs.json.KebsPlay
 import play.api.libs.json.{Format, JsNumber, JsString, JsSuccess}
 
-import java.time._
+import java.time.*
 
-class TimeInstancesTests extends AnyFunSuite with Matchers with TimeInstances {
-  import pl.iterators.kebs.json._
+class TimeInstancesTests extends AnyFunSuite with Matchers with TimeInstances with KebsPlay {
+
   test("No ValueClassLike implicits derived") {
 
     "implicitly[ValueClassLike[DayOfWeek, Int]]" shouldNot typeCheck

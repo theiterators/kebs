@@ -6,6 +6,7 @@ import spray.json._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.enumeratum.KebsEnumeratum
+import pl.iterators.kebs.core.macros.CaseClass1ToValueClass._
 
 class SprayEnumJsonFormatTests extends AnyFunSuite with Matchers with KebsEnumeratum {
   sealed trait Greeting extends EnumEntry

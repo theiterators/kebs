@@ -668,13 +668,6 @@ If you're using recursive types - due to [this issue](https://github.com/circe/c
 case class R(a: Int, rs: Seq[R]) derives Decoder, Encoder.AsObject
 ```
 
-
-3. If you're using flat format or Snakified/Capitalized formats, remember to import `given` instances, e.g.:
-```scala
-  object KebsProtocol extends KebsCirce with KebsCirce.Snakified
-  import KebsProtocol.{given, _}
-  ```
- 
 #### - kebs generates akka-http / pekko-http Unmarshaller (kebs-akka-http / kebs-pekko-http)
 
 It makes it very easy to use 1-element case-classes or `enumeratum` enums/value enums in eg. `parameters` directive:
@@ -729,7 +722,7 @@ import org.http4s.dsl.io._
 import org.http4s.implicits._
 
 import pl.iterators.kebs.opaque.Opaque
-import pl.iterators.kebs.http4s.{given, _}
+import pl.iterators.kebs.http4s._
 import pl.iterators.kebs.instances.KebsInstances._ // optional, if you want instances support, ex. java.util.Currency
 
 opaque type Age = Int

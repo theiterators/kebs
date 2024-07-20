@@ -1,10 +1,10 @@
 package pl.iterators.kebs.http4sstir.unmarshallers
 
 import pl.iterators.kebs.core.instances.InstanceConverter
-import pl.iterators.kebs.core.macros.{CaseClass1ToValueClass, ValueClassLike}
+import pl.iterators.kebs.core.macros.ValueClassLike
 import pl.iterators.stir.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
 
-trait KebsUnmarshallers extends LowPriorityKebsUnmarshallers with CaseClass1ToValueClass {
+trait KebsUnmarshallers extends LowPriorityKebsUnmarshallers {
   @inline
   implicit def kebsFromStringUnmarshaller[A, B](implicit rep: ValueClassLike[B, A],
                                                 fsu: FromStringUnmarshaller[A]): FromStringUnmarshaller[B] =

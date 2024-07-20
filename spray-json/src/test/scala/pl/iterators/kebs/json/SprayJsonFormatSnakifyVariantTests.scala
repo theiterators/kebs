@@ -5,6 +5,7 @@ import org.scalatest.matchers.should.Matchers
 import spray.json.{DefaultJsonProtocol, JsArray, JsBoolean, JsNull, JsNumber, JsObject, JsString, JsonFormat, NullOptions, RootJsonFormat}
 
 class SprayJsonFormatSnakifyVariantTests extends AnyFunSuite with Matchers {
+  import pl.iterators.kebs.core.macros.CaseClass1ToValueClass._
   object KebsProtocol extends DefaultJsonProtocol with KebsSpray.Snakified
   import KebsProtocol._
 

@@ -15,7 +15,7 @@ lazy val baseSettings = Seq(
   organizationName := "Iterators",
   organizationHomepage := Some(url("https://iterato.rs")),
   homepage := Some(url("https://github.com/theiterators/kebs")),
-  scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature", "-encoding", "utf8") ++ (if (scalaVersion.value.startsWith("3")) Seq("-Xmax-inlines", "64", "-Yretain-trees") else Seq.empty),
+  scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature", "-encoding", "utf8") ++ (if (scalaVersion.value.startsWith("3")) Seq("-Xmax-inlines", "64", "-Yretain-trees") else Seq("-Xsource:3")),
 )
 
 lazy val commonMacroSettings = baseSettings ++ Seq(
@@ -196,7 +196,7 @@ lazy val enumeratumSettings = commonMacroSettings ++ Seq(
   libraryDependencies += scalaCheck.value % "test",
   libraryDependencies += scalaTest.value,
   libraryDependencies += optionalEnumeratum,
-  scalacOptions ++= paradiseFlag(scalaVersion.value) ++ (if (scalaVersion.value.startsWith("3")) Seq("-Yretain-trees") else Seq.empty)
+  scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
 lazy val sprayJsonMacroSettings = commonMacroSettings ++ Seq(
