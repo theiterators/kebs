@@ -1,6 +1,7 @@
 import sbt.librarymanagement.ConflictWarning
 
 val scala_2_13             = "2.13.14"
+val scala_2_12             = "2.12.18"
 val scala_3                = "3.3.3"
 val mainScalaVersion       = scala_3
 val supportedScalaVersions = Seq(scala_2_13, scala_3)
@@ -115,7 +116,8 @@ val circeParser     = "io.circe" %% "circe-parser" % circeV
 val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.11"
 
 val scalacheck           = "org.scalacheck"             %% "scalacheck"                % "1.18.0" % "test"
-val scalacheckMagnolify  = "com.spotify" % "magnolify-scalacheck" % "0.6.4"
+
+val scalacheckMagnolify  = "com.spotify" % "magnolify-scalacheck" % "0.7.3"
 val scalacheckDerived  = "io.github.martinhh" %% "scalacheck-derived" % "0.4.2"
 val scalacheckEnumeratum = "com.beachape"               %% "enumeratum-scalacheck"     % "1.7.4"
 
@@ -154,7 +156,7 @@ def pekkoHttpInExamples = {
   Seq(pekkoStream, pekkoHttp, pekkoHttpSprayJson)
 }
 
-val http4sVersion = "0.23.24"
+val http4sVersion = "0.23.27"
 val http4s = "org.http4s" %% "http4s-dsl" % http4sVersion
 
 val http4sStirVersion = "0.3"
@@ -255,8 +257,8 @@ lazy val jsonschemaSettings = commonSettings ++ Seq(
 )
 
 lazy val scalacheckSettings = commonSettings ++ Seq(
-  libraryDependencies += scalacheck.cross(CrossVersion.for3Use2_13),
-  libraryDependencies += scalacheckEnumeratum.cross(CrossVersion.for3Use2_13),
+  libraryDependencies += scalacheck,
+  libraryDependencies += scalacheckEnumeratum,
 ) ++ Seq(
   libraryDependencies ++= (if (scalaVersion.value.startsWith("3")) Seq(scalacheckDerived)
   else Nil)) ++ Seq(libraryDependencies ++= (if(scalaVersion.value.startsWith("2")) Seq(scalacheckMagnolify.cross(CrossVersion.for3Use2_13)) else Nil))
