@@ -1,7 +1,8 @@
 package pl.iterators.kebs.scalacheck
 
-import org.scalacheck.{Arbitrary, Gen, ScalacheckShapeless}
+import org.scalacheck.{Arbitrary, Gen}
 import pl.iterators.kebs.core.macros.ValueClassLike
+import org.scalacheck.{Arbitrary, Gen}
 
 import java.net.{URI, URL}
 import java.time.temporal.ChronoUnit
@@ -90,15 +91,15 @@ trait KebsArbitraryPredefs {
       }
   })
 
-  implicit val arbUrl: Arbitrary[URL] = Arbitrary {
+  implicit val arbUri: Arbitrary[URI] = Arbitrary {
     for {
       protocol  <- Gen.oneOf("http", "https", "ftp", "file")
       domain    <- Gen.alphaNumStr
       subdomain <- Gen.alphaNumStr
       path      <- Gen.alphaNumStr
-    } yield new URL(s"$protocol://$subdomain.$domain.test/$path")
+    } yield new URI(s"$protocol://$subdomain.$domain.test/$path")
   }
 
-  implicit val arbUri: Arbitrary[URI] = Arbitrary(arbUrl.arbitrary.map(_.toURI))
+  implicit val arbUrl: Arbitrary[URL] = Arbitrary(arbUri.arbitrary.map(_.toURL))
 
 }
