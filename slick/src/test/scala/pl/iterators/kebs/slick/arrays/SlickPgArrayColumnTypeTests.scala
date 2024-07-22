@@ -21,7 +21,7 @@ class SlickPgArrayColumnTypeTests extends AnyFunSuite with Matchers with KebsEnu
         with KebsBasicImplicits
         with KebsValueClassLikeImplicits
         with CaseClass1ToValueClass
-        with EnumImplicits
+        with KebsEnumImplicits
   }
 
   import MyPostgresProfile.api._

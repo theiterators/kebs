@@ -199,7 +199,7 @@ trait KebsSlickSupport { this: JdbcProfile =>
       MappedColumnType.base[E, V](_.value, `enum`.withValue)
   }
 
-  trait EnumImplicits extends SlickValueEnum with SlickEnum {
+  trait KebsEnumImplicits extends SlickValueEnum with SlickEnum {
     implicit def enumValueColumn[E](implicit ev: EnumLike[E], bct: BaseColumnType[String], cls: ClassTag[E]): BaseColumnType[E] =
       enumColumn(ev)
 
@@ -228,7 +228,7 @@ trait KebsSlickSupport { this: JdbcProfile =>
     }
   }
 
-  trait LowercaseEnumImplicits extends SlickValueEnum with SlickEnum {
+  trait KebsLowercaseEnumImplicits extends SlickValueEnum with SlickEnum {
     implicit def enumValueColumn[E](implicit ev: EnumLike[E], bct: BaseColumnType[String], cls: ClassTag[E]): BaseColumnType[E] =
       lowercaseEnumColumn(ev)
 
@@ -242,7 +242,7 @@ trait KebsSlickSupport { this: JdbcProfile =>
     }
   }
 
-  trait UppercaseEnumImplicits extends SlickValueEnum with SlickEnum {
+  trait KebsUppercaseEnumImplicits extends SlickValueEnum with SlickEnum {
     implicit def enumValueColumn[E](implicit ev: EnumLike[E], bct: BaseColumnType[String], cls: ClassTag[E]): BaseColumnType[E] =
       uppercaseEnumColumn(ev)
 

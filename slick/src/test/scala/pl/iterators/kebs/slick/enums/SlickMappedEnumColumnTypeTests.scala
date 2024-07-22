@@ -11,7 +11,7 @@ class SlickMappedEnumColumnTypeTests extends AnyFunSuite with Matchers with Kebs
 
   trait PostgresDriver extends ExPostgresProfile with KebsSlickSupport {
     override val api: EnumAPI = new EnumAPI {}
-    trait EnumAPI extends ExtPostgresAPI with KebsBasicImplicits with KebsValueClassLikeImplicits with EnumImplicits
+    trait EnumAPI extends ExtPostgresAPI with KebsBasicImplicits with KebsValueClassLikeImplicits with KebsEnumImplicits
   }
   object PostgresDriver extends PostgresDriver
 

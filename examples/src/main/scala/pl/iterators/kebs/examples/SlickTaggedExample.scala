@@ -3,9 +3,9 @@ package pl.iterators.kebs.examples
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted.ProvenShape
 import pl.iterators.kebs.tagged._
-import pl.iterators.kebs.tagged.slick.TaggedSlickSupport
+import pl.iterators.kebs.tagged.slick.KebsTaggedSlickSupport
 
-object SlickTaggedExample extends TaggedSlickSupport {
+object SlickTaggedExample extends KebsTaggedSlickSupport {
   trait UserIdTag
   type UserId = Long @@ UserIdTag
 

@@ -11,7 +11,7 @@ import slick.jdbc.PostgresProfile
 class SlickMappedValueEnumColumnTypeTests extends AnyFunSuite with Matchers with KebsValueEnumeratum {
   object MyPostgresProfile extends PostgresProfile with KebsSlickSupport {
     override val api: APITagged = new APITagged {}
-    trait APITagged extends JdbcAPI with EnumImplicits
+    trait APITagged extends JdbcAPI with KebsEnumImplicits
   }
 
   import MyPostgresProfile.api._

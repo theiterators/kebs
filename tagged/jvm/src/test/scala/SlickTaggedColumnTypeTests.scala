@@ -1,14 +1,14 @@
 import slick.jdbc.PostgresProfile
 import pl.iterators.kebs.tagged._
-import pl.iterators.kebs.tagged.slick.TaggedSlickSupport
+import pl.iterators.kebs.tagged.slick.KebsTaggedSlickSupport
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
 class SlickTaggedColumnTypeTests extends AnyFunSuite with Matchers {
 
-  object MyPostgresProfile extends PostgresProfile with TaggedSlickSupport {
+  object MyPostgresProfile extends PostgresProfile with KebsTaggedSlickSupport {
     override val api: APITagged = new APITagged {}
-    trait APITagged extends JdbcAPI with TaggedImplicits
+    trait APITagged extends JdbcAPI with KebsTaggedImplicits
   }
 
   import MyPostgresProfile.api._
