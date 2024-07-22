@@ -5,9 +5,10 @@ import org.scalatest.funsuite.AnyFunSuite
 import pl.iterators.kebs.circe.KebsCirce
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.circe.model._
+import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
 
 class CirceFormatTests extends AnyFunSuite with Matchers {
-  object KebsProtocol extends KebsCirce
+  object KebsProtocol extends KebsCirce with CaseClass1ToValueClass
   import KebsProtocol._
 
   test("Flat format") {

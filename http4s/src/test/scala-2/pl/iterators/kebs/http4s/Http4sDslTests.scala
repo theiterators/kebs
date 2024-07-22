@@ -7,13 +7,14 @@ import org.http4s.dsl.io._
 import org.http4s.implicits._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
 import pl.iterators.kebs.instances.KebsInstances._
 import pl.iterators.kebs.enumeratum.KebsEnumeratum
 
 import java.time.Year
 import java.util.Currency
 
-class Http4sDslTests extends AnyFunSuite with Matchers with KebsEnumeratum {
+class Http4sDslTests extends AnyFunSuite with Matchers with KebsEnumeratum with CaseClass1ToValueClass {
   import pl.iterators.kebs.http4s.domain.Domain._
 
   implicit val runtime: IORuntime = cats.effect.unsafe.IORuntime.global

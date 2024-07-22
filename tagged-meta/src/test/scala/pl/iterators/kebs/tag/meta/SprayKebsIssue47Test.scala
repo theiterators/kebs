@@ -2,8 +2,10 @@ package pl.iterators.kebs.tag.meta
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
 import pl.iterators.kebs.json.KebsSpray
 import pl.iterators.kebs.tagged._
+
 import util.Properties.versionNumberString
 import spray.json.{DefaultJsonProtocol, JsonFormat}
 
@@ -19,7 +21,7 @@ object dto {
   case class SomeDto(opt: Option[SomeTaggedValue])
 }
 
-class SprayKebsIssue47Test extends AnyFunSuite with Matchers with DefaultJsonProtocol with KebsSpray {
+class SprayKebsIssue47Test extends AnyFunSuite with Matchers with DefaultJsonProtocol with KebsSpray with CaseClass1ToValueClass {
   import dto._
 
   test("diverging implicit bug fixed in 2.13.1") {

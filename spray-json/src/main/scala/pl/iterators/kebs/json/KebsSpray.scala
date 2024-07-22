@@ -1,10 +1,10 @@
 package pl.iterators.kebs.json
 
 import pl.iterators.kebs.core.instances.InstanceConverter
-import pl.iterators.kebs.core.macros.{CaseClass1ToValueClass, ValueClassLike}
+import pl.iterators.kebs.core.macros.ValueClassLike
 import spray.json.{DefaultJsonProtocol, JsValue, JsonFormat, JsonReader, RootJsonFormat}
 
-trait KebsSpray extends CaseClass1ToValueClass { self: DefaultJsonProtocol =>
+trait KebsSpray { self: DefaultJsonProtocol =>
   import macros.KebsSprayMacros
   implicit def jsonFormatN[T <: Product]: RootJsonFormat[T] = macro KebsSprayMacros.materializeRootFormat[T]
   implicit def jsonFlatFormat[T, A](implicit rep: ValueClassLike[T, A], baseJsonFormat: JsonFormat[A]): JsonFormat[T] = {

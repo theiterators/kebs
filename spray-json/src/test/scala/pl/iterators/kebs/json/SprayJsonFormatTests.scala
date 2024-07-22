@@ -2,12 +2,13 @@ package pl.iterators.kebs.json
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
 import spray.json._
 
 import java.util.UUID
 
 class SprayJsonFormatTests extends AnyFunSuite with Matchers {
-  object KebsProtocol extends DefaultJsonProtocol with KebsSpray
+  object KebsProtocol extends DefaultJsonProtocol with KebsSpray with CaseClass1ToValueClass
   import KebsProtocol._
 
   case class C(i: Int)

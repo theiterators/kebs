@@ -2,9 +2,9 @@ package pl.iterators.kebs.akkahttp.unmarshallers
 
 import akka.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
 import pl.iterators.kebs.core.instances.InstanceConverter
-import pl.iterators.kebs.core.macros.{CaseClass1ToValueClass, ValueClassLike}
+import pl.iterators.kebs.core.macros.ValueClassLike
 
-trait KebsUnmarshallers extends CaseClass1ToValueClass {
+trait KebsUnmarshallers {
   implicit def kebsUnmarshaller[A, B](implicit rep: ValueClassLike[B, A]): Unmarshaller[A, B] =
     Unmarshaller.strict[A, B](rep.apply)
   @inline

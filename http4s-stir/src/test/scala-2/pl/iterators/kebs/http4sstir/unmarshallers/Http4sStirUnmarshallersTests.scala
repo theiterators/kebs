@@ -6,6 +6,7 @@ import pl.iterators.stir.testkit.ScalatestRouteTest
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
 import pl.iterators.kebs.instances.net.URIString
 import pl.iterators.kebs.instances.time.{DayOfWeekInt, YearMonthString}
 import pl.iterators.kebs.http4sstir.domain.Domain._
@@ -27,7 +28,8 @@ class Http4sStirUnmarshallersTests
     with YearMonthString
     with DayOfWeekInt
     with KebsEnumeratum
-    with KebsValueEnumeratum {
+    with KebsValueEnumeratum
+    with CaseClass1ToValueClass {
   implicit def runtime: cats.effect.unsafe.IORuntime = cats.effect.unsafe.IORuntime.global
 
   test("No ValueClassLike implicits derived") {

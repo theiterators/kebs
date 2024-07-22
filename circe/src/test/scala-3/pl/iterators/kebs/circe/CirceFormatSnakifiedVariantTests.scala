@@ -5,9 +5,10 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.circe.model._
 import scala.Right
+import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
 
 class CirceFormatSnakifiedVariantTests extends AnyFunSuite with Matchers {
-  object KebsProtocol extends KebsCirce with KebsCirce.Snakified
+  object KebsProtocol extends KebsCirce with KebsCirce.Snakified with CaseClass1ToValueClass
   import KebsProtocol.{given, _}
 
   test("Flat format remains unchanged") {

@@ -7,10 +7,10 @@ import io.circe.derivation.ConfiguredDecoder
 import io.circe.derivation.Configuration
 import io.circe.derivation.ConfiguredEncoder
 
-import pl.iterators.kebs.core.macros.{CaseClass1ToValueClass, ValueClassLike}
+import pl.iterators.kebs.core.macros.ValueClassLike
 import pl.iterators.kebs.core.instances.InstanceConverter
 
-private[circe] trait KebsAutoDerivation extends CaseClass1ToValueClass {
+private[circe] trait KebsAutoDerivation {
 
   implicit val configuration: Configuration = Configuration.default
 
