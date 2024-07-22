@@ -8,15 +8,11 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.akkahttp.domain.Domain.{Blue, Color, Green, Greeting, I, LibraryItem, P, Red, S, ShirtSize, SortOrder}
-import pl.iterators.kebs.akkahttp.unmarshallers.KebsUnmarshallers
 import pl.iterators.kebs.akkahttp.domain.Domain._
 import pl.iterators.kebs.instances.net.URIString
 import pl.iterators.kebs.instances.time.{DayOfWeekInt, YearMonthString}
 import pl.iterators.kebs.enumeratum.{KebsEnumeratum, KebsValueEnumeratum}
-import pl.iterators.kebs.instances.net.URIString
-import pl.iterators.kebs.instances.time.{DayOfWeekInt, YearMonthString}
 import pl.iterators.kebs.akkahttp.unmarshallers.enums.KebsEnumUnmarshallers
-import pl.iterators.kebs.core.enums.ValueEnumLikeEntry
 
 import java.time.{DayOfWeek, YearMonth}
 

@@ -13,13 +13,13 @@ trait KebsEnums {
   trait Uppercase {
     implicit def enumUppercaseMeta[E](implicit e: EnumLike[E], m: Meta[String]): Meta[E] = m.imap(e.withNameUppercaseOnly)(_.toString.toUpperCase)
     implicit def enumUppercaseArrayMeta[E](implicit e: EnumLike[E], m: Meta[Array[String]], cte: ClassTag[E]): Meta[Array[E]] = m.imap(_.map(e.withNameUppercaseOnly))(_.map(_.toString.toUpperCase))
-    implicit def enumUppercaseOptionArrayMeta[E](implicit e: EnumLike[E], m: Meta[Array[Option[String]]], cte: ClassTag[E]): Meta[Array[Option[E]]] = m.imap(_.map(_.map(e.withNameUppercaseOnly)))(_.map(_.map(_.toString.toUpperCase)))
+    implicit def enumUppercaseOptionArrayMeta[E](implicit e: EnumLike[E], m: Meta[Array[Option[String]]]): Meta[Array[Option[E]]] = m.imap(_.map(_.map(e.withNameUppercaseOnly)))(_.map(_.map(_.toString.toUpperCase)))
   }
 
   trait Lowercase {
     implicit def enumLowercaseMeta[E](implicit e: EnumLike[E], m: Meta[String]): Meta[E] = m.imap(e.withNameLowercaseOnly)(_.toString.toLowerCase)
     implicit def enumLowercaseArrayMeta[E](implicit e: EnumLike[E], m: Meta[Array[String]], cte: ClassTag[E]): Meta[Array[E]] = m.imap(_.map(e.withNameLowercaseOnly))(_.map(_.toString.toLowerCase))
-    implicit def enumLowercaseOptionArrayMeta[E](implicit e: EnumLike[E], m: Meta[Array[Option[String]]], cte: ClassTag[E]): Meta[Array[Option[E]]] = m.imap(_.map(_.map(e.withNameLowercaseOnly)))(_.map(_.map(_.toString.toLowerCase)))
+    implicit def enumLowercaseOptionArrayMeta[E](implicit e: EnumLike[E], m: Meta[Array[Option[String]]]): Meta[Array[Option[E]]] = m.imap(_.map(_.map(e.withNameLowercaseOnly)))(_.map(_.map(_.toString.toLowerCase)))
   }
 }
 

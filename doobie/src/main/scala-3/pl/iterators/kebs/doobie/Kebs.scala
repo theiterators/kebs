@@ -1,7 +1,6 @@
 package pl.iterators.kebs.doobie
 
-import doobie.{Get, Put, Meta}
-import pl.iterators.kebs.doobie.enums.KebsEnums
+import doobie.Meta
 import pl.iterators.kebs.core.instances.InstanceConverter
 import pl.iterators.kebs.core.macros.ValueClassLike
 

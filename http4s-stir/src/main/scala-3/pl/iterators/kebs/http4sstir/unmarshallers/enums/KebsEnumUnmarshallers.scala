@@ -5,7 +5,6 @@ import pl.iterators.stir.unmarshalling.PredefinedFromStringUnmarshallers.*
 import pl.iterators.stir.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
 
 import scala.reflect.{ClassTag, Enum}
-import scala.reflect.Selectable.reflectiveSelectable
 
 import pl.iterators.kebs.core.enums.{EnumLike, ValueEnumLike, ValueEnumLikeEntry}
 

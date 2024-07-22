@@ -5,7 +5,7 @@ import org.apache.pekko.http.scaladsl.model.FormData
 import org.apache.pekko.http.scaladsl.server.{Directives, MalformedQueryParamRejection}
 import org.apache.pekko.http.scaladsl.testkit.ScalatestRouteTest
 import org.apache.pekko.http.scaladsl.unmarshalling.Unmarshal
-import org.apache.pekko.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
+import org.apache.pekko.http.scaladsl.unmarshalling.Unmarshaller
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
@@ -14,8 +14,7 @@ import java.time.{DayOfWeek, YearMonth}
 
 import pl.iterators.kebs.pekkohttp.domain.Domain._
 import pl.iterators.kebs.instances.net.URIString
-import pl.iterators.kebs.instances.time.{DayOfWeekInt, ZonedDateTimeString, YearMonthString}
-import pl.iterators.kebs.instances.time.mixins.InstantEpochMilliLong
+import pl.iterators.kebs.instances.time.{DayOfWeekInt, YearMonthString}
 import pl.iterators.kebs.pekkohttp.unmarshallers.enums.KebsEnumUnmarshallers
 import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
 import pl.iterators.kebs.enums.{KebsEnum, KebsValueEnum}
@@ -36,8 +35,6 @@ class PekkoHttpUnmarshallersTests
     with CaseClass1ToValueClass {
 
   test("No ValueClassLike implicits derived") {
-    import pl.iterators.kebs.core.macros.ValueClassLike
-
     "implicitly[ValueClassLike[URI, String]]" shouldNot typeCheck
     "implicitly[ValueClassLike[String, URI]]" shouldNot typeCheck
     "implicitly[ValueClassLike[YearMonth, String]]" shouldNot typeCheck
@@ -65,7 +62,7 @@ class PekkoHttpUnmarshallersTests
   }
 
   test("Unmarshal value enum") {
-    val x = Unmarshal(1).to[LibraryItem]
+    Unmarshal(1).to[LibraryItem]
     Unmarshal(3).to[LibraryItem].futureValue shouldBe LibraryItem.Magazine
     Unmarshal(5).to[LibraryItem].failed.futureValue shouldBe a[IllegalArgumentException]
   }

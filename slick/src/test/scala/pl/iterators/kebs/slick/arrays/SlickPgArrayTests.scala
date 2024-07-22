@@ -3,7 +3,7 @@ package pl.iterators.kebs.slick.arrays
 import com.github.tminglei.slickpg._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.core.macros.{CaseClass1ToValueClass, ValueClassLike}
+import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
 import slick.lifted.ProvenShape
 
 import java.time.YearMonth
@@ -42,10 +42,8 @@ class SlickPgArrayTests extends AnyFunSuite with Matchers {
   }
 
   test("No ValueClassLike implicits derived") {
-    import pl.iterators.kebs.core.macros.ValueClassLike
-
-    "implicitly[ValueClassLike[YearMonth, String]]" shouldNot typeCheck
-    "implicitly[ValueClassLike[String, YearMonth]]" shouldNot typeCheck
+    "implicitly[pl.iterators.kebs.core.macros.ValueClassLike[YearMonth, String]]" shouldNot typeCheck
+    "implicitly[pl.iterators.kebs.core.macros.ValueClassLike[String, YearMonth]]" shouldNot typeCheck
   }
 
   test("Case class list extension methods") {

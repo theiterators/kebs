@@ -11,7 +11,6 @@ import java.time.Year
 import java.util.Currency
 
 import pl.iterators.kebs.instances.KebsInstances._
-import pl.iterators.kebs.http4s.{given, _}
 import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
 import pl.iterators.kebs.enums.KebsEnum
 

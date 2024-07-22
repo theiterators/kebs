@@ -38,7 +38,6 @@ class SlickPgArrayColumnTypeTests extends AnyFunSuite with Matchers with KebsEnu
 
     override val values = findValues
   }
-  import enums._
 
   test("List column type with enums") {
     """

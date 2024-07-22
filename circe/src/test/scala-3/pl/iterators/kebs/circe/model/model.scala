@@ -1,7 +1,5 @@
 package pl.iterators.kebs.circe
 
-import io.circe.Decoder
-import io.circe.Encoder
 import java.time.ZonedDateTime
 import pl.iterators.kebs.core.enums.ValueEnumLikeEntry
 

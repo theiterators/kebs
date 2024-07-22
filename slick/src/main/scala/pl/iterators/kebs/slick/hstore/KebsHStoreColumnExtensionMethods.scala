@@ -7,10 +7,7 @@ import slick.jdbc.JdbcType
 import slick.lifted.{ExtensionMethods, FunctionSymbolExtensionMethods, Rep}
 
 class KebsHStoreColumnExtensionMethods[KEY, VALUE, P1](val c: Rep[P1])(
-    implicit tm0: JdbcType[KEY],
-    tm1: JdbcType[VALUE],
-    tm2: JdbcType[List[KEY]],
-    tm3: JdbcType[List[VALUE]],
+    implicit tm1: JdbcType[VALUE],
     tm4: JdbcType[Map[KEY, VALUE]]
 ) extends ExtensionMethods[Map[KEY, VALUE], P1] {
   import FunctionSymbolExtensionMethods._
@@ -31,7 +28,7 @@ class KebsHStoreColumnExtensionMethods[KEY, VALUE, P1](val c: Rep[P1])(
     val Slice       = new SqlFunction("slice")
   }
 
-  def +>[P2, R](k: Rep[P2])(implicit om: o#arg[KEY, P2]#to[VALUE, R]) = {
+  def +>[P2, R](k: Rep[P2]) = {
     KebsHStoreLibrary.On.column[Option[VALUE]](n, k.toNode)
   }
   def >>[T: JdbcType](k: Rep[KEY]) = {

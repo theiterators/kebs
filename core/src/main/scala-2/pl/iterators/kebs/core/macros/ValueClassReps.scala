@@ -1,7 +1,6 @@
 package pl.iterators.kebs.core.macros
 
 import scala.language.experimental.macros
-import scala.language.higherKinds
 import scala.reflect.macros.whitebox
 
 final class ValueClassLike[VC, F1](val apply: F1 => VC, val unapply: VC => F1)

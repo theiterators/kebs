@@ -31,8 +31,6 @@ class Http4sStirMatchersTests
   implicit def runtime: cats.effect.unsafe.IORuntime = cats.effect.unsafe.IORuntime.global
 
   test("No ValueClassLike implicits derived") {
-    import pl.iterators.kebs.core.macros.ValueClassLike
-
     "implicitly[ValueClassLike[DayOfWeek, Int]]" shouldNot typeCheck
     "implicitly[ValueClassLike[Int, DayOfWeek]]" shouldNot typeCheck
     "implicitly[ValueClassLike[Instant, Long]]" shouldNot typeCheck

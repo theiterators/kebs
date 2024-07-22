@@ -5,8 +5,6 @@ import pl.iterators.kebs.core.instances.InstanceConverter
 import pl.iterators.kebs.core.macros.ValueClassLike
 import pl.iterators.kebs.core.enums._
 
-import scala.language.implicitConversions
-
 trait KebsMatchers extends PathMatchers {
 
   implicit class SegmentIsomorphism[U](segment: PathMatcher1[U]) {

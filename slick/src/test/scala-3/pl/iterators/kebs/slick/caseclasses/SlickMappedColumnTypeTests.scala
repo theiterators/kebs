@@ -13,7 +13,6 @@ class SlickMappedColumnTypeTests extends AnyFunSuite with Matchers {
   }
 
   import MyPostgresProfile.api._
-  import slick.lifted.ProvenShape
 
   case class Id(id: Long)
   case class Row(id: Id, name: String, num: Long)
@@ -44,7 +43,7 @@ class SlickMappedColumnTypeTests extends AnyFunSuite with Matchers {
       |      def name = column[String]("name")
       |      def num  = column[Long]("num")
       |
-      |      override def * : ProvenShape[Row] = (id, name, num) <> ((Row.apply _).tupled, Row.unapply)
+      |      override def * : slick.lifted.ProvenShape[Row] = (id, name, num) <> ((Row.apply _).tupled, Row.unapply)
       |    }
     """.stripMargin should compile
   }
@@ -56,7 +55,7 @@ class SlickMappedColumnTypeTests extends AnyFunSuite with Matchers {
       |class OneElement(tag: Tag) extends Table[Name](tag, "ONE_ELEMENT_TABLE") {
       |      def name                           = column[String]("name")
       |      
-      |      override def * : ProvenShape[Name] = name <> (Name.apply, n => Some(n.name))
+      |      override def * : slick.lifted.ProvenShape[Name] = name <> (Name.apply, n => Some(n.name))
       |    }
     """.stripMargin should compile
   }
@@ -66,7 +65,7 @@ class SlickMappedColumnTypeTests extends AnyFunSuite with Matchers {
       |class Matryoshka(tag: Tag) extends Table[WrappedName](tag, "MATRYOSHKA") {
       |      def name                                  = column[Name]("name")
       |
-      |      override def * : ProvenShape[WrappedName] = name <> (WrappedName.apply, n => Some(n.name))
+      |      override def * : slick.lifted.ProvenShape[WrappedName] = name <> (WrappedName.apply, n => Some(n.name))
       |}
     """.stripMargin should compile
   }
@@ -77,15 +76,15 @@ class SlickMappedColumnTypeTests extends AnyFunSuite with Matchers {
       |      def name                                  = column[Name]("name")
       |      private def mappedProjection              = name <> (WrappedName.apply, n => Some(n.name))
       |      
-      |      override def * : ProvenShape[WrappedName] = mappedProjection
+      |      override def * : slick.lifted.ProvenShape[WrappedName] = mappedProjection
       |    }
     """.stripMargin should compile
   }
 
-  class NoMapping(id: Long)
-
   test("Wrong slick mapping") {
     """
+      |class NoMapping(id: Long)
+      |
       |class ATable(tag: Tag) extends Table[(NoMapping, String)](tag, "A_TABLE") {
       |      def id   = column[NoMapping]("id")
       |      def name = column[String]("name")

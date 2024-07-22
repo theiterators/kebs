@@ -12,9 +12,6 @@ import pl.iterators.kebs.enumeratum.KebsEnumeratum
 
 import java.time.Year
 import java.util.Currency
-import pl.iterators.kebs.instances.KebsInstances._
-import pl.iterators.kebs.http4s._
-import pl.iterators.kebs.enumeratum.KebsEnumeratum
 
 class Http4sDslTests extends AnyFunSuite with Matchers with KebsEnumeratum {
   import pl.iterators.kebs.http4s.domain.Domain._

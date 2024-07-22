@@ -1,12 +1,9 @@
 package pl.iterators.kebs.circe
 
-import _root_.enumeratum.values.{LongEnum, LongEnumEntry}
 import io.circe._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.circe.KebsEnumFormats
 import pl.iterators.kebs.enumeratum.KebsValueEnumeratum
-import pl.iterators.kebs.core.enums.ValueEnumLikeEntry
 import pl.iterators.kebs.circe.model.LongGreeting
 import pl.iterators.kebs.circe.model.LongGreeting._
 

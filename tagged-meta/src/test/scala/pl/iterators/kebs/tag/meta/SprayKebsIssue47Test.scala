@@ -3,13 +3,9 @@ package pl.iterators.kebs.tag.meta
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.json.KebsSpray
-import pl.iterators.kebs.tag.meta._
-import pl.iterators.kebs.tag._
-import pl.iterators.kebs.tag.meta.tagged
 import pl.iterators.kebs.tagged._
 import util.Properties.versionNumberString
 import spray.json.{DefaultJsonProtocol, JsonFormat}
-import pl.iterators.kebs.core.macros.CaseClass1ToValueClass._
 
 package object domain extends Domain {}
 

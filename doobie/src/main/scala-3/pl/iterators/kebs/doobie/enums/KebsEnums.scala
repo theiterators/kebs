@@ -2,7 +2,6 @@ package pl.iterators.kebs.doobie.enums
 
 import doobie.Meta
 import scala.reflect.ClassTag
-import scala.reflect.Enum
 
 import pl.iterators.kebs.core.enums.EnumLike
 

@@ -1,11 +1,9 @@
 package pl.iterators.kebs.circe
 
-import io.circe.generic.extras.Configuration
 import io.circe.{Decoder, Encoder}
 import pl.iterators.kebs.core.macros.MacroUtils
 import pl.iterators.kebs.core.macros.namingconventions.SnakifyVariant.snakify
 
-import scala.collection.immutable.Seq
 import scala.reflect.macros.whitebox
 
 class KebsCirceMacros(override val c: whitebox.Context) extends MacroUtils {

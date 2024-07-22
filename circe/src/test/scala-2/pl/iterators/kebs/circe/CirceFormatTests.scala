@@ -5,7 +5,6 @@ import org.scalatest.funsuite.AnyFunSuite
 import pl.iterators.kebs.circe.KebsCirce
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.circe.model._
-import java.time.ZonedDateTime
 
 class CirceFormatTests extends AnyFunSuite with Matchers {
   object KebsProtocol extends KebsCirce

@@ -1,6 +1,5 @@
 package pl.iterators.kebs.circe
 
-import io.circe.Decoder.Result
 import io.circe._
 import pl.iterators.kebs.core.enums.{EnumLike, ValueEnumLike, ValueEnumLikeEntry}
 

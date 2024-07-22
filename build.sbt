@@ -1,7 +1,6 @@
 import sbt.librarymanagement.ConflictWarning
 
 val scala_2_13             = "2.13.14"
-val scala_2_12             = "2.12.18"
 val scala_3                = "3.3.3"
 val mainScalaVersion       = scala_3
 val supportedScalaVersions = Seq(scala_2_13, scala_3)
@@ -36,11 +35,10 @@ lazy val publishSettings = Seq(
   pomIncludeRepository := const(true),
   licenses := Seq("MIT License" -> url("http://opensource.org/licenses/MIT")),
   developers := List(
-    Developer(id = "mrzeznicki",
-              name = "Marcin Rzeźnicki",
-              email = "mrzeznicki@iterato.rs",
-              url = url("https://github.com/marcin-rzeznicki")),
-    Developer(id = "jborkowski", name = "Jonatan Borkowski", email = "jborkowski@iterato.rs", url = url("https://github.com/jborkowski")),
+    Developer(id = "luksow",
+              name = "Łukasz Sowa",
+              email = "lsowa@iteratorshq.com",
+              url = url("https://github.com/luksow")),
     Developer(id = "pkiersznowski",
               name = "Paweł Kiersznowski",
               email = "pkiersznowski@iteratorshq.com",
@@ -198,7 +196,7 @@ lazy val enumeratumSettings = commonMacroSettings ++ Seq(
   libraryDependencies += scalaCheck.value % "test",
   libraryDependencies += scalaTest.value,
   libraryDependencies += optionalEnumeratum,
-  scalacOptions ++= paradiseFlag(scalaVersion.value) ++ (if (scalaVersion.value.startsWith("3")) Seq("-Yretain-trees") else Seq.empty)
+  scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
 lazy val sprayJsonMacroSettings = commonMacroSettings ++ Seq(

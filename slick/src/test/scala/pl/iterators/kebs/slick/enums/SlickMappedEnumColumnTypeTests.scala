@@ -1,7 +1,6 @@
 package pl.iterators.kebs.slick.enums
 
 import com.github.tminglei.slickpg.ExPostgresProfile
-import com.github.tminglei.slickpg.ExPostgresProfile.ExtPostgresAPI
 import enumeratum.{Enum, EnumEntry}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers

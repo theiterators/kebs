@@ -1,7 +1,5 @@
 package pl.iterators.kebs.tag.meta
 
-import scala.language.existentials
-import scala.language.experimental.macros
 import scala.annotation.{StaticAnnotation, compileTimeOnly}
 import scala.reflect.macros.whitebox
 

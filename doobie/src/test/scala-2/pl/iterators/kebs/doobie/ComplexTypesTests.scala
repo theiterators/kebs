@@ -1,6 +1,5 @@
 package pl.iterators.kebs.doobie
 
-import enumeratum.{Enum, EnumEntry}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.enumeratum.KebsEnumeratum

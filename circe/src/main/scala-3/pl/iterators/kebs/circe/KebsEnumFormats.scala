@@ -1,13 +1,10 @@
 package pl.iterators.kebs.circe
 
-import io.circe.Decoder.Result
 import io.circe._
 import scala.reflect.Enum
 import scala.util.Try
 
 import pl.iterators.kebs.core.enums.{EnumLike, ValueEnumLike, ValueEnumLikeEntry}
-
-import reflect.Selectable.reflectiveSelectable
 
 trait CirceEnum {
   @inline protected final def enumNameDeserializationError[E <: Enum](e: EnumLike[E], name: String): String = {

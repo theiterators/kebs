@@ -3,7 +3,6 @@ package pl.iterators.kebs.json.macros
 import pl.iterators.kebs.core.macros.MacroUtils
 import spray.json.{JsonFormat, JsonReader, JsonWriter, NullOptions, RootJsonFormat}
 
-import scala.collection.immutable.Seq
 import scala.reflect.macros._
 
 class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {

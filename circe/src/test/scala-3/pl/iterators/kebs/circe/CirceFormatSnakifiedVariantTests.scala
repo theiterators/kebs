@@ -3,12 +3,8 @@ package pl.iterators.kebs.circe
 import io.circe.{Decoder, Encoder, Json}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.circe.KebsCirce
 import pl.iterators.kebs.circe.model._
 import scala.Right
-import io.circe.derivation.Configuration
-
-
 
 class CirceFormatSnakifiedVariantTests extends AnyFunSuite with Matchers {
   object KebsProtocol extends KebsCirce with KebsCirce.Snakified

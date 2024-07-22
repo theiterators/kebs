@@ -1,10 +1,8 @@
 package pl.iterators.kebs.circe
 
-import io.circe.{Decoder, Encoder, Json, JsonNumber}
+import io.circe.{Decoder, Encoder, Json}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.circe.KebsCirce
-import io.circe.derivation.Configuration
 import io.circe.derivation.ConfiguredDecoder
 import pl.iterators.kebs.circe.model._
 

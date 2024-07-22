@@ -5,7 +5,6 @@ import org.apache.pekko.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unm
 import org.apache.pekko.http.scaladsl.util.FastFuture
 
 import scala.reflect.ClassTag
-import scala.reflect.Selectable.reflectiveSelectable
 
 import pl.iterators.kebs.core.enums.{EnumLike, ValueEnumLike, ValueEnumLikeEntry}
 

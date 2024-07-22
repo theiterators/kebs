@@ -8,49 +8,46 @@ import slick.ast.{BaseTypedType, NumericTypedType}
 import slick.jdbc.{JdbcProfile, JdbcType}
 import slick.lifted._
 
-import scala.language.implicitConversions
+import scala.annotation.unused
 import scala.reflect.ClassTag
 
 trait KebsColumnExtensionMethods  {
-  implicit def stringValueColumnExt[CC](rep: Rep[CC])(implicit ev: ValueClassLike[CC, String]): StringColumnExtensionMethods[CC] =
+  implicit def stringValueColumnExt[CC](rep: Rep[CC])(implicit @unused ev: ValueClassLike[CC, String]): StringColumnExtensionMethods[CC] =
     new StringColumnExtensionMethods[CC](rep)
   implicit def stringValueOptionColumnExt[CC](rep: Rep[Option[CC]])(
-      implicit ev: ValueClassLike[CC, String]): StringColumnExtensionMethods[Option[CC]] = new StringColumnExtensionMethods[Option[CC]](rep)
+    implicit @unused ev: ValueClassLike[CC, String]): StringColumnExtensionMethods[Option[CC]] = new StringColumnExtensionMethods[Option[CC]](rep)
   implicit def numericValueColumnExt[CC, B](rep: Rep[CC])(
-    implicit ev1: ValueClassLike[CC, B],
-    ev2: BaseTypedType[B] with NumericTypedType): BaseNumericColumnExtensionMethods[CC] = new BaseNumericColumnExtensionMethods[CC](rep)
+    implicit @unused ev1: ValueClassLike[CC, B],
+    @unused ev2: BaseTypedType[B] with NumericTypedType): BaseNumericColumnExtensionMethods[CC] = new BaseNumericColumnExtensionMethods[CC](rep)
   implicit def numericValueOptionColumnExt[CC, B](rep: Rep[Option[CC]])(
-    implicit ev1: ValueClassLike[CC, B],
-    ev2: BaseTypedType[B] with NumericTypedType): OptionNumericColumnExtensionMethods[CC] =
+    implicit @unused ev1: ValueClassLike[CC, B],
+    @unused ev2: BaseTypedType[B] with NumericTypedType): OptionNumericColumnExtensionMethods[CC] =
     new OptionNumericColumnExtensionMethods[CC](rep)
-  implicit def booleanValueColumnExt[CC](rep: Rep[CC])(implicit ev: ValueClassLike[CC, Boolean]): BooleanColumnExtensionMethods[CC] =
+  implicit def booleanValueColumnExt[CC](rep: Rep[CC])(implicit @unused ev: ValueClassLike[CC, Boolean]): BooleanColumnExtensionMethods[CC] =
     new BooleanColumnExtensionMethods[CC](rep)
   implicit def booleanValueOptionColumnExt[CC](rep: Rep[Option[CC]])(
-      implicit ev: ValueClassLike[CC, Boolean]): BooleanColumnExtensionMethods[Option[CC]] =
+    implicit @unused ev: ValueClassLike[CC, Boolean]): BooleanColumnExtensionMethods[Option[CC]] =
     new BooleanColumnExtensionMethods[Option[CC]](rep)
 
   implicit def hstoreColumnExt[KEY, VALUE](c: Rep[Map[KEY, VALUE]])(
-      implicit tm0: JdbcType[KEY],
-      tm1: JdbcType[VALUE],
-      tm2: JdbcType[List[KEY]],
-      tm3: JdbcType[List[VALUE]],
+      implicit tm1: JdbcType[VALUE],
       tm4: JdbcType[Map[KEY, VALUE]]
   ): KebsHStoreColumnExtensionMethods[KEY, VALUE, Map[KEY, VALUE]] =
     new KebsHStoreColumnExtensionMethods[KEY, VALUE, Map[KEY, VALUE]](c)
 
   @inline implicit def getCCOptionMapper2TT_1[B1, B2: BaseTypedType, BR, CC](
-      implicit ev: ValueClassLike[CC, B1]): OptionMapper2[B1, B2, BR, CC, B2, BR] =
+      implicit @unused ev: ValueClassLike[CC, B1]): OptionMapper2[B1, B2, BR, CC, B2, BR] =
     OptionMapper2.plain.asInstanceOf[OptionMapper2[B1, B2, BR, CC, B2, BR]]
-  @inline implicit def getCCOptionMapper2TT_2[B1, B2, BR, CC](implicit ev: ValueClassLike[CC, B2]): OptionMapper2[CC, CC, BR, CC, B2, BR] =
+  @inline implicit def getCCOptionMapper2TT_2[B1, B2, BR, CC](implicit @unused ev: ValueClassLike[CC, B2]): OptionMapper2[CC, CC, BR, CC, B2, BR] =
     OptionMapper2.plain.asInstanceOf[OptionMapper2[CC, CC, BR, CC, B2, BR]]
   @inline implicit def getCCOptionMapper2TO[B1, B2: BaseTypedType, BR, CC](
-      implicit ev: ValueClassLike[CC, B1]): OptionMapper2[B1, B2, BR, CC, Option[B2], Option[BR]] =
+      implicit @unused ev: ValueClassLike[CC, B1]): OptionMapper2[B1, B2, BR, CC, Option[B2], Option[BR]] =
     OptionMapper2.option.asInstanceOf[OptionMapper2[B1, B2, BR, CC, Option[B2], Option[BR]]]
   @inline implicit def getCCOptionMapper2OT[B1, B2: BaseTypedType, BR, CC](
-      implicit ev: ValueClassLike[CC, B1]): OptionMapper2[B1, B2, BR, Option[CC], B2, Option[BR]] =
+      implicit @unused ev: ValueClassLike[CC, B1]): OptionMapper2[B1, B2, BR, Option[CC], B2, Option[BR]] =
     OptionMapper2.option.asInstanceOf[OptionMapper2[B1, B2, BR, Option[CC], B2, Option[BR]]]
   @inline implicit def getCCOptionMapper2OO[B1, B2: BaseTypedType, BR, CC](
-      implicit ev: ValueClassLike[CC, B1]): OptionMapper2[B1, B2, BR, Option[CC], Option[B2], Option[BR]] =
+      implicit @unused ev: ValueClassLike[CC, B1]): OptionMapper2[B1, B2, BR, Option[CC], Option[B2], Option[BR]] =
     OptionMapper2.option.asInstanceOf[OptionMapper2[B1, B2, BR, Option[CC], Option[B2], Option[BR]]]
 }
 
@@ -131,7 +128,7 @@ trait KebsSlickSupport { this: JdbcProfile =>
     implicit def valueClassLikeColumnType[CC, B](implicit rep1: ValueClassLike[CC, B], bct: BaseColumnType[B], cls: ClassTag[CC]): BaseColumnType[CC] =
       MappedColumnType.base[CC, B](rep1.unapply, rep1.apply)
 
-    implicit def listValueColumnType[CC, B](implicit rep1: ValueClassLike[CC, B], bct: BaseColumnType[List[B]], cls: ClassTag[CC]): BaseColumnType[List[CC]] =
+    implicit def listValueColumnType[CC, B](implicit rep1: ValueClassLike[CC, B], bct: BaseColumnType[List[B]]): BaseColumnType[List[CC]] =
       MappedColumnType.base[List[CC], List[B]](_.map(rep1.unapply), _.map(rep1.apply))
 
     implicit def valueClassLikeToFromStringForHstore[CC, B](implicit rep: ValueClassLike[CC, B], toFromStringForHstore: ToFromStringForHstore[B]): ToFromStringForHstore[CC] =
@@ -145,7 +142,7 @@ trait KebsSlickSupport { this: JdbcProfile =>
     implicit def instanceConverterColumnType[CC, B](implicit ico: InstanceConverter[CC, B], bct: BaseColumnType[B], cls: ClassTag[CC]): BaseColumnType[CC] =
       MappedColumnType.base[CC, B](ico.encode, ico.decode)
 
-    implicit def listInstanceConverterColumnType[CC, B](implicit ico: InstanceConverter[CC, B], bct: BaseColumnType[List[B]], cls: ClassTag[CC]): BaseColumnType[List[CC]] =
+    implicit def listInstanceConverterColumnType[CC, B](implicit ico: InstanceConverter[CC, B], bct: BaseColumnType[List[B]]): BaseColumnType[List[CC]] =
       MappedColumnType.base[List[CC], List[B]](_.map(ico.encode), _.map(ico.decode))
 
     implicit def instanceConverterToFromStringForHstore[CC, B](implicit ico: InstanceConverter[CC, B], toFromStringForHstore: ToFromStringForHstore[B]): ToFromStringForHstore[CC] =

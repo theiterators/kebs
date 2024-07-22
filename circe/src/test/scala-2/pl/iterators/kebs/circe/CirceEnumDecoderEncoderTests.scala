@@ -1,11 +1,8 @@
 package pl.iterators.kebs.circe
 
-import enumeratum.{Enum, EnumEntry}
 import io.circe._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.funsuite.AnyFunSuite
-import pl.iterators.kebs.circe.KebsEnumFormats
 import pl.iterators.kebs.enumeratum.KebsEnumeratum
 import pl.iterators.kebs.circe.model._
 import pl.iterators.kebs.circe.model.Greeting._

@@ -1,10 +1,9 @@
 package pl.iterators.kebs.enums
 
 import scala.collection.immutable
-import scala.quoted.*
 import scala.compiletime.{constValue, erasedValue, error, summonInline}
 import scala.deriving.Mirror
-import scala.reflect.{ClassTag, Enum}
+import scala.reflect.ClassTag
 
 import pl.iterators.kebs.core.enums.{ValueEnumLike, ValueEnumLikeEntry}
 

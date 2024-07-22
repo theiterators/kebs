@@ -8,7 +8,7 @@ trait InstanceConverter[Obj, Val] {
   def decode(value: Val): Obj
 }
 object InstanceConverter {
-  private def errorMessage(clazz: String, value: String, formatOpt: Option[String] = None): String = {
+  private def errorMessage(clazz: String, value: String, formatOpt: Option[String]): String = {
     s"$clazz cannot be parsed from $value".concat(formatOpt.fold("")(format => s" – should be in format $format"))
   }
 

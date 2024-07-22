@@ -5,7 +5,6 @@ import io.circe.{Decoder, Encoder}
 import pl.iterators.kebs.core.instances.InstanceConverter
 import pl.iterators.kebs.core.macros.{CaseClass1ToValueClass, ValueClassLike}
 
-import scala.language.experimental.macros
 import scala.util.Try
 
 trait KebsCirce extends AutoDerivation with CaseClass1ToValueClass {

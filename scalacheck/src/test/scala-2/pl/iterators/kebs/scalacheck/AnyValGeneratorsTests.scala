@@ -1,9 +1,7 @@
+package pl.iterators.kebs.scalacheck
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.scalacheck._
-import java.net.{URI, URL}
-import java.time.{Duration, Instant, LocalDate, LocalDateTime, LocalTime, ZonedDateTime}
 import pl.iterators.kebs.scalacheck.model._
 
 class AnyValGeneratorsTests extends AnyFunSuite with Matchers {

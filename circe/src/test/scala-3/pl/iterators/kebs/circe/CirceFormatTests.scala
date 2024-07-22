@@ -1,10 +1,7 @@
 package pl.iterators.kebs.circe
 
-import java.time.ZonedDateTime
-
 import io.circe.{Decoder, Encoder, Json}
 import org.scalatest.funsuite.AnyFunSuite
-import pl.iterators.kebs.circe.KebsCirce
 import org.scalatest.matchers.should.Matchers
 import scala.util.Try
 import io.circe.derivation.ConfiguredDecoder

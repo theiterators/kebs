@@ -7,7 +7,6 @@ import play.api.libs.json._
 import java.util.UUID
 
 class PlayJsonFormatTests extends AnyFunSuite with Matchers {
-  import pl.iterators.kebs.json._
 
   case class C(i: Int)
   case class D(s: String)

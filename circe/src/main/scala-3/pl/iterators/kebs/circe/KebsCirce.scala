@@ -3,17 +3,9 @@ package pl.iterators.kebs.circe
 import io.circe.{ Decoder, Encoder }
 import scala.deriving._
 import scala.util.Try
-import scala.quoted.Quotes
-import io.circe.HCursor
-import io.circe.generic.AutoDerivation
-import scala.quoted.Type
 import io.circe.derivation.ConfiguredDecoder
 import io.circe.derivation.Configuration
-import io.circe.Derivation
-import io.circe.DecoderDerivation
-import io.circe.EncoderDerivation
 import io.circe.derivation.ConfiguredEncoder
-import scala.NonEmptyTuple
 
 import pl.iterators.kebs.core.macros.{CaseClass1ToValueClass, ValueClassLike}
 import pl.iterators.kebs.core.instances.InstanceConverter

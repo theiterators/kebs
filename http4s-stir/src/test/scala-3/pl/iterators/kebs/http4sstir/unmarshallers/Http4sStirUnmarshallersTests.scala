@@ -8,8 +8,7 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.http4sstir.domain.Domain._
 import pl.iterators.kebs.instances.net.URIString
-import pl.iterators.kebs.instances.time.{DayOfWeekInt, ZonedDateTimeString, YearMonthString}
-import pl.iterators.kebs.instances.time.mixins.InstantEpochMilliLong
+import pl.iterators.kebs.instances.time.{DayOfWeekInt, YearMonthString}
 import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
 import pl.iterators.kebs.enums.{KebsEnum, KebsValueEnum}
 import pl.iterators.kebs.http4sstir.unmarshallers.enums.KebsEnumUnmarshallers
@@ -34,8 +33,6 @@ class Http4sStirUnmarshallersTests
   implicit def runtime: cats.effect.unsafe.IORuntime = cats.effect.unsafe.IORuntime.global
 
   test("No ValueClassLike implicits derived") {
-    import pl.iterators.kebs.core.macros.ValueClassLike
-
     "implicitly[ValueClassLike[URI, String]]" shouldNot typeCheck
     "implicitly[ValueClassLike[String, URI]]" shouldNot typeCheck
     "implicitly[ValueClassLike[YearMonth, String]]" shouldNot typeCheck
