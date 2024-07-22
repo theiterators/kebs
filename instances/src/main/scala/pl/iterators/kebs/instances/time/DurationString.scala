@@ -1,7 +1,7 @@
 package pl.iterators.kebs.instances.time
 
-import pl.iterators.kebs.instances.InstanceConverter
-import pl.iterators.kebs.instances.time.DurationString.DurationFormat
+import DurationString.DurationFormat
+import pl.iterators.kebs.core.instances.InstanceConverter
 
 import java.time.Duration
 

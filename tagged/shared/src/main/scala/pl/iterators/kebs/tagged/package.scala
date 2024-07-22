@@ -1,7 +1,5 @@
 package pl.iterators.kebs
 
-import scala.language.higherKinds
-
 package object tagged {
 
   /**

@@ -1,7 +1,6 @@
 package pl.iterators.kebs.scalacheck.macros
 
 import pl.iterators.kebs.scalacheck._
-import scala.quoted.*
 import org.scalacheck.Arbitrary
 import scala.deriving.Mirror
 import io.github.martinhh.derived.scalacheck.deriveArbitrary

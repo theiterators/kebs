@@ -23,6 +23,7 @@ A library maintained by [Iterators](https://www.iteratorshq.com).
 * [JsonSchema support](#jsonschema-support)
 * [Scalacheck support](#scalacheck-support)
 * [Kebs for IntelliJ](#kebs-for-intellij)
+* [Kebs 2.0 migration guide](#kebs-20-migration-guide)
 
 ### Why?
 
@@ -171,7 +172,7 @@ class People(tag: Tag) extends Table[Person](tag, "people") {
 If you prefer to **mix in trait** instead of import (for example you're using a custom driver like `slick-pg`), you can do it as well:
 
 ```scala
-import pl.iterators.kebs.Kebs
+import pl.iterators.kebs.slick.Kebs
 object MyPostgresProfile extends ExPostgresDriver with PgArraySupport {
   override val api: API = new API {}
   trait API extends super.API with ArrayImplicits with Kebs
@@ -338,8 +339,8 @@ class People(tag: Tag) extends Table[Person](tag, "people") {
 
 ```scala
 
-import pl.iterators.kebs._
-import enums._
+import pl.iterators.kebs.slick._
+import pl.iterators.kebs.slick.enums._
 
 class People(tag: Tag) extends Table[Person](tag, "people") {
 
@@ -361,8 +362,8 @@ If you import `enums.lowercase._` or `enums.uppercase._` then it'll save enum na
 Of course, enums also work with traits:
 
 ```scala
-import pl.iterators.kebs.Kebs
-import pl.iterators.kebs.enums.KebsEnums
+import pl.iterators.kebs.slick.Kebs
+import pl.iterators.kebs.slick.enums.KebsEnums
 
 object MyPostgresProfile extends ExPostgresDriver {
   override val api: API = new API {}
@@ -389,12 +390,12 @@ import MyPostgresProfile.api._
 
 kebs-doobie works similarly to [kebs-slick](#--kebs-generates-slick-mappers-for-your-case-class-wrappers-kebs-slick). It provides doobie's `Meta` instances for:
 
-* Instances of `CaseClass1Rep` (value classes, tagged types, opaque types)
+* Instances of `ValueClassLike` (value classes, tagged types, opaque types)
 * Instances of `InstanceConverter`
 * Enumeratum for Scala 2
 * Native enums for Scala 3
 
-To make the magic happen, do `import pl.iterators.kebs._` and `import pl.iterators.kebs.enums._` (or `import pl.iterators.kebs.enums.uppercase._` or `import pl.iterators.kebs.enums.lowercase._`).
+To make the magic happen, do `import pl.iterators.doobie.kebs._` and `import pl.iterators.kebs.doobie.enums._` (or `import pl.iterators.kebs.doobie.enums.uppercase._` or `import pl.iterators.kebs.doobie.enums.lowercase._`).
 
 #### - kebs eliminates spray-json induced boilerplate (kebs-spray-json)
 
@@ -518,18 +519,6 @@ test("work with nested single field objects") {
     )
 }
 ```
-
-* mix-in `KebsSpray.NonFlat` if you want _flat_ format to become globally turned off for a protocol
-```scala
-object KebsProtocol extends DefaultJsonProtocol with KebsSpray.NoFlat
-```
-
-* use `noflat` annotation on selected case-classes (thanks to @dbronecki)
-```scala
-case class Book(name: String, chapters: List[Chapter])
-@noflat case class Chapter(name: String)
-```
-
 
 Often you have to deal with convention to have **`snake-case` fields in JSON**.
 That's something `kebs-spray-json` can do for you as well
@@ -662,10 +651,7 @@ object AfterKebs {
     }
   }
 ```
-If you want to disable flat formats, you can mix-in `KebsCirce.NoFlat`:
-```scala
-object KebsProtocol extends KebsCirce with KebsCirce.NoFlat
-```
+
 You can also support snake-case fields in JSON:
 ```scala
 object KebsProtocol extends KebsCirce with KebsCirce.Snakified
@@ -677,8 +663,7 @@ And capitalized:
 ```
 
 **NOTE for Scala 3 version of kebs-circe**:
-1. As of today, there is no support for the @noflat annotation - using it will have no effect.
-2. If you're using recursive types - due to [this issue](https://github.com/circe/circe/issues/1980) you'll have to add codecs explicitly in the following way:
+If you're using recursive types - due to [this issue](https://github.com/circe/circe/issues/1980) you'll have to add codecs explicitly in the following way:
 ```scala
 case class R(a: Int, rs: Seq[R]) derives Decoder, Encoder.AsObject
 ```
@@ -690,11 +675,6 @@ case class R(a: Int, rs: Seq[R]) derives Decoder, Encoder.AsObject
   import KebsProtocol.{given, _}
   ```
  
- as for NoFlat, it should stay the same:
- ```scala
-   object KebsProtocol extends KebsCirce with KebsCirce.NoFlat
-  import KebsProtocol._
- ```
 #### - kebs generates akka-http / pekko-http Unmarshaller (kebs-akka-http / kebs-pekko-http)
 
 It makes it very easy to use 1-element case-classes or `enumeratum` enums/value enums in eg. `parameters` directive:
@@ -722,8 +702,8 @@ case class Limit(value: Int)  extends AnyVal
 
 case class PaginationQuery(sortBy: Column, sortOrder: SortOrder, offset: Offset, limit: Limit)
 
-import pl.iterators.kebs.unmarshallers._
-import enums._
+import pl.iterators.kebs.akkahttp.unmarshallers._
+import pl.iterators.kebs.akkahttp.unmarshallers.enums._
 
 val route = get {
   parameters('sortBy.as[Column], 'order.as[SortOrder] ? (SortOrder.Desc: SortOrder), 'offset.as[Offset] ? Offset(0), 'limit.as[Limit])
@@ -901,13 +881,13 @@ object Tags {
   }
   
   object PositiveIntTag {
-    implicit val PositiveIntCaseClass1Rep = new CaseClass1Rep[PositiveInt, Int](PositiveInt.apply(_), identity)
+    implicit val PositiveIntValueClassLike = new ValueClassLike[PositiveInt, Int](PositiveInt.apply(_), identity)
   }
   object IdTag {
-    implicit def IdCaseClass1Rep[A] = new CaseClass1Rep[Id[A], Int](Id.apply(_), identity)
+    implicit def IdValueClassLike[A] = new ValueClassLike[Id[A], Int](Id.apply(_), identity)
   }
   object NameTag {
-    implicit val NameCaseClass1Rep = new CaseClass1Rep[Name, String](Name.apply(_), identity)
+    implicit val NameValueClassLike = new ValueClassLike[Name, String](Name.apply(_), identity)
   }
 }
 ```
@@ -946,7 +926,7 @@ There are some conventions that are assumed during generation.
   * take a single argument
   * return Either (this is not enforced though - you'll have a compilation error later)
 
-Also, `CaseClass1Rep` is generated for each tag meaning you will get a lot of `kebs` machinery for free eg. spray formats etc.
+Also, `ValueClassLike` is generated for each tag meaning you will get a lot of `kebs` machinery for free eg. spray formats etc.
 
 ### Opaque types
 
@@ -954,7 +934,7 @@ As an alternative to tagged types, Scala 3 provides [opaque types](https://docs.
 The principles of opaque types are similar to tagged type. The basic usage of opaque types requires the
 same amount of boilerplate as tagged types - e.g. you have to write smart constructors, validations and unwrapping
 mechanisms all by hand. `kebs-opaque` is meant to help with that by generating a handful of methods and providing a
-`CaseClass1Rep` for an easy typclass derivation.
+`ValueClassLike` for an easy typclass derivation.
 
 ```scala
 import pl.iterators.kebs.opaque._
@@ -966,10 +946,10 @@ object MyDomain {
 ```
 
 That's the basic usage. Inside the companion object you will get methods like `from`, `apply`, `unsafe` and extension
-method `unwrap` plus an instance of `CaseClass1Rep[ISBN, String]`. A more complete example below.
+method `unwrap` plus an instance of `ValueClassLike[ISBN, String]`. A more complete example below.
 
 ```scala
-import pl.iterators.kebs.macros.CaseClass1Rep
+import pl.iterators.kebs.core.macros.ValueClassLike
 import pl.iterators.kebs.opaque._
 
 object MyDomain {
@@ -1000,7 +980,7 @@ trait Showable[A] {
   def show(a: A): String
 }
 given Showable[String] = (a: String) => a
-given[S, A](using showable: Showable[S], cc1Rep: CaseClass1Rep[A, S]): Showable[A] = (a: A) => showable.show(cc1Rep.unapply(a))
+given[S, A](using showable: Showable[S], vcLike: ValueClassLike[A, S]): Showable[A] = (a: A) => showable.show(vcLike.unapply(a))
 implicitly[Showable[ISBN]].show(ISBN("1234567890")) // "1234567890"
 ```
 
@@ -1105,3 +1085,34 @@ The code generated by macros in `kebs-tagged-meta` is not visible to IntelliJ ID
 plugin that enhances experience with the library by adding support for generated code. You can install it from the IntelliJ Marketplace.
 In the Settings/Preferences dialog, select "Plugins" and type "Kebs" into search input (see https://www.jetbrains.com/help/idea/managing-plugins.html for detailed instructions).
 You can also use this web page: https://plugins.jetbrains.com/plugin/16069-kebs.
+
+### Kebs 2.0 migration guide
+
+Please be aware that recent changes in the source code might require some changes in your codebase. Follow the guide below to migrate your code to Kebs 2.0:
+* If you are using value classes instead of tagged/opaque types, please mix in the `CaseClass1ToValueClass` trait.
+* Extend your value-enums with `pl.iterators.kebs.enums.ValueEnumLikeEntry` parameterized with the type of the value.
+  * Native Scala 3 value-enums:
+    ```scala
+    enum ColorButRGB(val value: Int) extends ValueEnumLikeEntry[Int] {slick
+      case Red extends ColorButRGB(0xFF0000)
+      case Green extends ColorButRGB(0x00FF00)
+      case Blue extends ColorButRGB(0x0000FF)
+    }
+    ```
+  * enumeratum value-enums for Scala 2 and Scala 3:
+    ```scala
+    sealed abstract class LibraryItem(val value: Int) extends IntEnumEntry with ValueEnumLikeEntry[Int]
+      object LibraryItem extends IntEnum[LibraryItem] {
+      case object Book extends LibraryItem(value = 1)
+      case object Movie extends LibraryItem(value = 2)
+      case object Magazine extends LibraryItem(3)
+      case object CD extends LibraryItem(4)
+      val values = findValues
+    }
+    ```
+* Extend your traits/classes/objects, if inside of one an implicit enum (or value-enum) conversion for `kebs` library's needs should occur, with one of the following traits:
+    * For Scala 2 and Scala 3 enums from `enumeratum` library: `pl.iterators.kebs.enumeratum.KebsEnumeratum`
+    * For Scala 2 and Scala 3 value-enums from `enumeratum` library: `pl.iterators.kebs.enumeratum.KebsValueEnumeratum`
+    * For Scala 3 native value-enums: `pl.iterators.kebs.enums.KebsValueEnum`
+    * For Scala 2 `scala.Enumeration` enums or Scala 3 native enums: `pl.iterators.kebs.enums.KebsEnum`
+ 

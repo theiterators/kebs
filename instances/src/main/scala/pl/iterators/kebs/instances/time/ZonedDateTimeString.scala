@@ -1,7 +1,7 @@
 package pl.iterators.kebs.instances.time
 
-import pl.iterators.kebs.instances.InstanceConverter
-import pl.iterators.kebs.instances.time.ZonedDateTimeString.{ZonedDateTimeFormat, formatter}
+import ZonedDateTimeString.{ZonedDateTimeFormat, formatter}
+import pl.iterators.kebs.core.instances.InstanceConverter
 
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter

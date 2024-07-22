@@ -1,7 +1,6 @@
 package pl.iterators.kebs.scalacheck.macros
 
-import pl.iterators.kebs.macros.MacroUtils
-import scala.language.experimental.macros
+import pl.iterators.kebs.core.macros.MacroUtils
 import scala.reflect.macros._
 import pl.iterators.kebs.scalacheck._
 

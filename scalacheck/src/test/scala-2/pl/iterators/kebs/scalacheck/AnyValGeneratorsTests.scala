@@ -1,18 +1,8 @@
+package pl.iterators.kebs.scalacheck
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.scalacheck._
-import java.net.{URI, URL}
-import java.time.{Duration, Instant, LocalDate, LocalDateTime, LocalTime, ZonedDateTime}
-
-case class WrappedInt(int: Int)
-case class WrappedIntAnyVal(int: Int) extends AnyVal
-case class BasicSample(
-    someNumber: Int,
-    someText: String,
-    wrappedNumber: WrappedInt,
-    wrappedNumberAnyVal: WrappedIntAnyVal,
-)
+import pl.iterators.kebs.scalacheck.model._
 
 class AnyValGeneratorsTests extends AnyFunSuite with Matchers {
 

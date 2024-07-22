@@ -2,10 +2,10 @@ package pl.iterators.kebs.http4s
 
 import scala.util.Try
 import scala.reflect.Enum
-import pl.iterators.kebs.macros.CaseClass1Rep
-import pl.iterators.kebs.macros.enums.EnumOf
+import pl.iterators.kebs.core.enums.EnumLike
+import pl.iterators.kebs.core.macros.ValueClassLike
+import pl.iterators.kebs.core.instances.InstanceConverter
 import org.http4s._
-import pl.iterators.kebs.instances.InstanceConverter
 import java.util.UUID
 
 protected class PathVar[A](cast: String => Try[A]) {
@@ -17,7 +17,7 @@ protected class PathVar[A](cast: String => Try[A]) {
 }
 
 object WrappedString {
-  def apply[T](using rep: CaseClass1Rep[T, String]) = new PathVar[T](str => Try(rep.apply(str)))
+  def apply[T](using rep: ValueClassLike[T, String]) = new PathVar[T](str => Try(rep.apply(str)))
 }
 
 object InstanceString {
@@ -25,11 +25,11 @@ object InstanceString {
 }
 
 object EnumString {
-  def apply[T <: Enum](using e: EnumOf[T]) = new PathVar[T](str => Try(e.`enum`.values.find(_.toString.toUpperCase == str.toUpperCase).getOrElse(throw new IllegalArgumentException(s"enum case not found: $str"))))
+  def apply[T <: Enum](using e: EnumLike[T]) = new PathVar[T](str => Try(e.values.find(_.toString.toUpperCase == str.toUpperCase).getOrElse(throw new IllegalArgumentException(s"enum case not found: $str"))))
 }
 
 object WrappedInt {
-  def apply[T](using rep: CaseClass1Rep[T, Int]) = new PathVar[T](str => Try(rep.apply(str.toInt)))
+  def apply[T](using rep: ValueClassLike[T, Int]) = new PathVar[T](str => Try(rep.apply(str.toInt)))
 }
 
 object InstanceInt {
@@ -37,7 +37,7 @@ object InstanceInt {
 }
 
 object WrappedLong {
-  def apply[T](using rep: CaseClass1Rep[T, Long]) = new PathVar[T](str => Try(rep.apply(str.toLong)))
+  def apply[T](using rep: ValueClassLike[T, Long]) = new PathVar[T](str => Try(rep.apply(str.toLong)))
 }
 
 object InstanceLong {
@@ -45,13 +45,13 @@ object InstanceLong {
 }
 
 object WrappedUUID {
-  def apply[T](using rep: CaseClass1Rep[T, UUID]) = new PathVar[T](str => Try(rep.apply(UUID.fromString(str))))
+  def apply[T](using rep: ValueClassLike[T, UUID]) = new PathVar[T](str => Try(rep.apply(UUID.fromString(str))))
 }
 
 object InstanceUUID {
   def apply[T](using rep: InstanceConverter[T, UUID]) = new PathVar[T](str => Try(rep.decode(UUID.fromString(str))))
 }
 
-given[T, U](using rep: CaseClass1Rep[T, U], qpd: QueryParamDecoder[U]): QueryParamDecoder[T] = qpd.emap(u => Try(rep.apply(u)).toEither.left.map(t => ParseFailure(t.getMessage, t.getMessage)))
+given[T, U](using rep: ValueClassLike[T, U], qpd: QueryParamDecoder[U]): QueryParamDecoder[T] = qpd.emap(u => Try(rep.apply(u)).toEither.left.map(t => ParseFailure(t.getMessage, t.getMessage)))
 given[T, U](using rep: InstanceConverter[T, U], qpd: QueryParamDecoder[U]): QueryParamDecoder[T] = qpd.emap(u => Try(rep.decode(u)).toEither.left.map(t => ParseFailure(t.getMessage, t.getMessage)))
-given[E <: Enum](using e: EnumOf[E]): QueryParamDecoder[E] = QueryParamDecoder[String].emap(str => Try(e.`enum`.values.find(_.toString.toUpperCase == str.toUpperCase).getOrElse(throw new IllegalArgumentException(s"enum case not found: $str"))).toEither.left.map(t => ParseFailure(t.getMessage, t.getMessage)))
+given[E <: Enum](using e: EnumLike[E]): QueryParamDecoder[E] = QueryParamDecoder[String].emap(str => Try(e.values.find(_.toString.toUpperCase == str.toUpperCase).getOrElse(throw new IllegalArgumentException(s"enum case not found: $str"))).toEither.left.map(t => ParseFailure(t.getMessage, t.getMessage)))

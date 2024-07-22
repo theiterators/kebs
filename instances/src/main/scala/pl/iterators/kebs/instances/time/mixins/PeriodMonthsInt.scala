@@ -1,7 +1,6 @@
 package pl.iterators.kebs.instances.time.mixins
 
-import pl.iterators.kebs.instances.InstanceConverter
-
+import pl.iterators.kebs.core.instances.InstanceConverter
 import java.time.Period
 
 trait PeriodMonthsInt {
