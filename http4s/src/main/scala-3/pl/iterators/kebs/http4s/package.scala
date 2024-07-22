@@ -56,12 +56,20 @@ object InstanceUUID {
   def apply[T](using rep: InstanceConverter[T, UUID]) = new PathVar[T](str => Try(rep.decode(UUID.fromString(str))))
 }
 
-given [T, U](using rep: ValueClassLike[T, U], qpd: QueryParamDecoder[U]): QueryParamDecoder[T] =
+implicit def queryParamDecoderFromValueClassLike[T, U](using rep: ValueClassLike[T, U], qpd: QueryParamDecoder[U]): QueryParamDecoder[T] =
   qpd.emap(u => Try(rep.apply(u)).toEither.left.map(t => ParseFailure(t.getMessage, t.getMessage)))
-given [T, U](using rep: InstanceConverter[T, U], qpd: QueryParamDecoder[U]): QueryParamDecoder[T] =
+
+implicit def queryParamDecoderFromInstanceConverter[T, U](using
+    rep: InstanceConverter[T, U],
+    qpd: QueryParamDecoder[U]
+): QueryParamDecoder[T] =
   qpd.emap(u => Try(rep.decode(u)).toEither.left.map(t => ParseFailure(t.getMessage, t.getMessage)))
-given [E <: Enum](using e: EnumLike[E]): QueryParamDecoder[E] = QueryParamDecoder[String].emap(str =>
-  Try(
-    e.values.find(_.toString.toUpperCase == str.toUpperCase).getOrElse(throw new IllegalArgumentException(s"enum case not found: $str"))
-  ).toEither.left.map(t => ParseFailure(t.getMessage, t.getMessage))
-)
+
+implicit def queryParamDecoderFromEnumLike[E <: Enum](using e: EnumLike[E]): QueryParamDecoder[E] =
+  QueryParamDecoder[String].emap(str =>
+    Try(
+      e.values
+        .find(_.toString.toUpperCase == str.toUpperCase)
+        .getOrElse(throw new IllegalArgumentException(s"enum case not found: $str"))
+    ).toEither.left.map(t => ParseFailure(t.getMessage, t.getMessage))
+  )

@@ -17,7 +17,7 @@ import pl.iterators.kebs.enums.KebsEnum
 class Http4sDslTests extends AnyFunSuite with Matchers with KebsEnum with CaseClass1ToValueClass {
   import Domain._
 
-  given runtime: IORuntime = cats.effect.unsafe.IORuntime.global
+  implicit val runtime: IORuntime = cats.effect.unsafe.IORuntime.global
 
   object AgeQueryParamDecoderMatcher extends QueryParamDecoderMatcher[Age]("age")
 

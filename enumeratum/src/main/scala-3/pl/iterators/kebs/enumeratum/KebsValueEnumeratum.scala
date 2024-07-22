@@ -9,7 +9,10 @@ import scala.reflect.ClassTag
 import pl.iterators.kebs.core.enums.{ValueEnumLike, ValueEnumLikeEntry}
 
 trait KebsValueEnumeratum {
-  inline given [V, E <: ValueEnumEntry[V] with ValueEnumLikeEntry[V]](using m: Mirror.SumOf[E], ct: ClassTag[E]): ValueEnumLike[V, E] = {
+  inline implicit def valueEnumeratumScala3[V, E <: ValueEnumEntry[V] with ValueEnumLikeEntry[V]](using
+      m: Mirror.SumOf[E],
+      ct: ClassTag[E]
+  ): ValueEnumLike[V, E] = {
     val enumValues = summonValueCases[m.MirroredElemTypes, V, E]
     new ValueEnumLike[V, E] {
       override def values: immutable.Seq[E] = enumValues

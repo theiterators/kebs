@@ -17,7 +17,7 @@ trait EnumUnmarshallers {
     }
   }
 
-  given kebsEnumUnmarshaller[E <: Enum](using e: EnumLike[E]): FromStringUnmarshaller[E] =
+  implicit def kebsEnumUnmarshaller[E <: Enum](using e: EnumLike[E]): FromStringUnmarshaller[E] =
     enumUnmarshaller
 }
 
@@ -39,23 +39,28 @@ trait ValueEnumUnmarshallers extends EnumUnmarshallers {
       }
     }
 
-  given kebsValueEnumUnmarshaller[V, E <: ValueEnumLikeEntry[V]](using `enum`: ValueEnumLike[V, E], cls: ClassTag[V]): Unmarshaller[V, E] =
+  implicit def kebsValueEnumUnmarshaller[V, E <: ValueEnumLikeEntry[V]](using
+      `enum`: ValueEnumLike[V, E],
+      cls: ClassTag[V]
+  ): Unmarshaller[V, E] =
     valueEnumUnmarshaller
 
-  given kebsIntValueEnumFromStringUnmarshaller[E <: ValueEnumLikeEntry[Int]](using ev: ValueEnumLike[Int, E]): FromStringUnmarshaller[E] =
+  implicit def kebsIntValueEnumFromStringUnmarshaller[E <: ValueEnumLikeEntry[Int]](using
+      ev: ValueEnumLike[Int, E]
+  ): FromStringUnmarshaller[E] =
     intFromStringUnmarshaller andThen valueEnumUnmarshaller
 
-  given kebsLongValueEnumFromStringUnmarshaller[E <: ValueEnumLikeEntry[Long]](using
+  implicit def kebsLongValueEnumFromStringUnmarshaller[E <: ValueEnumLikeEntry[Long]](using
       ev: ValueEnumLike[Long, E]
   ): FromStringUnmarshaller[E] =
     longFromStringUnmarshaller andThen valueEnumUnmarshaller
 
-  given kebsShortValueEnumFromStringUnmarshaller[E <: ValueEnumLikeEntry[Short]](using
+  implicit def kebsShortValueEnumFromStringUnmarshaller[E <: ValueEnumLikeEntry[Short]](using
       ev: ValueEnumLike[Short, E]
   ): FromStringUnmarshaller[E] =
     shortFromStringUnmarshaller andThen valueEnumUnmarshaller
 
-  given kebsByteValueEnumFromStringUnmarshaller[E <: ValueEnumLikeEntry[Byte]](using
+  implicit def kebsByteValueEnumFromStringUnmarshaller[E <: ValueEnumLikeEntry[Byte]](using
       ev: ValueEnumLike[Byte, E]
   ): FromStringUnmarshaller[E] =
     byteFromStringUnmarshaller andThen valueEnumUnmarshaller
