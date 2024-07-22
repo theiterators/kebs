@@ -9,12 +9,10 @@ import pl.iterators.kebs.enums.KebsEnum
 
 class CirceEnumDecoderEncoderTests extends AnyFunSuite with Matchers with KebsEnum {
 
-
   object KebsProtocol          extends KebsEnumFormats
   object KebsProtocolUppercase extends KebsEnumFormats.Uppercase
   object KebsProtocolLowercase extends KebsEnumFormats.Lowercase
 
-  
   test("enum JsonFormat") {
     import KebsProtocol._
     val decoder = implicitly[Decoder[Greeting]]
@@ -29,7 +27,8 @@ class CirceEnumDecoderEncoderTests extends AnyFunSuite with Matchers with KebsEn
     import KebsProtocol._
     val decoder = implicitly[Decoder[Greeting]]
     decoder(Json.fromInt(1).hcursor) shouldBe Left(
-      DecodingFailure("1 should be a string of value Hello, GoodBye, Hi, Bye", List.empty[CursorOp]))
+      DecodingFailure("1 should be a string of value Hello, GoodBye, Hi, Bye", List.empty[CursorOp])
+    )
   }
 
   test("enum JsonFormat - lowercase") {

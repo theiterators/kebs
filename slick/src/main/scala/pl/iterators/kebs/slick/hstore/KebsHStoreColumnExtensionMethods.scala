@@ -6,8 +6,8 @@ import slick.ast.{Library, TypedType}
 import slick.jdbc.JdbcType
 import slick.lifted.{ExtensionMethods, FunctionSymbolExtensionMethods, Rep}
 
-class KebsHStoreColumnExtensionMethods[KEY, VALUE, P1](val c: Rep[P1])(
-    implicit tm1: JdbcType[VALUE],
+class KebsHStoreColumnExtensionMethods[KEY, VALUE, P1](val c: Rep[P1])(implicit
+    tm1: JdbcType[VALUE],
     tm4: JdbcType[Map[KEY, VALUE]]
 ) extends ExtensionMethods[Map[KEY, VALUE], P1] {
   import FunctionSymbolExtensionMethods._

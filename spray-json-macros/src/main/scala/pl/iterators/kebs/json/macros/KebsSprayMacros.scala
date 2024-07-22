@@ -38,16 +38,16 @@ class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
       val jsonFormats           = inferFormats(Ps)
       val jsonFieldsWithFormats = jsonFieldNames zip jsonFormats
       val jsonVar               = TermName("json")
-      val applyArgs = jsonFieldsWithFormats.map {
-        case (jsonField, jf) => q"${_this}._kebs_getField($jsonVar, $jsonField)($jf)"
+      val applyArgs = jsonFieldsWithFormats.map { case (jsonField, jf) =>
+        q"${_this}._kebs_getField($jsonVar, $jsonField)($jf)"
       }
 
       val reader = q"($jsonVar: _root_.spray.json.JsValue) => ${apply(T)}(..$applyArgs)"
 
       val classFieldNames = extractFieldNames(fields).map(TermName.apply)
       val objVar          = TermName("obj")
-      val jsFieldList = classFieldNames zip jsonFieldsWithFormats map {
-        case (classField, (jsonField, jf)) => q"($jsonField, $jf.write($objVar.$classField))"
+      val jsFieldList = classFieldNames zip jsonFieldsWithFormats map { case (classField, (jsonField, jf)) =>
+        q"($jsonField, $jf.write($objVar.$classField))"
       }
       val objMap =
         q"""_root_.scala.Predef.Map(..$jsFieldList).filter {
@@ -111,5 +111,5 @@ object KebsSprayMacros {
 
     override protected def extractJsonFieldNames(fields: List[MethodSymbol]) = super.extractJsonFieldNames(fields).map(_.capitalize)
   }
-  
+
 }

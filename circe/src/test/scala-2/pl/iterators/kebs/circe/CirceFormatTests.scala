@@ -34,17 +34,23 @@ class CirceFormatTests extends AnyFunSuite with Matchers {
   test("Format 1") {
     val decoder = implicitly[Decoder[D]]
     val encoder = implicitly[Encoder[D]]
-    decoder.apply(Json.fromFields(Seq("intField" -> Json.fromInt(10), "stringField" -> Json.fromString("abcdef"))).hcursor) shouldBe Right(D(10, "abcdef"))
-    encoder.apply(D(10, "abcdef")) shouldBe Json.fromFields(Seq("intField" -> Json.fromInt(10), "stringField" -> Json.fromString("abcdef")))
+    decoder.apply(Json.fromFields(Seq("intField" -> Json.fromInt(10), "stringField" -> Json.fromString("abcdef"))).hcursor) shouldBe Right(
+      D(10, "abcdef")
+    )
+    encoder.apply(D(10, "abcdef")) shouldBe Json.fromFields(
+      Seq("intField" -> Json.fromInt(10), "stringField" -> Json.fromString("abcdef"))
+    )
   }
 
   test("Format - parametrized") {
     val decoder = implicitly[Decoder[Parametrized2[Int, String]]]
     val encoder = implicitly[Encoder[Parametrized2[Int, String]]]
     decoder.apply(Json.fromFields(Seq("field1" -> Json.fromInt(5), "field2" -> Json.fromString("abcdef"))).hcursor) shouldBe Right(
-      Parametrized2(5, "abcdef"))
+      Parametrized2(5, "abcdef")
+    )
     encoder.apply(Parametrized2(5, "abcdef")) shouldBe Json.fromFields(
-      Seq("field1" -> Json.fromInt(5), "field2" -> Json.fromString("abcdef")))
+      Seq("field1" -> Json.fromInt(5), "field2" -> Json.fromString("abcdef"))
+    )
   }
 
   test("Format - DTO style") {
@@ -67,10 +73,20 @@ class CirceFormatTests extends AnyFunSuite with Matchers {
 
     decoder.apply(
       Json
-        .fromFields(Seq("CField" -> Json.fromInt(10), "DField" -> Json.fromFields(Seq("intField" -> Json.fromInt(100), "stringField" -> Json.fromString("abb")))))
-        .hcursor) shouldBe Right(Compound(C(10), D(100, "abb")))
+        .fromFields(
+          Seq(
+            "CField" -> Json.fromInt(10),
+            "DField" -> Json.fromFields(Seq("intField" -> Json.fromInt(100), "stringField" -> Json.fromString("abb")))
+          )
+        )
+        .hcursor
+    ) shouldBe Right(Compound(C(10), D(100, "abb")))
     encoder.apply(Compound(C(5), D(10, "abcd"))) shouldBe Json.fromFields(
-      Seq("CField" -> Json.fromInt(5), "DField" -> Json.fromFields(Seq("intField" -> Json.fromInt(10), "stringField" -> Json.fromString("abcd")))))
+      Seq(
+        "CField" -> Json.fromInt(5),
+        "DField" -> Json.fromFields(Seq("intField" -> Json.fromInt(10), "stringField" -> Json.fromString("abcd")))
+      )
+    )
   }
 
   test("Recursive format") {
@@ -80,9 +96,11 @@ class CirceFormatTests extends AnyFunSuite with Matchers {
     decoder.apply(
       Json
         .fromFields(Seq("a" -> Json.fromInt(1), "rs" -> Json.arr(Json.fromFields(Seq("a" -> Json.fromInt(2), "rs" -> Json.arr())))))
-        .hcursor) shouldBe Right(R(1, Seq(R(2, Seq.empty[R]))))
+        .hcursor
+    ) shouldBe Right(R(1, Seq(R(2, Seq.empty[R]))))
     encoder.apply(R(1, Seq(R(2, Seq.empty[R])))) shouldBe Json.fromFields(
-      Seq("a" -> Json.fromInt(1), "rs" -> Json.arr(Json.fromFields(Seq("a" -> Json.fromInt(2), "rs" -> Json.arr())))))
+      Seq("a" -> Json.fromInt(1), "rs" -> Json.arr(Json.fromFields(Seq("a" -> Json.fromInt(2), "rs" -> Json.arr()))))
+    )
   }
 
   test("Format - case class with > 22 fields") {
@@ -116,7 +134,8 @@ class CirceFormatTests extends AnyFunSuite with Matchers {
         "f21"            -> Json.fromString("f21 value"),
         "f22"            -> Json.fromString("f22 value"),
         "f23"            -> Json.fromBoolean(true)
-      ))
+      )
+    )
 
     encoder.apply(obj) shouldBe json
     decoder.apply(json.hcursor) shouldBe Right(obj)
@@ -131,31 +150,33 @@ class CirceFormatTests extends AnyFunSuite with Matchers {
     val json = Json.fromFields(
       Map(
         "f1" -> Json.fromString("f1 value"),
-        "f2" -> Json.fromFields(Seq(
-          "f1"             -> Json.fromString("f1 value"),
-          "f2"             -> Json.fromInt(2),
-          "f3"             -> Json.fromInt(3),
-          "f4"             -> Json.Null,
-          "f5"             -> Json.fromString("f5 value"),
-          "fieldNumberSix" -> Json.fromString("six"),
-          "f7"             -> Json.arr(Json.fromString("f7 value 1"), Json.fromString("f7 value 2")),
-          "f8"             -> Json.fromString("f8 value"),
-          "f9"             -> Json.fromString("f9 value"),
-          "f10"            -> Json.fromString("f10 value"),
-          "f11"            -> Json.fromString("f11 value"),
-          "f12"            -> Json.fromString("f12 value"),
-          "f13"            -> Json.fromString("f13 value"),
-          "f14"            -> Json.fromString("f14 value"),
-          "f15"            -> Json.fromString("f15 value"),
-          "f16"            -> Json.fromString("f16 value"),
-          "f17"            -> Json.fromString("f17 value"),
-          "f18"            -> Json.fromString("f18 value"),
-          "f19"            -> Json.fromString("f19 value"),
-          "f20"            -> Json.fromString("f20 value"),
-          "f21"            -> Json.fromString("f21 value"),
-          "f22"            -> Json.fromString("f22 value"),
-          "f23"            -> Json.fromBoolean(true)
-        )),
+        "f2" -> Json.fromFields(
+          Seq(
+            "f1"             -> Json.fromString("f1 value"),
+            "f2"             -> Json.fromInt(2),
+            "f3"             -> Json.fromInt(3),
+            "f4"             -> Json.Null,
+            "f5"             -> Json.fromString("f5 value"),
+            "fieldNumberSix" -> Json.fromString("six"),
+            "f7"             -> Json.arr(Json.fromString("f7 value 1"), Json.fromString("f7 value 2")),
+            "f8"             -> Json.fromString("f8 value"),
+            "f9"             -> Json.fromString("f9 value"),
+            "f10"            -> Json.fromString("f10 value"),
+            "f11"            -> Json.fromString("f11 value"),
+            "f12"            -> Json.fromString("f12 value"),
+            "f13"            -> Json.fromString("f13 value"),
+            "f14"            -> Json.fromString("f14 value"),
+            "f15"            -> Json.fromString("f15 value"),
+            "f16"            -> Json.fromString("f16 value"),
+            "f17"            -> Json.fromString("f17 value"),
+            "f18"            -> Json.fromString("f18 value"),
+            "f19"            -> Json.fromString("f19 value"),
+            "f20"            -> Json.fromString("f20 value"),
+            "f21"            -> Json.fromString("f21 value"),
+            "f22"            -> Json.fromString("f22 value"),
+            "f23"            -> Json.fromBoolean(true)
+          )
+        ),
         "f3"             -> Json.fromInt(3),
         "f4"             -> Json.Null,
         "f5"             -> Json.fromString("f5 value"),
@@ -177,7 +198,8 @@ class CirceFormatTests extends AnyFunSuite with Matchers {
         "f21"            -> Json.fromString("f21 value"),
         "f22"            -> Json.fromString("f22 value"),
         "f23"            -> Json.fromBoolean(true)
-      ))
+      )
+    )
 
     encoder.apply(obj) shouldBe json
     decoder.apply(json.hcursor) shouldBe Right(obj)

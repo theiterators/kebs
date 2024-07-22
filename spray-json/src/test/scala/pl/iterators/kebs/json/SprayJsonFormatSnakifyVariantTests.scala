@@ -46,13 +46,14 @@ class SprayJsonFormatSnakifyVariantTests extends AnyFunSuite with Matchers {
 
   test("Root format snakified - compound") {
     val jf = implicitly[JsonFormat[Compound]]
-    jf.write(Compound(C(5), D(10, "abcd"))) shouldBe JsObject("c_field" -> JsNumber(5),
-                                                              "d_field" -> JsObject("int_field" -> JsNumber(10),
-                                                                                    "string_field" -> JsString("abcd")))
+    jf.write(Compound(C(5), D(10, "abcd"))) shouldBe JsObject(
+      "c_field" -> JsNumber(5),
+      "d_field" -> JsObject("int_field" -> JsNumber(10), "string_field" -> JsString("abcd"))
+    )
 
-    jf.read(JsObject("c_field" -> JsNumber(10), "d_field" -> JsObject("int_field" -> JsNumber(100), "string_field" -> JsString("abb")))) shouldBe Compound(
-      C(10),
-      D(100, "abb"))
+    jf.read(
+      JsObject("c_field" -> JsNumber(10), "d_field" -> JsObject("int_field" -> JsNumber(100), "string_field" -> JsString("abb")))
+    ) shouldBe Compound(C(10), D(100, "abb"))
   }
 
   test("Root format snakified - case class with > 22 fields (issue #7)") {
@@ -84,7 +85,8 @@ class SprayJsonFormatSnakifyVariantTests extends AnyFunSuite with Matchers {
         "f21"              -> JsString("f21 value"),
         "f22"              -> JsString("f22 value"),
         "f23"              -> JsBoolean(true)
-      ))
+      )
+    )
 
     jf.write(obj) shouldBe json
     jf.read(json) shouldBe obj
@@ -123,7 +125,8 @@ class SprayJsonFormatSnakifyVariantTests extends AnyFunSuite with Matchers {
         "f21"              -> JsString("f21 value"),
         "f22"              -> JsString("f22 value"),
         "f23"              -> JsBoolean(true)
-      ))
+      )
+    )
 
     jf.write(obj) shouldBe json
     jf.read(json) shouldBe obj

@@ -23,30 +23,30 @@ object OpaqueTestTypeclass {
     def show(a: A): String
   }
 
-  given Showable[Int] = (a: Int) => a.toString
-  given[S, A](using showable: Showable[S], vcLike: ValueClassLike[A, S]): Showable[A] = (a: A) => showable.show(vcLike.unapply(a))
+  given Showable[Int]                                                                  = (a: Int) => a.toString
+  given [S, A](using showable: Showable[S], vcLike: ValueClassLike[A, S]): Showable[A] = (a: A) => showable.show(vcLike.unapply(a))
 }
 
 class OpaqueTest extends AnyFunSuite with Matchers {
   import OpaqueTestDomain._
   test("Equality") {
     TestWrappedInt(42) shouldEqual TestWrappedInt(42)
-    TestWrappedInt(42) shouldNot equal (TestWrappedInt(1337))
+    TestWrappedInt(42) shouldNot equal(TestWrappedInt(1337))
     """TestWrappedString("foo") == "foo"""" shouldNot compile
     """implicitly[=:=[TestWrappedString, String]]""" shouldNot compile
   }
 
   test("Basic ops") {
     TestWrappedInt(42).unwrap shouldEqual 42
-    TestWrappedInt.from(42) should equal (Right(TestWrappedInt(42)))
+    TestWrappedInt.from(42) should equal(Right(TestWrappedInt(42)))
   }
 
   test("Validation & sanitization") {
     an[IllegalArgumentException] should be thrownBy ValidatedTestWrappedString("")
-    ValidatedTestWrappedString.unsafe("").unwrap should equal ("")
-    ValidatedTestWrappedString(" foo ").unwrap should equal ("foo")
-    ValidatedTestWrappedString.from("") should equal (Left("Empty string"))
-    ValidatedTestWrappedString.from(" foo ") should equal (Right(ValidatedTestWrappedString("foo")))
+    ValidatedTestWrappedString.unsafe("").unwrap should equal("")
+    ValidatedTestWrappedString(" foo ").unwrap should equal("foo")
+    ValidatedTestWrappedString.from("") should equal(Left("Empty string"))
+    ValidatedTestWrappedString.from(" foo ") should equal(Right(ValidatedTestWrappedString("foo")))
   }
 
   test("Extension") {

@@ -4,7 +4,7 @@ import pl.iterators.kebs.tagged.slick.TaggedSlickSupport
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
-class SlickTaggedColumnTypeTests extends AnyFunSuite with Matchers  {
+class SlickTaggedColumnTypeTests extends AnyFunSuite with Matchers {
 
   object MyPostgresProfile extends PostgresProfile with TaggedSlickSupport {
     override val api: APITagged = new APITagged {}

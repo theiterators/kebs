@@ -20,7 +20,11 @@ trait KebsMatchers extends pl.iterators.stir.server.PathMatchers {
 
   object EnumSegment {
     def as[T <: Enum](using e: EnumLike[T]): PathMatcher1[T] = {
-      Segment.map(s => e.values.find(_.toString().toLowerCase() == s.toLowerCase()).getOrElse(throw new IllegalArgumentException(s"""Invalid value '$s'. Expected one of: ${e.values.mkString(", ")}""")))
+      Segment.map(s =>
+        e.values
+          .find(_.toString().toLowerCase() == s.toLowerCase())
+          .getOrElse(throw new IllegalArgumentException(s"""Invalid value '$s'. Expected one of: ${e.values.mkString(", ")}"""))
+      )
     }
   }
 }

@@ -7,19 +7,21 @@ import scala.language.experimental.macros
 import scala.reflect.macros.blackbox
 
 trait KebsValueEnumeratum {
+  // format: off
   implicit def valueIntEnumeratumScala2[E <: IntEnumEntry with ValueEnumLikeEntry[Int]]: ValueEnumLike[Int, E] = macro ValueEnumEntryMacros.valueEnumOfImpl[Int, E]
   implicit def valueShortEnumeratumScala2[E <: ShortEnumEntry with ValueEnumLikeEntry[Short]]: ValueEnumLike[Short, E] = macro ValueEnumEntryMacros.valueEnumOfImpl[Short, E]
   implicit def valueLongEnumeratumScala2[E <: LongEnumEntry with ValueEnumLikeEntry[Long]]: ValueEnumLike[Long, E] = macro ValueEnumEntryMacros.valueEnumOfImpl[Long, E]
   implicit def valueByteEnumeratumScala2[E <: ByteEnumEntry with ValueEnumLikeEntry[Byte]]: ValueEnumLike[Byte, E] = macro ValueEnumEntryMacros.valueEnumOfImpl[Byte, E]
   implicit def valueStringEnumeratumScala2[E <: StringEnumEntry with ValueEnumLikeEntry[String]]: ValueEnumLike[String, E] = macro ValueEnumEntryMacros.valueEnumOfImpl[String, E]
   implicit def valueEnumeratumScala2[ValueType, E <: ValueEnumEntry[ValueType] with ValueEnumLikeEntry[ValueType]]: ValueEnumLike[ValueType, E] = macro ValueEnumEntryMacros.valueEnumOfImpl[ValueType, E]
+  // format: on
 }
-
 
 class ValueEnumEntryMacros(val c: blackbox.Context) {
   import c.universe._
 
-  def valueEnumOfImpl[ValueType: c.WeakTypeTag, E <: ValueEnumEntry[ValueType] with ValueEnumLikeEntry[ValueType]: c.WeakTypeTag]: c.Expr[ValueEnumLike[ValueType, E]] = {
+  def valueEnumOfImpl[ValueType: c.WeakTypeTag, E <: ValueEnumEntry[ValueType] with ValueEnumLikeEntry[ValueType]: c.WeakTypeTag]
+      : c.Expr[ValueEnumLike[ValueType, E]] = {
     val ValueType = weakTypeOf[ValueType]
     val EnumEntry = weakTypeOf[E]
 

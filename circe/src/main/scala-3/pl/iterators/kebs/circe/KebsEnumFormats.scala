@@ -19,8 +19,9 @@ trait CirceEnum {
 
   protected final def enumDecoder[E <: Enum](e: EnumLike[E], _comap: String => Option[E]): Decoder[E] =
     (c: HCursor) =>
-      Decoder.decodeString.emap(str => _comap(str).toRight(""))
-      .withErrorMessage(enumValueDeserializationError(e, c.value))(c)
+      Decoder.decodeString
+        .emap(str => _comap(str).toRight(""))
+        .withErrorMessage(enumValueDeserializationError(e, c.value))(c)
 
   protected final def enumEncoder[E <: Enum](e: EnumLike[E], _map: E => String): Encoder[E] =
     (obj: E) => Encoder.encodeString(_map(obj))
@@ -57,29 +58,29 @@ trait CirceValueEnum {
 }
 
 trait KebsEnumFormats extends CirceEnum with CirceValueEnum {
-  implicit inline given[E <: Enum](using ev: EnumLike[E]): Decoder[E] = enumDecoder(ev)
+  implicit inline given [E <: Enum](using ev: EnumLike[E]): Decoder[E] = enumDecoder(ev)
 
-  implicit inline given[E <: Enum](using ev: EnumLike[E]): Encoder[E] = enumEncoder(ev)
+  implicit inline given [E <: Enum](using ev: EnumLike[E]): Encoder[E] = enumEncoder(ev)
 
-  implicit inline given[V, E <: ValueEnumLikeEntry[V]](using ev: ValueEnumLike[V, E], decoder: Decoder[V]): Decoder[E] =
+  implicit inline given [V, E <: ValueEnumLikeEntry[V]](using ev: ValueEnumLike[V, E], decoder: Decoder[V]): Decoder[E] =
     valueEnumDecoder(ev)
 
-  implicit inline given[V, E <: ValueEnumLikeEntry[V]](using ev: ValueEnumLike[V, E], encoder: Encoder[V]): Encoder[E] =
+  implicit inline given [V, E <: ValueEnumLikeEntry[V]](using ev: ValueEnumLike[V, E], encoder: Encoder[V]): Encoder[E] =
     valueEnumEncoder(ev)
 
   trait Uppercase extends CirceEnum {
-    implicit inline given[E <: Enum](using ev: EnumLike[E]): Decoder[E] =
+    implicit inline given [E <: Enum](using ev: EnumLike[E]): Decoder[E] =
       uppercaseEnumDecoder(ev)
 
-    implicit inline given[E <: Enum](using ev: EnumLike[E]): Encoder[E] =
+    implicit inline given [E <: Enum](using ev: EnumLike[E]): Encoder[E] =
       uppercaseEnumEncoder(ev)
   }
 
   trait Lowercase extends CirceEnum {
-    implicit inline given[E <: Enum](using ev: EnumLike[E]): Decoder[E] =
+    implicit inline given [E <: Enum](using ev: EnumLike[E]): Decoder[E] =
       lowercaseEnumDecoder(ev)
 
-    implicit inline given[E <: Enum](using ev: EnumLike[E]): Encoder[E] =
+    implicit inline given [E <: Enum](using ev: EnumLike[E]): Encoder[E] =
       lowercaseEnumEncoder(ev)
   }
 }

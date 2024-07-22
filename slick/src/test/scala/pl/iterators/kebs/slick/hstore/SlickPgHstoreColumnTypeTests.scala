@@ -13,7 +13,16 @@ class SlickPgHstoreColumnTypeTests extends AnyFunSuite with Matchers {
 
   object MyPostgresProfile extends ExPostgresProfile with PgHStoreSupport with KebsSlickSupport {
     override val api: APIWithHStore = new APIWithHStore {}
-    trait APIWithHStore extends ExtPostgresAPI with HStoreImplicits with KebsBasicImplicits with KebsInstanceConverterImplicits with YearMonthString with DayOfWeekInt with InstantEpochMilliLong with KebsValueClassLikeImplicits with CaseClass1ToValueClass
+    trait APIWithHStore
+        extends ExtPostgresAPI
+        with HStoreImplicits
+        with KebsBasicImplicits
+        with KebsInstanceConverterImplicits
+        with YearMonthString
+        with DayOfWeekInt
+        with InstantEpochMilliLong
+        with KebsValueClassLikeImplicits
+        with CaseClass1ToValueClass
   }
 
   case class CategoryName(name: String)

@@ -31,7 +31,9 @@ object KebsSpray {
   }
   trait Capitalized extends KebsSpray { self: DefaultJsonProtocol =>
     import macros.KebsSprayMacros
+    // format: off
     implicit def capitalizedJsonFormatN[T <: Product]: RootJsonFormat[T] =
       macro KebsSprayMacros.CapitalizedCamelCase.materializeRootFormat[T]
+    // format: on
   }
 }

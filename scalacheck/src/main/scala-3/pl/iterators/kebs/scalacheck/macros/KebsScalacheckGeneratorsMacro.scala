@@ -8,43 +8,37 @@ object KebsScalacheckGeneratorsMacro {
 
   inline implicit def materializeGenerators[T](using inline m: Mirror.Of[T]): AllGenerators[T] = {
 
-      new AllGenerators[T] {
+    new AllGenerators[T] {
 
-        trait GeneratorCreator
-          extends CommonArbitrarySupport {
+      trait GeneratorCreator extends CommonArbitrarySupport {
 
-          def create: Generator[T]
-        }
-        
-        object MinimalGeneratorCreator
-          extends GeneratorCreator
-          with MinimalArbitrarySupport {
-
-          override def create = new Generator[T] {
-            def ArbT: Arbitrary[T] = deriveArbitrary[T]
-          }
-        }
-
-        object NormalGeneratorCreator
-          extends GeneratorCreator {
-
-          override def create = new Generator[T] {
-            def ArbT: Arbitrary[T] = deriveArbitrary[T]
-          }
-        }
-
-        object MaximalGeneratorCreator
-          extends GeneratorCreator
-          with MaximalArbitrarySupport {
-
-          override def create = new Generator[T] {
-            def ArbT: Arbitrary[T] = deriveArbitrary[T]
-          }
-        }
-
-        override val minimal: Generator[T] = MinimalGeneratorCreator.create
-        override val maximal: Generator[T] = MaximalGeneratorCreator.create
-        override val normal: Generator[T] = NormalGeneratorCreator.create
+        def create: Generator[T]
       }
+
+      object MinimalGeneratorCreator extends GeneratorCreator with MinimalArbitrarySupport {
+
+        override def create = new Generator[T] {
+          def ArbT: Arbitrary[T] = deriveArbitrary[T]
+        }
+      }
+
+      object NormalGeneratorCreator extends GeneratorCreator {
+
+        override def create = new Generator[T] {
+          def ArbT: Arbitrary[T] = deriveArbitrary[T]
+        }
+      }
+
+      object MaximalGeneratorCreator extends GeneratorCreator with MaximalArbitrarySupport {
+
+        override def create = new Generator[T] {
+          def ArbT: Arbitrary[T] = deriveArbitrary[T]
+        }
+      }
+
+      override val minimal: Generator[T] = MinimalGeneratorCreator.create
+      override val maximal: Generator[T] = MaximalGeneratorCreator.create
+      override val normal: Generator[T]  = NormalGeneratorCreator.create
     }
   }
+}

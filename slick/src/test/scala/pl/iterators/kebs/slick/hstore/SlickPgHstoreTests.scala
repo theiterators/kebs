@@ -15,7 +15,15 @@ class SlickPgHstoreTests extends AnyFunSuite with Matchers {
 
   trait PostgresDriver extends ExPostgresProfile with PgArraySupport with PgHStoreSupport with KebsSlickSupport {
     override val api: HstoreAPI = new HstoreAPI {}
-    trait HstoreAPI extends ExtPostgresAPI with ArrayImplicits with HStoreImplicits with KebsBasicImplicits with YearMonthString with KebsValueClassLikeImplicits with CaseClass1ToValueClass with KebsInstanceConverterImplicits
+    trait HstoreAPI
+        extends ExtPostgresAPI
+        with ArrayImplicits
+        with HStoreImplicits
+        with KebsBasicImplicits
+        with YearMonthString
+        with KebsValueClassLikeImplicits
+        with CaseClass1ToValueClass
+        with KebsInstanceConverterImplicits
   }
   object PostgresDriver extends PostgresDriver
 

@@ -24,12 +24,11 @@ object Domain {
     case Hello, GoodBye, Hi, Bye
   }
 
-
   enum LibraryItem(val value: Int) extends ValueEnumLikeEntry[Int] {
-    case Book extends LibraryItem(1)
-    case Movie extends LibraryItem(2)
+    case Book     extends LibraryItem(1)
+    case Movie    extends LibraryItem(2)
     case Magazine extends LibraryItem(3)
-    case CD extends LibraryItem(4)
+    case CD       extends LibraryItem(4)
   }
 
   case class Red(value: Int)
@@ -38,9 +37,9 @@ object Domain {
   case class Color(red: Red, green: Green, blue: Blue)
 
   enum ShirtSize(val value: String) extends ValueEnumLikeEntry[String] {
-    case Small extends ShirtSize("S")
+    case Small  extends ShirtSize("S")
     case Medium extends ShirtSize("M")
-    case Large extends ShirtSize("L")
+    case Large  extends ShirtSize("L")
   }
 
   enum SortOrder {

@@ -19,8 +19,8 @@ class EnumeratumEntryMacros(val c: blackbox.Context) extends MacroUtils {
     val EnumEntry = weakTypeOf[E]
     assertEnumEntry(EnumEntry, s"${EnumEntry.typeSymbol} must subclass EnumEntry")
 
-    c.Expr[EnumLike[E]](q"new _root_.pl.iterators.kebs.core.enums.EnumLike[${EnumEntry.typeSymbol}] { override def values: Seq[${EnumEntry.typeSymbol}] = ${companion(EnumEntry)}.values.toSeq }")
+    c.Expr[EnumLike[E]](
+      q"new _root_.pl.iterators.kebs.core.enums.EnumLike[${EnumEntry.typeSymbol}] { override def values: Seq[${EnumEntry.typeSymbol}] = ${companion(EnumEntry)}.values.toSeq }"
+    )
   }
 }
-
-

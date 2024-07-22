@@ -21,10 +21,10 @@ class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
     "implicitly[ValueClassLike[Instant, Long]]" shouldNot typeCheck
     "implicitly[ValueClassLike[Long, Instant]]" shouldNot typeCheck
 
-    val decoder    = implicitly[Decoder[Instant]]
-    val encoder    = implicitly[Encoder[Instant]]
-    val value = 123456789
-    val obj   = Instant.ofEpochMilli(value)
+    val decoder = implicitly[Decoder[Instant]]
+    val encoder = implicitly[Encoder[Instant]]
+    val value   = 123456789
+    val obj     = Instant.ofEpochMilli(value)
 
     encoder(obj) shouldBe Json.fromInt(value)
     decoder(Json.fromInt(value).hcursor) shouldBe Right(obj)
@@ -39,15 +39,15 @@ class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
     "implicitly[ValueClassLike[Duration, Long]]" shouldNot typeCheck
     "implicitly[ValueClassLike[Long, Duration]]" shouldNot typeCheck
 
-    val decoder_duration    = implicitly[Decoder[Duration]]
-    val encoder_duration    = implicitly[Encoder[Duration]]
-    val value_duration = 123456789
-    val obj_duration   = Duration.ofNanos(value_duration)
+    val decoder_duration = implicitly[Decoder[Duration]]
+    val encoder_duration = implicitly[Encoder[Duration]]
+    val value_duration   = 123456789
+    val obj_duration     = Duration.ofNanos(value_duration)
 
-    val decoder_instant    = implicitly[Decoder[Instant]]
-    val encoder_instant    = implicitly[Encoder[Instant]]
-    val value_instant = 123456789
-    val obj_instant   = Instant.ofEpochMilli(value_instant)
+    val decoder_instant = implicitly[Decoder[Instant]]
+    val encoder_instant = implicitly[Encoder[Instant]]
+    val value_instant   = 123456789
+    val obj_instant     = Instant.ofEpochMilli(value_instant)
 
     encoder_duration(obj_duration) shouldBe Json.fromInt(value_duration)
     decoder_duration(Json.fromInt(value_duration).hcursor) shouldBe Right(obj_duration)
@@ -68,10 +68,10 @@ class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
     "implicitly[ValueClassLike[LocalDateTime, String]]" shouldNot typeCheck
     "implicitly[ValueClassLike[String, LocalDateTime]]" shouldNot typeCheck
 
-    val encoder    = implicitly[Encoder[LocalDateTime]]
-    val decoder    = implicitly[Decoder[LocalDateTime]]
-    val value = "2007/12/03 10:30"
-    val obj   = LocalDateTime.parse(value, formatter)
+    val encoder = implicitly[Encoder[LocalDateTime]]
+    val decoder = implicitly[Decoder[LocalDateTime]]
+    val value   = "2007/12/03 10:30"
+    val obj     = LocalDateTime.parse(value, formatter)
 
     encoder(obj) shouldBe Json.fromString(value)
     decoder(Json.fromString(value).hcursor) shouldBe Right(obj)
@@ -92,20 +92,21 @@ class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
               case e: DateTimeException =>
                 throw new IllegalArgumentException(
                   s"${classOf[LocalDateTime]} cannot be parsed from $value – should be in format $pattern",
-                  e)
+                  e
+                )
               case e: Throwable => throw e
             }
         }
     }
     import TimeInstancesProtocol._
-    
+
     "implicitly[ValueClassLike[LocalDateTime, String]]" shouldNot typeCheck
     "implicitly[ValueClassLike[String, LocalDateTime]]" shouldNot typeCheck
 
-    val encoder    = implicitly[Encoder[LocalDateTime]]
-    val decoder    = implicitly[Decoder[LocalDateTime]]
-    val value = "2007/12/03 10:30"
-    val obj   = LocalDateTime.parse(value, formatter)
+    val encoder = implicitly[Encoder[LocalDateTime]]
+    val decoder = implicitly[Decoder[LocalDateTime]]
+    val value   = "2007/12/03 10:30"
+    val obj     = LocalDateTime.parse(value, formatter)
 
     encoder(obj) shouldBe Json.fromString(value)
     decoder(Json.fromString(value).hcursor) shouldBe Right(obj)

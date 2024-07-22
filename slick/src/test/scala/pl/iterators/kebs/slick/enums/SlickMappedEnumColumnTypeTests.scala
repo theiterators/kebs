@@ -9,7 +9,7 @@ import pl.iterators.kebs.enumeratum.KebsEnumeratum
 class SlickMappedEnumColumnTypeTests extends AnyFunSuite with Matchers with KebsEnumeratum {
   import pl.iterators.kebs.slick.KebsSlickSupport
 
-  trait PostgresDriver extends ExPostgresProfile with KebsSlickSupport  {
+  trait PostgresDriver extends ExPostgresProfile with KebsSlickSupport {
     override val api: EnumAPI = new EnumAPI {}
     trait EnumAPI extends ExtPostgresAPI with KebsBasicImplicits with KebsValueClassLikeImplicits with EnumImplicits
   }

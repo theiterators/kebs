@@ -11,20 +11,20 @@ import java.net.URI
 class NetInstancesTests extends AnyFunSuite with Matchers with KebsCirce with URIString {
 
   test("URI standard format") {
-    val decoder    = implicitly[Decoder[URI]]
-    val encoder    = implicitly[Encoder[URI]]
-    val value = "iteratorshq.com"
-    val obj   = new URI(value)
+    val decoder = implicitly[Decoder[URI]]
+    val encoder = implicitly[Encoder[URI]]
+    val value   = "iteratorshq.com"
+    val obj     = new URI(value)
 
     encoder(obj) shouldBe Json.fromString(value)
     decoder(Json.fromString(value).hcursor) shouldBe Right(obj)
   }
 
   test("URI wrong format exception") {
-    val decoder    = implicitly[Decoder[URI]]
-    val value = "not a URI"
+    val decoder = implicitly[Decoder[URI]]
+    val value   = "not a URI"
 
-    decoder(Json.fromString(value).hcursor) shouldBe a [Left[_, _]]
+    decoder(Json.fromString(value).hcursor) shouldBe a[Left[_, _]]
   }
 
   test("No ValueClassLike implicits derived") {

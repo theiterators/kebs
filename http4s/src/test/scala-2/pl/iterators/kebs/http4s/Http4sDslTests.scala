@@ -25,23 +25,29 @@ class Http4sDslTests extends AnyFunSuite with Matchers with KebsEnumeratum {
   object ValidatingColorQueryParamDecoderMatcher extends ValidatingQueryParamDecoderMatcher[Color]("color")
 
   // this indirection comes from: https://github.com/scala/bug/issues/884
-  val AgeVar = WrappedInt[Age]
+  val AgeVar      = WrappedInt[Age]
   val CurrencyVar = InstanceString[Currency]
-  val UserIdVar = WrappedUUID[UserId]
-  val ColorVar = EnumString[Color]
+  val UserIdVar   = WrappedUUID[UserId]
+  val ColorVar    = EnumString[Color]
 
   val routes = HttpRoutes.of[IO] {
-    case GET -> Root / "WrappedInt" / AgeVar(age) => Ok(age.toString)
-    case GET -> Root / "InstanceString" / CurrencyVar(currency) => Ok(currency.getClass.toString)
-    case GET -> Root / "EnumString" / ColorVar(color) => Ok(color.toString)
-    case GET -> Root / "WrappedUUID" / UserIdVar(userId) => Ok(userId.toString)
-    case GET -> Root / "WrappedIntParam" :? AgeQueryParamDecoderMatcher(age) => Ok(age.toString)
-    case GET -> Root / "InstanceIntParam" :? OptionalYearParamDecoderMatcher(year) => Ok(year.toString)
+    case GET -> Root / "WrappedInt" / AgeVar(age)                                          => Ok(age.toString)
+    case GET -> Root / "InstanceString" / CurrencyVar(currency)                            => Ok(currency.getClass.toString)
+    case GET -> Root / "EnumString" / ColorVar(color)                                      => Ok(color.toString)
+    case GET -> Root / "WrappedUUID" / UserIdVar(userId)                                   => Ok(userId.toString)
+    case GET -> Root / "WrappedIntParam" :? AgeQueryParamDecoderMatcher(age)               => Ok(age.toString)
+    case GET -> Root / "InstanceIntParam" :? OptionalYearParamDecoderMatcher(year)         => Ok(year.toString)
     case GET -> Root / "EnumStringParam" :? ValidatingColorQueryParamDecoderMatcher(color) => Ok(color.toString)
   }
 
   private def runPathGetBody(path: Uri): String = {
-    routes.orNotFound.run(Request(method = Method.GET, uri = path)).unsafeRunSync().body.compile.fold[String]("")(_ + _.toChar).unsafeRunSync()
+    routes.orNotFound
+      .run(Request(method = Method.GET, uri = path))
+      .unsafeRunSync()
+      .body
+      .compile
+      .fold[String]("")(_ + _.toChar)
+      .unsafeRunSync()
   }
 
   test("WrappedInt + Opaque") {
@@ -78,6 +84,8 @@ class Http4sDslTests extends AnyFunSuite with Matchers with KebsEnumeratum {
 
   test("EnumStringParam") {
     runPathGetBody(uri"/EnumStringParam?color=RED") shouldBe "Valid(Red)"
-    runPathGetBody(uri"/EnumStringParam?color=YELLow") shouldBe "Invalid(NonEmptyList(org.http4s.ParseFailure: enum case not found: YELLow: enum case not found: YELLow))"
+    runPathGetBody(
+      uri"/EnumStringParam?color=YELLow"
+    ) shouldBe "Invalid(NonEmptyList(org.http4s.ParseFailure: enum case not found: YELLow: enum case not found: YELLow))"
   }
 }

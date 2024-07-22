@@ -6,14 +6,17 @@ import pl.iterators.kebs.core.macros.{CaseClass1ToValueClass, ValueClassLike}
 
 trait KebsUnmarshallers extends LowPriorityKebsUnmarshallers with CaseClass1ToValueClass {
   @inline
-  implicit def kebsFromStringUnmarshaller[A, B](implicit rep: ValueClassLike[B, A],
-                                                fsu: FromStringUnmarshaller[A]): FromStringUnmarshaller[B] =
+  implicit def kebsFromStringUnmarshaller[A, B](implicit
+      rep: ValueClassLike[B, A],
+      fsu: FromStringUnmarshaller[A]
+  ): FromStringUnmarshaller[B] =
     fsu andThen kebsUnmarshaller(rep)
 
-
   @inline
-  implicit def kebsInstancesFromStringUnmarshaller[A, B](implicit ico: InstanceConverter[B, A],
-                                                         fsu: FromStringUnmarshaller[A]): FromStringUnmarshaller[B] =
+  implicit def kebsInstancesFromStringUnmarshaller[A, B](implicit
+      ico: InstanceConverter[B, A],
+      fsu: FromStringUnmarshaller[A]
+  ): FromStringUnmarshaller[B] =
     fsu andThen kebsInstancesUnmarshaller(ico)
 
 }

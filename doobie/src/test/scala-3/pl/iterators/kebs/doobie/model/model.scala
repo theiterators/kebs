@@ -10,7 +10,7 @@ package object model {
   enum EyeColor {
     case Blue, Green, Brown, Other
   }
-  
+
   case class Person(name: Name, eyeColor: EyeColor, preferredCurrency: Currency, relatives: List[Name], eyeballsInTheJar: Array[EyeColor])
 
 }

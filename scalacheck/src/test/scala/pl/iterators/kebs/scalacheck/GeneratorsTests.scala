@@ -1,4 +1,3 @@
-
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
@@ -12,7 +11,7 @@ case class CollectionsSample(
     setOfNumbers: Set[Int],
     vectorOfNumbers: Vector[Int],
     optionOfNumber: Option[Int],
-    mapOfNumberString: Map[Int, String],
+    mapOfNumberString: Map[Int, String]
 )
 
 case class NonStandardTypesSample(

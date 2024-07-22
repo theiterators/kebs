@@ -17,19 +17,19 @@ trait KebsEnumeratum {
   }
 }
 
-inline private def widen[A, B] (a: A): A & B =
+inline private def widen[A, B](a: A): A & B =
   inline a match {
     case b: B => b
   }
 
 inline private def summonCases[T <: Tuple, A]: List[A] =
   inline erasedValue[T] match {
-  case _: (h *: t) =>
-    (inline summonInline[Mirror.Of[h]] match {
-      case m: Mirror.Singleton =>
-        widen[m.MirroredMonoType, A](m.fromProduct(EmptyTuple)) :: summonCases[t, A]
-      case x => error("Enums cannot include parameterized cases.")
-    })
+    case _: (h *: t) =>
+      (inline summonInline[Mirror.Of[h]] match {
+        case m: Mirror.Singleton =>
+          widen[m.MirroredMonoType, A](m.fromProduct(EmptyTuple)) :: summonCases[t, A]
+        case x => error("Enums cannot include parameterized cases.")
+      })
 
-  case _: EmptyTuple => Nil
-}
+    case _: EmptyTuple => Nil
+  }

@@ -9,9 +9,9 @@ import pl.iterators.kebs.core.enums.{ValueEnumLike, ValueEnumLikeEntry}
 object DerivingSpecification extends Properties("Deriving") with KebsValueEnum {
 
   enum ColorButRGB(val value: Int) extends ValueEnumLikeEntry[Int] {
-    case Red extends ColorButRGB(0xFF0000)
-    case Green extends ColorButRGB(0x00FF00)
-    case Blue extends ColorButRGB(0x0000FF)
+    case Red   extends ColorButRGB(0xff0000)
+    case Green extends ColorButRGB(0x00ff00)
+    case Blue  extends ColorButRGB(0x0000ff)
   }
 
   property("ValueEnumLike derives properly for a value enum") = forAll(Gen.oneOf(ColorButRGB.values.toList)) { (color: ColorButRGB) =>

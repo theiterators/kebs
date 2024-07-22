@@ -5,9 +5,10 @@ import pl.iterators.kebs.core.instances.InstanceConverter
 
 import java.net.URI
 
-/** Note: [[java.net.InetAddress]] and [[java.net.URL]] are not supported because of DNS lookups performed
-  * when constructing [[java.net.InetAddress]] using `getByName(str)` with hostname as the argument,
-  * or when comparing [[java.net.URL]] using `equals` method. [[java.net.URI]] should be used instead. */
+/** Note: [[java.net.InetAddress]] and [[java.net.URL]] are not supported because of DNS lookups performed when constructing
+  * [[java.net.InetAddress]] using `getByName(str)` with hostname as the argument, or when comparing [[java.net.URL]] using `equals`
+  * method. [[java.net.URI]] should be used instead.
+  */
 trait URIString {
   implicit val uriFormatter: InstanceConverter[URI, String] =
     InstanceConverter[URI, String](_.toString, new URI(_), Some(URIFormat))

@@ -89,7 +89,8 @@ class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
               case e: DateTimeException =>
                 throw new IllegalArgumentException(
                   s"${classOf[LocalDateTime]} cannot be parsed from $value – should be in format $pattern",
-                  e)
+                  e
+                )
               case e: Throwable => throw e
             }
         }

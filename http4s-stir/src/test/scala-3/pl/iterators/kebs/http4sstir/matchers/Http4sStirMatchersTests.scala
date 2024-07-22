@@ -27,7 +27,7 @@ class Http4sStirMatchersTests
     with InstantEpochMilliLong
     with URIString
     with KebsEnum
-    with KebsValueEnum{
+    with KebsValueEnum {
   implicit def runtime: cats.effect.unsafe.IORuntime = cats.effect.unsafe.IORuntime.global
 
   test("No ValueClassLike implicits derived") {

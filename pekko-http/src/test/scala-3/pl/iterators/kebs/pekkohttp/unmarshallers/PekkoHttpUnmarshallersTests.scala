@@ -20,7 +20,7 @@ import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
 import pl.iterators.kebs.enums.{KebsEnum, KebsValueEnum}
 
 class PekkoHttpUnmarshallersTests
-  extends AnyFunSuite
+    extends AnyFunSuite
     with Matchers
     with ScalatestRouteTest
     with ScalaFutures
@@ -105,9 +105,11 @@ class PekkoHttpUnmarshallersTests
       responseAs[String] shouldEqual "Hi"
     }
     Get("/?greeting=blah") ~> testRoute ~> check {
-      rejection shouldEqual MalformedQueryParamRejection("greeting",
+      rejection shouldEqual MalformedQueryParamRejection(
+        "greeting",
         "Invalid value 'blah'. Expected one of: Hello, GoodBye, Hi, Bye",
-        None)
+        None
+      )
     }
   }
 

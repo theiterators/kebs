@@ -3,11 +3,13 @@ package pl.iterators.kebs.tag.meta
 import scala.annotation.{StaticAnnotation, compileTimeOnly}
 import scala.reflect.macros.whitebox
 
-@compileTimeOnly("""
-                   |Please enable the macro paradise. If you are using Scala 2.13, this can be done by enabling
-                   |-Ymacro-annotations compiler flag. If you are using Scala 2.12 or earlier, you will need to add a compiler plugin
-                   |org.scalamacros.paradise. Using sbt: addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full)
-                 """.stripMargin('|'))
+@compileTimeOnly(
+  """
+    |Please enable the macro paradise. If you are using Scala 2.13, this can be done by enabling
+    |-Ymacro-annotations compiler flag. If you are using Scala 2.12 or earlier, you will need to add a compiler plugin
+    |org.scalamacros.paradise. Using sbt: addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full)
+                 """.stripMargin('|')
+)
 class tagged extends StaticAnnotation {
   def macroTransform(annottees: Any*): Any = macro macroImpl.impl
 }
@@ -60,12 +62,14 @@ final class macroImpl(val c: whitebox.Context) {
     generatedTagCompanions ++ (trees diff allCompanions) ++ generatedTaggedTypeCompanions
   }
 
-  case class TaggedType(name: TypeName,
-                        typeParams: List[TypeDef],
-                        baseTypeName: TypeName,
-                        baseParams: List[TypeDef],
-                        tagType: TagTypeRep,
-                        maybeCompanion: Option[ModuleDef]) {
+  case class TaggedType(
+      name: TypeName,
+      typeParams: List[TypeDef],
+      baseTypeName: TypeName,
+      baseParams: List[TypeDef],
+      tagType: TagTypeRep,
+      maybeCompanion: Option[ModuleDef]
+  ) {
 
     private val selfType = tq"$name[..${typeArguments(typeParams)}]"
 
@@ -174,7 +178,8 @@ final class macroImpl(val c: whitebox.Context) {
     else
       trees.flatMap {
         case q"type ${taggedTypeName: TypeName}[..${params: List[TypeDef]}] = @@[${baseName: TypeName}[..${baseParams: List[
-              TypeDef @unchecked]}], ${tagName: TypeName}[..$_]]" =>
+                TypeDef @unchecked
+              ]}], ${tagName: TypeName}[..$_]]" =>
           tagTypeReps
             .find(_.tagName == tagName)
             .map(tagType => TaggedType(taggedTypeName, params, baseName, baseParams, tagType, findCompanion(trees, taggedTypeName)))

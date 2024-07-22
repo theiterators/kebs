@@ -34,19 +34,22 @@ trait SprayJsonValueEnum {
     spray.json.deserializationError(s"$value is not a member of $enumValues")
   }
 
-  def jsonFormatValue[V, E <: ValueEnumLikeEntry[V]](`enum`: ValueEnumLike[V, E])(implicit baseJsonFormat: JsonFormat[V]) = new JsonFormat[E] {
-    override def write(obj: E): JsValue = baseJsonFormat.write(obj.value)
-    override def read(json: JsValue): E = {
-      val value = baseJsonFormat.read(json)
-      `enum`.withValueOption(value).getOrElse(valueEnumDeserializationError(`enum`, value))
+  def jsonFormatValue[V, E <: ValueEnumLikeEntry[V]](`enum`: ValueEnumLike[V, E])(implicit baseJsonFormat: JsonFormat[V]) =
+    new JsonFormat[E] {
+      override def write(obj: E): JsValue = baseJsonFormat.write(obj.value)
+      override def read(json: JsValue): E = {
+        val value = baseJsonFormat.read(json)
+        `enum`.withValueOption(value).getOrElse(valueEnumDeserializationError(`enum`, value))
+      }
     }
-  }
 }
 
 trait KebsEnumFormats extends SprayJsonEnum with SprayJsonValueEnum {
   implicit def jsonEnumFormat[E](implicit ev: EnumLike[E]): JsonFormat[E] = jsonFormat(ev)
-  implicit def jsonValueEnumFormat[V, E <: ValueEnumLikeEntry[V]](implicit ev: ValueEnumLike[V, E],
-                                                              baseJsonFormat: JsonFormat[V]): JsonFormat[E] = jsonFormatValue(ev)
+  implicit def jsonValueEnumFormat[V, E <: ValueEnumLikeEntry[V]](implicit
+      ev: ValueEnumLike[V, E],
+      baseJsonFormat: JsonFormat[V]
+  ): JsonFormat[E] = jsonFormatValue(ev)
 
   trait Uppercase extends SprayJsonEnum {
     implicit def jsonEnumFormat[E](implicit ev: EnumLike[E]): JsonFormat[E] = uppercaseJsonFormat(ev)

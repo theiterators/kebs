@@ -28,8 +28,7 @@ class Http4sStirUnmarshallersTests
     with DayOfWeekInt
     with KebsEnum
     with KebsValueEnum
-    with CaseClass1ToValueClass
-    {
+    with CaseClass1ToValueClass {
   implicit def runtime: cats.effect.unsafe.IORuntime = cats.effect.unsafe.IORuntime.global
 
   test("No ValueClassLike implicits derived") {
@@ -67,9 +66,11 @@ class Http4sStirUnmarshallersTests
       responseAs[String] shouldEqual "Hi"
     }
     Get("/?greeting=blah") ~> testRoute ~> check {
-      rejection shouldEqual MalformedQueryParamRejection("greeting",
-                                                         "Invalid value 'blah'. Expected one of: Hello, GoodBye, Hi, Bye",
-                                                         None)
+      rejection shouldEqual MalformedQueryParamRejection(
+        "greeting",
+        "Invalid value 'blah'. Expected one of: Hello, GoodBye, Hi, Bye",
+        None
+      )
     }
   }
 

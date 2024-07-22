@@ -46,12 +46,13 @@ class SprayJsonFormatCapitalizedVariantTests extends AnyFunSuite with Matchers {
 
   test("Root format capitalized - compound") {
     val jf = implicitly[JsonFormat[Compound]]
-    jf.write(Compound(C(5), D(10, "abcd"))) shouldBe JsObject("CField" -> JsNumber(5),
-                                                              "DField" -> JsObject("IntField" -> JsNumber(10),
-                                                                                   "StringField" -> JsString("abcd")))
+    jf.write(Compound(C(5), D(10, "abcd"))) shouldBe JsObject(
+      "CField" -> JsNumber(5),
+      "DField" -> JsObject("IntField" -> JsNumber(10), "StringField" -> JsString("abcd"))
+    )
 
-    jf.read(JsObject("CField" -> JsNumber(10), "DField" -> JsObject("IntField" -> JsNumber(100), "StringField" -> JsString("abb")))) shouldBe Compound(
-      C(10),
-      D(100, "abb"))
+    jf.read(
+      JsObject("CField" -> JsNumber(10), "DField" -> JsObject("IntField" -> JsNumber(100), "StringField" -> JsString("abb")))
+    ) shouldBe Compound(C(10), D(100, "abb"))
   }
 }

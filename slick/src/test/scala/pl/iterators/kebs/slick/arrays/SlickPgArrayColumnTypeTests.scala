@@ -15,7 +15,13 @@ class SlickPgArrayColumnTypeTests extends AnyFunSuite with Matchers with KebsEnu
 
   object MyPostgresProfile extends ExPostgresProfile with PgArraySupport with KebsSlickSupport {
     override val api: APIWithArrays = new APIWithArrays {}
-    trait APIWithArrays extends ExtPostgresAPI with ArrayImplicits with KebsBasicImplicits with KebsValueClassLikeImplicits with CaseClass1ToValueClass with EnumImplicits
+    trait APIWithArrays
+        extends ExtPostgresAPI
+        with ArrayImplicits
+        with KebsBasicImplicits
+        with KebsValueClassLikeImplicits
+        with CaseClass1ToValueClass
+        with EnumImplicits
   }
 
   import MyPostgresProfile.api._

@@ -102,9 +102,11 @@ class AkkaHttpUnmarshallersTests
       responseAs[String] shouldEqual "Hi"
     }
     Get("/?greeting=blah") ~> testRoute ~> check {
-      rejection shouldEqual MalformedQueryParamRejection("greeting",
-                                                         "Invalid value 'blah'. Expected one of: Hello, GoodBye, Hi, Bye",
-                                                         None)
+      rejection shouldEqual MalformedQueryParamRejection(
+        "greeting",
+        "Invalid value 'blah'. Expected one of: Hello, GoodBye, Hi, Bye",
+        None
+      )
     }
   }
 

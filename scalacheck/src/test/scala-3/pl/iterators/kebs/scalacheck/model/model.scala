@@ -8,13 +8,13 @@ package object model {
   opaque type OpaqueInt = Int
   object OpaqueInt extends Opaque[OpaqueInt, Int] {
     override def apply(value: Int) = value
-}
+  }
 
-case class BasicSampleWithOpaque(
-    someNumber: Int,
-    someText: String,
-    wrappedNumber: WrappedInt,
-    opaqueInt: OpaqueInt
-)
+  case class BasicSampleWithOpaque(
+      someNumber: Int,
+      someText: String,
+      wrappedNumber: WrappedInt,
+      opaqueInt: OpaqueInt
+  )
 
 }

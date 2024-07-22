@@ -28,7 +28,7 @@ class Http4sStirUnmarshallersTests
     with DayOfWeekInt
     with KebsEnumeratum
     with KebsValueEnumeratum {
-      implicit def runtime: cats.effect.unsafe.IORuntime = cats.effect.unsafe.IORuntime.global
+  implicit def runtime: cats.effect.unsafe.IORuntime = cats.effect.unsafe.IORuntime.global
 
   test("No ValueClassLike implicits derived") {
     import pl.iterators.kebs.core.macros.ValueClassLike
@@ -67,9 +67,11 @@ class Http4sStirUnmarshallersTests
       responseAs[String] shouldEqual "Hi"
     }
     Get("/?greeting=blah") ~> testRoute ~> check {
-      rejection shouldEqual MalformedQueryParamRejection("greeting",
-                                                         "Invalid value 'blah'. Expected one of: Hello, GoodBye, Hi, Bye",
-                                                         None)
+      rejection shouldEqual MalformedQueryParamRejection(
+        "greeting",
+        "Invalid value 'blah'. Expected one of: Hello, GoodBye, Hi, Bye",
+        None
+      )
     }
   }
 

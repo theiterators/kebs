@@ -13,7 +13,6 @@ package object model {
   case class Parametrized1[T](field: T)
   case class Parametrized2[T0, T1](field1: T0, field2: T1)
 
-
   case class C(anInteger: Int)
   case class D(intField: Int, stringField: String)
   case object F
@@ -21,16 +20,15 @@ package object model {
   case class Compound(CField: C, DField: D)
 
   enum Greeting {
-  case Hello, GoodBye, Hi, Bye
-  }
-  
-  enum LongGreeting(val value: Long) extends ValueEnumLikeEntry[Long] {
-    case  Hello   extends LongGreeting(0L)
-    case  GoodBye extends LongGreeting(1L)
-    case  Hi      extends LongGreeting(2L)
-    case  Bye     extends LongGreeting(3L) 
+    case Hello, GoodBye, Hi, Bye
   }
 
+  enum LongGreeting(val value: Long) extends ValueEnumLikeEntry[Long] {
+    case Hello   extends LongGreeting(0L)
+    case GoodBye extends LongGreeting(1L)
+    case Hi      extends LongGreeting(2L)
+    case Bye     extends LongGreeting(3L)
+  }
 
   case class F1(f1: String)
 

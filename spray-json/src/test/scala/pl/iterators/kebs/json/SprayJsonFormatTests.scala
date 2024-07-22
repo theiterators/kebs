@@ -86,10 +86,14 @@ class SprayJsonFormatTests extends AnyFunSuite with Matchers {
 
   test("Root format - compound") {
     val jf = implicitly[JsonFormat[Compound]]
-    jf.write(Compound(C(5), D(10, "abcd"))) shouldBe JsObject("c" -> JsNumber(5),
-                                                              "d" -> JsObject("i" -> JsNumber(10), "s" -> JsString("abcd")))
-    jf.read(JsObject("c" -> JsNumber(10), "d" -> JsObject("i" -> JsNumber(100), "s" -> JsString("abb")))) shouldBe Compound(C(10),
-                                                                                                                            D(100, "abb"))
+    jf.write(Compound(C(5), D(10, "abcd"))) shouldBe JsObject(
+      "c" -> JsNumber(5),
+      "d" -> JsObject("i" -> JsNumber(10), "s" -> JsString("abcd"))
+    )
+    jf.read(JsObject("c" -> JsNumber(10), "d" -> JsObject("i" -> JsNumber(100), "s" -> JsString("abb")))) shouldBe Compound(
+      C(10),
+      D(100, "abb")
+    )
   }
 
   case class Inner(a: Int)
@@ -114,9 +118,9 @@ class SprayJsonFormatTests extends AnyFunSuite with Matchers {
     jf.read(
       JsObject(
         "thingId" -> JsString("child"),
-        "parent"  -> JsObject("thingId" -> JsString("parent"), "parent" -> JsObject("thingId" -> JsString("grandparent"))))) shouldBe Thing(
-      "child",
-      Some(Thing("parent", Some(Thing("grandparent", None)))))
+        "parent"  -> JsObject("thingId" -> JsString("parent"), "parent" -> JsObject("thingId" -> JsString("grandparent")))
+      )
+    ) shouldBe Thing("child", Some(Thing("parent", Some(Thing("grandparent", None)))))
   }
 
   case class Book(name: String, chapters: List[Chapter])
@@ -168,7 +172,8 @@ class SprayJsonFormatTests extends AnyFunSuite with Matchers {
         "f21"            -> JsString("f21 value"),
         "f22"            -> JsString("f22 value"),
         "f23"            -> JsBoolean(true)
-      ))
+      )
+    )
 
     jf.write(obj) shouldBe json
     jf.read(json) shouldBe obj
@@ -207,7 +212,8 @@ class SprayJsonFormatTests extends AnyFunSuite with Matchers {
         "f21"            -> JsString("f21 value"),
         "f22"            -> JsString("f22 value"),
         "f23"            -> JsBoolean(true)
-      ))
+      )
+    )
 
     jf.write(obj) shouldBe json
     jf.read(json) shouldBe obj
@@ -274,7 +280,8 @@ class SprayJsonFormatTests extends AnyFunSuite with Matchers {
         "f21"            -> JsString("f21 value"),
         "f22"            -> JsString("f22 value"),
         "f23"            -> JsBoolean(true)
-      ))
+      )
+    )
 
     jf.write(obj) shouldBe json
     jf.read(json) shouldBe obj

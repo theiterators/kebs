@@ -29,7 +29,8 @@ class CirceFormatSnakifiedVariantTests extends AnyFunSuite with Matchers {
     val encoder = implicitly[Encoder[D]]
     decoder
       .apply(Json.fromFields(Seq("int_field" -> Json.fromInt(10), "string_field" -> Json.fromString("abcd"))).hcursor) shouldBe Right(
-      D(10, "abcd"))
+      D(10, "abcd")
+    )
     encoder.apply(D(10, "abcd")) shouldBe Json.fromFields(Seq("int_field" -> Json.fromInt(10), "string_field" -> Json.fromString("abcd")))
   }
 
@@ -38,8 +39,11 @@ class CirceFormatSnakifiedVariantTests extends AnyFunSuite with Matchers {
     val encoder = implicitly[Encoder[Compound]]
 
     encoder.apply(Compound(C(5), D(10, "abcd"))) shouldBe Json.fromFields(
-      Seq("c_field" -> Json.fromInt(5),
-          "d_field" -> Json.fromFields(Seq("int_field" -> Json.fromInt(10), "string_field" -> Json.fromString("abcd")))))
+      Seq(
+        "c_field" -> Json.fromInt(5),
+        "d_field" -> Json.fromFields(Seq("int_field" -> Json.fromInt(10), "string_field" -> Json.fromString("abcd")))
+      )
+    )
     decoder
       .apply(
         Json
@@ -49,7 +53,8 @@ class CirceFormatSnakifiedVariantTests extends AnyFunSuite with Matchers {
               "d_field" -> Json.fromFields(Seq("int_field" -> Json.fromInt(10), "string_field" -> Json.fromString("abcd")))
             )
           )
-          .hcursor) shouldBe Right(Compound(C(5), D(10, "abcd")))
+          .hcursor
+      ) shouldBe Right(Compound(C(5), D(10, "abcd")))
   }
 
   test("Format snakified - case class with > 22 fields") {
@@ -107,7 +112,8 @@ class CirceFormatSnakifiedVariantTests extends AnyFunSuite with Matchers {
         "f21"              -> Json.fromString("f21 value"),
         "f22"              -> Json.fromString("f22 value"),
         "f23"              -> Json.fromBoolean(true)
-      ))
+      )
+    )
 
     encoder.apply(obj) shouldBe json
     decoder.apply(json.hcursor) shouldBe Right(obj)

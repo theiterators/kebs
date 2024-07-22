@@ -20,8 +20,8 @@ object Domain extends Domain {
 
   sealed trait Color extends EnumEntry
   object Color extends Enum[Color] {
-    case object Red extends Color
-    case object Blue extends Color
+    case object Red   extends Color
+    case object Blue  extends Color
     case object Green extends Color
 
     override def values = findValues

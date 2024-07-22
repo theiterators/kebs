@@ -15,7 +15,7 @@ class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
   import pl.iterators.kebs.json._
 
   test("Instant epoch milli format") {
-    object TimeInstancesProtocol extends  InstantEpochMilliLong
+    object TimeInstancesProtocol extends InstantEpochMilliLong
     import TimeInstancesProtocol._
 
     "implicitly[ValueClassLike[Instant, Long]]" shouldNot typeCheck
@@ -54,7 +54,7 @@ class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
   }
 
   test("LocalDateTime custom format using companion object") {
-    object TimeInstancesProtocol extends  LocalDateTimeString {
+    object TimeInstancesProtocol extends LocalDateTimeString {
       val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")
 
       override implicit val localDateTimeFormatter: InstanceConverter[LocalDateTime, String] =
@@ -88,7 +88,8 @@ class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
               case e: DateTimeException =>
                 throw new IllegalArgumentException(
                   s"${classOf[LocalDateTime]} cannot be parsed from $value – should be in format $pattern",
-                  e)
+                  e
+                )
               case e: Throwable => throw e
             }
         }

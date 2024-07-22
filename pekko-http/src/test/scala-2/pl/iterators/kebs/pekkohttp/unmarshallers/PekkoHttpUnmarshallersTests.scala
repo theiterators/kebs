@@ -15,7 +15,7 @@ import pl.iterators.kebs.pekkohttp.unmarshallers.enums.KebsEnumUnmarshallers
 import java.time.{DayOfWeek, YearMonth}
 
 class PekkoHttpUnmarshallersTests
-  extends AnyFunSuite
+    extends AnyFunSuite
     with Matchers
     with ScalatestRouteTest
     with ScalaFutures
@@ -100,9 +100,11 @@ class PekkoHttpUnmarshallersTests
       responseAs[String] shouldEqual "Hi"
     }
     Get("/?greeting=blah") ~> testRoute ~> check {
-      rejection shouldEqual MalformedQueryParamRejection("greeting",
+      rejection shouldEqual MalformedQueryParamRejection(
+        "greeting",
         "Invalid value 'blah'. Expected one of: Hello, GoodBye, Hi, Bye",
-        None)
+        None
+      )
     }
   }
 

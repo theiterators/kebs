@@ -74,15 +74,15 @@ class KebsCirceMacros(override val c: whitebox.Context) extends MacroUtils {
     }
   }
 
-  private def isLookingFor(t: Type)                                            = c.enclosingImplicits.headOption.exists(_.pt.typeSymbol == t.typeSymbol)
-  private val decoderType                                                      = typeOf[Decoder[_]]
-  private val encoderType                                                      = typeOf[Encoder[_]]
-  private def decoderOf(p: Type)                                               = appliedType(decoderType, p)
-  private def encoderOf(p: Type)                                               = appliedType(encoderType, p)
-  private def extractFieldTypes(fields: List[MethodSymbol], in: Type)          = fields.map(resultType(_, in))
-  private def extractFieldNames(fields: List[MethodSymbol])                    = fields.map(_.name.decodedName.toString)
-  private def inferDecoderFormats(ps: List[Type])                              = ps.map(p => inferImplicitValue(decoderOf(p), s"Cannot infer Decoder[$p]"))
-  private def inferEncoderFormats(ps: List[Type])                              = ps.map(p => inferImplicitValue(encoderOf(p), s"Cannot infer Encoder[$p]"))
+  private def isLookingFor(t: Type) = c.enclosingImplicits.headOption.exists(_.pt.typeSymbol == t.typeSymbol)
+  private val decoderType           = typeOf[Decoder[_]]
+  private val encoderType           = typeOf[Encoder[_]]
+  private def decoderOf(p: Type)    = appliedType(decoderType, p)
+  private def encoderOf(p: Type)    = appliedType(encoderType, p)
+  private def extractFieldTypes(fields: List[MethodSymbol], in: Type) = fields.map(resultType(_, in))
+  private def extractFieldNames(fields: List[MethodSymbol])           = fields.map(_.name.decodedName.toString)
+  private def inferDecoderFormats(ps: List[Type]) = ps.map(p => inferImplicitValue(decoderOf(p), s"Cannot infer Decoder[$p]"))
+  private def inferEncoderFormats(ps: List[Type]) = ps.map(p => inferImplicitValue(encoderOf(p), s"Cannot infer Encoder[$p]"))
   protected def extractJsonFieldNames(fields: List[MethodSymbol]): Seq[String] = extractFieldNames(fields)
   protected val preferFlat: Boolean                                            = true
   protected val semiAutoNamingStrategy: Tree =

@@ -38,7 +38,10 @@ trait CirceEnum {
 }
 
 trait CirceValueEnum {
-  @inline protected final def valueEnumDeserializationError[V, E <: ValueEnumLikeEntry[V]](`enum`: ValueEnumLike[V, E], value: Json): String = {
+  @inline protected final def valueEnumDeserializationError[V, E <: ValueEnumLikeEntry[V]](
+      `enum`: ValueEnumLike[V, E],
+      value: Json
+  ): String = {
     val enumValues = `enum`.getValuesToEntriesMap.keys.mkString(", ")
     s"$value is not a member of $enumValues"
   }

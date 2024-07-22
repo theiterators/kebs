@@ -16,7 +16,7 @@ import java.time.{DayOfWeek, Instant, ZonedDateTime}
 import pl.iterators.kebs.enums.KebsEnum
 
 class PekkoHttpMatchersTests
-  extends AnyFunSuite
+    extends AnyFunSuite
     with Matchers
     with Directives
     with ScalatestRouteTest
