@@ -4,20 +4,19 @@ import io.circe.{Decoder, Encoder, Json}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.circe.KebsCirce
-
-import java.time._
-import java.time.format.DateTimeFormatter
-
 import pl.iterators.kebs.core.instances.InstanceConverter
 import pl.iterators.kebs.instances.TimeInstances
 import pl.iterators.kebs.instances.time.LocalDateTimeString
-import pl.iterators.kebs.instances.time.mixins.{InstantEpochMilliLong, DurationNanosLong}
+import pl.iterators.kebs.instances.time.mixins.{DurationNanosLong, InstantEpochMilliLong}
+
+import java.time._
+import java.time.format.DateTimeFormatter
 
 class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
 
   test("Instant epoch milli format") {
     object TimeInstancesProtocol extends KebsCirce with InstantEpochMilliLong
-    import TimeInstancesProtocol.*
+    import TimeInstancesProtocol._
 
     "implicitly[ValueClassLike[Instant, Long]]" shouldNot typeCheck
     "implicitly[ValueClassLike[Long, Instant]]" shouldNot typeCheck
@@ -33,7 +32,7 @@ class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
 
   test("Duration nanos format, Instant epoch milli format") {
     object TimeInstancesProtocol extends KebsCirce with DurationNanosLong with InstantEpochMilliLong
-    import TimeInstancesProtocol.*
+    import TimeInstancesProtocol._
 
     "implicitly[ValueClassLike[Instant, Long]]" shouldNot typeCheck
     "implicitly[ValueClassLike[Long, Instant]]" shouldNot typeCheck
@@ -64,7 +63,7 @@ class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
       override implicit val localDateTimeFormatter: InstanceConverter[LocalDateTime, String] =
         InstanceConverter.apply[LocalDateTime, String](_.format(formatter), LocalDateTime.parse(_, formatter))
     }
-    import TimeInstancesProtocol.*
+    import TimeInstancesProtocol._
 
     "implicitly[ValueClassLike[LocalDateTime, String]]" shouldNot typeCheck
     "implicitly[ValueClassLike[String, LocalDateTime]]" shouldNot typeCheck
@@ -99,7 +98,7 @@ class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
             }
         }
     }
-    import TimeInstancesProtocol.*
+    import TimeInstancesProtocol._
 
     "implicitly[ValueClassLike[LocalDateTime, String]]" shouldNot typeCheck
     "implicitly[ValueClassLike[String, LocalDateTime]]" shouldNot typeCheck

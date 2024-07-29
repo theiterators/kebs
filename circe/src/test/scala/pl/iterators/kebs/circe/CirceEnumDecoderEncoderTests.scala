@@ -1,13 +1,12 @@
 package pl.iterators.kebs.circe
 
 import io.circe._
-import org.scalatest.matchers.should.Matchers
 import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.circe.model.Greeting._
-import pl.iterators.kebs.circe.model.Greeting
-import pl.iterators.kebs.enums.KebsEnum
+import pl.iterators.kebs.circe.model._
 
-class CirceEnumDecoderEncoderTests extends AnyFunSuite with Matchers with KebsEnum {
+class CirceEnumDecoderEncoderTests extends AnyFunSuite with Matchers with KebsEnumForTests {
 
   object KebsProtocol          extends KebsEnumFormats
   object KebsProtocolUppercase extends KebsEnumFormats.Uppercase

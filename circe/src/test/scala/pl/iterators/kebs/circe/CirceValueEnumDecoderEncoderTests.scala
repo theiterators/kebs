@@ -3,11 +3,10 @@ package pl.iterators.kebs.circe
 import io.circe._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.enumeratum.KebsValueEnumeratum
 import pl.iterators.kebs.circe.model.LongGreeting
 import pl.iterators.kebs.circe.model.LongGreeting._
 
-class CirceValueEnumDecoderEncoderTests extends AnyFunSuite with Matchers with KebsValueEnumeratum {
+class CirceValueEnumDecoderEncoderTests extends AnyFunSuite with Matchers with KebsValueEnumForTests {
 
   object KebsProtocol extends KebsEnumFormats
 

@@ -2,7 +2,6 @@ package pl.iterators.kebs.circe
 
 import io.circe.{Decoder, Encoder, Json}
 import org.scalatest.funsuite.AnyFunSuite
-import pl.iterators.kebs.circe.KebsCirce
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.circe.model._
 import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
