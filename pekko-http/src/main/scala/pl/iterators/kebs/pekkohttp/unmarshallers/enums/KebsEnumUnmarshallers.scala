@@ -21,10 +21,10 @@ trait EnumUnmarshallers {
     enumUnmarshaller(ev)
 }
 
-trait ValueEnumUnmarshallers {
+trait LowerPriorityValueEnumUnmarshallers {
   final def valueEnumUnmarshaller[V, E <: ValueEnumLikeEntry[V]](`enum`: ValueEnumLike[V, E]): Unmarshaller[V, E] = Unmarshaller {
     _ => v =>
-      `enum`.values.find(e => e.value == v && e.value.getClass == v.getClass) match {
+      `enum`.values.find(e => e.value == v) match {
         case Some(enumEntry) => FastFuture.successful(enumEntry)
         case None =>
           FastFuture.failed(
@@ -34,8 +34,9 @@ trait ValueEnumUnmarshallers {
       }
   }
 
-  implicit def kebsValueEnumUnmarshaller[V, E <: ValueEnumLikeEntry[V]](implicit ev: ValueEnumLike[V, E]): Unmarshaller[V, E] =
-    valueEnumUnmarshaller(ev)
+  implicit def kebsValueEnumFromStringUnmarshaller[E <: ValueEnumLikeEntry[String]](implicit
+      ev: ValueEnumLike[String, E]
+  ): FromStringUnmarshaller[E] = valueEnumUnmarshaller(ev)
 
   implicit def kebsIntValueEnumFromStringUnmarshaller[E <: ValueEnumLikeEntry[Int]](implicit
       ev: ValueEnumLike[Int, E]
@@ -55,4 +56,13 @@ trait ValueEnumUnmarshallers {
     byteFromStringUnmarshaller andThen valueEnumUnmarshaller(ev)
 }
 
-trait KebsEnumUnmarshallers extends EnumUnmarshallers with ValueEnumUnmarshallers {}
+trait ValueEnumUnmarshallers extends LowerPriorityValueEnumUnmarshallers {
+  implicit def kebsValueEnumUnmarshaller[V, E <: ValueEnumLikeEntry[V]](implicit ev: ValueEnumLike[V, E]): Unmarshaller[V, E] =
+    valueEnumUnmarshaller(ev)
+}
+
+trait KebsEnumUnmarshallers extends ValueEnumUnmarshallers with EnumUnmarshallers {
+  // this is to make both 2.13.x and 3.x compilers happy
+  override implicit def kebsValueEnumUnmarshaller[V, E <: ValueEnumLikeEntry[V]](implicit ev: ValueEnumLike[V, E]): Unmarshaller[V, E] =
+    valueEnumUnmarshaller(ev)
+}

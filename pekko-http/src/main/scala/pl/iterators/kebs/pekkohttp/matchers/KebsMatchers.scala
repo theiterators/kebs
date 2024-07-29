@@ -1,14 +1,11 @@
 package pl.iterators.kebs.pekkohttp.matchers
 
 import org.apache.pekko.http.scaladsl.server.PathMatcher1
-import pl.iterators.kebs.core.macros.ValueClassLike
-import scala.reflect.Enum
-
-import pl.iterators.kebs.core.enums.EnumLike
 import pl.iterators.kebs.core.instances.InstanceConverter
+import pl.iterators.kebs.core.macros.ValueClassLike
+import pl.iterators.kebs.core.enums._
 
 trait KebsMatchers extends org.apache.pekko.http.scaladsl.server.PathMatchers {
-
   implicit class SegmentIsomorphism[U](segment: PathMatcher1[U]) {
     def as[T](implicit rep: ValueClassLike[T, U]): PathMatcher1[T] = segment.map(rep.apply)
   }
@@ -18,12 +15,8 @@ trait KebsMatchers extends org.apache.pekko.http.scaladsl.server.PathMatchers {
   }
 
   object EnumSegment {
-    def as[T <: Enum](using e: EnumLike[T]): PathMatcher1[T] = {
-      Segment.map(s =>
-        e.values
-          .find(_.toString().toLowerCase() == s.toLowerCase())
-          .getOrElse(throw new IllegalArgumentException(s"""Invalid value '$s'. Expected one of: ${e.values.mkString(", ")}"""))
-      )
+    def as[T](implicit e: EnumLike[T]): PathMatcher1[T] = {
+      Segment.map(e.withNameIgnoreCase)
     }
   }
 }

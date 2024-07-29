@@ -3,7 +3,7 @@ package pl.iterators.kebs.pekkohttp.unmarshallers
 import org.apache.pekko.http.scaladsl.model.FormData
 import org.apache.pekko.http.scaladsl.server.{Directives, MalformedQueryParamRejection}
 import org.apache.pekko.http.scaladsl.testkit.ScalatestRouteTest
-import org.apache.pekko.http.scaladsl.unmarshalling.Unmarshal
+import org.apache.pekko.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unmarshal}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
