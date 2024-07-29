@@ -1,4 +1,4 @@
-package pl.iterators.kebs.json
+package pl.iterators.kebs.playjson
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers

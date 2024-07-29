@@ -1,4 +1,4 @@
-package pl.iterators.kebs.json.instances
+package pl.iterators.kebs.playjson.instances
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
@@ -9,7 +9,7 @@ import play.api.libs.json.{Format, JsString, JsSuccess}
 import java.net.URI
 
 class NetInstancesTests extends AnyFunSuite with Matchers with URIString {
-  import pl.iterators.kebs.json._
+  import pl.iterators.kebs.playjson._
 
   test("URI standard format") {
     val jf    = implicitly[Format[URI]]

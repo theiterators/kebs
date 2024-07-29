@@ -1,4 +1,4 @@
-package pl.iterators.kebs.json.instances
+package pl.iterators.kebs.playjson.instances
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
@@ -12,7 +12,7 @@ import java.time._
 import java.time.format.DateTimeFormatter
 
 class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
-  import pl.iterators.kebs.json._
+  import pl.iterators.kebs.playjson._
 
   test("Instant epoch milli format") {
     object TimeInstancesProtocol extends InstantEpochMilliLong

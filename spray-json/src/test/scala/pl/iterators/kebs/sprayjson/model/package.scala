@@ -1,4 +1,4 @@
-package pl.iterators.kebs.json
+package pl.iterators.kebs.sprayjson
 
 package object model {
 

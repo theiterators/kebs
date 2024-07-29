@@ -4,7 +4,7 @@ import java.net.URL
 import java.util.UUID
 
 import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
-import pl.iterators.kebs.json.KebsPlay
+import pl.iterators.kebs.playjson.KebsPlayJson
 import play.api.libs.json._
 
 import scala.util.Try
@@ -37,7 +37,7 @@ object PlayJsonFormat {
     implicit val thingJsonFormat              = Json.format[Thing]
   }
 
-  object AfterKebs extends JsonProtocol with KebsPlay {
+  object AfterKebs extends JsonProtocol with KebsPlayJson {
     implicit val errorJsonFormat              = Json.format[Error]
     implicit val locationJsonFormat           = Json.format[Location]
     implicit val createThingRequestJsonFormat = Json.format[ThingCreateRequest]

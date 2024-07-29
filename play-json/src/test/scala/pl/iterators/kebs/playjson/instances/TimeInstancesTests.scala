@@ -1,4 +1,4 @@
-package pl.iterators.kebs.json.instances
+package pl.iterators.kebs.playjson.instances
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
@@ -9,7 +9,7 @@ import play.api.libs.json.{Format, JsNumber, JsString, JsSuccess}
 import java.time._
 
 class TimeInstancesTests extends AnyFunSuite with Matchers with TimeInstances {
-  import pl.iterators.kebs.json._
+  import pl.iterators.kebs.playjson._
   test("No ValueClassLike implicits derived") {
 
     "implicitly[ValueClassLike[DayOfWeek, Int]]" shouldNot typeCheck

@@ -1,15 +1,15 @@
-package pl.iterators.kebs.json.instances
+package pl.iterators.kebs.sprayjson.instances
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.instances.net.URIString
 import pl.iterators.kebs.core.instances.InstanceConverter.DecodeErrorException
-import pl.iterators.kebs.json.KebsSpray
+import pl.iterators.kebs.sprayjson.KebsSprayJson
 import spray.json._
 
 import java.net.URI
 
-class NetInstancesTests extends AnyFunSuite with Matchers with DefaultJsonProtocol with KebsSpray with URIString {
+class NetInstancesTests extends AnyFunSuite with Matchers with DefaultJsonProtocol with KebsSprayJson with URIString {
 
   test("URI standard format") {
     val jf    = implicitly[JsonFormat[URI]]

@@ -1,4 +1,4 @@
-package pl.iterators.kebs.json
+package pl.iterators.kebs.sprayjson
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
@@ -8,7 +8,7 @@ import spray.json._
 import java.util.UUID
 
 class SprayJsonFormatTests extends AnyFunSuite with Matchers {
-  object KebsProtocol extends DefaultJsonProtocol with KebsSpray with CaseClass1ToValueClass
+  object KebsProtocol extends DefaultJsonProtocol with KebsSprayJson with CaseClass1ToValueClass
   import KebsProtocol._
 
   case class C(i: Int)
@@ -181,7 +181,7 @@ class SprayJsonFormatTests extends AnyFunSuite with Matchers {
   }
 
   test("Root format with NullOptions - case class with > 22 fields (issue #73)") {
-    object KebsProtocolNullOptions extends DefaultJsonProtocol with KebsSpray with NullOptions
+    object KebsProtocolNullOptions extends DefaultJsonProtocol with KebsSprayJson with NullOptions
 
     import KebsProtocolNullOptions._
     import model._

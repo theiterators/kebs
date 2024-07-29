@@ -1,4 +1,4 @@
-package pl.iterators.kebs.json.macros
+package pl.iterators.kebs.sprayjson.macros
 
 import pl.iterators.kebs.core.macros.MacroUtils
 import spray.json.{JsonFormat, JsonReader, JsonWriter, NullOptions, RootJsonFormat}

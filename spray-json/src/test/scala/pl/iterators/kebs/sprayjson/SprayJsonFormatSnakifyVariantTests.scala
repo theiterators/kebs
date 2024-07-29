@@ -1,4 +1,4 @@
-package pl.iterators.kebs.json
+package pl.iterators.kebs.sprayjson
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
@@ -6,7 +6,7 @@ import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
 import spray.json.{DefaultJsonProtocol, JsArray, JsBoolean, JsNull, JsNumber, JsObject, JsString, JsonFormat, NullOptions, RootJsonFormat}
 
 class SprayJsonFormatSnakifyVariantTests extends AnyFunSuite with Matchers {
-  object KebsProtocol extends DefaultJsonProtocol with KebsSpray.Snakified with CaseClass1ToValueClass
+  object KebsProtocol extends DefaultJsonProtocol with KebsSprayJson.Snakified with CaseClass1ToValueClass
   import KebsProtocol._
 
   case class C(anInteger: Int)
@@ -94,7 +94,7 @@ class SprayJsonFormatSnakifyVariantTests extends AnyFunSuite with Matchers {
   }
 
   test("Root format snakified with NullOptions - case class with > 22 fields (issue #73)") {
-    object KebsProtocolNullOptions extends DefaultJsonProtocol with KebsSpray.Snakified with NullOptions
+    object KebsProtocolNullOptions extends DefaultJsonProtocol with KebsSprayJson.Snakified with NullOptions
 
     import KebsProtocolNullOptions._
     import model._

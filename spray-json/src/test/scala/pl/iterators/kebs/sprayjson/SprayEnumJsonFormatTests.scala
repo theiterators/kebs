@@ -1,7 +1,7 @@
-package pl.iterators.kebs.json
+package pl.iterators.kebs.sprayjson
 
 import enumeratum.{Enum, EnumEntry}
-import pl.iterators.kebs.json.{KebsEnumFormats, KebsSpray}
+import pl.iterators.kebs.sprayjson.{KebsEnumFormats, KebsSprayJson}
 import spray.json._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
@@ -21,9 +21,9 @@ class SprayEnumJsonFormatTests extends AnyFunSuite with Matchers with KebsEnumer
 
   import Greeting._
 
-  object KebsProtocol          extends DefaultJsonProtocol with KebsSpray with KebsEnumFormats
-  object KebsProtocolUppercase extends DefaultJsonProtocol with KebsSpray with KebsEnumFormats.Uppercase
-  object KebsProtocolLowercase extends DefaultJsonProtocol with KebsSpray with KebsEnumFormats.Lowercase
+  object KebsProtocol          extends DefaultJsonProtocol with KebsSprayJson with KebsEnumFormats
+  object KebsProtocolUppercase extends DefaultJsonProtocol with KebsSprayJson with KebsEnumFormats.Uppercase
+  object KebsProtocolLowercase extends DefaultJsonProtocol with KebsSprayJson with KebsEnumFormats.Lowercase
 
   test("enum JsonFormat") {
     import KebsProtocol._
