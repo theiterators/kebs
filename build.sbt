@@ -206,11 +206,8 @@ lazy val enumeratumSettings = commonMacroSettings ++ Seq(
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
-lazy val sprayJsonMacroSettings = commonMacroSettings ++ Seq(
-  libraryDependencies += sprayJson.cross(CrossVersion.for3Use2_13)
-)
-
 lazy val sprayJsonSettings = commonSettings ++ Seq(
+  libraryDependencies += sprayJson.cross(CrossVersion.for3Use2_13),
   libraryDependencies += optionalEnumeratum
 )
 
@@ -330,22 +327,9 @@ lazy val doobieSupport = project
     crossScalaVersions := supportedScalaVersions
   )
 
-lazy val sprayJsonMacros = project
-  .in(file("spray-json-macros"))
-  .dependsOn(core.jvm)
-  .settings(sprayJsonMacroSettings *)
-  .settings(publishSettings *)
-  .settings(disableScala(List("3")))
-  .settings(
-    name               := "spray-json-macros",
-    description        := "Automatic generation of Spray json formats for case-classes - macros",
-    moduleName         := "kebs-spray-json-macros",
-    crossScalaVersions := supportedScalaVersions
-  )
-
 lazy val sprayJsonSupport = project
   .in(file("spray-json"))
-  .dependsOn(sprayJsonMacros, enumeratumSupport, instances % "test -> test")
+  .dependsOn(enumeratumSupport, instances % "test -> test")
   .settings(sprayJsonSettings *)
   .settings(publishSettings *)
   .settings(disableScala(List("3")))
@@ -564,7 +548,6 @@ lazy val kebs = project
     core.js,
     slickSupport,
     doobieSupport,
-    sprayJsonMacros,
     sprayJsonSupport,
     playJsonSupport,
     circeSupport,
