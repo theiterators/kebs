@@ -113,7 +113,7 @@ val sprayJson       = "io.spray"            %% "spray-json"           % "1.3.6"
 val circeV          = "0.14.9"
 val circe           = "io.circe"            %% "circe-core"           % circeV
 val circeAuto       = "io.circe"            %% "circe-generic"        % circeV
-val circeAutoExtras = "io.circe"            %% "circe-generic-extras" % "0.14.3"
+val circeAutoExtras = "io.circe"            %% "circe-generic-extras" % "0.14.4"
 val circeParser     = "io.circe"            %% "circe-parser"         % circeV
 
 val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.11"
