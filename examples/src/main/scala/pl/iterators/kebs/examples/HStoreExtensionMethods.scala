@@ -23,8 +23,10 @@ object HStoreExtensionMethods {
       def history: Rep[Map[String, String]] = column[Map[String, String]]("history")
 
       def historyMapped: MappedProjection[Map[YearMonth, Boolean], Map[String, String]] =
-        history.<>(h => h.map(kv => yearMonthIso.comap(kv._1) -> kv._2.toBoolean),
-                   h => Option(h.map(kv => yearMonthIso.map(kv._1) -> kv._2.toString)))
+        history.<>(
+          h => h.map(kv => yearMonthIso.comap(kv._1) -> kv._2.toBoolean),
+          h => Option(h.map(kv => yearMonthIso.map(kv._1) -> kv._2.toString))
+        )
 
       def * = (id, historyMapped)
     }

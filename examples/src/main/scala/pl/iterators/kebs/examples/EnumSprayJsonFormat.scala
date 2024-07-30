@@ -57,7 +57,8 @@ object EnumSprayJsonFormat {
               .getOrElse(deserializationError(s"$name should be one of (${enumCompanion.values.map(_.entryName).mkString(", ")})"))
           case _ =>
             deserializationError(
-              s"${json.toString()} should be a string of value (${enumCompanion.values.map(_.entryName).mkString(", ")})")
+              s"${json.toString()} should be a string of value (${enumCompanion.values.map(_.entryName).mkString(", ")})"
+            )
         }
 
         override def write(obj: T): JsValue = JsString(obj.entryName)
@@ -137,30 +138,36 @@ object EnumSprayJsonFormat {
     override val values = findValues
   }
 
-  case class Thing(id: ThingId,
-                   name: ThingName,
-                   description: ThingDescription,
-                   pictureUrl: URL,
-                   tags: List[TagId],
-                   location: Location,
-                   status: ThingStatus)
+  case class Thing(
+      id: ThingId,
+      name: ThingName,
+      description: ThingDescription,
+      pictureUrl: URL,
+      tags: List[TagId],
+      location: Location,
+      status: ThingStatus
+  )
 
-  case class ThingCreateRequest(name: ThingName,
-                                description: ThingDescription,
-                                pictureUrl: Option[URL],
-                                tags: List[TagId],
-                                location: Location)
+  case class ThingCreateRequest(
+      name: ThingName,
+      description: ThingDescription,
+      pictureUrl: Option[URL],
+      tags: List[TagId],
+      location: Location
+  )
   sealed abstract class ThingCreateResponse
   object ThingCreateResponse {
     case class Created(thing: Thing) extends ThingCreateResponse
     case object AlreadyExists        extends ThingCreateResponse
   }
 
-  case class ThingUpdateRequest(name: Option[ThingName],
-                                description: Option[ThingDescription],
-                                tags: Option[List[TagId]],
-                                location: Option[Location],
-                                status: Option[ThingStatus])
+  case class ThingUpdateRequest(
+      name: Option[ThingName],
+      description: Option[ThingDescription],
+      tags: Option[List[TagId]],
+      location: Option[Location],
+      status: Option[ThingStatus]
+  )
 
   sealed trait ThingUpdateResponse
   object ThingUpdateResponse {
