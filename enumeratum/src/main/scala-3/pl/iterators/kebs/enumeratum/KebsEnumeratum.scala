@@ -4,12 +4,11 @@ import enumeratum._
 import scala.collection.immutable
 import scala.compiletime.{constValue, erasedValue, error, summonInline}
 import scala.deriving.Mirror
-import scala.reflect.ClassTag
 
 import pl.iterators.kebs.core.enums.EnumLike
 
 trait KebsEnumeratum {
-  inline implicit def enumLikeFromEnumeratum[E <: EnumEntry](using m: Mirror.SumOf[E], ct: ClassTag[E]): EnumLike[E] = {
+  inline implicit def enumLikeFromEnumeratum[E <: EnumEntry](using m: Mirror.SumOf[E]): EnumLike[E] = {
     val enumValues = summonCases[m.MirroredElemTypes, E]
     new EnumLike[E] {
       override def values: immutable.Seq[E] = enumValues.toSeq

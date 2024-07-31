@@ -4,7 +4,7 @@ import cats.effect.IO
 import pl.iterators.stir.unmarshalling.PredefinedFromStringUnmarshallers.*
 import pl.iterators.stir.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
 
-import scala.reflect.{ClassTag, Enum}
+import scala.reflect.Enum
 
 import pl.iterators.kebs.core.enums.{EnumLike, ValueEnumLike, ValueEnumLikeEntry}
 
@@ -22,7 +22,7 @@ trait EnumUnmarshallers {
 }
 
 trait ValueEnumUnmarshallers extends EnumUnmarshallers {
-  final def valueEnumUnmarshaller[V, E <: ValueEnumLikeEntry[V]](using `enum`: ValueEnumLike[V, E], cls: ClassTag[V]): Unmarshaller[V, E] =
+  final def valueEnumUnmarshaller[V, E <: ValueEnumLikeEntry[V]](using `enum`: ValueEnumLike[V, E]): Unmarshaller[V, E] =
     Unmarshaller { v =>
       `enum`.values.find(e => e.value == v && e.value.getClass == v.getClass) match {
         case Some(enumEntry) =>
@@ -40,8 +40,7 @@ trait ValueEnumUnmarshallers extends EnumUnmarshallers {
     }
 
   implicit def kebsValueEnumUnmarshaller[V, E <: ValueEnumLikeEntry[V]](using
-      `enum`: ValueEnumLike[V, E],
-      cls: ClassTag[V]
+      `enum`: ValueEnumLike[V, E]
   ): Unmarshaller[V, E] =
     valueEnumUnmarshaller
 
