@@ -3,15 +3,16 @@ package pl.iterators.kebs.pekkohttp.unmarshallers
 import org.apache.pekko.http.scaladsl.model.FormData
 import org.apache.pekko.http.scaladsl.server.{Directives, MalformedQueryParamRejection}
 import org.apache.pekko.http.scaladsl.testkit.ScalatestRouteTest
-import org.apache.pekko.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unmarshal}
+import org.apache.pekko.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unmarshal, Unmarshaller}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import pl.iterators.kebs.circe.{KebsEnumForTests, KebsValueEnumForTests}
+import pl.iterators.kebs.core.enums.ValueEnumLike
 import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
 import pl.iterators.kebs.instances.net.URIString
 import pl.iterators.kebs.instances.time.{DayOfWeekInt, YearMonthString}
 import pl.iterators.kebs.pekkohttp.domain.Domain._
-import pl.iterators.kebs.enumeratum.{KebsEnumeratum, KebsValueEnumeratum}
 import pl.iterators.kebs.pekkohttp.unmarshallers.enums.KebsEnumUnmarshallers
 
 import java.time.{DayOfWeek, YearMonth}
@@ -27,8 +28,8 @@ class PekkoHttpUnmarshallersTests
     with URIString
     with YearMonthString
     with DayOfWeekInt
-    with KebsEnumeratum
-    with KebsValueEnumeratum
+    with KebsEnumForTests
+    with KebsValueEnumForTests
     with CaseClass1ToValueClass {
 
   test("No ValueClassLike implicits derived") {
@@ -126,7 +127,7 @@ class PekkoHttpUnmarshallersTests
   test("Case class extraction") {
     val route =
       path("color") {
-        parameters(Symbol("red").as[Red], Symbol("green").as[Green], Symbol("blue").as[Blue]).as(Color) { color =>
+        parameters(Symbol("red").as[Red], Symbol("green").as[Green], Symbol("blue").as[Blue]).as(Color.apply _) { color =>
           complete(color.toString)
         }
       }
