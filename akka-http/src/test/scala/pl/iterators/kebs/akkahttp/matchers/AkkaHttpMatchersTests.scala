@@ -7,6 +7,7 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.akkahttp.domain.Domain.Greeting
 import pl.iterators.kebs.akkahttp.domain.Domain._
+import pl.iterators.kebs.enumeratum.KebsEnumeratum
 import pl.iterators.kebs.instances.net.URIString
 import pl.iterators.kebs.instances.time.{DayOfWeekInt, ZonedDateTimeString}
 import pl.iterators.kebs.instances.time.mixins.InstantEpochMilliLong
@@ -23,6 +24,7 @@ class AkkaHttpMatchersTests
     with ZonedDateTimeString
     with DayOfWeekInt
     with InstantEpochMilliLong
+    with KebsEnumeratum
     with URIString {
 
   test("No ValueClassLike implicits derived") {

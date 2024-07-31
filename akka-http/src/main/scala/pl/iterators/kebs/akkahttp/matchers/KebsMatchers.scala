@@ -1,7 +1,7 @@
 package pl.iterators.kebs.akkahttp.matchers
 
 import akka.http.scaladsl.server.{PathMatcher1, PathMatchers}
-import enumeratum.{Enum, EnumEntry}
+import pl.iterators.kebs.core.enums.EnumLike
 import pl.iterators.kebs.core.instances.InstanceConverter
 import pl.iterators.kebs.core.macros.ValueClassLike
 
@@ -16,9 +16,8 @@ trait KebsMatchers extends PathMatchers {
   }
 
   object EnumSegment {
-    def as[T <: EnumEntry: Enum]: PathMatcher1[T] = {
-      val enumCompanion = implicitly[Enum[T]]
-      Segment.map(enumCompanion.withNameInsensitive)
+    def as[T](implicit e: EnumLike[T]): PathMatcher1[T] = {
+      Segment.map(e.withNameIgnoreCase)
     }
   }
 }
