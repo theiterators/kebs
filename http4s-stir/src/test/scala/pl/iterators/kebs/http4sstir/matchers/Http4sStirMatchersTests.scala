@@ -5,13 +5,11 @@ import pl.iterators.stir.testkit.ScalatestRouteTest
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import pl.iterators.kebs.circe.KebsEnumForTests
 import pl.iterators.kebs.instances.net.URIString
 import pl.iterators.kebs.instances.time.{DayOfWeekInt, ZonedDateTimeString}
 import pl.iterators.kebs.instances.time.mixins.InstantEpochMilliLong
 import pl.iterators.kebs.http4sstir.domain.Domain._
-
-import pl.iterators.kebs.enums.{KebsEnum, KebsValueEnum}
-import pl.iterators.kebs.instances
 
 import java.net.URI
 import java.time.{DayOfWeek, Instant, ZonedDateTime}
@@ -26,11 +24,12 @@ class Http4sStirMatchersTests
     with DayOfWeekInt
     with InstantEpochMilliLong
     with URIString
-    with KebsEnum
-    with KebsValueEnum {
+    with KebsEnumForTests {
   implicit def runtime: cats.effect.unsafe.IORuntime = cats.effect.unsafe.IORuntime.global
 
   test("No ValueClassLike implicits derived") {
+    import pl.iterators.kebs.core.macros.ValueClassLike
+
     "implicitly[ValueClassLike[DayOfWeek, Int]]" shouldNot typeCheck
     "implicitly[ValueClassLike[Int, DayOfWeek]]" shouldNot typeCheck
     "implicitly[ValueClassLike[Instant, Long]]" shouldNot typeCheck
@@ -63,6 +62,32 @@ class Http4sStirMatchersTests
     }
     Get("/test/1621258399") ~> testRoute ~> check {
       responseAs[String] shouldEqual "1621258399"
+    }
+  }
+  test("Extract Double as tagged Double") {
+    val testRoute = path("test" / DoubleNumber.as[TestDouble]) { test =>
+      complete(test.toString)
+    }
+    Get("/test/1.23") ~> testRoute ~> check {
+      responseAs[String] shouldEqual "1.23"
+    }
+  }
+
+  test("Extract Long as tagged Long") {
+    val testRoute = path("test" / LongNumber.as[Id]) { id =>
+      complete(id.toString)
+    }
+    Get("/test/123456") ~> testRoute ~> check {
+      responseAs[String] shouldEqual "123456"
+    }
+  }
+
+  test("Extract UUID as tagged UUID") {
+    val testRoute = path("test" / JavaUUID.as[TestId]) { id =>
+      complete(id.toString)
+    }
+    Get("/test/ce7a7cf1-8c00-49a9-a963-9fd119dd0642") ~> testRoute ~> check {
+      responseAs[String] shouldEqual "ce7a7cf1-8c00-49a9-a963-9fd119dd0642"
     }
   }
 

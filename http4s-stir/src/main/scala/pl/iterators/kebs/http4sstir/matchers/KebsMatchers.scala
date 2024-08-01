@@ -1,12 +1,9 @@
 package pl.iterators.kebs.http4sstir.matchers
 
-import pl.iterators.stir.server.PathMatcher1
-import scala.reflect.Enum
-import pl.iterators.kebs.core.enums.EnumLike
-import pl.iterators.kebs.core.macros.ValueClassLike
+import pl.iterators.kebs.core.enums._
 import pl.iterators.kebs.core.instances.InstanceConverter
-
-import scala.language.implicitConversions
+import pl.iterators.kebs.core.macros.ValueClassLike
+import pl.iterators.stir.server.PathMatcher1
 
 trait KebsMatchers extends pl.iterators.stir.server.PathMatchers {
 
@@ -19,12 +16,8 @@ trait KebsMatchers extends pl.iterators.stir.server.PathMatchers {
   }
 
   object EnumSegment {
-    def as[T <: Enum](using e: EnumLike[T]): PathMatcher1[T] = {
-      Segment.map(s =>
-        e.values
-          .find(_.toString().toLowerCase() == s.toLowerCase())
-          .getOrElse(throw new IllegalArgumentException(s"""Invalid value '$s'. Expected one of: ${e.values.mkString(", ")}"""))
-      )
+    def as[T](implicit e: EnumLike[T]): PathMatcher1[T] = {
+      Segment.map(e.withNameIgnoreCase)
     }
   }
 }

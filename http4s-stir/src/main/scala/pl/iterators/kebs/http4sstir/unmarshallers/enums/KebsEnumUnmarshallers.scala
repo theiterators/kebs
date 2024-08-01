@@ -1,4 +1,4 @@
-package pl.iterators.kebs.http4sstir.enums
+package pl.iterators.kebs.http4sstir.unmarshallers.enums
 
 import pl.iterators.stir.unmarshalling.PredefinedFromStringUnmarshallers._
 import pl.iterators.stir.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
@@ -19,18 +19,21 @@ trait EnumUnmarshallers {
     enumUnmarshaller(ev)
 }
 
-trait ValueEnumUnmarshallers {
+trait LowerPriorityValueEnumUnmarshallers {
   final def valueEnumUnmarshaller[V, E <: ValueEnumLikeEntry[V]](`enum`: ValueEnumLike[V, E]): Unmarshaller[V, E] = Unmarshaller { v =>
-    `enum`.withValueOption(v) match {
+    `enum`.values.find(e => e.value == v) match {
       case Some(enumEntry) => IO.pure(enumEntry)
       case None =>
-        IO.raiseError(new IllegalArgumentException(s"""Invalid value '$v'. Expected one of: ${`enum`.getValuesToEntriesMap.keysIterator
-            .mkString(", ")}"""))
+        IO.raiseError(
+          new IllegalArgumentException(s"""Invalid value '$v'. Expected one of: ${`enum`.getValuesToEntriesMap.keysIterator
+              .mkString(", ")}""")
+        )
     }
   }
 
-  implicit def kebsValueEnumUnmarshaller[V, E <: ValueEnumLikeEntry[V]](implicit ev: ValueEnumLike[V, E]): Unmarshaller[V, E] =
-    valueEnumUnmarshaller(ev)
+  implicit def kebsValueEnumFromStringUnmarshaller[E <: ValueEnumLikeEntry[String]](implicit
+      ev: ValueEnumLike[String, E]
+  ): FromStringUnmarshaller[E] = valueEnumUnmarshaller(ev)
 
   implicit def kebsIntValueEnumFromStringUnmarshaller[E <: ValueEnumLikeEntry[Int]](implicit
       ev: ValueEnumLike[Int, E]
@@ -50,4 +53,13 @@ trait ValueEnumUnmarshallers {
     byteFromStringUnmarshaller andThen valueEnumUnmarshaller(ev)
 }
 
-trait KebsEnumUnmarshallers extends EnumUnmarshallers with ValueEnumUnmarshallers {}
+trait ValueEnumUnmarshallers extends LowerPriorityValueEnumUnmarshallers {
+  implicit def kebsValueEnumUnmarshaller[V, E <: ValueEnumLikeEntry[V]](implicit ev: ValueEnumLike[V, E]): Unmarshaller[V, E] =
+    valueEnumUnmarshaller(ev)
+}
+
+trait KebsEnumUnmarshallers extends ValueEnumUnmarshallers with EnumUnmarshallers {
+  // this is to make both 2.13.x and 3.x compilers happy
+  override implicit def kebsValueEnumUnmarshaller[V, E <: ValueEnumLikeEntry[V]](implicit ev: ValueEnumLike[V, E]): Unmarshaller[V, E] =
+    valueEnumUnmarshaller(ev)
+}

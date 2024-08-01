@@ -6,12 +6,12 @@ import pl.iterators.stir.testkit.ScalatestRouteTest
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import pl.iterators.kebs.circe.{KebsEnumForTests, KebsValueEnumForTests}
 import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
 import pl.iterators.kebs.instances.net.URIString
 import pl.iterators.kebs.instances.time.{DayOfWeekInt, YearMonthString}
 import pl.iterators.kebs.http4sstir.domain.Domain._
-import pl.iterators.kebs.enumeratum.{KebsEnumeratum, KebsValueEnumeratum}
-import pl.iterators.kebs.http4sstir.enums.KebsEnumUnmarshallers
+import pl.iterators.kebs.http4sstir.unmarshallers.enums.KebsEnumUnmarshallers
 import pl.iterators.kebs.http4sstir.unmarshallers.KebsUnmarshallers
 
 import java.time.{DayOfWeek, YearMonth}
@@ -27,8 +27,8 @@ class Http4sStirUnmarshallersTests
     with URIString
     with YearMonthString
     with DayOfWeekInt
-    with KebsEnumeratum
-    with KebsValueEnumeratum
+    with KebsEnumForTests
+    with KebsValueEnumForTests
     with CaseClass1ToValueClass {
   implicit def runtime: cats.effect.unsafe.IORuntime = cats.effect.unsafe.IORuntime.global
 
@@ -92,7 +92,7 @@ class Http4sStirUnmarshallersTests
   test("Case class extraction") {
     val route =
       path("color") {
-        parameters(Symbol("red").as[Red], Symbol("green").as[Green], Symbol("blue").as[Blue]).as(Color) { color =>
+        parameters(Symbol("red").as[Red], Symbol("green").as[Green], Symbol("blue").as[Blue]).as(Color.apply _) { color =>
           complete(color.toString)
         }
       }
