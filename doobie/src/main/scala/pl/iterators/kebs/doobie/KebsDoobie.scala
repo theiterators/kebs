@@ -6,7 +6,7 @@ import pl.iterators.kebs.core.macros.ValueClassLike
 
 import scala.reflect.ClassTag
 
-trait Kebs {
+trait KebsDoobie {
   implicit def valueClassLikeMeta[A, M](implicit vcLike: ValueClassLike[A, M], m: Meta[M]): Meta[A] = m.imap(vcLike.apply)(vcLike.unapply)
 
   implicit def valueClassLikeArrayMeta[A, M](implicit

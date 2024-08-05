@@ -1,8 +1,7 @@
 package pl.iterators.kebs.doobie
 
-package object enums extends KebsEnums {
-  object uppercase extends Uppercase
+package object enums extends KebsDoobieEnums with KebsDoobieValueEnums {
+  object uppercase extends KebsDoobieEnumsUppercase with KebsDoobieValueEnums
 
-  object lowercase extends Lowercase
-
+  object lowercase extends KebsDoobieEnumsLowercase with KebsDoobieValueEnums
 }

@@ -14,7 +14,13 @@ import pl.iterators.kebs.doobie.model._
 
 import java.util.Currency
 
-class ComplexTypesTests extends AnyFunSuite with Matchers with KebsEnumsForTests with CaseClass1ToValueClass with KebsEnums {
+class ComplexTypesTests
+    extends AnyFunSuite
+    with Matchers
+    with KebsEnumsForTests
+    with CaseClass1ToValueClass
+    with KebsDoobieEnums
+    with KebsDoobieValueEnums {
 
   test("Put & Get exist") {
     "implicitly[Get[Name]]" should compile
@@ -61,6 +67,21 @@ class ComplexTypesTests extends AnyFunSuite with Matchers with KebsEnumsForTests
     "implicitly[Put[Array[Option[EyeColor]]]]" should compile
     "implicitly[Get[Vector[Option[EyeColor]]]]" should compile
     "implicitly[Put[Vector[Option[EyeColor]]]]" should compile
+
+    "implicitly[Get[LibraryItem]]" should compile
+    "implicitly[Put[LibraryItem]]" should compile
+    "implicitly[Get[List[LibraryItem]]]" should compile
+    "implicitly[Put[List[LibraryItem]]]" should compile
+    "implicitly[Get[Array[LibraryItem]]]" should compile
+    "implicitly[Put[Array[LibraryItem]]]" should compile
+    "implicitly[Get[Vector[LibraryItem]]]" should compile
+    "implicitly[Put[Vector[LibraryItem]]]" should compile
+    "implicitly[Get[List[Option[LibraryItem]]]]" should compile
+    "implicitly[Put[List[Option[LibraryItem]]]]" should compile
+    "implicitly[Get[Array[Option[LibraryItem]]]]" should compile
+    "implicitly[Put[Array[Option[LibraryItem]]]]" should compile
+    "implicitly[Get[Vector[Option[LibraryItem]]]]" should compile
+    "implicitly[Put[Vector[Option[LibraryItem]]]]" should compile
   }
 
   test("Query should compile") {
