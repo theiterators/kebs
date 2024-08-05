@@ -4,16 +4,16 @@ import io.circe._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.circe.KebsEnumForTests
-import pl.iterators.kebs.circe.enums.KebsCirceEnum
-import pl.iterators.kebs.circe.enums.{KebsCirceEnumLowercase, KebsCirceEnumUppercase}
+import pl.iterators.kebs.circe.enums.KebsCirceEnums
+import pl.iterators.kebs.circe.enums.{KebsCirceEnumsLowercase, KebsCirceEnumsUppercase}
 import pl.iterators.kebs.circe.model.Greeting._
 import pl.iterators.kebs.circe.model._
 
 class CirceEnumDecoderEncoderTests extends AnyFunSuite with Matchers with KebsEnumForTests {
 
-  object KebsProtocol          extends KebsCirceEnum
-  object KebsProtocolUppercase extends KebsCirceEnumUppercase
-  object KebsProtocolLowercase extends KebsCirceEnumLowercase
+  object KebsProtocol          extends KebsCirceEnums
+  object KebsProtocolUppercase extends KebsCirceEnumsUppercase
+  object KebsProtocolLowercase extends KebsCirceEnumsLowercase
 
   test("enum JsonFormat") {
     import KebsProtocol._

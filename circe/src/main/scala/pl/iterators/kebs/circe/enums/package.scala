@@ -1,6 +1,6 @@
 package pl.iterators.kebs.circe
 
-package object enums extends KebsCirceEnum with KebsCirceValueEnum {
-  object uppercase extends KebsCirceEnumUppercase with KebsCirceValueEnum
-  object lowercase extends KebsCirceEnumLowercase with KebsCirceValueEnum
+package object enums extends KebsCirceEnums with KebsCirceValueEnums {
+  object uppercase extends KebsCirceEnumsUppercase with KebsCirceValueEnums
+  object lowercase extends KebsCirceEnumsLowercase with KebsCirceValueEnums
 }

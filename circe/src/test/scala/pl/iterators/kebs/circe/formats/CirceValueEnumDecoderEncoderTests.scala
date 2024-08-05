@@ -3,13 +3,13 @@ package pl.iterators.kebs.circe
 import io.circe._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.circe.enums.KebsCirceValueEnum
+import pl.iterators.kebs.circe.enums.KebsCirceValueEnums
 import pl.iterators.kebs.circe.model.LongGreeting
 import pl.iterators.kebs.circe.model.LongGreeting._
 
 class CirceValueEnumDecoderEncoderTests extends AnyFunSuite with Matchers with KebsValueEnumForTests {
 
-  object KebsProtocol extends KebsCirceValueEnum
+  object KebsProtocol extends KebsCirceValueEnums
 
   test("value enum JsonFormat") {
     import KebsProtocol._

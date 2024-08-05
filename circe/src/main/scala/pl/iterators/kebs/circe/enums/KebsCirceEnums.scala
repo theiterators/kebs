@@ -3,7 +3,7 @@ package pl.iterators.kebs.circe.enums
 import io.circe._
 import pl.iterators.kebs.core.enums.{EnumLike, ValueEnumLike, ValueEnumLikeEntry}
 
-trait KebsCirceEnum {
+trait KebsCirceEnums {
   @inline protected final def enumNameDeserializationError[E](`enum`: EnumLike[E], name: String): String = {
     val enumNames = `enum`.getNamesToValuesMap.values.mkString(", ")
     s"$name should be one of $enumNames"
@@ -40,7 +40,7 @@ trait KebsCirceEnum {
 
   implicit def enumEncoderImpl[E](implicit ev: EnumLike[E]): Encoder[E] = enumEncoder(ev)
 
-  trait KebsCirceEnumUppercase {
+  trait KebsCirceEnumsUppercase {
     implicit def enumDecoderImpl[E](implicit ev: EnumLike[E]): Decoder[E] =
       uppercaseEnumDecoder(ev)
 
@@ -48,7 +48,7 @@ trait KebsCirceEnum {
       uppercaseEnumEncoder(ev)
   }
 
-  trait KebsCirceEnumLowercase {
+  trait KebsCirceEnumsLowercase {
     implicit def enumDecoderImpl[E](implicit ev: EnumLike[E]): Decoder[E] =
       lowercaseEnumDecoder(ev)
 
@@ -57,7 +57,7 @@ trait KebsCirceEnum {
   }
 }
 
-trait KebsCirceValueEnum {
+trait KebsCirceValueEnums {
   @inline protected final def valueEnumDeserializationError[V, E <: ValueEnumLikeEntry[V]](
       `enum`: ValueEnumLike[V, E],
       value: Json
