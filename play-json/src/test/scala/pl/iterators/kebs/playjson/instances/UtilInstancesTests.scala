@@ -4,7 +4,7 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.core.instances.InstanceConverter.DecodeErrorException
 import pl.iterators.kebs.instances.UtilInstances
-import play.api.libs.json.{Format, JsString, JsSuccess}
+import play.api.libs.json.{Format, JsError, JsString, JsSuccess}
 
 import java.util.{Currency, Locale, UUID}
 
@@ -33,7 +33,7 @@ class UtilInstancesTests extends AnyFunSuite with Matchers with UtilInstances {
     val jf    = implicitly[Format[Currency]]
     val value = "not a Currency"
 
-    assertThrows[DecodeErrorException](jf.reads(JsString(value)))
+    jf.reads(JsString(value)) shouldBe a[JsError]
   }
 
   test("Locale standard format") {
@@ -58,6 +58,6 @@ class UtilInstancesTests extends AnyFunSuite with Matchers with UtilInstances {
     val jf    = implicitly[Format[UUID]]
     val value = "not an UUID"
 
-    assertThrows[DecodeErrorException](jf.reads(JsString(value)))
+    jf.reads(JsString(value)) shouldBe a[JsError]
   }
 }

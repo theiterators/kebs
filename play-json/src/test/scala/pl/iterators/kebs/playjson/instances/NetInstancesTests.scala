@@ -4,7 +4,7 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.core.instances.InstanceConverter.DecodeErrorException
 import pl.iterators.kebs.instances.net.URIString
-import play.api.libs.json.{Format, JsString, JsSuccess}
+import play.api.libs.json.{Format, JsError, JsString, JsSuccess}
 
 import java.net.URI
 
@@ -24,7 +24,7 @@ class NetInstancesTests extends AnyFunSuite with Matchers with URIString {
     val jf    = implicitly[Format[URI]]
     val value = "not a URI"
 
-    assertThrows[DecodeErrorException](jf.reads(JsString(value)))
+    jf.reads(JsString(value)) shouldBe a[JsError]
   }
 
   test("No ValueClassLike implicits derived") {

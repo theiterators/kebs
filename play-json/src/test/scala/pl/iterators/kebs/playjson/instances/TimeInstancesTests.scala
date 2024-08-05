@@ -4,7 +4,7 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.core.instances.InstanceConverter.DecodeErrorException
 import pl.iterators.kebs.instances.TimeInstances
-import play.api.libs.json.{Format, JsNumber, JsString, JsSuccess}
+import play.api.libs.json.{Format, JsError, JsNumber, JsString, JsSuccess}
 
 import java.time._
 
@@ -59,7 +59,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with TimeInstances {
     val jf    = implicitly[Format[DayOfWeek]]
     val value = 8
 
-    assertThrows[DecodeErrorException](jf.reads(JsNumber(value)))
+    jf.reads(JsNumber(value)) shouldBe a[JsError]
   }
 
   test("Duration standard format") {
@@ -75,7 +75,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with TimeInstances {
     val jf    = implicitly[Format[Duration]]
     val value = "NotADuration"
 
-    assertThrows[DecodeErrorException](jf.reads(JsString(value)))
+    jf.reads(JsString(value)) shouldBe a[JsError]
   }
 
   test("Instant standard format") {
@@ -91,7 +91,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with TimeInstances {
     val jf    = implicitly[Format[Instant]]
     val value = "NotAnInstant"
 
-    assertThrows[DecodeErrorException](jf.reads(JsString(value)))
+    jf.reads(JsString(value)) shouldBe a[JsError]
   }
 
   test("LocalDate standard format") {
@@ -107,7 +107,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with TimeInstances {
     val jf    = implicitly[Format[LocalDate]]
     val value = "NotALocalDate"
 
-    assertThrows[DecodeErrorException](jf.reads(JsString(value)))
+    jf.reads(JsString(value)) shouldBe a[JsError]
   }
 
   test("LocalDateTime standard format") {
@@ -123,7 +123,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with TimeInstances {
     val jf    = implicitly[Format[LocalDateTime]]
     val value = "NotALocalDateTime"
 
-    assertThrows[DecodeErrorException](jf.reads(JsString(value)))
+    jf.reads(JsString(value)) shouldBe a[JsError]
   }
 
   test("LocalTime standard format") {
@@ -139,7 +139,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with TimeInstances {
     val jf    = implicitly[Format[LocalTime]]
     val value = "NotALocalTime"
 
-    assertThrows[DecodeErrorException](jf.reads(JsString(value)))
+    jf.reads(JsString(value)) shouldBe a[JsError]
   }
 
   test("Month standard format") {
@@ -155,7 +155,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with TimeInstances {
     val jf    = implicitly[Format[Month]]
     val value = 13
 
-    assertThrows[DecodeErrorException](jf.reads(JsNumber(value)))
+    jf.reads(JsNumber(value)) shouldBe a[JsError]
   }
 
   test("MonthDay standard format") {
@@ -171,7 +171,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with TimeInstances {
     val jf    = implicitly[Format[MonthDay]]
     val value = "NotAMonthDay"
 
-    assertThrows[DecodeErrorException](jf.reads(JsString(value)))
+    jf.reads(JsString(value)) shouldBe a[JsError]
   }
 
   test("OffsetDateTime standard format") {
@@ -187,7 +187,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with TimeInstances {
     val jf    = implicitly[Format[OffsetDateTime]]
     val value = "NotAnOffsetDateTime"
 
-    assertThrows[DecodeErrorException](jf.reads(JsString(value)))
+    jf.reads(JsString(value)) shouldBe a[JsError]
   }
 
   test("OffsetTime standard format") {
@@ -203,7 +203,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with TimeInstances {
     val jf    = implicitly[Format[OffsetTime]]
     val value = "NotAnOffsetTime"
 
-    assertThrows[DecodeErrorException](jf.reads(JsString(value)))
+    jf.reads(JsString(value)) shouldBe a[JsError]
   }
 
   test("Period standard format") {
@@ -219,7 +219,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with TimeInstances {
     val jf    = implicitly[Format[Period]]
     val value = "NotAPeriod"
 
-    assertThrows[DecodeErrorException](jf.reads(JsString(value)))
+    jf.reads(JsString(value)) shouldBe a[JsError]
   }
 
   test("Year standard format") {
@@ -235,7 +235,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with TimeInstances {
     val jf    = implicitly[Format[Year]]
     val value = Int.MinValue
 
-    assertThrows[DecodeErrorException](jf.reads(JsNumber(value)))
+    jf.reads(JsNumber(value)) shouldBe a[JsError]
   }
 
   test("YearMonth standard format") {
@@ -251,7 +251,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with TimeInstances {
     val jf    = implicitly[Format[YearMonth]]
     val value = "NotAYearMonth"
 
-    assertThrows[DecodeErrorException](jf.reads(JsString(value)))
+    jf.reads(JsString(value)) shouldBe a[JsError]
   }
 
   test("ZoneId standard format") {
@@ -267,7 +267,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with TimeInstances {
     val jf    = implicitly[Format[ZoneId]]
     val value = "NotAZoneId"
 
-    assertThrows[DecodeErrorException](jf.reads(JsString(value)))
+    jf.reads(JsString(value)) shouldBe a[JsError]
   }
 
   test("ZoneOffset standard format") {
@@ -283,7 +283,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with TimeInstances {
     val jf    = implicitly[Format[ZoneOffset]]
     val value = "NotAZoneOffset"
 
-    assertThrows[DecodeErrorException](jf.reads(JsString(value)))
+    jf.reads(JsString(value)) shouldBe a[JsError]
   }
 
   test("ZonedDateTime standard format") {
@@ -299,7 +299,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with TimeInstances {
     val jf    = implicitly[Format[ZonedDateTime]]
     val value = "NotAZoneOffset"
 
-    assertThrows[DecodeErrorException](jf.reads(JsString(value)))
+    jf.reads(JsString(value)) shouldBe a[JsError]
   }
 
 }

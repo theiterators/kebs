@@ -205,7 +205,8 @@ lazy val sprayJsonSettings = commonSettings ++ Seq(
 )
 
 lazy val playJsonSettings = commonSettings ++ Seq(
-  libraryDependencies += playJson
+  libraryDependencies += playJson,
+  libraryDependencies += (enumeratum % "test")
 )
 
 lazy val circeSettings = commonSettings ++ Seq(
@@ -335,7 +336,7 @@ lazy val sprayJsonSupport = project
 
 lazy val playJsonSupport = project
   .in(file("play-json"))
-  .dependsOn(core.jvm, instances % "test -> test")
+  .dependsOn(core.jvm, enumeratumSupport, enumSupport, instances % "test -> test")
   .settings(playJsonSettings *)
   .settings(publishSettings *)
   .settings(
