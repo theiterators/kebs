@@ -1,5 +1,5 @@
 package pl.iterators.kebs.pekkohttp
 
-import pl.iterators.kebs.enumeratum.KebsEnumeratum
+import pl.iterators.kebs.enumeratum.KebsValueEnumeratum
 
-trait KebsValueEnumForTests extends KebsEnumeratum
+trait KebsValueEnumForTests extends KebsValueEnumeratum

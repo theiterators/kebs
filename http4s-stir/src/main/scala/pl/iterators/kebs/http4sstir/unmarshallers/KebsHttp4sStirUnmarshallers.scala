@@ -1,12 +1,14 @@
-package pl.iterators.kebs.http4sstir.unmarshallers.enums
+package pl.iterators.kebs.http4sstir.unmarshallers
 
-import pl.iterators.stir.unmarshalling.PredefinedFromStringUnmarshallers._
+import pl.iterators.kebs.core.instances.InstanceConverter
+import pl.iterators.kebs.core.macros.ValueClassLike
 import pl.iterators.stir.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
+import pl.iterators.stir.unmarshalling.PredefinedFromStringUnmarshallers._
 import cats.effect.IO
 import pl.iterators.kebs.core.enums.{EnumLike, ValueEnumLike, ValueEnumLikeEntry}
 
-trait EnumUnmarshallers {
-  final def enumUnmarshaller[E](`enum`: EnumLike[E]): FromStringUnmarshaller[E] = Unmarshaller { name =>
+trait KebsHttp4sStirEnumUnmarshallers {
+  private final def enumUnmarshaller[E](`enum`: EnumLike[E]): FromStringUnmarshaller[E] = Unmarshaller { name =>
     `enum`.withNameInsensitiveOption(name) match {
       case Some(enumEntry) => IO.pure(enumEntry)
       case None =>
@@ -19,7 +21,7 @@ trait EnumUnmarshallers {
     enumUnmarshaller(ev)
 }
 
-trait LowerPriorityValueEnumUnmarshallers {
+private[kebs] trait LowerPriorityKebsHttp4sStirValueEnumUnmarshallers {
   final def valueEnumUnmarshaller[V, E <: ValueEnumLikeEntry[V]](`enum`: ValueEnumLike[V, E]): Unmarshaller[V, E] = Unmarshaller { v =>
     `enum`.values.find(e => e.value == v) match {
       case Some(enumEntry) => IO.pure(enumEntry)
@@ -53,13 +55,38 @@ trait LowerPriorityValueEnumUnmarshallers {
     byteFromStringUnmarshaller andThen valueEnumUnmarshaller(ev)
 }
 
-trait ValueEnumUnmarshallers extends LowerPriorityValueEnumUnmarshallers {
+trait KebsHttp4sStirValueEnumUnmarshallers extends LowerPriorityKebsHttp4sStirValueEnumUnmarshallers {
   implicit def kebsValueEnumUnmarshaller[V, E <: ValueEnumLikeEntry[V]](implicit ev: ValueEnumLike[V, E]): Unmarshaller[V, E] =
     valueEnumUnmarshaller(ev)
 }
 
-trait KebsEnumUnmarshallers extends ValueEnumUnmarshallers with EnumUnmarshallers {
+trait KebsHttp4sStirUnmarshallers
+    extends LowPriorityKebsUnmarshallers
+    with KebsHttp4sStirEnumUnmarshallers
+    with KebsHttp4sStirValueEnumUnmarshallers {
+  @inline
+  implicit def kebsFromStringUnmarshaller[A, B](implicit
+      rep: ValueClassLike[B, A],
+      fsu: FromStringUnmarshaller[A]
+  ): FromStringUnmarshaller[B] =
+    fsu andThen kebsUnmarshaller(rep)
+
+  @inline
+  implicit def kebsInstancesFromStringUnmarshaller[A, B](implicit
+      ico: InstanceConverter[B, A],
+      fsu: FromStringUnmarshaller[A]
+  ): FromStringUnmarshaller[B] =
+    fsu andThen kebsInstancesUnmarshaller(ico)
+
   // this is to make both 2.13.x and 3.x compilers happy
   override implicit def kebsValueEnumUnmarshaller[V, E <: ValueEnumLikeEntry[V]](implicit ev: ValueEnumLike[V, E]): Unmarshaller[V, E] =
     valueEnumUnmarshaller(ev)
+}
+
+private[kebs] trait LowPriorityKebsUnmarshallers {
+  implicit def kebsInstancesUnmarshaller[A, B](implicit ico: InstanceConverter[B, A]): Unmarshaller[A, B] =
+    Unmarshaller.strict[A, B](ico.decode)
+
+  implicit def kebsUnmarshaller[A, B](implicit rep: ValueClassLike[B, A]): Unmarshaller[A, B] =
+    Unmarshaller.strict[A, B](rep.apply)
 }

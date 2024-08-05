@@ -12,7 +12,6 @@ import pl.iterators.kebs.akkahttp.domain.Domain._
 import pl.iterators.kebs.instances.net.URIString
 import pl.iterators.kebs.instances.time.{DayOfWeekInt, YearMonthString}
 import pl.iterators.kebs.enumeratum.{KebsEnumeratum, KebsValueEnumeratum}
-import pl.iterators.kebs.akkahttp.unmarshallers.enums.KebsEnumUnmarshallers
 import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
 
 import java.time.{DayOfWeek, YearMonth}
@@ -23,8 +22,7 @@ class AkkaHttpUnmarshallersTests
     with ScalatestRouteTest
     with ScalaFutures
     with Directives
-    with KebsUnmarshallers
-    with KebsEnumUnmarshallers
+    with KebsAkkaHttpUnmarshallers
     with URIString
     with YearMonthString
     with DayOfWeekInt

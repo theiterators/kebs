@@ -1,12 +1,14 @@
-package pl.iterators.kebs.akkahttp.unmarshallers.enums
+package pl.iterators.kebs.akkahttp.unmarshallers
 
-import akka.http.scaladsl.unmarshalling.PredefinedFromStringUnmarshallers._
 import akka.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
+import pl.iterators.kebs.core.instances.InstanceConverter
+import pl.iterators.kebs.core.macros.ValueClassLike
 import akka.http.scaladsl.util.FastFuture
+import akka.http.scaladsl.unmarshalling.PredefinedFromStringUnmarshallers._
 import pl.iterators.kebs.core.enums.{EnumLike, ValueEnumLike, ValueEnumLikeEntry}
 
-trait EnumUnmarshallers {
-  final def enumUnmarshaller[E](`enum`: EnumLike[E]): FromStringUnmarshaller[E] = Unmarshaller { _ => name =>
+trait KebsAkkaHttpEnumUnmarshallers {
+  private final def enumUnmarshaller[E](`enum`: EnumLike[E]): FromStringUnmarshaller[E] = Unmarshaller { _ => name =>
     `enum`.withNameInsensitiveOption(name) match {
       case Some(enumEntry) => FastFuture.successful(enumEntry)
       case None =>
@@ -21,7 +23,7 @@ trait EnumUnmarshallers {
     enumUnmarshaller(ev)
 }
 
-trait ValueEnumUnmarshallers {
+trait KebsAkkaHttpValueEnumUnmarshallers {
   final def valueEnumUnmarshaller[V, E <: ValueEnumLikeEntry[V]](`enum`: ValueEnumLike[V, E]): Unmarshaller[V, E] = Unmarshaller {
     _ => v =>
       `enum`.withValueOption(v) match {
@@ -55,4 +57,23 @@ trait ValueEnumUnmarshallers {
     byteFromStringUnmarshaller andThen valueEnumUnmarshaller(ev)
 }
 
-trait KebsEnumUnmarshallers extends EnumUnmarshallers with ValueEnumUnmarshallers {}
+trait KebsAkkaHttpUnmarshallers extends KebsAkkaHttpEnumUnmarshallers with KebsAkkaHttpValueEnumUnmarshallers {
+  implicit def kebsUnmarshaller[A, B](implicit rep: ValueClassLike[B, A]): Unmarshaller[A, B] =
+    Unmarshaller.strict[A, B](rep.apply)
+  @inline
+  implicit def kebsFromStringUnmarshaller[A, B](implicit
+      rep: ValueClassLike[B, A],
+      fsu: FromStringUnmarshaller[A]
+  ): FromStringUnmarshaller[B] =
+    fsu andThen kebsUnmarshaller(rep)
+
+  implicit def kebsInstancesUnmarshaller[A, B](implicit ico: InstanceConverter[B, A]): Unmarshaller[A, B] =
+    Unmarshaller.strict[A, B](ico.decode)
+  @inline
+  implicit def kebsInstancesFromStringUnmarshaller[A, B](implicit
+      ico: InstanceConverter[B, A],
+      fsu: FromStringUnmarshaller[A]
+  ): FromStringUnmarshaller[B] =
+    fsu andThen kebsInstancesUnmarshaller(ico)
+
+}

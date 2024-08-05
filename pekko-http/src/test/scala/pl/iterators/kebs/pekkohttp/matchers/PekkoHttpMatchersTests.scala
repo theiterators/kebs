@@ -5,11 +5,12 @@ import org.apache.pekko.http.scaladsl.testkit.ScalatestRouteTest
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
 import pl.iterators.kebs.instances.net.URIString
 import pl.iterators.kebs.instances.time.{DayOfWeekInt, ZonedDateTimeString}
 import pl.iterators.kebs.instances.time.mixins.InstantEpochMilliLong
 import pl.iterators.kebs.pekkohttp.domain.Domain._
-import pl.iterators.kebs.pekkohttp.KebsEnumForTests
+import pl.iterators.kebs.pekkohttp.{KebsEnumForTests, KebsValueEnumForTests}
 
 import java.net.URI
 import java.time.{DayOfWeek, Instant, ZonedDateTime}
@@ -24,7 +25,9 @@ class PekkoHttpMatchersTests
     with DayOfWeekInt
     with InstantEpochMilliLong
     with URIString
-    with KebsEnumForTests {
+    with CaseClass1ToValueClass
+    with KebsEnumForTests
+    with KebsValueEnumForTests {
 
   test("No ValueClassLike implicits derived") {
     "implicitly[ValueClassLike[DayOfWeek, Int]]" shouldNot typeCheck
@@ -89,11 +92,29 @@ class PekkoHttpMatchersTests
   }
 
   test("Extract String as Enum") {
-    val testRoute = path("test" / EnumSegment.as[Greeting]) { greeting =>
+    val testRoute = path("test" / Segment.asEnum[Greeting]) { greeting =>
       complete(greeting.toString)
     }
     Get("/test/hello") ~> testRoute ~> check {
       responseAs[String] shouldEqual "Hello"
+    }
+  }
+
+  test("Extract String as value class") {
+    val testRoute = path("test" / Segment.as[S]) { item =>
+      complete(item.toString)
+    }
+    Get("/test/check") ~> testRoute ~> check {
+      responseAs[String] shouldEqual "S(check)"
+    }
+  }
+
+  test("Extract Int as ValueEnum") {
+    val testRoute = path("test" / IntNumber.asValueEnum[LibraryItem]) { item =>
+      complete(item.toString)
+    }
+    Get("/test/1") ~> testRoute ~> check {
+      responseAs[String] shouldEqual "Book"
     }
   }
 

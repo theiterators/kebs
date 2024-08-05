@@ -6,6 +6,8 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.circe.KebsEnumForTests
+import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
+import pl.iterators.kebs.http4sstir.KebsValueEnumForTests
 import pl.iterators.kebs.instances.net.URIString
 import pl.iterators.kebs.instances.time.{DayOfWeekInt, ZonedDateTimeString}
 import pl.iterators.kebs.instances.time.mixins.InstantEpochMilliLong
@@ -24,7 +26,9 @@ class Http4sStirMatchersTests
     with DayOfWeekInt
     with InstantEpochMilliLong
     with URIString
-    with KebsEnumForTests {
+    with KebsEnumForTests
+    with KebsValueEnumForTests
+    with CaseClass1ToValueClass {
   implicit def runtime: cats.effect.unsafe.IORuntime = cats.effect.unsafe.IORuntime.global
 
   test("No ValueClassLike implicits derived") {
@@ -92,11 +96,29 @@ class Http4sStirMatchersTests
   }
 
   test("Extract String as Enum") {
-    val testRoute = path("test" / EnumSegment.as[Greeting]) { greeting =>
+    val testRoute = path("test" / Segment.asEnum[Greeting]) { greeting =>
       complete(greeting.toString)
     }
     Get("/test/hello") ~> testRoute ~> check {
       responseAs[String] shouldEqual "Hello"
+    }
+  }
+
+  test("Extract String as value class") {
+    val testRoute = path("test" / Segment.as[S]) { item =>
+      complete(item.toString)
+    }
+    Get("/test/check") ~> testRoute ~> check {
+      responseAs[String] shouldEqual "S(check)"
+    }
+  }
+
+  test("Extract Int as ValueEnum") {
+    val testRoute = path("test" / IntNumber.asValueEnum[LibraryItem]) { item =>
+      complete(item.toString)
+    }
+    Get("/test/1") ~> testRoute ~> check {
+      responseAs[String] shouldEqual "Book"
     }
   }
 
