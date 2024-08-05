@@ -3,7 +3,7 @@ package pl.iterators.kebs.examples
 import java.net.URL
 import java.util.UUID
 
-import org.apache.pekko.http.scaladsl.marshalling.{ToResponseMarshallable, _}
+import org.apache.pekko.http.scaladsl.marshalling._
 import org.apache.pekko.http.scaladsl.model.MediaTypes.`application/json`
 import org.apache.pekko.http.scaladsl.model.StatusCodes._
 import org.apache.pekko.http.scaladsl.model.{ContentType, ContentTypeRange, HttpEntity, MediaType}

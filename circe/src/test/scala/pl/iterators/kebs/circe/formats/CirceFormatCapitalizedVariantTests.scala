@@ -1,14 +1,14 @@
-package pl.iterators.kebs.circe
+package pl.iterators.kebs.circe.formats
 
 import io.circe.{Decoder, Encoder, Json}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.circe.KebsCirce
+import pl.iterators.kebs.circe.KebsCirceCapitalized
 import pl.iterators.kebs.circe.model._
 import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
 
 class CirceFormatCapitalizedVariantTests extends AnyFunSuite with Matchers {
-  object KebsProtocol extends KebsCirce with KebsCirce.Capitalized with CaseClass1ToValueClass
+  object KebsProtocol extends KebsCirceCapitalized with CaseClass1ToValueClass
   import KebsProtocol._
 
   test("Flat format remains unchanged") {
@@ -59,7 +59,6 @@ class CirceFormatCapitalizedVariantTests extends AnyFunSuite with Matchers {
   }
 
   test("Format capitalized - case class with > 22 fields") {
-    import model._
 
     val decoder = implicitly[Decoder[ClassWith23Fields]]
     val encoder = implicitly[Encoder[ClassWith23Fields]]

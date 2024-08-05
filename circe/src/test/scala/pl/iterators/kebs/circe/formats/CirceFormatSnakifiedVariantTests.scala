@@ -1,16 +1,14 @@
-package pl.iterators.kebs.circe
+package pl.iterators.kebs.circe.formats
 
 import io.circe.{Decoder, Encoder, Json}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.circe.KebsCirce
+import pl.iterators.kebs.circe.KebsCirceSnakified
 import pl.iterators.kebs.circe.model._
 import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
 
-import scala.Right
-
 class CirceFormatSnakifiedVariantTests extends AnyFunSuite with Matchers {
-  object KebsProtocol extends KebsCirce with KebsCirce.Snakified with CaseClass1ToValueClass
+  object KebsProtocol extends KebsCirceSnakified with CaseClass1ToValueClass
   import KebsProtocol._
 
   test("Flat format remains unchanged") {
@@ -61,8 +59,6 @@ class CirceFormatSnakifiedVariantTests extends AnyFunSuite with Matchers {
   }
 
   test("Format snakified - case class with > 22 fields") {
-    import model._
-
     val decoder = implicitly[Decoder[ClassWith23Fields]]
     val encoder = implicitly[Encoder[ClassWith23Fields]]
     val obj = ClassWith23Fields(

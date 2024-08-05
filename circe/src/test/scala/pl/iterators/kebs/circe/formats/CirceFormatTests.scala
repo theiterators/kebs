@@ -1,8 +1,9 @@
-package pl.iterators.kebs.circe
+package pl.iterators.kebs.circe.formats
 
 import io.circe.{Decoder, Encoder, Json}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import pl.iterators.kebs.circe.KebsCirce
 import pl.iterators.kebs.circe.model._
 import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
 
@@ -104,7 +105,6 @@ class CirceFormatTests extends AnyFunSuite with Matchers {
   }
 
   test("Format - case class with > 22 fields") {
-    import model._
 
     val decoder = implicitly[Decoder[ClassWith23Fields]]
     val encoder = implicitly[Encoder[ClassWith23Fields]]
@@ -142,7 +142,6 @@ class CirceFormatTests extends AnyFunSuite with Matchers {
   }
 
   test("Nested case classes with > 22 fields") {
-    import model._
 
     val decoder = implicitly[Decoder[ClassWith23FieldsNested]]
     val encoder = implicitly[Encoder[ClassWith23FieldsNested]]
