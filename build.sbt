@@ -111,11 +111,10 @@ val circeParser     = "io.circe"            %% "circe-parser"         % circeV
 
 val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.11"
 
-val scalacheck = "org.scalacheck" %% "scalacheck" % "1.18.0" % "test"
+val scalacheck = "org.scalacheck" %% "scalacheck" % "1.18.0"
 
 val scalacheckMagnolify  = "com.spotify"         % "magnolify-scalacheck"  % "0.7.3"
 val scalacheckDerived    = "io.github.martinhh" %% "scalacheck-derived"    % "0.4.2"
-val scalacheckEnumeratum = "com.beachape"       %% "enumeratum-scalacheck" % "1.7.4"
 
 val enumeratumVersion         = "1.7.4"
 val enumeratumPlayJsonVersion = "1.8.1"
@@ -255,7 +254,7 @@ lazy val jsonschemaSettings = commonSettings ++ Seq(
 
 lazy val scalacheckSettings = commonSettings ++ Seq(
   libraryDependencies += scalacheck,
-  libraryDependencies += scalacheckEnumeratum
+  libraryDependencies += (enumeratum % "test"),
 ) ++ Seq(
   libraryDependencies ++= (if (scalaVersion.value.startsWith("3")) Seq(scalacheckDerived)
                            else Nil)
@@ -429,7 +428,7 @@ lazy val jsonschemaSupport = project
 
 lazy val scalacheckSupport = project
   .in(file("scalacheck"))
-  .dependsOn(core.jvm, opaque.jvm % "test -> test")
+  .dependsOn(core.jvm, enumSupport, opaque.jvm % "test -> test")
   .settings(scalacheckSettings *)
   .settings(publishSettings *)
   .settings(
