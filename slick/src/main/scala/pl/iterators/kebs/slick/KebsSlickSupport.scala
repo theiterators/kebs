@@ -11,7 +11,7 @@ import slick.lifted._
 import scala.annotation.unused
 import scala.reflect.ClassTag
 
-trait KebsColumnExtensionMethods {
+private[kebs] trait KebsColumnExtensionMethods {
   implicit def stringValueColumnExt[CC](rep: Rep[CC])(implicit @unused ev: ValueClassLike[CC, String]): StringColumnExtensionMethods[CC] =
     new StringColumnExtensionMethods[CC](rep)
   implicit def stringValueOptionColumnExt[CC](rep: Rep[Option[CC]])(implicit
