@@ -87,13 +87,6 @@ def disableScala(v: List[String]) =
   )
 
 def optional(dependency: ModuleID) = dependency % "provided"
-def sv[A](scalaVersion: String, scala2_12Version: => A, scala2_13Version: => A) =
-  CrossVersion.partialVersion(scalaVersion) match {
-    case Some((2, 13)) => scala2_13Version
-    case Some((2, 12)) => scala2_12Version
-    case _ =>
-      throw new IllegalArgumentException(s"Unsupported Scala version $scalaVersion")
-  }
 
 def paradiseFlag(scalaVersion: String): Seq[String] =
   if (scalaVersion == scala_3)
