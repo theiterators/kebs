@@ -8,7 +8,7 @@ import pl.iterators.kebs.core.macros.ValueClassLike
 import java.util.UUID
 import scala.util.Try
 
-trait Http4s {
+trait KebsHttp4s {
   protected class PathVar[A](cast: String => Try[A]) {
     def unapply(str: String): Option[A] =
       if (str.nonEmpty)
