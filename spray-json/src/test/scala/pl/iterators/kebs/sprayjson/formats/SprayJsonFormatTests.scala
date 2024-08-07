@@ -1,8 +1,9 @@
-package pl.iterators.kebs.sprayjson
+package pl.iterators.kebs.sprayjson.formats
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
+import pl.iterators.kebs.sprayjson.KebsSprayJson
 import spray.json._
 
 import java.util.UUID
@@ -145,7 +146,7 @@ class SprayJsonFormatTests extends AnyFunSuite with Matchers {
   }
 
   test("Root format - case class with > 22 fields (issue #7)") {
-    import model._
+    import pl.iterators.kebs.sprayjson.model._
 
     val jf  = implicitly[JsonFormat[ClassWith23Fields]]
     val obj = ClassWith23Fields.Example
@@ -184,7 +185,7 @@ class SprayJsonFormatTests extends AnyFunSuite with Matchers {
     object KebsProtocolNullOptions extends DefaultJsonProtocol with KebsSprayJson with NullOptions
 
     import KebsProtocolNullOptions._
-    import model._
+    import pl.iterators.kebs.sprayjson.model._
 
     val jf  = implicitly[JsonFormat[ClassWith23Fields]]
     val obj = ClassWith23Fields.Example
@@ -229,7 +230,7 @@ class SprayJsonFormatTests extends AnyFunSuite with Matchers {
   }
 
   test("Root format - nested case classes with > 22 fields (issue #78)") {
-    import model._
+    import pl.iterators.kebs.sprayjson.model._
 
     val jf = implicitly[JsonFormat[ClassWith23FieldsNested]]
 

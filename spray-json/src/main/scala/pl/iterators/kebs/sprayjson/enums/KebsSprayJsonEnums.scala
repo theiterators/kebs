@@ -3,7 +3,7 @@ package pl.iterators.kebs.sprayjson
 import pl.iterators.kebs.core.enums.{EnumLike, ValueEnumLike, ValueEnumLikeEntry}
 import spray.json.{JsString, JsValue, JsonFormat}
 
-trait SprayJsonEnum {
+trait KebsSprayJsonEnums {
   @inline protected final def enumNameDeserializationError[E](`enum`: EnumLike[E], name: String) = {
     val enumNames = `enum`.getNamesToValuesMap.values.mkString(", ")
     spray.json.deserializationError(s"$name should be one of $enumNames")
@@ -26,9 +26,19 @@ trait SprayJsonEnum {
     enumJsonFormat[E](`enum`, _.toString.toLowerCase, `enum`.withNameLowercaseOnlyOption(_))
   def uppercaseJsonFormat[E](`enum`: EnumLike[E]) =
     enumJsonFormat[E](`enum`, _.toString.toUpperCase, `enum`.withNameUppercaseOnlyOption(_))
+
+  implicit def jsonEnumFormat[E](implicit ev: EnumLike[E]): JsonFormat[E] = jsonFormat(ev)
+
+  trait KebsSprayJsonEnumsUppercase {
+    implicit def jsonEnumFormat[E](implicit ev: EnumLike[E]): JsonFormat[E] = uppercaseJsonFormat(ev)
+  }
+
+  trait KebsSprayJsonEnumsLowercase {
+    implicit def jsonEnumFormat[E](implicit ev: EnumLike[E]): JsonFormat[E] = lowercaseJsonFormat(ev)
+  }
 }
 
-trait SprayJsonValueEnum {
+trait KebsSprayJsonValueEnums {
   @inline protected final def valueEnumDeserializationError[V, E <: ValueEnumLikeEntry[V]](`enum`: ValueEnumLike[V, E], value: V) = {
     val enumValues = `enum`.getValuesToEntriesMap.keys.mkString(", ")
     spray.json.deserializationError(s"$value is not a member of $enumValues")
@@ -42,22 +52,9 @@ trait SprayJsonValueEnum {
         `enum`.withValueOption(value).getOrElse(valueEnumDeserializationError(`enum`, value))
       }
     }
-}
 
-trait KebsEnumFormats extends SprayJsonEnum with SprayJsonValueEnum {
-  implicit def jsonEnumFormat[E](implicit ev: EnumLike[E]): JsonFormat[E] = jsonFormat(ev)
   implicit def jsonValueEnumFormat[V, E <: ValueEnumLikeEntry[V]](implicit
       ev: ValueEnumLike[V, E],
       baseJsonFormat: JsonFormat[V]
   ): JsonFormat[E] = jsonFormatValue(ev)
-
-  trait Uppercase extends SprayJsonEnum {
-    implicit def jsonEnumFormat[E](implicit ev: EnumLike[E]): JsonFormat[E] = uppercaseJsonFormat(ev)
-  }
-
-  trait Lowercase extends SprayJsonEnum {
-    implicit def jsonEnumFormat[E](implicit ev: EnumLike[E]): JsonFormat[E] = lowercaseJsonFormat(ev)
-  }
 }
-
-object KebsEnumFormats extends KebsEnumFormats

@@ -1,13 +1,13 @@
-package pl.iterators.kebs.sprayjson
+package pl.iterators.kebs.sprayjson.formats
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
+import pl.iterators.kebs.sprayjson.KebsSprayJsonSnakified
 import spray.json.{DefaultJsonProtocol, JsArray, JsBoolean, JsNull, JsNumber, JsObject, JsString, JsonFormat, NullOptions, RootJsonFormat}
 
-class SprayJsonFormatSnakifyVariantTests extends AnyFunSuite with Matchers {
-  object KebsProtocol extends DefaultJsonProtocol with KebsSprayJson.Snakified with CaseClass1ToValueClass
-  import KebsProtocol._
+class SprayJsonFormatSnakifiedVariantTests extends AnyFunSuite with Matchers {
+  object KebsProtocol extends DefaultJsonProtocol with KebsSprayJsonSnakified with CaseClass1ToValueClass
 
   case class C(anInteger: Int)
   case class D(intField: Int, stringField: String)
@@ -16,36 +16,48 @@ class SprayJsonFormatSnakifyVariantTests extends AnyFunSuite with Matchers {
   case class Compound(CField: C, DField: D)
 
   test("Flat format remains unchanged") {
+    import KebsProtocol._
+
     val jf = implicitly[JsonFormat[C]]
     jf.write(C(10)) shouldBe JsNumber(10)
     jf.read(JsNumber(10)) shouldBe C(10)
   }
 
   test("Root format 0 remains unchanged") {
+    import KebsProtocol._
+
     val jf = implicitly[RootJsonFormat[F.type]]
     jf.write(F) shouldBe JsObject()
     jf.read(JsObject()) shouldBe F
   }
 
   test("Root format 1 snakified") {
+    import KebsProtocol._
+
     val jf = implicitly[RootJsonFormat[C]]
     jf.write(C(10)) shouldBe JsObject("an_integer" -> JsNumber(10))
     jf.read(JsObject("an_integer" -> JsNumber(0))) shouldBe C(0)
   }
 
   test("Root format 2 snakified") {
+    import KebsProtocol._
+
     val jf = implicitly[RootJsonFormat[D]]
     jf.write(D(10, "abcd")) shouldBe JsObject("int_field" -> JsNumber(10), "string_field" -> JsString("abcd"))
     jf.read(JsObject("int_field" -> JsNumber(5), "string_field" -> JsString("abcdef"))) shouldBe D(5, "abcdef")
   }
 
   test("Json format 2 snakified") {
+    import KebsProtocol._
+
     val jf = implicitly[JsonFormat[D]]
     jf.write(D(10, "abcd")) shouldBe JsObject("int_field" -> JsNumber(10), "string_field" -> JsString("abcd"))
     jf.read(JsObject("int_field" -> JsNumber(5), "string_field" -> JsString("abcdef"))) shouldBe D(5, "abcdef")
   }
 
   test("Root format snakified - compound") {
+    import KebsProtocol._
+
     val jf = implicitly[JsonFormat[Compound]]
     jf.write(Compound(C(5), D(10, "abcd"))) shouldBe JsObject(
       "c_field" -> JsNumber(5),
@@ -58,7 +70,8 @@ class SprayJsonFormatSnakifyVariantTests extends AnyFunSuite with Matchers {
   }
 
   test("Root format snakified - case class with > 22 fields (issue #7)") {
-    import model._
+    import pl.iterators.kebs.sprayjson.model._
+    import KebsProtocol._
 
     val jf  = implicitly[JsonFormat[ClassWith23Fields]]
     val obj = ClassWith23Fields.Example
@@ -94,10 +107,10 @@ class SprayJsonFormatSnakifyVariantTests extends AnyFunSuite with Matchers {
   }
 
   test("Root format snakified with NullOptions - case class with > 22 fields (issue #73)") {
-    object KebsProtocolNullOptions extends DefaultJsonProtocol with KebsSprayJson.Snakified with NullOptions
+    object KebsProtocolNullOptions extends DefaultJsonProtocol with KebsSprayJsonSnakified with NullOptions with CaseClass1ToValueClass
 
     import KebsProtocolNullOptions._
-    import model._
+    import pl.iterators.kebs.sprayjson.model._
 
     val jf  = implicitly[JsonFormat[ClassWith23Fields]]
     val obj = ClassWith23Fields.Example

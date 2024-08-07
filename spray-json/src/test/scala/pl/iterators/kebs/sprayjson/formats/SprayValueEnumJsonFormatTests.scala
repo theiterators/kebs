@@ -1,10 +1,11 @@
-package pl.iterators.kebs.sprayjson
+package pl.iterators.kebs.sprayjson.formats
 
 import enumeratum.values.{LongEnum, LongEnumEntry}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.core.enums.ValueEnumLikeEntry
 import pl.iterators.kebs.enumeratum.KebsValueEnumeratum
+import pl.iterators.kebs.sprayjson.{KebsSprayJson, KebsSprayJsonEnums, KebsSprayJsonValueEnums}
 import spray.json._
 
 class SprayValueEnumJsonFormatTests extends AnyFunSuite with Matchers with KebsValueEnumeratum {
@@ -21,7 +22,7 @@ class SprayValueEnumJsonFormatTests extends AnyFunSuite with Matchers with KebsV
 
   import LongGreeting._
 
-  object KebsProtocol extends DefaultJsonProtocol with KebsSprayJson with KebsEnumFormats
+  object KebsProtocol extends DefaultJsonProtocol with KebsSprayJson with KebsSprayJsonEnums with KebsSprayJsonValueEnums
 
   test("value enum JsonFormat") {
     import KebsProtocol._

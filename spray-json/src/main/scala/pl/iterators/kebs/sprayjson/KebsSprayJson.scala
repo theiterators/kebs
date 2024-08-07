@@ -22,18 +22,16 @@ trait KebsSprayJson { self: DefaultJsonProtocol =>
 
   @inline
   def _kebs_getField[T](value: JsValue, fieldName: String)(implicit reader: JsonReader[T]) = fromField[T](value, fieldName)
-}
 
-object KebsSprayJson {
-  trait Snakified extends KebsSprayJson { self: DefaultJsonProtocol =>
+  trait KebsSprayJsonSnakified extends KebsSprayJson { self: DefaultJsonProtocol =>
     import macros.KebsSprayMacros
     implicit def snakifiedJsonFormatN[T <: Product]: RootJsonFormat[T] = macro KebsSprayMacros.SnakifyVariant.materializeRootFormat[T]
   }
-  trait Capitalized extends KebsSprayJson { self: DefaultJsonProtocol =>
+  trait KebsSprayJsonCapitalized extends KebsSprayJson { self: DefaultJsonProtocol =>
     import macros.KebsSprayMacros
     // format: off
     implicit def capitalizedJsonFormatN[T <: Product]: RootJsonFormat[T] =
-      macro KebsSprayMacros.CapitalizedCamelCase.materializeRootFormat[T]
+    macro KebsSprayMacros.CapitalizedCamelCase.materializeRootFormat[T]
     // format: on
   }
 }
