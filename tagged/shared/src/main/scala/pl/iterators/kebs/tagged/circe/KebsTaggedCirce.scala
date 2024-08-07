@@ -8,7 +8,7 @@ import pl.iterators.kebs.tagged.@@
 import io.circe.syntax._
 import pl.iterators.kebs.tagged._
 
-trait CirceSupport {
+trait KebsTaggedCirce {
 
   private def taggedCodec[U: Decoder: Encoder, T]: Codec[U @@ T] =
     new Codec[U @@ T] {
