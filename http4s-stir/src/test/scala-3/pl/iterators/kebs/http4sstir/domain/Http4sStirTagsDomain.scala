@@ -10,10 +10,23 @@ import pl.iterators.kebs.core.enums.ValueEnumLikeEntry
 object Domain {
   opaque type TestTaggedUri = URI
   object TestTaggedUri extends Opaque[TestTaggedUri, URI]
+
   opaque type TestId = UUID
   object TestId extends Opaque[TestId, UUID]
+
   opaque type Id = Long
   object Id extends Opaque[Id, Long]
+
+  opaque type TestDouble = Double
+  object TestDouble extends Opaque[TestDouble, Double]
+
+  opaque type UUIDId = UUID
+  object UUIDId extends Opaque[UUIDId, UUID] {
+    def generate[T]: UUIDId = UUID.randomUUID()
+    def fromString[T](str: String): UUIDId =
+      UUID.fromString(str)
+  }
+
   case class I(i: Int)
   case class S(s: String)
   case class P[A](a: A)

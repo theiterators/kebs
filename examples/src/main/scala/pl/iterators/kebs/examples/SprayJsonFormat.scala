@@ -6,7 +6,7 @@ import org.apache.pekko.http.scaladsl.model.StatusCodes._
 import org.apache.pekko.http.scaladsl.server.Directives._
 import pl.iterators.kebs.circe.instances.net.URIString
 import pl.iterators.kebs.circe.instances.util.UUIDString
-import pl.iterators.kebs.json.KebsSpray
+import pl.iterators.kebs.playjson.KebsSpray
 import spray.json._
 
 import java.net.URI

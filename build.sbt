@@ -87,13 +87,6 @@ def disableScala(v: List[String]) =
   )
 
 def optional(dependency: ModuleID) = dependency % "provided"
-def sv[A](scalaVersion: String, scala2_12Version: => A, scala2_13Version: => A) =
-  CrossVersion.partialVersion(scalaVersion) match {
-    case Some((2, 13)) => scala2_13Version
-    case Some((2, 12)) => scala2_12Version
-    case _ =>
-      throw new IllegalArgumentException(s"Unsupported Scala version $scalaVersion")
-  }
 
 def paradiseFlag(scalaVersion: String): Seq[String] =
   if (scalaVersion == scala_3)
@@ -118,11 +111,10 @@ val circeParser     = "io.circe"            %% "circe-parser"         % circeV
 
 val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.11"
 
-val scalacheck = "org.scalacheck" %% "scalacheck" % "1.18.0" % "test"
+val scalacheck = "org.scalacheck" %% "scalacheck" % "1.18.0"
 
 val scalacheckMagnolify  = "com.spotify"         % "magnolify-scalacheck"  % "0.7.3"
 val scalacheckDerived    = "io.github.martinhh" %% "scalacheck-derived"    % "0.4.2"
-val scalacheckEnumeratum = "com.beachape"       %% "enumeratum-scalacheck" % "1.7.4"
 
 val enumeratumVersion         = "1.7.4"
 val enumeratumPlayJsonVersion = "1.8.1"
@@ -206,16 +198,14 @@ lazy val enumeratumSettings = commonMacroSettings ++ Seq(
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
-lazy val sprayJsonMacroSettings = commonMacroSettings ++ Seq(
-  libraryDependencies += sprayJson.cross(CrossVersion.for3Use2_13)
-)
-
 lazy val sprayJsonSettings = commonSettings ++ Seq(
+  libraryDependencies += sprayJson.cross(CrossVersion.for3Use2_13),
   libraryDependencies += optionalEnumeratum
 )
 
 lazy val playJsonSettings = commonSettings ++ Seq(
-  libraryDependencies += playJson
+  libraryDependencies += playJson,
+  libraryDependencies += (enumeratum % "test")
 )
 
 lazy val circeSettings = commonSettings ++ Seq(
@@ -264,7 +254,7 @@ lazy val jsonschemaSettings = commonSettings ++ Seq(
 
 lazy val scalacheckSettings = commonSettings ++ Seq(
   libraryDependencies += scalacheck,
-  libraryDependencies += scalacheckEnumeratum
+  libraryDependencies += (enumeratum % "test"),
 ) ++ Seq(
   libraryDependencies ++= (if (scalaVersion.value.startsWith("3")) Seq(scalacheckDerived)
                            else Nil)
@@ -330,22 +320,9 @@ lazy val doobieSupport = project
     crossScalaVersions := supportedScalaVersions
   )
 
-lazy val sprayJsonMacros = project
-  .in(file("spray-json-macros"))
-  .dependsOn(core.jvm)
-  .settings(sprayJsonMacroSettings *)
-  .settings(publishSettings *)
-  .settings(disableScala(List("3")))
-  .settings(
-    name               := "spray-json-macros",
-    description        := "Automatic generation of Spray json formats for case-classes - macros",
-    moduleName         := "kebs-spray-json-macros",
-    crossScalaVersions := supportedScalaVersions
-  )
-
 lazy val sprayJsonSupport = project
   .in(file("spray-json"))
-  .dependsOn(sprayJsonMacros, enumeratumSupport, instances % "test -> test")
+  .dependsOn(enumeratumSupport, instances % "test -> test")
   .settings(sprayJsonSettings *)
   .settings(publishSettings *)
   .settings(disableScala(List("3")))
@@ -358,7 +335,7 @@ lazy val sprayJsonSupport = project
 
 lazy val playJsonSupport = project
   .in(file("play-json"))
-  .dependsOn(core.jvm, instances % "test -> test")
+  .dependsOn(core.jvm, enumeratumSupport, enumSupport, instances % "test -> test")
   .settings(playJsonSettings *)
   .settings(publishSettings *)
   .settings(
@@ -451,7 +428,7 @@ lazy val jsonschemaSupport = project
 
 lazy val scalacheckSupport = project
   .in(file("scalacheck"))
-  .dependsOn(core.jvm, opaque.jvm % "test -> test")
+  .dependsOn(core.jvm, enumSupport, opaque.jvm % "test -> test")
   .settings(scalacheckSettings *)
   .settings(publishSettings *)
   .settings(
@@ -564,7 +541,6 @@ lazy val kebs = project
     core.js,
     slickSupport,
     doobieSupport,
-    sprayJsonMacros,
     sprayJsonSupport,
     playJsonSupport,
     circeSupport,

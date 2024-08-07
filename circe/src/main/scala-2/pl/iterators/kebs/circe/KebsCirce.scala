@@ -18,16 +18,13 @@ trait KebsCirce extends AutoDerivation {
 
   implicit def instanceConverterDecoder[T, A](implicit rep: InstanceConverter[T, A], decoder: Decoder[A]): Decoder[T] =
     decoder.emap(obj => Try(rep.decode(obj)).toEither.left.map(_.getMessage))
-}
 
-object KebsCirce {
-
-  trait Snakified extends KebsCirce {
+  trait KebsCirceSnakified extends KebsCirce {
     implicit def genericSnakifiedDecoder[T <: Product]: Decoder[T] = macro KebsCirceMacros.SnakifyVariant.materializeDecoder[T]
     implicit def genericSnakifiedEncoder[T <: Product]: Encoder[T] = macro KebsCirceMacros.SnakifyVariant.materializeEncoder[T]
   }
 
-  trait Capitalized extends KebsCirce {
+  trait KebsCirceCapitalized extends KebsCirce {
     implicit def genericCapitalizedDecoder[T <: Product]: Decoder[T] = macro KebsCirceMacros.CapitalizedCamelCase.materializeDecoder[T]
     implicit def genericCapitalizedEncoder[T <: Product]: Encoder[T] = macro KebsCirceMacros.CapitalizedCamelCase.materializeEncoder[T]
   }

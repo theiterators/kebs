@@ -3,13 +3,11 @@ package pl.iterators.kebs.enums
 import scala.collection.immutable
 import scala.compiletime.{constValue, erasedValue, error, summonInline}
 import scala.deriving.Mirror
-import scala.reflect.ClassTag
 
 import pl.iterators.kebs.core.enums.{ValueEnumLike, ValueEnumLikeEntry}
 
 trait KebsValueEnum {
-  inline implicit def valueEnumScala[V, E <: ValueEnumLikeEntry[V]](using
-      classTag: ClassTag[E],
+  inline implicit def kebsValueEnumScala[V, E <: ValueEnumLikeEntry[V]](using
       m: Mirror.SumOf[E]
   ): ValueEnumLike[V, E] = {
     val enumValues = summonValueCases[m.MirroredElemTypes, V, E]

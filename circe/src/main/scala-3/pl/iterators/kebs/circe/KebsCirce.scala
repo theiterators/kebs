@@ -34,15 +34,12 @@ trait KebsCirce extends KebsAutoDerivation {
 
   inline implicit def instanceConverterDecoder[T, A](using rep: InstanceConverter[T, A], decoder: Decoder[A]): Decoder[T] =
     decoder.emap(obj => Try(rep.decode(obj)).toEither.left.map(_.getMessage))
-}
 
-object KebsCirce {
-
-  trait Snakified extends KebsCirce {
+  trait KebsCirceSnakified extends KebsCirce {
     override implicit val configuration: Configuration = Configuration.default.withSnakeCaseMemberNames
   }
 
-  trait Capitalized extends KebsCirce {
+  trait KebsCirceCapitalized extends KebsCirce {
     override implicit val configuration: Configuration = Configuration.default.withPascalCaseMemberNames
   }
 }

@@ -8,7 +8,7 @@ import org.apache.pekko.http.scaladsl.marshalling.ToResponseMarshallable
 import org.apache.pekko.http.scaladsl.model.StatusCodes._
 import org.apache.pekko.http.scaladsl.server.Directives._
 import enumeratum.{Enum, EnumEntry}
-import pl.iterators.kebs.json.{KebsEnumFormats, KebsSpray}
+import pl.iterators.kebs.playjson.{KebsEnumFormats, KebsSpray}
 import spray.json.{DefaultJsonProtocol, JsString, JsValue, JsonFormat, JsonReader, JsonWriter, deserializationError}
 
 import scala.concurrent.{ExecutionContext, Future}

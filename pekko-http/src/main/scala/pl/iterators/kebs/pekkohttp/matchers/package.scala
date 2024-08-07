@@ -1,3 +1,3 @@
 package pl.iterators.kebs.pekkohttp
 
-package object matchers extends KebsMatchers
+package object matchers extends KebsPekkoHttpMatchers

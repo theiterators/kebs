@@ -2,7 +2,6 @@ package pl.iterators.kebs.enums
 
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Gen, Properties}
-import scala.reflect.{ClassTag, Enum}
 
 import pl.iterators.kebs.core.enums.{ValueEnumLike, ValueEnumLikeEntry}
 

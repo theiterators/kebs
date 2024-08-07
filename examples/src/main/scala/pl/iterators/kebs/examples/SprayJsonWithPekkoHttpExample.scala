@@ -15,7 +15,7 @@ import org.apache.pekko.http.scaladsl.model._
 import org.apache.pekko.http.scaladsl.model.headers.RawHeader
 import org.apache.pekko.http.scaladsl.unmarshalling.Unmarshal
 import org.apache.pekko.stream.Materializer
-import pl.iterators.kebs.json.KebsSpray
+import pl.iterators.kebs.playjson.KebsSpray
 import spray.json._
 
 import scala.concurrent.duration._

@@ -1,3 +1,3 @@
 package pl.iterators.kebs.pekkohttp
 
-package object unmarshallers extends KebsUnmarshallers
+package object unmarshallers extends KebsPekkoHttpUnmarshallers
