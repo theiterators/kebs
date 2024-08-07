@@ -155,12 +155,14 @@ object EnumValueColumnType {
     override def toString: String = s"${addressLine1.line} ${addressLine2.map(_.line).getOrElse("")}, ${city.city}"
   }
 
-  case class BillingInfo(address: Address,
-                         taxId: TaxId,
-                         bankName: BankName,
-                         bankAccountNumber: BankAccountNumber,
-                         recipientName: RecipientName,
-                         additionalInfo: AdditionalInfo)
+  case class BillingInfo(
+      address: Address,
+      taxId: TaxId,
+      bankName: BankName,
+      bankAccountNumber: BankAccountNumber,
+      recipientName: RecipientName,
+      additionalInfo: AdditionalInfo
+  )
 
   case class Mobile(countryCode: String, number: String)
 
@@ -173,12 +175,14 @@ object EnumValueColumnType {
     override val values = findValues
   }
 
-  case class Person(userId: UserId,
-                    emailAddress: EmailAddress,
-                    fullName: FullName,
-                    mobile: Mobile,
-                    billingInfo: BillingInfo,
-                    workCity: City,
-                    workArea: Area,
-                    status: WorkerAccountStatus)
+  case class Person(
+      userId: UserId,
+      emailAddress: EmailAddress,
+      fullName: FullName,
+      mobile: Mobile,
+      billingInfo: BillingInfo,
+      workCity: City,
+      workArea: Area,
+      status: WorkerAccountStatus
+  )
 }

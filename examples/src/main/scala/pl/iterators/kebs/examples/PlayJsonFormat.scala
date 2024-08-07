@@ -59,30 +59,36 @@ object PlayJsonFormat {
     override val values = findValues
   }
 
-  case class Thing(id: ThingId,
-                   name: ThingName,
-                   description: ThingDescription,
-                   pictureUrl: URL,
-                   tags: List[TagId],
-                   location: Location,
-                   status: ThingStatus)
+  case class Thing(
+      id: ThingId,
+      name: ThingName,
+      description: ThingDescription,
+      pictureUrl: URL,
+      tags: List[TagId],
+      location: Location,
+      status: ThingStatus
+  )
 
-  case class ThingCreateRequest(name: ThingName,
-                                description: ThingDescription,
-                                pictureUrl: Option[URL],
-                                tags: List[TagId],
-                                location: Location)
+  case class ThingCreateRequest(
+      name: ThingName,
+      description: ThingDescription,
+      pictureUrl: Option[URL],
+      tags: List[TagId],
+      location: Location
+  )
   sealed abstract class ThingCreateResponse
   object ThingCreateResponse {
     case class Created(thing: Thing) extends ThingCreateResponse
     case object AlreadyExists        extends ThingCreateResponse
   }
 
-  case class ThingUpdateRequest(name: Option[ThingName],
-                                description: Option[ThingDescription],
-                                tags: Option[List[TagId]],
-                                location: Option[Location],
-                                status: Option[ThingStatus])
+  case class ThingUpdateRequest(
+      name: Option[ThingName],
+      description: Option[ThingDescription],
+      tags: Option[List[TagId]],
+      location: Option[Location],
+      status: Option[ThingStatus]
+  )
 
   sealed trait ThingUpdateResponse
   object ThingUpdateResponse {

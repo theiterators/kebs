@@ -86,11 +86,13 @@ object CirceExample {
 
   case class Thing(id: ThingId, name: ThingName, description: ThingDescription, pictureUrl: URL, tags: List[TagId], location: Location)
 
-  case class ThingCreateRequest(name: ThingName,
-                                description: ThingDescription,
-                                pictureUrl: Option[URL],
-                                tags: List[TagId],
-                                location: Location)
+  case class ThingCreateRequest(
+      name: ThingName,
+      description: ThingDescription,
+      pictureUrl: Option[URL],
+      tags: List[TagId],
+      location: Location
+  )
   sealed abstract class ThingCreateResponse
   object ThingCreateResponse {
     case class Created(thing: Thing) extends ThingCreateResponse
@@ -125,8 +127,8 @@ trait CircePekkoHttpSupport {
         case data             => parseByteBuffer(data.asByteBuffer).fold(throw _, identity)
       }
 
-  implicit def jsonMarshaller(
-      implicit printer: Printer = Printer.noSpaces
+  implicit def jsonMarshaller(implicit
+      printer: Printer = Printer.noSpaces
   ): ToEntityMarshaller[Json] =
     Marshaller.oneOf(mediaTypes: _*) { mediaType =>
       Marshaller.withFixedContentType(ContentType(mediaType)) { json =>

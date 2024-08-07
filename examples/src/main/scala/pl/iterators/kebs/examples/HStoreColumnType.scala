@@ -52,20 +52,24 @@ object HStoreColumnType {
     import MyPostgresProfile.api._
 
     class HStoreTestTable(tag: Tag)
-        extends Table[(
-            Long,
-            Map[LanguageName, LanguageImportance],
-            Map[CategoryName, CategoryImportance],
-            Map[YearMonth, Boolean]
-        )](tag, "HStoreTest") {
+        extends Table[
+          (
+              Long,
+              Map[LanguageName, LanguageImportance],
+              Map[CategoryName, CategoryImportance],
+              Map[YearMonth, Boolean]
+          )
+        ](tag, "HStoreTest") {
       def id                                = column[Long]("id", O.AutoInc, O.PrimaryKey)
       def languages                         = column[Map[LanguageName, LanguageImportance]]("languages")
       def categories                        = column[Map[CategoryName, CategoryImportance]]("categories")
       def history: Rep[Map[String, String]] = column[Map[String, String]]("history")
 
       def historyMapped: MappedProjection[Map[YearMonth, Boolean], Map[String, String]] =
-        history.<>(h => h.map(kv => yearMonthIso.comap(kv._1) -> kv._2.toBoolean),
-                   h => Option(h.map(kv => yearMonthIso.map(kv._1) -> kv._2.toString)))
+        history.<>(
+          h => h.map(kv => yearMonthIso.comap(kv._1) -> kv._2.toBoolean),
+          h => Option(h.map(kv => yearMonthIso.map(kv._1) -> kv._2.toString))
+        )
 
       def * = (id, languages, categories, historyMapped)
     }
@@ -82,12 +86,14 @@ object HStoreColumnType {
 
     import MyPostgresProfile.api._
     class HStoreTestTable(tag: Tag)
-        extends Table[(
-            Long,
-            Map[LanguageName, LanguageImportance],
-            Map[CategoryName, CategoryImportance],
-            Map[YearMonth, Boolean]
-        )](tag, "HStoreTest") {
+        extends Table[
+          (
+              Long,
+              Map[LanguageName, LanguageImportance],
+              Map[CategoryName, CategoryImportance],
+              Map[YearMonth, Boolean]
+          )
+        ](tag, "HStoreTest") {
       def id                                    = column[Long]("id", O.AutoInc, O.PrimaryKey)
       def languages                             = column[Map[LanguageName, LanguageImportance]]("languages")
       def categories                            = column[Map[CategoryName, CategoryImportance]]("categories")
