@@ -113,8 +113,8 @@ val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.11"
 
 val scalacheck = "org.scalacheck" %% "scalacheck" % "1.18.0"
 
-val scalacheckMagnolify  = "com.spotify"         % "magnolify-scalacheck"  % "0.7.3"
-val scalacheckDerived    = "io.github.martinhh" %% "scalacheck-derived"    % "0.4.2"
+val scalacheckMagnolify = "com.spotify"         % "magnolify-scalacheck" % "0.7.3"
+val scalacheckDerived   = "io.github.martinhh" %% "scalacheck-derived"   % "0.4.2"
 
 val enumeratumVersion         = "1.7.4"
 val enumeratumPlayJsonVersion = "1.8.1"
@@ -140,7 +140,7 @@ def akkaHttpInExamples = {
   )
 }
 
-val pekkoVersion       = "1.0.3"
+val pekkoVersion       = "1.1.0"
 val pekkoHttpVersion   = "1.0.1"
 val pekkoHttpJsonV     = "2.0.0"
 val pekkoStream        = "org.apache.pekko" %% "pekko-stream"         % pekkoVersion
@@ -254,7 +254,7 @@ lazy val jsonschemaSettings = commonSettings ++ Seq(
 
 lazy val scalacheckSettings = commonSettings ++ Seq(
   libraryDependencies += scalacheck,
-  libraryDependencies += (enumeratum % "test"),
+  libraryDependencies += (enumeratum % "test")
 ) ++ Seq(
   libraryDependencies ++= (if (scalaVersion.value.startsWith("3")) Seq(scalacheckDerived)
                            else Nil)
