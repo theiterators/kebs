@@ -103,7 +103,7 @@ val slickPg         = "com.github.tminglei" %% "slick-pg"             % "0.22.2"
 val doobie          = "org.tpolecat"        %% "doobie-core"          % "1.0.0-RC4"
 val doobiePg        = "org.tpolecat"        %% "doobie-postgres"      % "1.0.0-RC4"
 val sprayJson       = "io.spray"            %% "spray-json"           % "1.3.6"
-val circeV          = "0.14.9"
+val circeV          = "0.14.10"
 val circe           = "io.circe"            %% "circe-core"           % circeV
 val circeAuto       = "io.circe"            %% "circe-generic"        % circeV
 val circeAutoExtras = "io.circe"            %% "circe-generic-extras" % "0.14.3"
@@ -113,8 +113,8 @@ val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.11"
 
 val scalacheck = "org.scalacheck" %% "scalacheck" % "1.18.0"
 
-val scalacheckMagnolify  = "com.spotify"         % "magnolify-scalacheck"  % "0.7.3"
-val scalacheckDerived    = "io.github.martinhh" %% "scalacheck-derived"    % "0.4.2"
+val scalacheckMagnolify = "com.spotify"         % "magnolify-scalacheck" % "0.7.3"
+val scalacheckDerived   = "io.github.martinhh" %% "scalacheck-derived"   % "0.4.2"
 
 val enumeratumVersion         = "1.7.4"
 val enumeratumPlayJsonVersion = "1.8.1"
@@ -254,7 +254,7 @@ lazy val jsonschemaSettings = commonSettings ++ Seq(
 
 lazy val scalacheckSettings = commonSettings ++ Seq(
   libraryDependencies += scalacheck,
-  libraryDependencies += (enumeratum % "test"),
+  libraryDependencies += (enumeratum % "test")
 ) ++ Seq(
   libraryDependencies ++= (if (scalaVersion.value.startsWith("3")) Seq(scalacheckDerived)
                            else Nil)
