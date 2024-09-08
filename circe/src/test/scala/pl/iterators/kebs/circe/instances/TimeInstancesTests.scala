@@ -9,7 +9,7 @@ import pl.iterators.kebs.instances.TimeInstances
 import java.time._
 
 class TimeInstancesTests extends AnyFunSuite with Matchers with KebsCirce with TimeInstances {
-
+  private def isScalaJS = System.getProperty("java.vm.name") == "Scala.js"
   test("No ValueClassLike implicits derived") {
 
     "implicitly[ValueClassLike[DayOfWeek, Int]]" shouldNot typeCheck
@@ -268,13 +268,15 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with KebsCirce with T
   }
 
   test("ZoneId standard format") {
-    val encoder = implicitly[Encoder[ZoneId]]
-    val decoder = implicitly[Decoder[ZoneId]]
-    val value   = "Europe/Warsaw"
-    val obj     = ZoneId.of(value)
+    if (!isScalaJS) {
+      val encoder = implicitly[Encoder[ZoneId]]
+      val decoder = implicitly[Decoder[ZoneId]]
+      val value   = "Europe/Warsaw"
+      val obj     = ZoneId.of(value)
 
-    encoder(obj) shouldBe Json.fromString(value)
-    decoder(Json.fromString(value).hcursor) shouldBe Right(obj)
+      encoder(obj) shouldBe Json.fromString(value)
+      decoder(Json.fromString(value).hcursor) shouldBe Right(obj)
+    }
   }
 
   test("ZoneId wrong format exception") {
@@ -302,13 +304,15 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with KebsCirce with T
   }
 
   test("ZonedDateTime standard format") {
-    val encoder = implicitly[Encoder[ZonedDateTime]]
-    val decoder = implicitly[Decoder[ZonedDateTime]]
-    val value   = "2011-12-03T10:15:30+01:00[Europe/Warsaw]"
-    val obj     = ZonedDateTime.parse(value)
+    if (!isScalaJS) {
+      val encoder = implicitly[Encoder[ZonedDateTime]]
+      val decoder = implicitly[Decoder[ZonedDateTime]]
+      val value   = "2011-12-03T10:15:30+01:00[Europe/Warsaw]"
+      val obj     = ZonedDateTime.parse(value)
 
-    encoder(obj) shouldBe Json.fromString(value)
-    decoder(Json.fromString(value).hcursor) shouldBe Right(obj)
+      encoder(obj) shouldBe Json.fromString(value)
+      decoder(Json.fromString(value).hcursor) shouldBe Right(obj)
+    }
   }
 
   test("ZonedDateTime wrong format exception") {

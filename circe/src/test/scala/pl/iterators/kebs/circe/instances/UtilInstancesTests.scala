@@ -9,7 +9,7 @@ import pl.iterators.kebs.instances.UtilInstances
 import java.util.{Currency, Locale, UUID}
 
 class UtilInstancesTests extends AnyFunSuite with Matchers with KebsCirce with UtilInstances {
-
+  private def isScalaJS = System.getProperty("java.vm.name") == "Scala.js"
   test("No ValueClassLike implicits derived") {
 
     "implicitly[ValueClassLike[Currency, String]]" shouldNot typeCheck
@@ -21,13 +21,15 @@ class UtilInstancesTests extends AnyFunSuite with Matchers with KebsCirce with U
   }
 
   test("Currency standard format") {
-    val encoder = implicitly[Encoder[Currency]]
-    val decoder = implicitly[Decoder[Currency]]
-    val value   = "PLN"
-    val obj     = Currency.getInstance(value)
+    if (!isScalaJS) {
+      val encoder = implicitly[Encoder[Currency]]
+      val decoder = implicitly[Decoder[Currency]]
+      val value   = "PLN"
+      val obj     = Currency.getInstance(value)
 
-    encoder(obj) shouldBe Json.fromString(value)
-    decoder(Json.fromString(value).hcursor) shouldBe Right(obj)
+      encoder(obj) shouldBe Json.fromString(value)
+      decoder(Json.fromString(value).hcursor) shouldBe Right(obj)
+    }
   }
 
   test("Currency wrong format exception") {

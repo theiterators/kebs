@@ -9,6 +9,7 @@ import play.api.libs.json.{Format, JsError, JsString, JsSuccess}
 import java.util.{Currency, Locale, UUID}
 
 class UtilInstancesTests extends AnyFunSuite with Matchers with UtilInstances {
+  private def isScalaJS = System.getProperty("java.vm.name") == "Scala.js"
   import pl.iterators.kebs.playjson._
   test("No ValueClassLike implicits derived") {
 
@@ -21,12 +22,14 @@ class UtilInstancesTests extends AnyFunSuite with Matchers with UtilInstances {
   }
 
   test("Currency standard format") {
-    val jf    = implicitly[Format[Currency]]
-    val value = "PLN"
-    val obj   = Currency.getInstance(value)
+    if (!isScalaJS) {
+      val jf    = implicitly[Format[Currency]]
+      val value = "PLN"
+      val obj   = Currency.getInstance(value)
 
-    jf.writes(obj) shouldBe JsString(value)
-    jf.reads(JsString(value)) shouldBe JsSuccess(obj)
+      jf.writes(obj) shouldBe JsString(value)
+      jf.reads(JsString(value)) shouldBe JsSuccess(obj)
+    }
   }
 
   test("Currency wrong format exception") {
