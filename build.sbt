@@ -160,6 +160,11 @@ val http4sStirVersion = "0.3"
 val http4sStir        = "pl.iterators" %% "http4s-stir"         % http4sStirVersion
 val http4sStirTestkit = "pl.iterators" %% "http4s-stir-testkit" % http4sStirVersion
 
+val pureConfigVersion = "0.17.7"
+val pureConfig        = "com.github.pureconfig" %% "pureconfig-core" % pureConfigVersion
+val pureConfigGeneric = "com.github.pureconfig" %% "pureconfig-generic" % pureConfigVersion
+val pureConfigGenericScala3 = "com.github.pureconfig" %% "pureconfig-generic-scala3" % pureConfigVersion
+
 lazy val commonSettings = baseSettings ++ Seq(
   scalacOptions ++=
     (if (scalaVersion.value.startsWith("3"))
@@ -283,6 +288,11 @@ lazy val taggedMetaSettings = metaSettings ++ Seq(
 )
 
 lazy val instancesSettings = commonSettings
+
+lazy val pureConfigSettings = commonSettings ++ Seq(
+  libraryDependencies += pureConfig,
+  libraryDependencies += (if (scalaVersion.value.startsWith("3")) pureConfigGenericScala3 else pureConfigGeneric) % "test",
+)
 
 lazy val core = crossProject(JSPlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
@@ -530,6 +540,16 @@ lazy val enumeratumSupport = project
     moduleName := "kebs-enumeratum"
   )
 
+lazy val pureConfigSupport = project
+  .in(file("pureconfig"))
+  .dependsOn(core.jvm)
+  .settings(pureConfigSettings *)
+  .settings(publishSettings *)
+  .settings(
+    name := "pureconfig",
+    moduleName := "kebs-pureconfig"
+)
+
 lazy val kebs = project
   .in(file("."))
   .aggregate(
@@ -553,7 +573,8 @@ lazy val kebs = project
     taggedMeta,
     instances,
     enumSupport,
-    enumeratumSupport
+    enumeratumSupport,
+    pureConfigSupport
   )
   .settings(baseSettings *)
   .settings(noPublishSettings)
