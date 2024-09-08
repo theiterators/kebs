@@ -158,8 +158,8 @@ val http4sVersion = "0.23.27"
 val http4s        = Def.setting("org.http4s" %%% "http4s-dsl" % http4sVersion)
 
 val http4sStirVersion = "0.3"
-val http4sStir        = "pl.iterators" %% "http4s-stir"         % http4sStirVersion
-val http4sStirTestkit = "pl.iterators" %% "http4s-stir-testkit" % http4sStirVersion
+val http4sStir        = Def.setting("pl.iterators" %%% "http4s-stir"         % http4sStirVersion)
+val http4sStirTestkit = Def.setting("pl.iterators" %%% "http4s-stir-testkit" % http4sStirVersion)
 
 val pureConfigVersion = "0.17.7"
 val pureConfig        = "com.github.pureconfig" %% "pureconfig-core" % pureConfigVersion
@@ -250,8 +250,8 @@ lazy val http4sSettings = commonSettings ++ Seq(
 
 lazy val http4sStirSettings = commonSettings ++ Seq(
   libraryDependencies += http4s.value,
-  libraryDependencies += http4sStir,
-  libraryDependencies += http4sStirTestkit % "test",
+  libraryDependencies += http4sStir.value,
+  libraryDependencies += http4sStirTestkit.value % "test",
   libraryDependencies += enumeratumInTest.value,
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
@@ -420,9 +420,11 @@ lazy val http4sSupport = crossProject(JSPlatform, JVMPlatform)
     crossScalaVersions := supportedScalaVersions
   )
 
-lazy val http4sStirSupport = project
+lazy val http4sStirSupport = crossProject(JSPlatform, JVMPlatform)
+  .withoutSuffixFor(JVMPlatform)
+  .crossType(CrossType.Full)
   .in(file("http4s-stir"))
-  .dependsOn(core.jvm, instances.jvm, opaque.jvm % "test -> test", tagged.jvm % "test -> test", taggedMeta.jvm % "test -> test")
+  .dependsOn(core, instances, enumSupport % "test -> test", circeSupport % "test -> test", opaque % "test -> test", tagged % "test -> test", taggedMeta % "test -> test")
   .settings(http4sStirSettings *)
   .settings(publishSettings *)
   .settings(
@@ -594,7 +596,8 @@ lazy val kebs = project
     pekkoHttpSupport,
     http4sSupport.jvm,
     http4sSupport.js,
-    http4sStirSupport,
+    http4sStirSupport.jvm,
+    http4sStirSupport.js,
     taggedMeta.jvm,
     taggedMeta.js,
     instances.jvm,
