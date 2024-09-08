@@ -155,7 +155,7 @@ def pekkoHttpInExamples = {
 }
 
 val http4sVersion = "0.23.27"
-val http4s        = "org.http4s" %% "http4s-dsl" % http4sVersion
+val http4s        = Def.setting("org.http4s" %%% "http4s-dsl" % http4sVersion)
 
 val http4sStirVersion = "0.3"
 val http4sStir        = "pl.iterators" %% "http4s-stir"         % http4sStirVersion
@@ -244,12 +244,12 @@ lazy val pekkoHttpSettings = commonSettings ++ Seq(
 )
 
 lazy val http4sSettings = commonSettings ++ Seq(
-  libraryDependencies += http4s,
+  libraryDependencies += http4s.value,
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
 lazy val http4sStirSettings = commonSettings ++ Seq(
-  libraryDependencies += http4s,
+  libraryDependencies += http4s.value,
   libraryDependencies += http4sStir,
   libraryDependencies += http4sStirTestkit % "test",
   libraryDependencies += enumeratumInTest.value,
@@ -376,7 +376,7 @@ lazy val circeSupport = crossProject(JSPlatform, JVMPlatform)
 
 lazy val akkaHttpSupport = project
   .in(file("akka-http"))
-  .dependsOn(core.jvm, enumeratumSupport.jvm, instances.jvm % "test -> test", tagged.jvm % "test -> test", taggedMeta % "test -> test")
+  .dependsOn(core.jvm, enumeratumSupport.jvm, instances.jvm % "test -> test", tagged.jvm % "test -> test", taggedMeta.jvm % "test -> test")
   .settings(akkaHttpSettings *)
   .settings(publishSettings *)
   .settings(disableScala(List("3")))
@@ -395,7 +395,7 @@ lazy val pekkoHttpSupport = project
     enumSupport.jvm,
     instances.jvm  % "test -> test",
     tagged.jvm % "test -> test",
-    taggedMeta % "test -> test"
+    taggedMeta.jvm % "test -> test"
   )
   .settings(pekkoHttpSettings *)
   .settings(publishSettings *)
@@ -406,9 +406,11 @@ lazy val pekkoHttpSupport = project
     crossScalaVersions := supportedScalaVersions
   )
 
-lazy val http4sSupport = project
+lazy val http4sSupport = crossProject(JSPlatform, JVMPlatform)
+  .withoutSuffixFor(JVMPlatform)
+  .crossType(CrossType.Full)
   .in(file("http4s"))
-  .dependsOn(core.jvm, instances.jvm, opaque.jvm % "test -> test", tagged.jvm % "test -> test", taggedMeta % "test -> test")
+  .dependsOn(core, instances, enumSupport % "test -> test", opaque % "test -> test", tagged % "test -> test", taggedMeta % "test -> test")
   .settings(http4sSettings *)
   .settings(publishSettings *)
   .settings(
@@ -420,7 +422,7 @@ lazy val http4sSupport = project
 
 lazy val http4sStirSupport = project
   .in(file("http4s-stir"))
-  .dependsOn(core.jvm, instances.jvm, opaque.jvm % "test -> test", tagged.jvm % "test -> test", taggedMeta % "test -> test")
+  .dependsOn(core.jvm, instances.jvm, opaque.jvm % "test -> test", tagged.jvm % "test -> test", taggedMeta.jvm % "test -> test")
   .settings(http4sStirSettings *)
   .settings(publishSettings *)
   .settings(
@@ -485,16 +487,20 @@ lazy val opaque = crossProject(JSPlatform, JVMPlatform)
   )
   .settings(disableScala(List("2.13")))
 
-lazy val taggedMeta = project
+lazy val taggedMeta = crossProject(JSPlatform, JVMPlatform)
+  .withoutSuffixFor(JVMPlatform)
+  .crossType(CrossType.Full)
   .in(file("tagged-meta"))
   .dependsOn(
-    core.jvm,
-    tagged.jvm,
+    core,
+    tagged
+  )
+  .jvmConfigure(_.dependsOn(
     sprayJsonSupport  % "test -> test",
     circeSupport.jvm      % "test -> test",
     jsonschemaSupport % "test -> test",
     scalacheckSupport % "test -> test"
-  )
+  ))
   .settings(taggedMetaSettings *)
   .settings(publishSettings *)
   .settings(disableScala(List("3")))
@@ -507,7 +513,7 @@ lazy val taggedMeta = project
 
 lazy val examples = project
   .in(file("examples"))
-  .dependsOn(slickSupport, sprayJsonSupport, playJsonSupport.jvm, pekkoHttpSupport, taggedMeta, circeSupport.jvm, instances.jvm)
+  .dependsOn(slickSupport, sprayJsonSupport, playJsonSupport.jvm, pekkoHttpSupport, taggedMeta.jvm, circeSupport.jvm, instances.jvm)
   .settings(examplesSettings *)
   .settings(noPublishSettings *)
   .settings(disableScala(List("3")))
@@ -586,9 +592,11 @@ lazy val kebs = project
     scalacheckSupport,
     akkaHttpSupport,
     pekkoHttpSupport,
-    http4sSupport,
+    http4sSupport.jvm,
+    http4sSupport.js,
     http4sStirSupport,
-    taggedMeta,
+    taggedMeta.jvm,
+    taggedMeta.js,
     instances.jvm,
     instances.js,
     enumSupport.jvm,
