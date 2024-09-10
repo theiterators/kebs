@@ -94,7 +94,7 @@ def paradiseFlag(scalaVersion: String): Seq[String] =
   else
     Seq("-Ymacro-annotations")
 
-val scalaTest       = Def.setting("org.scalatest" %%% "scalatest" % "3.2.17")
+val scalaTest       = Def.setting("org.scalatest" %%% "scalatest" % "3.2.19")
 val scalaCheck      = Def.setting("org.scalacheck" %%% "scalacheck" % "1.18.0")
 val slick           = "com.typesafe.slick"  %% "slick"                % "3.5.1"
 val optionalSlick   = optional(slick)
@@ -471,7 +471,7 @@ lazy val tagged = crossProject(JSPlatform, JVMPlatform)
     crossScalaVersions := supportedScalaVersions
   )
 
-lazy val opaque = crossProject(JSPlatform, JVMPlatform)
+lazy val opaque = crossProject(JSPlatform, NativePlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("opaque"))
@@ -537,7 +537,7 @@ lazy val instances = crossProject(JSPlatform, JVMPlatform)
     moduleName  := "kebs-instances"
   )
 
-lazy val enumSupport = crossProject(JSPlatform, JVMPlatform)
+lazy val enumSupport = crossProject(JSPlatform, NativePlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("enum"))
@@ -578,6 +578,7 @@ lazy val kebs = project
     tagged.js,
     opaque.jvm,
     opaque.js,
+    opaque.native,
     core.jvm,
     core.js,
     core.native,
@@ -602,6 +603,7 @@ lazy val kebs = project
     instances.js,
     enumSupport.jvm,
     enumSupport.js,
+    enumSupport.native,
     enumeratumSupport.jvm,
     enumeratumSupport.js,
     pureConfigSupport
