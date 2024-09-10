@@ -9,7 +9,8 @@ import InstanceConverter.DecodeErrorException
 import java.time._
 
 class TimeInstancesTests extends AnyFunSuite with Matchers with TimeInstances {
-  private def isScalaJS = System.getProperty("java.vm.name") == "Scala.js"
+  private def isScalaJS     = System.getProperty("java.vm.name") == "Scala.js"
+  private def isScalaNative = System.getProperty("java.vm.name") == "Scala Native"
 
   test("DayOfWeek to Int") {
     val ico   = implicitly[InstanceConverter[DayOfWeek, Int]]
@@ -220,7 +221,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with TimeInstances {
   }
 
   test("ZoneId to String") {
-    if (!isScalaJS) {
+    if (!isScalaJS && !isScalaNative) {
       val ico   = implicitly[InstanceConverter[ZoneId, String]]
       val value = "Europe/Warsaw"
       val obj   = ZoneId.of(value)
@@ -254,7 +255,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with TimeInstances {
   }
 
   test("ZonedDateTime to String") {
-    if (!isScalaJS) {
+    if (!isScalaJS && !isScalaNative) {
       val ico   = implicitly[InstanceConverter[ZonedDateTime, String]]
       val value = "2011-12-03T10:15:30+01:00[Europe/Warsaw]"
       val obj   = ZonedDateTime.parse(value)

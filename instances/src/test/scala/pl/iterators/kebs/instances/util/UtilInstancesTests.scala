@@ -9,10 +9,11 @@ import InstanceConverter.DecodeErrorException
 import java.util.{Currency, Locale, UUID}
 
 class UtilInstancesTests extends AnyFunSuite with Matchers with UtilInstances {
-  private def isScalaJS = System.getProperty("java.vm.name") == "Scala.js"
+  private def isScalaJS     = System.getProperty("java.vm.name") == "Scala.js"
+  private def isScalaNative = System.getProperty("java.vm.name") == "Scala Native"
 
   test("Currency to String") {
-    if (!isScalaJS) {
+    if (!isScalaJS && !isScalaNative) {
       val ico   = implicitly[InstanceConverter[Currency, String]]
       val value = "PLN"
       val obj   = Currency.getInstance(value)
