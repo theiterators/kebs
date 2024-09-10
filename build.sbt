@@ -95,7 +95,7 @@ def paradiseFlag(scalaVersion: String): Seq[String] =
     Seq("-Ymacro-annotations")
 
 val scalaTest       = Def.setting("org.scalatest" %%% "scalatest" % "3.2.17")
-val scalaCheck      = Def.setting("org.scalacheck" %%% "scalacheck" % "1.17.0")
+val scalaCheck      = Def.setting("org.scalacheck" %%% "scalacheck" % "1.18.0")
 val slick           = "com.typesafe.slick"  %% "slick"                % "3.5.1"
 val optionalSlick   = optional(slick)
 val playJson        = Def.setting("org.playframework"   %%% "play-json"            % "3.0.4")
@@ -190,24 +190,24 @@ lazy val doobieSettings = commonSettings ++ Seq(
 )
 
 lazy val coreSettings = commonMacroSettings ++ Seq(
-  libraryDependencies += (scalaCheck.value % "test").cross(CrossVersion.for3Use2_13)
+  libraryDependencies += (scalaCheck.value % "test")
 )
 
 lazy val enumSettings = commonMacroSettings ++ Seq(
   libraryDependencies += scalaCheck.value % "test",
-  libraryDependencies += scalaTest.value,
+  libraryDependencies += scalaTest.value % "test",
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
 lazy val enumeratumSettings = commonMacroSettings ++ Seq(
   libraryDependencies += scalaCheck.value % "test",
-  libraryDependencies += scalaTest.value,
+  libraryDependencies += scalaTest.value % "test",
   libraryDependencies += optionalEnumeratum.value,
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
 lazy val sprayJsonSettings = commonSettings ++ Seq(
-  libraryDependencies += sprayJson.cross(CrossVersion.for3Use2_13),
+  libraryDependencies += sprayJson,
   libraryDependencies += optionalEnumeratum.value
 )
 
@@ -257,7 +257,7 @@ lazy val http4sStirSettings = commonSettings ++ Seq(
 )
 
 lazy val jsonschemaSettings = commonSettings ++ Seq(
-  libraryDependencies += jsonschema.cross(CrossVersion.for3Use2_13)
+  libraryDependencies += jsonschema
 )
 
 lazy val scalacheckSettings = commonSettings ++ Seq(
@@ -265,9 +265,7 @@ lazy val scalacheckSettings = commonSettings ++ Seq(
   libraryDependencies += (enumeratumInTest.value),
 ) ++ Seq(
   libraryDependencies ++= (if (scalaVersion.value.startsWith("3")) Seq(scalacheckDerived)
-                           else Nil)
-) ++ Seq(
-  libraryDependencies ++= (if (scalaVersion.value.startsWith("2")) Seq(scalacheckMagnolify.cross(CrossVersion.for3Use2_13)) else Nil)
+                           else Seq(scalacheckMagnolify.cross(CrossVersion.for3Use2_13)))
 )
 
 lazy val taggedSettings = commonSettings ++ Seq(
@@ -286,7 +284,7 @@ lazy val examplesSettings = commonSettings ++ Seq(
 )
 
 lazy val taggedMetaSettings = metaSettings ++ Seq(
-  libraryDependencies += optional(sprayJson.cross(CrossVersion.for3Use2_13)),
+  libraryDependencies += optional(sprayJson),
   libraryDependencies += optional(circe.value)
 )
 
@@ -297,7 +295,7 @@ lazy val pureConfigSettings = commonSettings ++ Seq(
   libraryDependencies += (if (scalaVersion.value.startsWith("3")) pureConfigGenericScala3 else pureConfigGeneric) % "test",
 )
 
-lazy val core = crossProject(JSPlatform, JVMPlatform)
+lazy val core = crossProject(JSPlatform, NativePlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("core"))
@@ -466,7 +464,6 @@ lazy val tagged = crossProject(JSPlatform, JVMPlatform)
   .dependsOn(core)
   .settings(taggedSettings *)
   .settings(publishSettings *)
-  .settings(disableScala(List("3")))
   .settings(
     name               := "tagged",
     description        := "Representation of tagged types",
@@ -583,6 +580,7 @@ lazy val kebs = project
     opaque.js,
     core.jvm,
     core.js,
+    core.native,
     slickSupport,
     doobieSupport,
     sprayJsonSupport,
