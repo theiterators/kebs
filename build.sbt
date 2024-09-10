@@ -113,8 +113,8 @@ val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.11"
 
 val scalacheck = "org.scalacheck" %% "scalacheck" % "1.18.0"
 
-val scalacheckMagnolify  = "com.spotify"         % "magnolify-scalacheck"  % "0.7.3"
-val scalacheckDerived    = "io.github.martinhh" %% "scalacheck-derived"    % "0.4.2"
+val scalacheckMagnolify = "com.spotify"         % "magnolify-scalacheck" % "0.7.3"
+val scalacheckDerived   = "io.github.martinhh" %% "scalacheck-derived"   % "0.4.2"
 
 val enumeratumVersion         = "1.7.4"
 val enumeratumPlayJsonVersion = "1.8.1"
@@ -153,16 +153,16 @@ def pekkoHttpInExamples = {
   Seq(pekkoStream, pekkoHttp, pekkoHttpSprayJson)
 }
 
-val http4sVersion = "0.23.27"
+val http4sVersion = "0.23.28"
 val http4s        = "org.http4s" %% "http4s-dsl" % http4sVersion
 
 val http4sStirVersion = "0.3"
 val http4sStir        = "pl.iterators" %% "http4s-stir"         % http4sStirVersion
 val http4sStirTestkit = "pl.iterators" %% "http4s-stir-testkit" % http4sStirVersion
 
-val pureConfigVersion = "0.17.7"
-val pureConfig        = "com.github.pureconfig" %% "pureconfig-core" % pureConfigVersion
-val pureConfigGeneric = "com.github.pureconfig" %% "pureconfig-generic" % pureConfigVersion
+val pureConfigVersion       = "0.17.7"
+val pureConfig              = "com.github.pureconfig" %% "pureconfig-core"           % pureConfigVersion
+val pureConfigGeneric       = "com.github.pureconfig" %% "pureconfig-generic"        % pureConfigVersion
 val pureConfigGenericScala3 = "com.github.pureconfig" %% "pureconfig-generic-scala3" % pureConfigVersion
 
 lazy val commonSettings = baseSettings ++ Seq(
@@ -259,7 +259,7 @@ lazy val jsonschemaSettings = commonSettings ++ Seq(
 
 lazy val scalacheckSettings = commonSettings ++ Seq(
   libraryDependencies += scalacheck,
-  libraryDependencies += (enumeratum % "test"),
+  libraryDependencies += (enumeratum % "test")
 ) ++ Seq(
   libraryDependencies ++= (if (scalaVersion.value.startsWith("3")) Seq(scalacheckDerived)
                            else Nil)
@@ -291,7 +291,7 @@ lazy val instancesSettings = commonSettings
 
 lazy val pureConfigSettings = commonSettings ++ Seq(
   libraryDependencies += pureConfig,
-  libraryDependencies += (if (scalaVersion.value.startsWith("3")) pureConfigGenericScala3 else pureConfigGeneric) % "test",
+  libraryDependencies += (if (scalaVersion.value.startsWith("3")) pureConfigGenericScala3 else pureConfigGeneric) % "test"
 )
 
 lazy val core = crossProject(JSPlatform, JVMPlatform)
@@ -546,9 +546,9 @@ lazy val pureConfigSupport = project
   .settings(pureConfigSettings *)
   .settings(publishSettings *)
   .settings(
-    name := "pureconfig",
+    name       := "pureconfig",
     moduleName := "kebs-pureconfig"
-)
+  )
 
 lazy val kebs = project
   .in(file("."))
