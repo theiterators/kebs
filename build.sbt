@@ -154,7 +154,7 @@ def pekkoHttpInExamples = {
   Seq(pekkoStream, pekkoHttp, pekkoHttpSprayJson)
 }
 
-val http4sVersion = "0.23.27"
+val http4sVersion = "0.23.28"
 val http4s        = Def.setting("org.http4s" %%% "http4s-dsl" % http4sVersion)
 
 val http4sStirVersion = "0.3"
@@ -457,7 +457,7 @@ lazy val scalacheckSupport = project
     crossScalaVersions := supportedScalaVersions
   )
 
-lazy val tagged = crossProject(JSPlatform, JVMPlatform)
+lazy val tagged = crossProject(JSPlatform, NativePlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
   .crossType(CrossType.Full)
   .in(file("tagged"))
@@ -486,7 +486,7 @@ lazy val opaque = crossProject(JSPlatform, NativePlatform, JVMPlatform)
   )
   .settings(disableScala(List("2.13")))
 
-lazy val taggedMeta = crossProject(JSPlatform, JVMPlatform)
+lazy val taggedMeta = crossProject(JSPlatform, NativePlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
   .crossType(CrossType.Full)
   .in(file("tagged-meta"))
@@ -579,6 +579,7 @@ lazy val kebs = project
   .aggregate(
     tagged.jvm,
     tagged.js,
+    tagged.native,
     opaque.jvm,
     opaque.js,
     opaque.native,
@@ -602,6 +603,7 @@ lazy val kebs = project
     http4sStirSupport.js,
     taggedMeta.jvm,
     taggedMeta.js,
+    taggedMeta.native,
     instances.jvm,
     instances.js,
     instances.native,
