@@ -65,10 +65,12 @@ object SprayJsonWithPekkoHttpExample {
   class ResyService(config: ResyConfig, logger: LoggingAdapter)(implicit as: ActorSystem, mat: Materializer, ec: ExecutionContext)
       extends Protocol {
 
-    def getAvailableReservations(lat: BigDecimal,
-                                 lng: BigDecimal,
-                                 localDate: LocalDate,
-                                 seats: Int): Future[AvailableReservationsResponse] = {
+    def getAvailableReservations(
+        lat: BigDecimal,
+        lng: BigDecimal,
+        localDate: LocalDate,
+        seats: Int
+    ): Future[AvailableReservationsResponse] = {
       val uri     = s"${config.host.host}/1/reservation/find?num_seats=$seats&day=$localDate&long=$lng&lat=$lat"
       val request = RequestBuilding.Get(uri).addHeader(resyHeader)
       Http().singleRequest(request).flatMap { response =>
@@ -133,10 +135,9 @@ object SprayJsonWithPekkoHttpExample {
               }
           }
         }
-        .recoverWith {
-          case t: IllegalResponseException =>
-            logger.warning("Resy token expired")
-            Future.successful(ReservationResult.Error("Resy token expired"))
+        .recoverWith { case t: IllegalResponseException =>
+          logger.warning("Resy token expired")
+          Future.successful(ReservationResult.Error("Resy token expired"))
         }
     }
 
@@ -156,8 +157,8 @@ object SprayJsonWithPekkoHttpExample {
               }
           }
         }
-        .recoverWith {
-          case t: IllegalResponseException => logger.warning("Resy token expired"); Future.successful(Left("Resy token expired"))
+        .recoverWith { case t: IllegalResponseException =>
+          logger.warning("Resy token expired"); Future.successful(Left("Resy token expired"))
         }
     }
 
@@ -179,8 +180,8 @@ object SprayJsonWithPekkoHttpExample {
               }
           }
         }
-        .recoverWith {
-          case t: IllegalResponseException => logger.warning("Resy token expired"); Future.successful(Left("Resy token expired"))
+        .recoverWith { case t: IllegalResponseException =>
+          logger.warning("Resy token expired"); Future.successful(Left("Resy token expired"))
         }
     }
 
@@ -197,26 +198,30 @@ object SprayJsonWithPekkoHttpExample {
 
   case class Contact(phoneNumber: String, url: String)
   case class LocationShort(city: String, latitude: BigDecimal, longitude: BigDecimal, neighborhood: String, timeZone: String)
-  case class LocationFull(city: String,
-                          latitude: BigDecimal,
-                          longitude: BigDecimal,
-                          neighborhood: String,
-                          timeZone: String,
-                          address_1: String,
-                          state: String,
-                          postalCode: String)
+  case class LocationFull(
+      city: String,
+      latitude: BigDecimal,
+      longitude: BigDecimal,
+      neighborhood: String,
+      timeZone: String,
+      address_1: String,
+      state: String,
+      postalCode: String
+  )
   case class Reservation(deepLink: String, id: Int, seatType: String, timeSlot: String, webLink: String)
   case class TravelTime(distance: Double, driving: Int, walking: Int)
-  case class AvailableReservation(contact: Contact,
-                                  deepLink: String,
-                                  location: LocationShort,
-                                  images: Option[List[String]],
-                                  name: String,
-                                  priceRangeId: Int,
-                                  reservations: List[Reservation],
-                                  travelTime: TravelTime,
-                                  `type`: String,
-                                  webLink: String)
+  case class AvailableReservation(
+      contact: Contact,
+      deepLink: String,
+      location: LocationShort,
+      images: Option[List[String]],
+      name: String,
+      priceRangeId: Int,
+      reservations: List[Reservation],
+      travelTime: TravelTime,
+      `type`: String,
+      webLink: String
+  )
   object AvailableReservation {
     val PriceRangeMax = 4
   }
@@ -226,19 +231,23 @@ object SprayJsonWithPekkoHttpExample {
   case class LoginResponse(accessToken: AccessToken)
 
   case class Rater(name: String, score: Double, scale: Double, image: String)
-  case class Venue(location: LocationFull,
-                   name: String,
-                   priceRangeId: Int,
-                   `type`: String,
-                   images: List[String],
-                   about: String,
-                   tagline: String,
-                   rater: Rater)
+  case class Venue(
+      location: LocationFull,
+      name: String,
+      priceRangeId: Int,
+      `type`: String,
+      images: List[String],
+      about: String,
+      tagline: String,
+      rater: Rater
+  )
   case class BookedReservation(deepLink: String, seatType: String, timeSlot: String)
-  case class PaymentDetails(resyFee: Option[BigDecimal],
-                            serviceCharge: Option[BigDecimal],
-                            tax: Option[BigDecimal],
-                            total: Option[BigDecimal])
+  case class PaymentDetails(
+      resyFee: Option[BigDecimal],
+      serviceCharge: Option[BigDecimal],
+      tax: Option[BigDecimal],
+      total: Option[BigDecimal]
+  )
   case class Payment(details: PaymentDetails)
   case class ReservationDetailsResponse(venue: Venue, reservation: BookedReservation, payment: Option[Payment], resyToken: String)
 

@@ -94,11 +94,13 @@ object SprayJsonFormat {
 
   case class Thing(id: ThingId, name: ThingName, description: ThingDescription, pictureUri: URI, tags: List[TagId], location: Location)
 
-  case class ThingCreateRequest(name: ThingName,
-                                description: ThingDescription,
-                                pictureUrl: Option[URI],
-                                tags: List[TagId],
-                                location: Location)
+  case class ThingCreateRequest(
+      name: ThingName,
+      description: ThingDescription,
+      pictureUrl: Option[URI],
+      tags: List[TagId],
+      location: Location
+  )
   sealed abstract class ThingCreateResponse
   object ThingCreateResponse {
     case class Created(thing: Thing) extends ThingCreateResponse
