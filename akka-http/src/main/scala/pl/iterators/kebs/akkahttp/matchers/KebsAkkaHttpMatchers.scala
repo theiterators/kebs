@@ -1,11 +1,11 @@
 package pl.iterators.kebs.akkahttp.matchers
 
-import akka.http.scaladsl.server.{PathMatcher1, PathMatchers}
+import akka.http.scaladsl.server.PathMatcher1
 import pl.iterators.kebs.core.enums.{EnumLike, ValueEnumLike, ValueEnumLikeEntry}
 import pl.iterators.kebs.core.instances.InstanceConverter
 import pl.iterators.kebs.core.macros.ValueClassLike
 
-trait KebsAkkaHttpMatchers extends PathMatchers {
+trait KebsAkkaHttpMatchers extends akka.http.scaladsl.server.PathMatchers {
   implicit class SegmentIsomorphism[U](segment: PathMatcher1[U]) {
     def as[T](implicit rep: ValueClassLike[T, U]): PathMatcher1[T]                                = segment.map(rep.apply)
     def asValueEnum[T <: ValueEnumLikeEntry[U]](implicit e: ValueEnumLike[U, T]): PathMatcher1[T] = segment.map(e.withValue)

@@ -94,20 +94,20 @@ def paradiseFlag(scalaVersion: String): Seq[String] =
   else
     Seq("-Ymacro-annotations")
 
-val scalaTest       = Def.setting("org.scalatest" %%% "scalatest" % "3.2.17")
-val scalaCheck      = Def.setting("org.scalacheck" %%% "scalacheck" % "1.17.0")
+val scalaTest       = Def.setting("org.scalatest" %%% "scalatest" % "3.2.19")
+val scalaCheck      = Def.setting("org.scalacheck" %%% "scalacheck" % "1.18.0")
 val slick           = "com.typesafe.slick"  %% "slick"                % "3.5.1"
 val optionalSlick   = optional(slick)
-val playJson        = "org.playframework"   %% "play-json"            % "3.0.4"
+val playJson        = Def.setting("org.playframework"   %%% "play-json"            % "3.0.4")
 val slickPg         = "com.github.tminglei" %% "slick-pg"             % "0.22.2"
-val doobie          = "org.tpolecat"        %% "doobie-core"          % "1.0.0-RC4"
-val doobiePg        = "org.tpolecat"        %% "doobie-postgres"      % "1.0.0-RC4"
+val doobie          = "org.tpolecat"        %% "doobie-core"          % "1.0.0-RC5"
+val doobiePg        = "org.tpolecat"        %% "doobie-postgres"      % "1.0.0-RC5"
 val sprayJson       = "io.spray"            %% "spray-json"           % "1.3.6"
-val circeV          = "0.14.9"
-val circe           = "io.circe"            %% "circe-core"           % circeV
-val circeAuto       = "io.circe"            %% "circe-generic"        % circeV
-val circeAutoExtras = "io.circe"            %% "circe-generic-extras" % "0.14.3"
-val circeParser     = "io.circe"            %% "circe-parser"         % circeV
+val circeV          = "0.14.10"
+val circe           = Def.setting("io.circe"            %%% "circe-core"           % circeV)
+val circeAuto       = Def.setting("io.circe"            %%% "circe-generic"        % circeV)
+val circeAutoExtras = Def.setting("io.circe"            %%% "circe-generic-extras" % "0.14.4")
+val circeParser     = Def.setting("io.circe"            %%% "circe-parser"         % circeV)
 
 val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.11"
 
@@ -118,12 +118,13 @@ val scalacheckDerived    = "io.github.martinhh" %% "scalacheck-derived"    % "0.
 
 val enumeratumVersion         = "1.7.4"
 val enumeratumPlayJsonVersion = "1.8.1"
-val enumeratum                = "com.beachape" %% "enumeratum" % enumeratumVersion
+val enumeratum                = Def.setting("com.beachape" %%% "enumeratum" % enumeratumVersion)
 def enumeratumInExamples = {
   val playJsonSupport = "com.beachape" %% "enumeratum-play-json" % enumeratumPlayJsonVersion
-  Seq(enumeratum, playJsonSupport)
+  Seq("com.beachape" %% "enumeratum" % enumeratumVersion, playJsonSupport)
 }
-val optionalEnumeratum = optional(enumeratum)
+val optionalEnumeratum = Def.setting("com.beachape" %%% "enumeratum" % enumeratumVersion % "provided")
+val enumeratumInTest = Def.setting("com.beachape" %%% "enumeratum" % enumeratumVersion % "test")
 
 val akkaVersion       = "2.6.20"
 val akkaHttpVersion   = "10.2.10"
@@ -153,17 +154,19 @@ def pekkoHttpInExamples = {
   Seq(pekkoStream, pekkoHttp, pekkoHttpSprayJson)
 }
 
-val http4sVersion = "0.23.27"
-val http4s        = "org.http4s" %% "http4s-dsl" % http4sVersion
+val http4sVersion = "0.23.28"
+val http4s        = Def.setting("org.http4s" %%% "http4s-dsl" % http4sVersion)
 
 val http4sStirVersion = "0.3"
-val http4sStir        = "pl.iterators" %% "http4s-stir"         % http4sStirVersion
-val http4sStirTestkit = "pl.iterators" %% "http4s-stir-testkit" % http4sStirVersion
+val http4sStir        = Def.setting("pl.iterators" %%% "http4s-stir"         % http4sStirVersion)
+val http4sStirTestkit = Def.setting("pl.iterators" %%% "http4s-stir-testkit" % http4sStirVersion)
 
 val pureConfigVersion = "0.17.7"
 val pureConfig        = "com.github.pureconfig" %% "pureconfig-core" % pureConfigVersion
 val pureConfigGeneric = "com.github.pureconfig" %% "pureconfig-generic" % pureConfigVersion
 val pureConfigGenericScala3 = "com.github.pureconfig" %% "pureconfig-generic-scala3" % pureConfigVersion
+
+val scalaJavaTime = Def.setting("io.github.cquiroz" %%% "scala-java-time" % "2.6.0")
 
 lazy val commonSettings = baseSettings ++ Seq(
   scalacOptions ++=
@@ -177,57 +180,57 @@ lazy val commonSettings = baseSettings ++ Seq(
 lazy val slickSettings = commonSettings ++ Seq(
   libraryDependencies += slick,
   libraryDependencies += (slickPg    % "test"),
-  libraryDependencies += (enumeratum % "test")
+  libraryDependencies += (enumeratumInTest.value)
 )
 
 lazy val doobieSettings = commonSettings ++ Seq(
   libraryDependencies += doobie,
   libraryDependencies += (doobiePg   % "test"),
-  libraryDependencies += (enumeratum % "test")
+  libraryDependencies += (enumeratumInTest.value)
 )
 
 lazy val coreSettings = commonMacroSettings ++ Seq(
-  libraryDependencies += (scalaCheck.value % "test").cross(CrossVersion.for3Use2_13)
+  libraryDependencies += (scalaCheck.value % "test")
 )
 
 lazy val enumSettings = commonMacroSettings ++ Seq(
   libraryDependencies += scalaCheck.value % "test",
-  libraryDependencies += scalaTest.value,
+  libraryDependencies += scalaTest.value % "test",
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
 lazy val enumeratumSettings = commonMacroSettings ++ Seq(
   libraryDependencies += scalaCheck.value % "test",
-  libraryDependencies += scalaTest.value,
-  libraryDependencies += optionalEnumeratum,
+  libraryDependencies += scalaTest.value % "test",
+  libraryDependencies += optionalEnumeratum.value,
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
 lazy val sprayJsonSettings = commonSettings ++ Seq(
-  libraryDependencies += sprayJson.cross(CrossVersion.for3Use2_13),
-  libraryDependencies += optionalEnumeratum
+  libraryDependencies += sprayJson,
+  libraryDependencies += optionalEnumeratum.value
 )
 
 lazy val playJsonSettings = commonSettings ++ Seq(
-  libraryDependencies += playJson,
-  libraryDependencies += (enumeratum % "test")
+  libraryDependencies += playJson.value,
+  libraryDependencies += (enumeratumInTest.value)
 )
 
 lazy val circeSettings = commonSettings ++ Seq(
-  libraryDependencies += circe,
-  libraryDependencies += circeAuto,
-  libraryDependencies += optionalEnumeratum,
-  libraryDependencies += (circeParser % "test")
+  libraryDependencies += circe.value,
+  libraryDependencies += circeAuto.value,
+  libraryDependencies += optionalEnumeratum.value,
+  libraryDependencies += (circeParser.value % "test")
 ) ++ Seq(
   libraryDependencies ++= (if (scalaVersion.value.startsWith("3")) Nil
-                           else Seq(circeAutoExtras))
+                           else Seq(circeAutoExtras.value))
 )
 
 lazy val akkaHttpSettings = commonSettings ++ Seq(
   libraryDependencies += (akkaHttp).cross(CrossVersion.for3Use2_13),
   libraryDependencies += (akkaStreamTestkit % "test").cross(CrossVersion.for3Use2_13),
   libraryDependencies += (akkaHttpTestkit   % "test").cross(CrossVersion.for3Use2_13),
-  libraryDependencies += optionalEnumeratum,
+  libraryDependencies += optionalEnumeratum.value,
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
@@ -236,55 +239,53 @@ lazy val pekkoHttpSettings = commonSettings ++ Seq(
   libraryDependencies += pekkoStream,
   libraryDependencies += pekkoStreamTestkit % "test",
   libraryDependencies += pekkoHttpTestkit   % "test",
-  libraryDependencies += enumeratum         % "test",
+  libraryDependencies += enumeratumInTest.value,
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
 lazy val http4sSettings = commonSettings ++ Seq(
-  libraryDependencies += http4s,
+  libraryDependencies += http4s.value,
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
 lazy val http4sStirSettings = commonSettings ++ Seq(
-  libraryDependencies += http4s,
-  libraryDependencies += http4sStir,
-  libraryDependencies += http4sStirTestkit % "test",
-  libraryDependencies += enumeratum        % "test",
+  libraryDependencies += http4s.value,
+  libraryDependencies += http4sStir.value,
+  libraryDependencies += http4sStirTestkit.value % "test",
+  libraryDependencies += enumeratumInTest.value,
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
 lazy val jsonschemaSettings = commonSettings ++ Seq(
-  libraryDependencies += jsonschema.cross(CrossVersion.for3Use2_13)
+  libraryDependencies += jsonschema
 )
 
 lazy val scalacheckSettings = commonSettings ++ Seq(
   libraryDependencies += scalacheck,
-  libraryDependencies += (enumeratum % "test"),
+  libraryDependencies += (enumeratumInTest.value),
 ) ++ Seq(
   libraryDependencies ++= (if (scalaVersion.value.startsWith("3")) Seq(scalacheckDerived)
-                           else Nil)
-) ++ Seq(
-  libraryDependencies ++= (if (scalaVersion.value.startsWith("2")) Seq(scalacheckMagnolify.cross(CrossVersion.for3Use2_13)) else Nil)
+                           else Seq(scalacheckMagnolify.cross(CrossVersion.for3Use2_13)))
 )
 
 lazy val taggedSettings = commonSettings ++ Seq(
   libraryDependencies += optionalSlick,
-  libraryDependencies += optional(circe)
+  libraryDependencies += optional(circe.value)
 )
 
 lazy val opaqueSettings = commonSettings
 
 lazy val examplesSettings = commonSettings ++ Seq(
   libraryDependencies += slickPg,
-  libraryDependencies += circeParser,
+  libraryDependencies += circeParser.value,
   libraryDependencies ++= enumeratumInExamples,
   libraryDependencies ++= pekkoHttpInExamples,
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
 lazy val taggedMetaSettings = metaSettings ++ Seq(
-  libraryDependencies += optional(sprayJson.cross(CrossVersion.for3Use2_13)),
-  libraryDependencies += optional(circe)
+  libraryDependencies += optional(sprayJson),
+  libraryDependencies += optional(circe.value)
 )
 
 lazy val instancesSettings = commonSettings
@@ -294,7 +295,7 @@ lazy val pureConfigSettings = commonSettings ++ Seq(
   libraryDependencies += (if (scalaVersion.value.startsWith("3")) pureConfigGenericScala3 else pureConfigGeneric) % "test",
 )
 
-lazy val core = crossProject(JSPlatform, JVMPlatform)
+lazy val core = crossProject(JSPlatform, NativePlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("core"))
@@ -308,7 +309,7 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
 
 lazy val slickSupport = project
   .in(file("slick"))
-  .dependsOn(core.jvm, enumeratumSupport, instances % "test -> test")
+  .dependsOn(core.jvm, enumeratumSupport.jvm, instances.jvm % "test -> test")
   .settings(slickSettings *)
   .settings(publishSettings *)
   .settings(
@@ -320,7 +321,7 @@ lazy val slickSupport = project
 
 lazy val doobieSupport = project
   .in(file("doobie"))
-  .dependsOn(instances, enumeratumSupport, enumSupport, opaque.jvm % "test -> test")
+  .dependsOn(instances.jvm, enumeratumSupport.jvm, enumSupport.jvm, opaque.jvm % "test -> test")
   .settings(doobieSettings *)
   .settings(publishSettings *)
   .settings(
@@ -332,7 +333,7 @@ lazy val doobieSupport = project
 
 lazy val sprayJsonSupport = project
   .in(file("spray-json"))
-  .dependsOn(enumeratumSupport, instances % "test -> test")
+  .dependsOn(enumeratumSupport.jvm, instances.jvm % "test -> test")
   .settings(sprayJsonSettings *)
   .settings(publishSettings *)
   .settings(disableScala(List("3")))
@@ -343,9 +344,11 @@ lazy val sprayJsonSupport = project
     crossScalaVersions := supportedScalaVersions
   )
 
-lazy val playJsonSupport = project
+lazy val playJsonSupport = crossProject(JSPlatform, JVMPlatform)
+  .withoutSuffixFor(JVMPlatform)
+  .crossType(CrossType.Pure)
   .in(file("play-json"))
-  .dependsOn(core.jvm, enumeratumSupport, enumSupport, instances % "test -> test")
+  .dependsOn(core, enumSupport, enumeratumSupport % "test -> test", instances % "test -> test")
   .settings(playJsonSettings *)
   .settings(publishSettings *)
   .settings(
@@ -355,9 +358,11 @@ lazy val playJsonSupport = project
     crossScalaVersions := supportedScalaVersions
   )
 
-lazy val circeSupport = project
+lazy val circeSupport = crossProject(JSPlatform, JVMPlatform)
+  .withoutSuffixFor(JVMPlatform)
+  .crossType(CrossType.Pure)
   .in(file("circe"))
-  .dependsOn(core.jvm, enumeratumSupport, enumSupport, instances % "test -> test")
+  .dependsOn(core, enumSupport, enumeratumSupport % "test -> test", instances % "test -> test")
   .settings(circeSettings *)
   .settings(crossBuildSettings *)
   .settings(publishSettings *)
@@ -369,7 +374,7 @@ lazy val circeSupport = project
 
 lazy val akkaHttpSupport = project
   .in(file("akka-http"))
-  .dependsOn(core.jvm, enumeratumSupport, instances % "test -> test", tagged.jvm % "test -> test", taggedMeta % "test -> test")
+  .dependsOn(core.jvm, enumeratumSupport.jvm, instances.jvm % "test -> test", tagged.jvm % "test -> test", taggedMeta.jvm % "test -> test")
   .settings(akkaHttpSettings *)
   .settings(publishSettings *)
   .settings(disableScala(List("3")))
@@ -384,11 +389,11 @@ lazy val pekkoHttpSupport = project
   .in(file("pekko-http"))
   .dependsOn(
     core.jvm,
-    enumeratumSupport,
-    enumSupport,
-    instances  % "test -> test",
+    enumeratumSupport.jvm,
+    enumSupport.jvm,
+    instances.jvm  % "test -> test",
     tagged.jvm % "test -> test",
-    taggedMeta % "test -> test"
+    taggedMeta.jvm % "test -> test"
   )
   .settings(pekkoHttpSettings *)
   .settings(publishSettings *)
@@ -399,9 +404,11 @@ lazy val pekkoHttpSupport = project
     crossScalaVersions := supportedScalaVersions
   )
 
-lazy val http4sSupport = project
+lazy val http4sSupport = crossProject(JSPlatform, JVMPlatform)
+  .withoutSuffixFor(JVMPlatform)
+  .crossType(CrossType.Full)
   .in(file("http4s"))
-  .dependsOn(core.jvm, instances, opaque.jvm % "test -> test", tagged.jvm % "test -> test", taggedMeta % "test -> test")
+  .dependsOn(core, instances, enumSupport % "test -> test", opaque % "test -> test", tagged % "test -> test", taggedMeta % "test -> test")
   .settings(http4sSettings *)
   .settings(publishSettings *)
   .settings(
@@ -411,9 +418,11 @@ lazy val http4sSupport = project
     crossScalaVersions := supportedScalaVersions
   )
 
-lazy val http4sStirSupport = project
+lazy val http4sStirSupport = crossProject(JSPlatform, JVMPlatform)
+  .withoutSuffixFor(JVMPlatform)
+  .crossType(CrossType.Full)
   .in(file("http4s-stir"))
-  .dependsOn(core.jvm, instances, opaque.jvm % "test -> test", tagged.jvm % "test -> test", taggedMeta % "test -> test")
+  .dependsOn(core, instances, enumSupport % "test -> test", circeSupport % "test -> test", opaque % "test -> test", tagged % "test -> test", taggedMeta % "test -> test")
   .settings(http4sStirSettings *)
   .settings(publishSettings *)
   .settings(
@@ -438,7 +447,7 @@ lazy val jsonschemaSupport = project
 
 lazy val scalacheckSupport = project
   .in(file("scalacheck"))
-  .dependsOn(core.jvm, enumSupport, opaque.jvm % "test -> test")
+  .dependsOn(core.jvm, enumSupport.jvm, opaque.jvm % "test -> test")
   .settings(scalacheckSettings *)
   .settings(publishSettings *)
   .settings(
@@ -448,14 +457,13 @@ lazy val scalacheckSupport = project
     crossScalaVersions := supportedScalaVersions
   )
 
-lazy val tagged = crossProject(JSPlatform, JVMPlatform)
+lazy val tagged = crossProject(JSPlatform, NativePlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
   .crossType(CrossType.Full)
   .in(file("tagged"))
   .dependsOn(core)
   .settings(taggedSettings *)
   .settings(publishSettings *)
-  .settings(disableScala(List("3")))
   .settings(
     name               := "tagged",
     description        := "Representation of tagged types",
@@ -463,7 +471,7 @@ lazy val tagged = crossProject(JSPlatform, JVMPlatform)
     crossScalaVersions := supportedScalaVersions
   )
 
-lazy val opaque = crossProject(JSPlatform, JVMPlatform)
+lazy val opaque = crossProject(JSPlatform, NativePlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("opaque"))
@@ -478,16 +486,20 @@ lazy val opaque = crossProject(JSPlatform, JVMPlatform)
   )
   .settings(disableScala(List("2.13")))
 
-lazy val taggedMeta = project
+lazy val taggedMeta = crossProject(JSPlatform, NativePlatform, JVMPlatform)
+  .withoutSuffixFor(JVMPlatform)
+  .crossType(CrossType.Full)
   .in(file("tagged-meta"))
   .dependsOn(
-    core.jvm,
-    tagged.jvm,
+    core,
+    tagged
+  )
+  .jvmConfigure(_.dependsOn(
     sprayJsonSupport  % "test -> test",
-    circeSupport      % "test -> test",
+    circeSupport.jvm      % "test -> test",
     jsonschemaSupport % "test -> test",
     scalacheckSupport % "test -> test"
-  )
+  ))
   .settings(taggedMetaSettings *)
   .settings(publishSettings *)
   .settings(disableScala(List("3")))
@@ -500,7 +512,7 @@ lazy val taggedMeta = project
 
 lazy val examples = project
   .in(file("examples"))
-  .dependsOn(slickSupport, sprayJsonSupport, playJsonSupport, pekkoHttpSupport, taggedMeta, circeSupport, instances)
+  .dependsOn(slickSupport, sprayJsonSupport, playJsonSupport.jvm, pekkoHttpSupport, taggedMeta.jvm, circeSupport.jvm, instances.jvm)
   .settings(examplesSettings *)
   .settings(noPublishSettings *)
   .settings(disableScala(List("3")))
@@ -509,10 +521,18 @@ lazy val examples = project
     moduleName := "kebs-examples"
   )
 
-lazy val instances = project
+lazy val instances = crossProject(JSPlatform, NativePlatform, JVMPlatform)
+  .withoutSuffixFor(JVMPlatform)
+  .crossType(CrossType.Pure)
   .in(file("instances"))
-  .dependsOn(core.jvm)
+  .dependsOn(core)
   .settings(instancesSettings *)
+  .jsSettings(
+    libraryDependencies += scalaJavaTime.value
+  )
+  .nativeSettings(
+    libraryDependencies += scalaJavaTime.value
+  )
   .settings(publishSettings *)
   .settings(
     name        := "instances",
@@ -520,9 +540,11 @@ lazy val instances = project
     moduleName  := "kebs-instances"
   )
 
-lazy val enumSupport = project
+lazy val enumSupport = crossProject(JSPlatform, NativePlatform, JVMPlatform)
+  .withoutSuffixFor(JVMPlatform)
+  .crossType(CrossType.Pure)
   .in(file("enum"))
-  .dependsOn(core.jvm)
+  .dependsOn(core)
   .settings(enumSettings *)
   .settings(publishSettings *)
   .settings(
@@ -530,9 +552,11 @@ lazy val enumSupport = project
     moduleName := "kebs-enum"
   )
 
-lazy val enumeratumSupport = project
+lazy val enumeratumSupport = crossProject(JSPlatform, JVMPlatform)
+  .withoutSuffixFor(JVMPlatform)
+  .crossType(CrossType.Pure)
   .in(file("enumeratum"))
-  .dependsOn(core.jvm)
+  .dependsOn(core)
   .settings(enumeratumSettings *)
   .settings(publishSettings *)
   .settings(
@@ -555,25 +579,39 @@ lazy val kebs = project
   .aggregate(
     tagged.jvm,
     tagged.js,
+    tagged.native,
     opaque.jvm,
     opaque.js,
+    opaque.native,
     core.jvm,
     core.js,
+    core.native,
     slickSupport,
     doobieSupport,
     sprayJsonSupport,
-    playJsonSupport,
-    circeSupport,
+    playJsonSupport.jvm,
+    playJsonSupport.js,
+    circeSupport.jvm,
+    circeSupport.js,
     jsonschemaSupport,
     scalacheckSupport,
     akkaHttpSupport,
     pekkoHttpSupport,
-    http4sSupport,
-    http4sStirSupport,
-    taggedMeta,
-    instances,
-    enumSupport,
-    enumeratumSupport,
+    http4sSupport.jvm,
+    http4sSupport.js,
+    http4sStirSupport.jvm,
+    http4sStirSupport.js,
+    taggedMeta.jvm,
+    taggedMeta.js,
+    taggedMeta.native,
+    instances.jvm,
+    instances.js,
+    instances.native,
+    enumSupport.jvm,
+    enumSupport.js,
+    enumSupport.native,
+    enumeratumSupport.jvm,
+    enumeratumSupport.js,
     pureConfigSupport
   )
   .settings(baseSettings *)

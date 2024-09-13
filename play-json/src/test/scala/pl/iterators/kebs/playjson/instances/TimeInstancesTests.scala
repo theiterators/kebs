@@ -9,6 +9,7 @@ import play.api.libs.json.{Format, JsError, JsNumber, JsString, JsSuccess}
 import java.time._
 
 class TimeInstancesTests extends AnyFunSuite with Matchers with TimeInstances {
+  private def isScalaJS = System.getProperty("java.vm.name") == "Scala.js"
   import pl.iterators.kebs.playjson._
   test("No ValueClassLike implicits derived") {
 
@@ -255,12 +256,14 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with TimeInstances {
   }
 
   test("ZoneId standard format") {
-    val jf    = implicitly[Format[ZoneId]]
-    val value = "Europe/Warsaw"
-    val obj   = ZoneId.of(value)
+    if (!isScalaJS) {
+      val jf    = implicitly[Format[ZoneId]]
+      val value = "Europe/Warsaw"
+      val obj   = ZoneId.of(value)
 
-    jf.writes(obj) shouldBe JsString(value)
-    jf.reads(JsString(value)) shouldBe JsSuccess(obj)
+      jf.writes(obj) shouldBe JsString(value)
+      jf.reads(JsString(value)) shouldBe JsSuccess(obj)
+    }
   }
 
   test("ZoneId wrong format exception") {
@@ -287,12 +290,14 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with TimeInstances {
   }
 
   test("ZonedDateTime standard format") {
-    val jf    = implicitly[Format[ZonedDateTime]]
-    val value = "2011-12-03T10:15:30+01:00[Europe/Warsaw]"
-    val obj   = ZonedDateTime.parse(value)
+    if (!isScalaJS) {
+      val jf    = implicitly[Format[ZonedDateTime]]
+      val value = "2011-12-03T10:15:30+01:00[Europe/Warsaw]"
+      val obj   = ZonedDateTime.parse(value)
 
-    jf.writes(obj) shouldBe JsString(value)
-    jf.reads(JsString(value)) shouldBe JsSuccess(obj)
+      jf.writes(obj) shouldBe JsString(value)
+      jf.reads(JsString(value)) shouldBe JsSuccess(obj)
+    }
   }
 
   test("ZonedDateTime wrong format exception") {

@@ -9,14 +9,18 @@ import InstanceConverter.DecodeErrorException
 import java.util.{Currency, Locale, UUID}
 
 class UtilInstancesTests extends AnyFunSuite with Matchers with UtilInstances {
+  private def isScalaJS     = System.getProperty("java.vm.name") == "Scala.js"
+  private def isScalaNative = System.getProperty("java.vm.name") == "Scala Native"
 
   test("Currency to String") {
-    val ico   = implicitly[InstanceConverter[Currency, String]]
-    val value = "PLN"
-    val obj   = Currency.getInstance(value)
+    if (!isScalaJS && !isScalaNative) {
+      val ico   = implicitly[InstanceConverter[Currency, String]]
+      val value = "PLN"
+      val obj   = Currency.getInstance(value)
 
-    ico.encode(obj) shouldBe value
-    ico.decode(value) shouldBe obj
+      ico.encode(obj) shouldBe value
+      ico.decode(value) shouldBe obj
+    }
   }
 
   test("Currency wrong format exception") {
