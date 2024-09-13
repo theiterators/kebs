@@ -9,6 +9,8 @@ import InstanceConverter.DecodeErrorException
 import java.time._
 
 class TimeInstancesTests extends AnyFunSuite with Matchers with TimeInstances {
+  private def isScalaJS     = System.getProperty("java.vm.name") == "Scala.js"
+  private def isScalaNative = System.getProperty("java.vm.name") == "Scala Native"
 
   test("DayOfWeek to Int") {
     val ico   = implicitly[InstanceConverter[DayOfWeek, Int]]
@@ -219,12 +221,14 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with TimeInstances {
   }
 
   test("ZoneId to String") {
-    val ico   = implicitly[InstanceConverter[ZoneId, String]]
-    val value = "Europe/Warsaw"
-    val obj   = ZoneId.of(value)
+    if (!isScalaJS && !isScalaNative) {
+      val ico   = implicitly[InstanceConverter[ZoneId, String]]
+      val value = "Europe/Warsaw"
+      val obj   = ZoneId.of(value)
 
-    ico.encode(obj) shouldBe value
-    ico.decode(value) shouldBe obj
+      ico.encode(obj) shouldBe value
+      ico.decode(value) shouldBe obj
+    }
   }
 
   test("ZoneId wrong format exception") {
@@ -251,12 +255,14 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with TimeInstances {
   }
 
   test("ZonedDateTime to String") {
-    val ico   = implicitly[InstanceConverter[ZonedDateTime, String]]
-    val value = "2011-12-03T10:15:30+01:00[Europe/Warsaw]"
-    val obj   = ZonedDateTime.parse(value)
+    if (!isScalaJS && !isScalaNative) {
+      val ico   = implicitly[InstanceConverter[ZonedDateTime, String]]
+      val value = "2011-12-03T10:15:30+01:00[Europe/Warsaw]"
+      val obj   = ZonedDateTime.parse(value)
 
-    ico.encode(obj) shouldBe value
-    ico.decode(value) shouldBe obj
+      ico.encode(obj) shouldBe value
+      ico.decode(value) shouldBe obj
+    }
   }
 
   test("ZonedDateTime wrong format exception") {

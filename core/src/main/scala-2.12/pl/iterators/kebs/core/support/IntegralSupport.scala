@@ -2,9 +2,11 @@ package pl.iterators.kebs.support
 
 trait IntegralSupport {
 
-  implicit def integralFromValueClassLike[A, Rep](implicit vcLike: ValueClassLike[A, Rep],
-                                                 integralRep: Integral[Rep],
-                                                 numeric: Numeric[A]): Integral[A] =
+  implicit def integralFromValueClassLike[A, Rep](implicit
+      vcLike: ValueClassLike[A, Rep],
+      integralRep: Integral[Rep],
+      numeric: Numeric[A]
+  ): Integral[A] =
     new Integral[A] {
       override def quot(x: A, y: A): A      = vcLike.apply(integralRep.quot(vcLike.unapply(x), vcLike.unapply(y)))
       override def rem(x: A, y: A): A       = vcLike.apply(integralRep.rem(vcLike.unapply(x), vcLike.unapply(y)))

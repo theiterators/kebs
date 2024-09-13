@@ -31,34 +31,36 @@ object PekkoHttpUnmarshallers {
   case class PaginationQuery(sortBy: Column, sortOrder: SortOrder, offset: Offset, limit: Limit)
 
   object BeforeKebs {
-    final def enumUnmarshaller[E <: EnumEntry](`enum`: Enum[E]): FromStringUnmarshaller[E] = Unmarshaller { _ =>name =>
+    final def enumUnmarshaller[E <: EnumEntry](`enum`: Enum[E]): FromStringUnmarshaller[E] = Unmarshaller { _ => name =>
       `enum`.withNameInsensitiveOption(name) match {
         case Some(enumEntry) => FastFuture.successful(enumEntry)
         case None =>
           FastFuture.failed(new IllegalArgumentException(s"""Invalid value '$name'. Expected one of: ${`enum`.namesToValuesMap.keysIterator
-            .mkString(", ")}"""))
+              .mkString(", ")}"""))
       }
     }
-    final def valueEnumUnmarshaller[V, E <: ValueEnumEntry[V]](`enum`: ValueEnum[V, E]): Unmarshaller[V, E] = Unmarshaller { _ =>v =>
+    final def valueEnumUnmarshaller[V, E <: ValueEnumEntry[V]](`enum`: ValueEnum[V, E]): Unmarshaller[V, E] = Unmarshaller { _ => v =>
       `enum`.withValueOpt(v) match {
         case Some(enumEntry) => FastFuture.successful(enumEntry)
         case None =>
           FastFuture.failed(new IllegalArgumentException(s"""Invalid value '$v'. Expected one of: ${`enum`.valuesToEntriesMap.keysIterator
-            .mkString(", ")}"""))
+              .mkString(", ")}"""))
       }
     }
 
     implicit val fromStringLimitUnmarshaller: FromStringUnmarshaller[Limit]         = Unmarshaller.intFromStringUnmarshaller map Limit
     implicit val fromStringOffsetUnmarshaller: FromStringUnmarshaller[Offset]       = Unmarshaller.intFromStringUnmarshaller map Offset
     implicit val fromStringSortOrderUnmarshaller: FromStringUnmarshaller[SortOrder] = enumUnmarshaller(SortOrder)
-    implicit val fromStringColumnUnmarshaller
-      : FromStringUnmarshaller[Column] = Unmarshaller.intFromStringUnmarshaller andThen valueEnumUnmarshaller(Column)
+    implicit val fromStringColumnUnmarshaller: FromStringUnmarshaller[Column] =
+      Unmarshaller.intFromStringUnmarshaller andThen valueEnumUnmarshaller(Column)
 
     val route = get {
-      parameters(Symbol("sortBy").as[Column],
-                 Symbol("order").as[SortOrder] ? (SortOrder.Desc: SortOrder),
-                 Symbol("offset").as[Offset] ? Offset(0),
-                 Symbol("limit").as[Limit])
+      parameters(
+        Symbol("sortBy").as[Column],
+        Symbol("order").as[SortOrder] ? (SortOrder.Desc: SortOrder),
+        Symbol("offset").as[Offset] ? Offset(0),
+        Symbol("limit").as[Limit]
+      )
         .as(PaginationQuery) { query =>
           complete(StatusCodes.OK)
         }
@@ -68,10 +70,12 @@ object PekkoHttpUnmarshallers {
   object AfterKebs {
 
     val route = get {
-      parameters(Symbol("sortBy").as[Column],
-                 Symbol("order").as[SortOrder] ? (SortOrder.Desc: SortOrder),
-                 Symbol("offset").as[Offset] ? Offset(0),
-                 Symbol("limit").as[Limit])
+      parameters(
+        Symbol("sortBy").as[Column],
+        Symbol("order").as[SortOrder] ? (SortOrder.Desc: SortOrder),
+        Symbol("offset").as[Offset] ? Offset(0),
+        Symbol("limit").as[Limit]
+      )
         .as(PaginationQuery) { query =>
           complete(StatusCodes.OK)
         }

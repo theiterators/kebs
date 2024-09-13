@@ -106,20 +106,24 @@ object ValueColumnType {
     override def toString: String = s"${addressLine1.line} ${addressLine2.map(_.line).getOrElse("")}, ${city.city}"
   }
 
-  case class BillingInfo(address: Address,
-                         taxId: TaxId,
-                         bankName: BankName,
-                         bankAccountNumber: BankAccountNumber,
-                         recipientName: RecipientName,
-                         additionalInfo: AdditionalInfo)
+  case class BillingInfo(
+      address: Address,
+      taxId: TaxId,
+      bankName: BankName,
+      bankAccountNumber: BankAccountNumber,
+      recipientName: RecipientName,
+      additionalInfo: AdditionalInfo
+  )
 
   case class Mobile(countryCode: String, number: String)
 
-  case class Person(userId: UserId,
-                    emailAddress: EmailAddress,
-                    fullName: FullName,
-                    mobile: Mobile,
-                    billingInfo: BillingInfo,
-                    workCity: City,
-                    workArea: Area)
+  case class Person(
+      userId: UserId,
+      emailAddress: EmailAddress,
+      fullName: FullName,
+      mobile: Mobile,
+      billingInfo: BillingInfo,
+      workCity: City,
+      workArea: Area
+  )
 }

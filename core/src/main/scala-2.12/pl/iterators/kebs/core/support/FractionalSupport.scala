@@ -2,9 +2,11 @@ package pl.iterators.kebs.support
 
 trait FractionalSupport {
 
-  implicit def fractionalFromValueClassLike[A, Rep](implicit vcLike: ValueClassLike[A, Rep],
-                                                   fractionalRep: Fractional[Rep],
-                                                   numeric: Numeric[A]): Fractional[A] =
+  implicit def fractionalFromValueClassLike[A, Rep](implicit
+      vcLike: ValueClassLike[A, Rep],
+      fractionalRep: Fractional[Rep],
+      numeric: Numeric[A]
+  ): Fractional[A] =
     new Fractional[A] {
       override def div(x: A, y: A): A       = vcLike.apply(fractionalRep.div(vcLike.unapply(x), vcLike.unapply(y)))
       override def plus(x: A, y: A): A      = numeric.plus(x, y)
