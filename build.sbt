@@ -141,7 +141,7 @@ def akkaHttpInExamples = {
   )
 }
 
-val pekkoVersion       = "1.0.3"
+val pekkoVersion       = "1.1.0"
 val pekkoHttpVersion   = "1.0.1"
 val pekkoHttpJsonV     = "2.0.0"
 val pekkoStream        = "org.apache.pekko" %% "pekko-stream"         % pekkoVersion
