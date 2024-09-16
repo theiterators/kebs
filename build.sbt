@@ -95,26 +95,26 @@ def paradiseFlag(scalaVersion: String): Seq[String] =
     Seq("-Ymacro-annotations")
 
 val scalaTest       = Def.setting("org.scalatest" %%% "scalatest" % "3.2.19")
-val scalaCheck      = Def.setting("org.scalacheck" %%% "scalacheck" % "1.18.0")
-val slick           = "com.typesafe.slick"  %% "slick"                % "3.5.1"
+val scalaCheck      = Def.setting("org.scalacheck" %%% "scalacheck" % "1.18.1")
+val slick           = "com.typesafe.slick"  %% "slick"           % "3.5.1"
 val optionalSlick   = optional(slick)
-val playJson        = Def.setting("org.playframework"   %%% "play-json"            % "3.0.4")
-val slickPg         = "com.github.tminglei" %% "slick-pg"             % "0.22.2"
-val doobie          = "org.tpolecat"        %% "doobie-core"          % "1.0.0-RC5"
-val doobiePg        = "org.tpolecat"        %% "doobie-postgres"      % "1.0.0-RC5"
-val sprayJson       = "io.spray"            %% "spray-json"           % "1.3.6"
+val playJson        = Def.setting("org.playframework" %%% "play-json" % "3.0.4")
+val slickPg         = "com.github.tminglei" %% "slick-pg"        % "0.22.2"
+val doobie          = "org.tpolecat"        %% "doobie-core"     % "1.0.0-RC5"
+val doobiePg        = "org.tpolecat"        %% "doobie-postgres" % "1.0.0-RC5"
+val sprayJson       = "io.spray"            %% "spray-json"      % "1.3.6"
 val circeV          = "0.14.10"
-val circe           = Def.setting("io.circe"            %%% "circe-core"           % circeV)
-val circeAuto       = Def.setting("io.circe"            %%% "circe-generic"        % circeV)
-val circeAutoExtras = Def.setting("io.circe"            %%% "circe-generic-extras" % "0.14.4")
-val circeParser     = Def.setting("io.circe"            %%% "circe-parser"         % circeV)
+val circe           = Def.setting("io.circe" %%% "circe-core" % circeV)
+val circeAuto       = Def.setting("io.circe" %%% "circe-generic" % circeV)
+val circeAutoExtras = Def.setting("io.circe" %%% "circe-generic-extras" % "0.14.4")
+val circeParser     = Def.setting("io.circe" %%% "circe-parser" % circeV)
 
 val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.11"
 
-val scalacheck = "org.scalacheck" %% "scalacheck" % "1.18.0"
+val scalacheck = "org.scalacheck" %% "scalacheck" % "1.18.1"
 
-val scalacheckMagnolify  = "com.spotify"         % "magnolify-scalacheck"  % "0.7.4"
-val scalacheckDerived    = "io.github.martinhh" %% "scalacheck-derived"    % "0.4.2"
+val scalacheckMagnolify = "com.spotify"         % "magnolify-scalacheck" % "0.7.4"
+val scalacheckDerived   = "io.github.martinhh" %% "scalacheck-derived"   % "0.4.2"
 
 val enumeratumVersion         = "1.7.4"
 val enumeratumPlayJsonVersion = "1.8.1"
@@ -124,7 +124,7 @@ def enumeratumInExamples = {
   Seq("com.beachape" %% "enumeratum" % enumeratumVersion, playJsonSupport)
 }
 val optionalEnumeratum = Def.setting("com.beachape" %%% "enumeratum" % enumeratumVersion % "provided")
-val enumeratumInTest = Def.setting("com.beachape" %%% "enumeratum" % enumeratumVersion % "test")
+val enumeratumInTest   = Def.setting("com.beachape" %%% "enumeratum" % enumeratumVersion % "test")
 
 val akkaVersion       = "2.6.20"
 val akkaHttpVersion   = "10.2.10"
@@ -158,12 +158,12 @@ val http4sVersion = "0.23.28"
 val http4s        = Def.setting("org.http4s" %%% "http4s-dsl" % http4sVersion)
 
 val http4sStirVersion = "0.3"
-val http4sStir        = Def.setting("pl.iterators" %%% "http4s-stir"         % http4sStirVersion)
+val http4sStir        = Def.setting("pl.iterators" %%% "http4s-stir" % http4sStirVersion)
 val http4sStirTestkit = Def.setting("pl.iterators" %%% "http4s-stir-testkit" % http4sStirVersion)
 
-val pureConfigVersion = "0.17.7"
-val pureConfig        = "com.github.pureconfig" %% "pureconfig-core" % pureConfigVersion
-val pureConfigGeneric = "com.github.pureconfig" %% "pureconfig-generic" % pureConfigVersion
+val pureConfigVersion       = "0.17.7"
+val pureConfig              = "com.github.pureconfig" %% "pureconfig-core"           % pureConfigVersion
+val pureConfigGeneric       = "com.github.pureconfig" %% "pureconfig-generic"        % pureConfigVersion
 val pureConfigGenericScala3 = "com.github.pureconfig" %% "pureconfig-generic-scala3" % pureConfigVersion
 
 val scalaJavaTime = Def.setting("io.github.cquiroz" %%% "scala-java-time" % "2.6.0")
@@ -179,13 +179,13 @@ lazy val commonSettings = baseSettings ++ Seq(
 
 lazy val slickSettings = commonSettings ++ Seq(
   libraryDependencies += slick,
-  libraryDependencies += (slickPg    % "test"),
+  libraryDependencies += (slickPg % "test"),
   libraryDependencies += (enumeratumInTest.value)
 )
 
 lazy val doobieSettings = commonSettings ++ Seq(
   libraryDependencies += doobie,
-  libraryDependencies += (doobiePg   % "test"),
+  libraryDependencies += (doobiePg % "test"),
   libraryDependencies += (enumeratumInTest.value)
 )
 
@@ -195,13 +195,13 @@ lazy val coreSettings = commonMacroSettings ++ Seq(
 
 lazy val enumSettings = commonMacroSettings ++ Seq(
   libraryDependencies += scalaCheck.value % "test",
-  libraryDependencies += scalaTest.value % "test",
+  libraryDependencies += scalaTest.value  % "test",
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
 lazy val enumeratumSettings = commonMacroSettings ++ Seq(
   libraryDependencies += scalaCheck.value % "test",
-  libraryDependencies += scalaTest.value % "test",
+  libraryDependencies += scalaTest.value  % "test",
   libraryDependencies += optionalEnumeratum.value,
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
@@ -262,7 +262,7 @@ lazy val jsonschemaSettings = commonSettings ++ Seq(
 
 lazy val scalacheckSettings = commonSettings ++ Seq(
   libraryDependencies += scalacheck,
-  libraryDependencies += (enumeratumInTest.value),
+  libraryDependencies += (enumeratumInTest.value)
 ) ++ Seq(
   libraryDependencies ++= (if (scalaVersion.value.startsWith("3")) Seq(scalacheckDerived)
                            else Seq(scalacheckMagnolify.cross(CrossVersion.for3Use2_13)))
@@ -292,7 +292,7 @@ lazy val instancesSettings = commonSettings
 
 lazy val pureConfigSettings = commonSettings ++ Seq(
   libraryDependencies += pureConfig,
-  libraryDependencies += (if (scalaVersion.value.startsWith("3")) pureConfigGenericScala3 else pureConfigGeneric) % "test",
+  libraryDependencies += (if (scalaVersion.value.startsWith("3")) pureConfigGenericScala3 else pureConfigGeneric) % "test"
 )
 
 lazy val core = crossProject(JSPlatform, NativePlatform, JVMPlatform)
@@ -392,7 +392,7 @@ lazy val pekkoHttpSupport = project
     enumeratumSupport.jvm,
     enumSupport.jvm,
     instances.jvm  % "test -> test",
-    tagged.jvm % "test -> test",
+    tagged.jvm     % "test -> test",
     taggedMeta.jvm % "test -> test"
   )
   .settings(pekkoHttpSettings *)
@@ -422,7 +422,15 @@ lazy val http4sStirSupport = crossProject(JSPlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
   .crossType(CrossType.Full)
   .in(file("http4s-stir"))
-  .dependsOn(core, instances, enumSupport % "test -> test", circeSupport % "test -> test", opaque % "test -> test", tagged % "test -> test", taggedMeta % "test -> test")
+  .dependsOn(
+    core,
+    instances,
+    enumSupport  % "test -> test",
+    circeSupport % "test -> test",
+    opaque       % "test -> test",
+    tagged       % "test -> test",
+    taggedMeta   % "test -> test"
+  )
   .settings(http4sStirSettings *)
   .settings(publishSettings *)
   .settings(
@@ -494,12 +502,14 @@ lazy val taggedMeta = crossProject(JSPlatform, NativePlatform, JVMPlatform)
     core,
     tagged
   )
-  .jvmConfigure(_.dependsOn(
-    sprayJsonSupport  % "test -> test",
-    circeSupport.jvm      % "test -> test",
-    jsonschemaSupport % "test -> test",
-    scalacheckSupport % "test -> test"
-  ))
+  .jvmConfigure(
+    _.dependsOn(
+      sprayJsonSupport  % "test -> test",
+      circeSupport.jvm  % "test -> test",
+      jsonschemaSupport % "test -> test",
+      scalacheckSupport % "test -> test"
+    )
+  )
   .settings(taggedMetaSettings *)
   .settings(publishSettings *)
   .settings(disableScala(List("3")))
@@ -570,9 +580,9 @@ lazy val pureConfigSupport = project
   .settings(pureConfigSettings *)
   .settings(publishSettings *)
   .settings(
-    name := "pureconfig",
+    name       := "pureconfig",
     moduleName := "kebs-pureconfig"
-)
+  )
 
 lazy val kebs = project
   .in(file("."))
