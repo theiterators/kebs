@@ -95,7 +95,8 @@ def paradiseFlag(scalaVersion: String): Seq[String] =
     Seq("-Ymacro-annotations")
 
 val scalaTest       = Def.setting("org.scalatest" %%% "scalatest" % "3.2.19")
-val scalaCheck      = Def.setting("org.scalacheck" %%% "scalacheck" % "1.18.0")
+val scalaCheck      = Def.setting("org.scalacheck" %%% "scalacheck" % "1.18.1")
+
 val slick           = "com.typesafe.slick"  %% "slick"           % "3.5.1"
 val optionalSlick   = optional(slick)
 val playJson        = Def.setting("org.playframework" %%% "play-json" % "3.0.4")
@@ -111,7 +112,7 @@ val circeParser     = Def.setting("io.circe" %%% "circe-parser" % circeV)
 
 val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.11"
 
-val scalacheck = "org.scalacheck" %% "scalacheck" % "1.18.0"
+val scalacheck = "org.scalacheck" %% "scalacheck" % "1.18.1"
 
 val scalacheckMagnolify = "com.spotify"         % "magnolify-scalacheck" % "0.7.4"
 val scalacheckDerived   = "io.github.martinhh" %% "scalacheck-derived"   % "0.4.2"
