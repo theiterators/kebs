@@ -96,6 +96,7 @@ def paradiseFlag(scalaVersion: String): Seq[String] =
 
 val scalaTest       = Def.setting("org.scalatest" %%% "scalatest" % "3.2.19")
 val scalaCheck      = Def.setting("org.scalacheck" %%% "scalacheck" % "1.18.1")
+
 val slick           = "com.typesafe.slick"  %% "slick"           % "3.5.1"
 val optionalSlick   = optional(slick)
 val playJson        = Def.setting("org.playframework" %%% "play-json" % "3.0.4")
@@ -141,7 +142,7 @@ def akkaHttpInExamples = {
   )
 }
 
-val pekkoVersion       = "1.1.0"
+val pekkoVersion       = "1.1.1"
 val pekkoHttpVersion   = "1.0.1"
 val pekkoHttpJsonV     = "2.0.0"
 val pekkoStream        = "org.apache.pekko" %% "pekko-stream"         % pekkoVersion
