@@ -63,7 +63,7 @@ class GeneratorsTests extends AnyFunSuite with Matchers {
     import KebsProtocol._
     import model._
 
-    given Arbitrary[WrappedInt] = Arbitrary {
+    implicit val wrappedInt: Arbitrary[WrappedInt] = Arbitrary {
       WrappedInt(42)
     }
 
