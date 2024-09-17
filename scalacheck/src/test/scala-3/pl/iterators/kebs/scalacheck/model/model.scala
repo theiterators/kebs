@@ -2,10 +2,9 @@ package pl.iterators.kebs.scalacheck
 
 import pl.iterators.kebs.opaque.Opaque
 import pl.iterators.kebs.core.enums.ValueEnumLikeEntry
+import java.time._
 
 package object model {
-  case class WrappedInt(int: Int)
-
   enum Greeting {
     case Hello, GoodBye, Hi, Bye
   }
@@ -17,18 +16,17 @@ package object model {
     case Bye     extends LongGreeting(3L)
   }
 
-  opaque type OpaqueInt = Int
-  object OpaqueInt extends Opaque[OpaqueInt, Int] {
+  opaque type WrappedInt = Int
+  object WrappedInt extends Opaque[WrappedInt, Int] {
     override def apply(value: Int) = value
   }
 
-  case class BasicSampleWithOpaque(
+  case class BasicSample(
       someNumber: Int,
       someText: String,
       wrappedNumber: WrappedInt,
-      opaqueInt: OpaqueInt,
+      opaqueInt: WrappedInt,
       greeting: Greeting,
       longGreeting: LongGreeting
   )
-
 }

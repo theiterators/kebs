@@ -10,3 +10,5 @@ trait CommonArbitrarySupport extends ScalacheckInstancesSupport {
   ): Arbitrary[T] =
     Arbitrary(arbitrary.arbitrary.map(rep.apply(_)))
 }
+
+object CommonArbitrarySupport extends CommonArbitrarySupport

@@ -1,9 +1,11 @@
+package pl.iterators.kebs.scalacheck
+
+import org.scalacheck.Arbitrary
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
 import java.net.{URI, URL}
 import java.time.{Duration, Instant, LocalDate, LocalDateTime, LocalTime, ZonedDateTime}
-import pl.iterators.kebs.scalacheck._
 
 case class CollectionsSample(
     listOfNumbers: List[Int],
@@ -50,9 +52,24 @@ class GeneratorsTests extends AnyFunSuite with Matchers {
     maximal.optionOfNumber shouldNot be(empty)
     maximal.mapOfNumberString shouldNot be(empty)
   }
+
   test("Non standard types sample test") {
     import KebsProtocolWithFancyPredefs._
 
     noException should be thrownBy allGenerators[NonStandardTypesSample].normal.generate
+  }
+
+  test("Issue 309") {
+    import KebsProtocol._
+    import model._
+
+    given Arbitrary[WrappedInt] = Arbitrary {
+      WrappedInt(42)
+    }
+
+    val generator   = allGenerators[BasicSample]
+    val basicSample = generator.normal.generate
+
+    basicSample.wrappedNumber shouldBe WrappedInt(42)
   }
 }
