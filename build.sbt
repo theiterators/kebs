@@ -94,15 +94,15 @@ def paradiseFlag(scalaVersion: String): Seq[String] =
   else
     Seq("-Ymacro-annotations")
 
-val scalaTest       = Def.setting("org.scalatest" %%% "scalatest" % "3.2.19")
-val scalaCheck      = Def.setting("org.scalacheck" %%% "scalacheck" % "1.18.1")
+val scalaTest  = Def.setting("org.scalatest" %%% "scalatest" % "3.2.19")
+val scalaCheck = Def.setting("org.scalacheck" %%% "scalacheck" % "1.18.1")
 
 val slick           = "com.typesafe.slick"  %% "slick"           % "3.5.1"
 val optionalSlick   = optional(slick)
 val playJson        = Def.setting("org.playframework" %%% "play-json" % "3.0.4")
 val slickPg         = "com.github.tminglei" %% "slick-pg"        % "0.22.2"
-val doobie          = "org.tpolecat"        %% "doobie-core"     % "1.0.0-RC5"
-val doobiePg        = "org.tpolecat"        %% "doobie-postgres" % "1.0.0-RC5"
+val doobie          = "org.tpolecat"        %% "doobie-core"     % "1.0.0-RC6"
+val doobiePg        = "org.tpolecat"        %% "doobie-postgres" % "1.0.0-RC6"
 val sprayJson       = "io.spray"            %% "spray-json"      % "1.3.6"
 val circeV          = "0.14.10"
 val circe           = Def.setting("io.circe" %%% "circe-core" % circeV)
