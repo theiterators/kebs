@@ -32,6 +32,8 @@ trait MinimalArbitrarySupport {
     Arbitrary(Gen.const(Map.empty[T, U]))
 }
 
+object MinimalArbitrarySupport extends MinimalArbitrarySupport
+
 trait MaximalArbitrarySupport {
   implicit def someOption[T: Arbitrary]: Arbitrary[Option[T]] =
     Arbitrary(Gen.some(Arbitrary.arbitrary[T]))
@@ -54,6 +56,8 @@ trait MaximalArbitrarySupport {
   implicit def nonEmptyMap[T: Arbitrary, U: Arbitrary]: Arbitrary[Map[T, U]] =
     Arbitrary(Gen.mapOfN(1 + Random.nextInt(3), Arbitrary.arbitrary[(T, U)]))
 }
+
+object MaximalArbitrarySupport extends MaximalArbitrarySupport
 
 trait KebsArbitraryPredefs {
   implicit val arbAlphaString: Arbitrary[String] =
@@ -99,5 +103,6 @@ trait KebsArbitraryPredefs {
   }
 
   implicit val arbUrl: Arbitrary[URL] = Arbitrary(arbUri.arbitrary.map(_.toURL))
-
 }
+
+object KebsArbitraryPredefs extends KebsArbitraryPredefs
