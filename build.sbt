@@ -1,6 +1,6 @@
 import sbt.librarymanagement.ConflictWarning
 
-val scala_2_13             = "2.13.14"
+val scala_2_13             = "2.13.15"
 val scala_3                = "3.3.3"
 val mainScalaVersion       = scala_3
 val supportedScalaVersions = Seq(scala_2_13, scala_3)
