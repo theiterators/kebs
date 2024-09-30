@@ -97,7 +97,7 @@ def paradiseFlag(scalaVersion: String): Seq[String] =
 val scalaTest  = Def.setting("org.scalatest" %%% "scalatest" % "3.2.19")
 val scalaCheck = Def.setting("org.scalacheck" %%% "scalacheck" % "1.18.1")
 
-val slick           = "com.typesafe.slick"  %% "slick"           % "3.5.1"
+val slick           = "com.typesafe.slick"  %% "slick"           % "3.5.2"
 val optionalSlick   = optional(slick)
 val playJson        = Def.setting("org.playframework" %%% "play-json" % "3.0.4")
 val slickPg         = "com.github.tminglei" %% "slick-pg"        % "0.22.2"
