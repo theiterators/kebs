@@ -10,6 +10,7 @@ import java.util.{Currency, Locale, UUID}
 
 class UtilInstancesTests extends AnyFunSuite with Matchers with KebsCirce with UtilInstances {
   private def isScalaJS = System.getProperty("java.vm.name") == "Scala.js"
+  private def isNative  = System.getProperty("java.vm.name") == "Scala Native"
   test("No ValueClassLike implicits derived") {
 
     "implicitly[ValueClassLike[Currency, String]]" shouldNot typeCheck
@@ -21,7 +22,7 @@ class UtilInstancesTests extends AnyFunSuite with Matchers with KebsCirce with U
   }
 
   test("Currency standard format") {
-    if (!isScalaJS) {
+    if (!isScalaJS && !isNative) {
       val encoder = implicitly[Encoder[Currency]]
       val decoder = implicitly[Decoder[Currency]]
       val value   = "PLN"

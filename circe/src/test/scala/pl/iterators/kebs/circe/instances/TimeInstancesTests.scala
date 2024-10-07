@@ -9,7 +9,8 @@ import pl.iterators.kebs.instances.TimeInstances
 import java.time._
 
 class TimeInstancesTests extends AnyFunSuite with Matchers with KebsCirce with TimeInstances {
-  private def isScalaJS = System.getProperty("java.vm.name") == "Scala.js"
+  private def isScalaJS     = System.getProperty("java.vm.name") == "Scala.js"
+  private def isScalaNative = System.getProperty("java.vm.name") == "Scala Native"
   test("No ValueClassLike implicits derived") {
 
     "implicitly[ValueClassLike[DayOfWeek, Int]]" shouldNot typeCheck
@@ -268,7 +269,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with KebsCirce with T
   }
 
   test("ZoneId standard format") {
-    if (!isScalaJS) {
+    if (!isScalaJS && !isScalaNative) {
       val encoder = implicitly[Encoder[ZoneId]]
       val decoder = implicitly[Decoder[ZoneId]]
       val value   = "Europe/Warsaw"
@@ -304,7 +305,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with KebsCirce with T
   }
 
   test("ZonedDateTime standard format") {
-    if (!isScalaJS) {
+    if (!isScalaJS && !isScalaNative) {
       val encoder = implicitly[Encoder[ZonedDateTime]]
       val decoder = implicitly[Decoder[ZonedDateTime]]
       val value   = "2011-12-03T10:15:30+01:00[Europe/Warsaw]"

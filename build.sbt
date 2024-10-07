@@ -143,7 +143,7 @@ def akkaHttpInExamples = {
 }
 
 val pekkoVersion       = "1.1.1"
-val pekkoHttpVersion   = "1.0.1"
+val pekkoHttpVersion   = "1.1.0"
 val pekkoHttpJsonV     = "2.0.0"
 val pekkoStream        = "org.apache.pekko" %% "pekko-stream"         % pekkoVersion
 val pekkoStreamTestkit = "org.apache.pekko" %% "pekko-stream-testkit" % pekkoVersion
@@ -359,7 +359,7 @@ lazy val playJsonSupport = crossProject(JSPlatform, JVMPlatform)
     crossScalaVersions := supportedScalaVersions
   )
 
-lazy val circeSupport = crossProject(JSPlatform, JVMPlatform)
+lazy val circeSupport = crossProject(JSPlatform, NativePlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("circe"))
@@ -563,7 +563,7 @@ lazy val enumSupport = crossProject(JSPlatform, NativePlatform, JVMPlatform)
     moduleName := "kebs-enum"
   )
 
-lazy val enumeratumSupport = crossProject(JSPlatform, JVMPlatform)
+lazy val enumeratumSupport = crossProject(JSPlatform, NativePlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("enumeratum"))
@@ -604,6 +604,7 @@ lazy val kebs = project
     playJsonSupport.js,
     circeSupport.jvm,
     circeSupport.js,
+    circeSupport.native,
     jsonschemaSupport,
     scalacheckSupport,
     akkaHttpSupport,
@@ -623,6 +624,7 @@ lazy val kebs = project
     enumSupport.native,
     enumeratumSupport.jvm,
     enumeratumSupport.js,
+    enumeratumSupport.native,
     pureConfigSupport
   )
   .settings(baseSettings *)
