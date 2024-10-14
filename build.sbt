@@ -158,7 +158,7 @@ def pekkoHttpInExamples = {
 val http4sVersion = "0.23.28"
 val http4s        = Def.setting("org.http4s" %%% "http4s-dsl" % http4sVersion)
 
-val http4sStirVersion = "0.3"
+val http4sStirVersion = "0.4.0"
 val http4sStir        = Def.setting("pl.iterators" %%% "http4s-stir" % http4sStirVersion)
 val http4sStirTestkit = Def.setting("pl.iterators" %%% "http4s-stir-testkit" % http4sStirVersion)
 
