@@ -8,6 +8,7 @@ val supportedScalaVersions = Seq(scala_2_13, scala_3)
 ThisBuild / crossScalaVersions := supportedScalaVersions
 ThisBuild / scalaVersion       := mainScalaVersion
 ThisBuild / conflictWarning    := ConflictWarning.disable
+ThisBuild / versionScheme      := Some("early-semver")
 Test / scalafmtOnCompile       := true
 ThisBuild / scalafmtOnCompile  := true
 
