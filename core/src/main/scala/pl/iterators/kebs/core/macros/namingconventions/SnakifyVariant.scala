@@ -16,3 +16,7 @@ object SnakifyVariant {
     }
   }
 }
+
+object CapitalizeVariant {
+  def capitalize(word: String): String = word.capitalize
+}

@@ -7,7 +7,7 @@ import pl.iterators.kebs.circe.KebsCirceCapitalized
 import pl.iterators.kebs.circe.model._
 import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
 
-class CirceFormatCapitalizedVariantTests extends AnyFunSuite with Matchers {
+class CirceFormatCapitalizeVariantTests extends AnyFunSuite with Matchers {
   object KebsProtocol extends KebsCirceCapitalized with CaseClass1ToValueClass
   import KebsProtocol._
 

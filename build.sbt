@@ -337,7 +337,6 @@ lazy val sprayJsonSupport = project
   .dependsOn(enumeratumSupport.jvm, instances.jvm % "test -> test")
   .settings(sprayJsonSettings *)
   .settings(publishSettings *)
-  .settings(disableScala(List("3")))
   .settings(
     name               := "spray-json",
     description        := "Automatic generation of Spray json formats for case-classes",

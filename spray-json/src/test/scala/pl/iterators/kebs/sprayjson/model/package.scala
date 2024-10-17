@@ -2,7 +2,7 @@ package pl.iterators.kebs.sprayjson
 
 package object model {
 
-  case class F1(f1: String) extends AnyVal
+  case class F1(f1: String)
 
   case class ClassWith23Fields(
       f1: F1,
