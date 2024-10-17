@@ -1,6 +1,7 @@
 package pl.iterators.kebs.sprayjson.macros
 
 import pl.iterators.kebs.core.macros.MacroUtils
+import pl.iterators.kebs.core.macros.namingconventions.CapitalizeVariant.capitalize
 import spray.json.{JsonFormat, JsonReader, JsonWriter, NullOptions, RootJsonFormat}
 
 import scala.reflect.macros._
@@ -101,6 +102,7 @@ object KebsSprayMacros {
 
   class SnakifyVariant(context: whitebox.Context) extends KebsSprayMacros(context) {
     import pl.iterators.kebs.core.macros.namingconventions.SnakifyVariant.snakify
+    import pl.iterators.kebs.core.macros.namingconventions.CapitalizeVariant.capitalize
     import c.universe._
 
     override protected def extractJsonFieldNames(fields: List[MethodSymbol]) = super.extractJsonFieldNames(fields).map(snakify)
@@ -109,7 +111,7 @@ object KebsSprayMacros {
   class CapitalizedCamelCase(context: whitebox.Context) extends KebsSprayMacros(context) {
     import c.universe._
 
-    override protected def extractJsonFieldNames(fields: List[MethodSymbol]) = super.extractJsonFieldNames(fields).map(_.capitalize)
+    override protected def extractJsonFieldNames(fields: List[MethodSymbol]) = super.extractJsonFieldNames(fields).map(capitalize)
   }
 
 }
