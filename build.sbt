@@ -101,8 +101,8 @@ val slick           = "com.typesafe.slick"  %% "slick"           % "3.5.2"
 val optionalSlick   = optional(slick)
 val playJson        = Def.setting("org.playframework" %%% "play-json" % "3.0.4")
 val slickPg         = "com.github.tminglei" %% "slick-pg"        % "0.22.2"
-val doobie          = "org.tpolecat"        %% "doobie-core"     % "1.0.0-RC6"
-val doobiePg        = "org.tpolecat"        %% "doobie-postgres" % "1.0.0-RC6"
+val doobie          = "org.tpolecat"        %% "doobie-core"     % "1.0.0-RC5"
+val doobiePg        = "org.tpolecat"        %% "doobie-postgres" % "1.0.0-RC5"
 val sprayJson       = "io.spray"            %% "spray-json"      % "1.3.6"
 val circeV          = "0.14.10"
 val circe           = Def.setting("io.circe" %%% "circe-core" % circeV)
@@ -142,7 +142,7 @@ def akkaHttpInExamples = {
   )
 }
 
-val pekkoVersion       = "1.1.1"
+val pekkoVersion       = "1.1.2"
 val pekkoHttpVersion   = "1.1.0"
 val pekkoHttpJsonV     = "2.0.0"
 val pekkoStream        = "org.apache.pekko" %% "pekko-stream"         % pekkoVersion
@@ -158,7 +158,7 @@ def pekkoHttpInExamples = {
 val http4sVersion = "0.23.28"
 val http4s        = Def.setting("org.http4s" %%% "http4s-dsl" % http4sVersion)
 
-val http4sStirVersion = "0.3"
+val http4sStirVersion = "0.4.0"
 val http4sStir        = Def.setting("pl.iterators" %%% "http4s-stir" % http4sStirVersion)
 val http4sStirTestkit = Def.setting("pl.iterators" %%% "http4s-stir-testkit" % http4sStirVersion)
 
@@ -252,7 +252,6 @@ lazy val http4sSettings = commonSettings ++ Seq(
 lazy val http4sStirSettings = commonSettings ++ Seq(
   libraryDependencies += http4s.value,
   libraryDependencies += http4sStir.value,
-  libraryDependencies += http4sStirTestkit.value % "test",
   libraryDependencies += enumeratumInTest.value,
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
@@ -432,6 +431,9 @@ lazy val http4sStirSupport = crossProject(JSPlatform, JVMPlatform)
     taggedMeta   % "test -> test"
   )
   .settings(http4sStirSettings *)
+  .jvmSettings(
+    libraryDependencies += http4sStirTestkit.value % "test"
+  )
   .settings(publishSettings *)
   .settings(
     name               := "http4s-stir",
