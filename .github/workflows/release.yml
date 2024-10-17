@@ -12,7 +12,7 @@ jobs:
           fetch-depth: 0
       - uses: olafurpg/setup-scala@v14
         with:
-          java-version: adopt@1.17
+          java-version: zulu@1.17.0-0
       - run: sbt ci-release
         env:
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
