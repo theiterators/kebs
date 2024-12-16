@@ -34,7 +34,7 @@ trait KebsPlayJsonEnums {
 
   implicit def enumEncoderImpl[E](implicit ev: EnumLike[E]): Writes[E] = enumEncoder(ev)
 
-  trait KebsCirceEnumsUppercase {
+  trait KebsPlayJsonEnumsUppercase {
     implicit def enumDecoderImpl[E](implicit ev: EnumLike[E]): Reads[E] =
       uppercaseEnumDecoder(ev)
 
@@ -42,7 +42,7 @@ trait KebsPlayJsonEnums {
       uppercaseEnumEncoder(ev)
   }
 
-  trait KebsCirceEnumsLowercase {
+  trait KebsPlayJsonEnumsLowercase {
     implicit def enumDecoderImpl[E](implicit ev: EnumLike[E]): Reads[E] =
       lowercaseEnumDecoder(ev)
 
