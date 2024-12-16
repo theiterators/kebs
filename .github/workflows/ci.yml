@@ -13,7 +13,7 @@ jobs:
     name: Build and Test
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-20.04]
         scala: [2.13.15, 3.3.3]
         java: [temurin@17]
     runs-on: ${{ matrix.os }}
