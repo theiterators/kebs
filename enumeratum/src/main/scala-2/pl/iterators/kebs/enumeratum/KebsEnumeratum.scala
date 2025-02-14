@@ -20,7 +20,7 @@ class EnumeratumEntryMacros(val c: blackbox.Context) extends MacroUtils {
     assertEnumEntry(EnumEntry, s"${EnumEntry.typeSymbol} must subclass EnumEntry")
 
     c.Expr[EnumLike[E]](
-      q"new _root_.pl.iterators.kebs.core.enums.EnumLike[${EnumEntry.typeSymbol}] { override def values: Seq[${EnumEntry.typeSymbol}] = ${companion(EnumEntry)}.values.toSeq }"
+      q"new _root_.pl.iterators.kebs.core.enums.EnumLike[${EnumEntry.typeSymbol}] { override def valuesToNamesMap: Map[${EnumEntry.typeSymbol}, String] = ${companion(EnumEntry)}.values.map(v => v -> v.entryName).toMap }"
     )
   }
 }
