@@ -1,6 +1,6 @@
 import sbt.librarymanagement.ConflictWarning
 
-val scala_2_13             = "2.13.15"
+val scala_2_13             = "2.13.16"
 val scala_3                = "3.3.5"
 val mainScalaVersion       = scala_3
 val supportedScalaVersions = Seq(scala_2_13, scala_3)
@@ -102,8 +102,8 @@ val slick           = "com.typesafe.slick"  %% "slick"           % "3.5.2"
 val optionalSlick   = optional(slick)
 val playJson        = Def.setting("org.playframework" %%% "play-json" % "3.0.4")
 val slickPg         = "com.github.tminglei" %% "slick-pg"        % "0.22.2"
-val doobie          = "org.tpolecat"        %% "doobie-core"     % "1.0.0-RC5"
-val doobiePg        = "org.tpolecat"        %% "doobie-postgres" % "1.0.0-RC5"
+val doobie          = "org.tpolecat"        %% "doobie-core"     % "1.0.0-RC7"
+val doobiePg        = "org.tpolecat"        %% "doobie-postgres" % "1.0.0-RC7"
 val sprayJson       = "io.spray"            %% "spray-json"      % "1.3.6"
 val circeV          = "0.14.10"
 val circe           = Def.setting("io.circe" %%% "circe-core" % circeV)
@@ -116,10 +116,10 @@ val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.11"
 val scalacheck = "org.scalacheck" %% "scalacheck" % "1.18.1"
 
 val scalacheckMagnolify = "com.spotify"         % "magnolify-scalacheck" % "0.7.4"
-val scalacheckDerived   = "io.github.martinhh" %% "scalacheck-derived"   % "0.4.2"
+val scalacheckDerived   = "io.github.martinhh" %% "scalacheck-derived"   % "0.5.0"
 
 val enumeratumVersion         = "1.7.5"
-val enumeratumPlayJsonVersion = "1.8.1"
+val enumeratumPlayJsonVersion = "1.8.2"
 val enumeratum                = Def.setting("com.beachape" %%% "enumeratum" % enumeratumVersion)
 def enumeratumInExamples = {
   val playJsonSupport = "com.beachape" %% "enumeratum-play-json" % enumeratumPlayJsonVersion
@@ -143,7 +143,7 @@ def akkaHttpInExamples = {
   )
 }
 
-val pekkoVersion       = "1.1.2"
+val pekkoVersion       = "1.1.3"
 val pekkoHttpVersion   = "1.1.0"
 val pekkoHttpJsonV     = "2.0.0"
 val pekkoStream        = "org.apache.pekko" %% "pekko-stream"         % pekkoVersion
