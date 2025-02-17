@@ -55,7 +55,7 @@ class SlickMappedColumnTypeTests extends AnyFunSuite with Matchers {
     """
       |class OneElement(tag: Tag) extends Table[Name](tag, "ONE_ELEMENT_TABLE") {
       |      def name                           = column[String]("name")
-      |      
+      |
       |      override def * : ProvenShape[Name] = name <> (Name.apply, Name.unapply)
       |    }
     """.stripMargin should compile
@@ -76,7 +76,7 @@ class SlickMappedColumnTypeTests extends AnyFunSuite with Matchers {
       |class Matryoshka(tag: Tag) extends Table[WrappedName](tag, "MATRYOSHKA") {
       |      def name                                  = column[Name]("name")
       |      private def mappedProjection              = name <> (WrappedName.apply, WrappedName.unapply)
-      |      
+      |
       |      override def * : ProvenShape[WrappedName] = mappedProjection
       |    }
     """.stripMargin should compile
