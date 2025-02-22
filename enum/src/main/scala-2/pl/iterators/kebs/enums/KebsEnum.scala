@@ -16,7 +16,7 @@ class EnumerationEntryMacros(val c: blackbox.Context) {
     val objectStr  = valueType.toString.replaceFirst(".Value$", "")
     val objectName = c.typecheck(c.parse(s"$objectStr: $objectStr.type"))
     c.Expr[EnumLike[E]](
-      q"new _root_.pl.iterators.kebs.core.enums.EnumLike[$valueType] { override def values: immutable.Seq[${valueType}] = ($objectName).values.toSeq }"
+      q"new _root_.pl.iterators.kebs.core.enums.EnumLike[$valueType] { override def valuesToNamesMap: Map[$valueType, String] = ($objectName).values.map(v => v -> v.toString).toMap }"
     )
   }
 }
