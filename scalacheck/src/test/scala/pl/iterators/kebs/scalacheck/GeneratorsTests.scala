@@ -4,7 +4,7 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
 import java.net.{URI, URL}
-import java.time.{Duration, Instant, LocalDate, LocalDateTime, LocalTime, ZonedDateTime}
+import java.time._
 
 case class CollectionsSample(
     listOfNumbers: List[Int],
@@ -35,7 +35,13 @@ class GeneratorsTests extends AnyFunSuite with Matchers {
   test("Collections sample test") {
     import KebsProtocol._
 
-    val minimal = allGenerators[CollectionsSample].minimal.generate
+    val minimal = allGenerators[
+      CollectionsSample,
+      DefaultGeneratorParametersProvider,
+      DefaultGeneratorsMinimalArbitrarySupport,
+      DefaultGeneratorsNormalArbitrarySupport,
+      DefaultGeneratorsMaximalArbitrarySupport
+    ].minimal.generate
     minimal.listOfNumbers shouldBe empty
     minimal.arrayOfNumbers shouldBe empty
     minimal.setOfNumbers shouldBe empty
@@ -43,7 +49,13 @@ class GeneratorsTests extends AnyFunSuite with Matchers {
     minimal.optionOfNumber shouldBe empty
     minimal.mapOfNumberString shouldBe empty
 
-    val maximal = allGenerators[CollectionsSample].maximal.generate
+    val maximal = allGenerators[
+      CollectionsSample,
+      DefaultGeneratorParametersProvider,
+      DefaultGeneratorsMinimalArbitrarySupport,
+      DefaultGeneratorsNormalArbitrarySupport,
+      DefaultGeneratorsMaximalArbitrarySupport
+    ].maximal.generate
     maximal.listOfNumbers shouldNot be(empty)
     maximal.arrayOfNumbers shouldNot be(empty)
     maximal.setOfNumbers shouldNot be(empty)
@@ -54,6 +66,12 @@ class GeneratorsTests extends AnyFunSuite with Matchers {
   test("Non standard types sample test") {
     import KebsProtocolWithFancyPredefs._
 
-    noException should be thrownBy allGenerators[NonStandardTypesSample].normal.generate
+    noException should be thrownBy allGenerators[
+      NonStandardTypesSample,
+      DefaultGeneratorParametersProvider,
+      DefaultGeneratorsMinimalArbitrarySupport,
+      DefaultGeneratorsNormalArbitrarySupport,
+      DefaultGeneratorsMaximalArbitrarySupport
+    ].normal.generate
   }
 }

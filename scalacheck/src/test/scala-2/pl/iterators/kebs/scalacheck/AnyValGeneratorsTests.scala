@@ -13,6 +13,12 @@ class AnyValGeneratorsTests extends AnyFunSuite with Matchers {
   test("Basic sample test") {
     import KebsProtocol._
 
-    noException should be thrownBy allGenerators[BasicSample].normal.generate
+    noException should be thrownBy allGenerators[
+      BasicSample,
+      DefaultGeneratorParametersProvider,
+      DefaultGeneratorsMinimalArbitrarySupport,
+      DefaultGeneratorsNormalArbitrarySupport,
+      DefaultGeneratorsMaximalArbitrarySupport
+    ].normal.generate
   }
 }

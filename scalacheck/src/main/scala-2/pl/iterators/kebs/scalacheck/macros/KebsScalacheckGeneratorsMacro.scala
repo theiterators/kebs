@@ -1,13 +1,20 @@
 package pl.iterators.kebs.scalacheck.macros
 
 import pl.iterators.kebs.core.macros.MacroUtils
-import scala.reflect.macros._
 import pl.iterators.kebs.scalacheck._
+
+import scala.reflect.macros._
 
 class KebsScalacheckGeneratorsMacro(override val c: whitebox.Context) extends MacroUtils {
   import c.universe._
 
-  final def materializeGenerators[T: c.WeakTypeTag]: c.Expr[AllGenerators[T]] = {
+  final def materializeGenerators[
+      T: c.WeakTypeTag,
+      GeneratorParametersProviderT <: GeneratorParametersProvider: c.WeakTypeTag,
+      GeneratorsMinimalArbitrarySupportT <: GeneratorsMinimalArbitrarySupport: c.WeakTypeTag,
+      GeneratorsNormalArbitrarySupportT <: GeneratorsNormalArbitrarySupport: c.WeakTypeTag,
+      GeneratorsMaximalArbitrarySupportT <: GeneratorsMaximalArbitrarySupport: c.WeakTypeTag
+  ]: c.Expr[AllGenerators[T]] = {
     val T = weakTypeOf[T]
     val tree =
       q"""{
@@ -21,33 +28,40 @@ class KebsScalacheckGeneratorsMacro(override val c: whitebox.Context) extends Ma
             
             object MinimalGeneratorCreator
               extends GeneratorCreator
-              with _root_.pl.iterators.kebs.scalacheck.MinimalArbitrarySupport {
+              with ${weakTypeOf[GeneratorsMinimalArbitrarySupportT]} {
 
-              override def create = new _root_.pl.iterators.kebs.scalacheck.Generator[$T] {
+              override def create: _root_.pl.iterators.kebs.scalacheck.Generator[$T] =
+                new _root_.pl.iterators.kebs.scalacheck.Generator[$T]
+                  with ${weakTypeOf[GeneratorParametersProviderT]} {
                 def ArbT = implicitly[_root_.org.scalacheck.Arbitrary[$T]]
               }
             }
         
             object NormalGeneratorCreator
-              extends GeneratorCreator {
+              extends GeneratorCreator
+              with ${weakTypeOf[GeneratorsNormalArbitrarySupportT]} {
 
-              override def create = new _root_.pl.iterators.kebs.scalacheck.Generator[$T] {
+              override def create: _root_.pl.iterators.kebs.scalacheck.Generator[$T] =
+                new _root_.pl.iterators.kebs.scalacheck.Generator[$T]
+                  with ${weakTypeOf[GeneratorParametersProviderT]} {
                 def ArbT = implicitly[_root_.org.scalacheck.Arbitrary[$T]]
               }
             }
         
             object MaximalGeneratorCreator
               extends GeneratorCreator
-              with _root_.pl.iterators.kebs.scalacheck.MaximalArbitrarySupport {
+              with ${weakTypeOf[GeneratorsMaximalArbitrarySupportT]} {
 
-              override def create = new _root_.pl.iterators.kebs.scalacheck.Generator[$T] {
+              override def create: _root_.pl.iterators.kebs.scalacheck.Generator[$T] =
+                new _root_.pl.iterators.kebs.scalacheck.Generator[$T]
+                  with ${weakTypeOf[GeneratorParametersProviderT]} {
                 def ArbT = implicitly[_root_.org.scalacheck.Arbitrary[$T]]
               }
             }
             
-            override val minimal: _root_.pl.iterators.kebs.scalacheck.Generator[$T] = MinimalGeneratorCreator.create
-            override val maximal: _root_.pl.iterators.kebs.scalacheck.Generator[$T] = MaximalGeneratorCreator.create
-            override val normal: _root_.pl.iterators.kebs.scalacheck.Generator[$T] = NormalGeneratorCreator.create
+            override lazy val minimal: _root_.pl.iterators.kebs.scalacheck.Generator[$T] = MinimalGeneratorCreator.create
+            override lazy val maximal: _root_.pl.iterators.kebs.scalacheck.Generator[$T] = MaximalGeneratorCreator.create
+            override lazy val normal: _root_.pl.iterators.kebs.scalacheck.Generator[$T] = NormalGeneratorCreator.create
           }
          }"""
     c.Expr[AllGenerators[T]](tree)

@@ -3,13 +3,14 @@ package pl.iterators.kebs.scalacheck
 import org.scalacheck.{Arbitrary, Gen}
 
 import java.net.{URI, URL}
-import java.time.temporal.ChronoUnit
 import java.time._
+import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
 import scala.reflect.ClassTag
 import scala.util.Random
 
-trait MinimalArbitrarySupport {
+trait GeneratorsMinimalArbitrarySupport
+trait DefaultGeneratorsMinimalArbitrarySupport extends GeneratorsMinimalArbitrarySupport {
   implicit def emptyOption[T: Arbitrary]: Arbitrary[Option[T]] =
     Arbitrary(Gen.const(Option.empty[T]))
 
@@ -32,9 +33,15 @@ trait MinimalArbitrarySupport {
     Arbitrary(Gen.const(Map.empty[T, U]))
 }
 
-object MinimalArbitrarySupport extends MinimalArbitrarySupport
+object DefaultGeneratorsMinimalArbitrarySupport extends DefaultGeneratorsMinimalArbitrarySupport
 
-trait MaximalArbitrarySupport {
+trait GeneratorsNormalArbitrarySupport
+trait DefaultGeneratorsNormalArbitrarySupport extends GeneratorsNormalArbitrarySupport
+
+object DefaultGeneratorsNormalArbitrarySupport extends DefaultGeneratorsNormalArbitrarySupport
+
+trait GeneratorsMaximalArbitrarySupport
+trait DefaultGeneratorsMaximalArbitrarySupport extends GeneratorsMaximalArbitrarySupport {
   implicit def someOption[T: Arbitrary]: Arbitrary[Option[T]] =
     Arbitrary(Gen.some(Arbitrary.arbitrary[T]))
 
@@ -57,7 +64,7 @@ trait MaximalArbitrarySupport {
     Arbitrary(Gen.mapOfN(1 + Random.nextInt(3), Arbitrary.arbitrary[(T, U)]))
 }
 
-object MaximalArbitrarySupport extends MaximalArbitrarySupport
+object DefaultGeneratorsMaximalArbitrarySupport extends DefaultGeneratorsMaximalArbitrarySupport
 
 trait KebsArbitraryPredefs {
   implicit val arbAlphaString: Arbitrary[String] =
