@@ -4,7 +4,7 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
 import java.net.{URI, URL}
-import java.time.{Duration, Instant, LocalDate, LocalDateTime, LocalTime, ZonedDateTime}
+import java.time._
 
 case class CollectionsSample(
     listOfNumbers: List[Int],
@@ -27,33 +27,13 @@ case class NonStandardTypesSample(
 )
 
 class GeneratorsTests extends AnyFunSuite with Matchers {
-
-  object KebsProtocol extends KebsScalacheckGenerators
-
-  object KebsProtocolWithFancyPredefs extends KebsScalacheckGenerators with KebsArbitraryPredefs
+  import KebsArbitrarySupport._
 
   test("Collections sample test") {
-    import KebsProtocol._
-
-    val minimal = allGenerators[CollectionsSample].minimal.generate
-    minimal.listOfNumbers shouldBe empty
-    minimal.arrayOfNumbers shouldBe empty
-    minimal.setOfNumbers shouldBe empty
-    minimal.vectorOfNumbers shouldBe empty
-    minimal.optionOfNumber shouldBe empty
-    minimal.mapOfNumberString shouldBe empty
-
-    val maximal = allGenerators[CollectionsSample].maximal.generate
-    maximal.listOfNumbers shouldNot be(empty)
-    maximal.arrayOfNumbers shouldNot be(empty)
-    maximal.setOfNumbers shouldNot be(empty)
-    maximal.vectorOfNumbers shouldNot be(empty)
-    maximal.optionOfNumber shouldNot be(empty)
-    maximal.mapOfNumberString shouldNot be(empty)
+    noException should be thrownBy generate[CollectionsSample]()
   }
   test("Non standard types sample test") {
-    import KebsProtocolWithFancyPredefs._
-
-    noException should be thrownBy allGenerators[NonStandardTypesSample].normal.generate
+    noException should be thrownBy generate[NonStandardTypesSample]()
   }
+
 }
