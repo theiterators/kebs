@@ -17,8 +17,10 @@ trait EnumLike[T] {
     withNameLowercaseOnlyOption(name).getOrElse(throw new NoSuchElementException(buildNotFoundMessage(name)))
   def withName(name: String): T =
     withNameOption(name).getOrElse(throw new NoSuchElementException(buildNotFoundMessage(name)))
+  def getName(e: T): String =
+    valuesToNamesMap.getOrElse(e, throw new NoSuchElementException(s"enum case not found for type: $e"))
   def valueOf(name: String): T =
-    values.find(_.toString == name).getOrElse(throw new IllegalArgumentException(s"enum case not found: $name"))
+    getNamesToValuesMap.getOrElse(name, throw new IllegalArgumentException(s"enum case not found: $name"))
   def valueOfIgnoreCase(name: String): T =
     values.find(_.toString.equalsIgnoreCase(name)).getOrElse(throw new IllegalArgumentException(s"enum case not found: $name"))
   def withNameIgnoreCase(name: String): T               = values.find(_.toString.equalsIgnoreCase((name))).get

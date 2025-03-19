@@ -183,7 +183,7 @@ trait KebsSlickSupport { this: JdbcProfile =>
 
   protected trait SlickEnum {
     def enumColumn[E](`enum`: EnumLike[E])(implicit bct: BaseColumnType[String], cls: ClassTag[E]): BaseColumnType[E] =
-      MappedColumnType.base[E, String](_.toString, `enum`.withName)
+      MappedColumnType.base[E, String](`enum`.getName, `enum`.withName)
 
     def uppercaseEnumColumn[E](`enum`: EnumLike[E])(implicit bct: BaseColumnType[String], cls: ClassTag[E]): BaseColumnType[E] =
       MappedColumnType.base[E, String](_.toString.toUpperCase, `enum`.withNameUppercaseOnly)
