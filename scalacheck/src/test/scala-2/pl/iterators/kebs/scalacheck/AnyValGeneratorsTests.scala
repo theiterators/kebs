@@ -6,13 +6,9 @@ import pl.iterators.kebs.scalacheck.model._
 
 class AnyValGeneratorsTests extends AnyFunSuite with Matchers {
 
-  object KebsProtocol extends KebsScalacheckGenerators
-
-  object KebsProtocolWithFancyPredefs extends KebsScalacheckGenerators with KebsArbitraryPredefs
-
   test("Basic sample test") {
-    import KebsProtocol._
+    import KebsArbitrarySupport._
 
-    noException should be thrownBy allGenerators[BasicSample].normal.generate
+    noException should be thrownBy generate[BasicSample]()
   }
 }
