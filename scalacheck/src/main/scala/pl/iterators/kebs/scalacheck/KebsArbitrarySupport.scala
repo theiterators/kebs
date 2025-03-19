@@ -60,6 +60,10 @@ trait KebsArbitrarySupport extends ScalacheckInstancesSupport {
   }
 
   implicit val arbUrl: Arbitrary[URL] = Arbitrary(arbUri.arbitrary.map(_.toURL))
+
+  implicit def arbSeq[T: Arbitrary]: Arbitrary[Seq[T]] = Arbitrary {
+    Gen.listOf(Arbitrary.arbitrary[T]).map(_.toSeq)
+  }
 }
 
 object KebsArbitrarySupport extends KebsArbitrarySupport

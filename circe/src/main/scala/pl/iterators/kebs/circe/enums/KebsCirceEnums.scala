@@ -24,7 +24,7 @@ trait KebsCirceEnums {
   def enumDecoder[E](`enum`: EnumLike[E]): Decoder[E] =
     enumDecoder[E](`enum`, `enum`.withNameInsensitiveOption(_))
   def enumEncoder[E](`enum`: EnumLike[E]): Encoder[E] =
-    enumEncoder[E](`enum`, (e: E) => e.toString)
+    enumEncoder[E](`enum`, (e: E) => `enum`.getName(e))
 
   def lowercaseEnumDecoder[E](`enum`: EnumLike[E]): Decoder[E] =
     enumDecoder[E](`enum`, `enum`.withNameLowercaseOnlyOption(_))
