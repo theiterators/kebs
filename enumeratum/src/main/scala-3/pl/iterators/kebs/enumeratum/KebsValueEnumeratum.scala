@@ -18,11 +18,6 @@ trait KebsValueEnumeratum {
   }
 }
 
-inline private def widen[A, B](a: A): A & B =
-  inline a match {
-    case b: B => b
-  }
-
 inline private def summonValueCases[T <: Tuple, V, A <: ValueEnumEntry[V]]: List[A] =
   inline erasedValue[T] match {
     case _: (h *: t) =>
