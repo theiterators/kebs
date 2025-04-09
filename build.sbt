@@ -258,7 +258,7 @@ lazy val http4sStirSettings = commonSettings ++ Seq(
 )
 
 lazy val jsonschemaSettings = commonSettings ++ Seq(
-  libraryDependencies += jsonschema
+  libraryDependencies ++= { if (scalaVersion.value.startsWith("3")) Nil else Seq(jsonschema) }
 )
 
 lazy val scalacheckSettings = commonSettings ++ Seq(
