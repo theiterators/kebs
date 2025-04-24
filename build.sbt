@@ -163,7 +163,7 @@ val http4sStirVersion = "0.4.0"
 val http4sStir        = Def.setting("pl.iterators" %%% "http4s-stir" % http4sStirVersion)
 val http4sStirTestkit = Def.setting("pl.iterators" %%% "http4s-stir-testkit" % http4sStirVersion)
 
-val pureConfigVersion       = "0.17.8"
+val pureConfigVersion       = "0.17.9"
 val pureConfig              = "com.github.pureconfig" %% "pureconfig-core"           % pureConfigVersion
 val pureConfigGeneric       = "com.github.pureconfig" %% "pureconfig-generic"        % pureConfigVersion
 val pureConfigGenericScala3 = "com.github.pureconfig" %% "pureconfig-generic-scala3" % pureConfigVersion
