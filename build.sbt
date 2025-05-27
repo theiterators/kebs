@@ -98,6 +98,7 @@ def paradiseFlag(scalaVersion: String): Seq[String] =
 val scalaTest  = Def.setting("org.scalatest" %%% "scalatest" % "3.2.19")
 val scalaCheck = Def.setting("org.scalacheck" %%% "scalacheck" % "1.18.1")
 
+val baklava         = "pl.iterators"        %% "baklava-core"    % "1.0.1"
 val slick           = "com.typesafe.slick"  %% "slick"           % "3.6.0"
 val optionalSlick   = optional(slick)
 val playJson        = Def.setting("org.playframework" %%% "play-json" % "3.0.4")
@@ -177,6 +178,10 @@ lazy val commonSettings = baseSettings ++ Seq(
      else Seq("-language:implicitConversions", "-language:experimental.macros")),
 //  (scalacOptions in Test) ++= Seq("-Ymacro-debug-lite" /*, "-Xlog-implicits"*/ ),
   libraryDependencies += scalaTest.value % "test"
+)
+
+lazy val baklavaSettings = commonSettings ++ Seq(
+  libraryDependencies += baklava
 )
 
 lazy val slickSettings = commonSettings ++ Seq(
@@ -306,6 +311,18 @@ lazy val core = crossProject(JSPlatform, NativePlatform, JVMPlatform)
     name        := "core",
     description := "Macros and utils supporting Kebs library",
     moduleName  := "kebs-core"
+  )
+
+lazy val baklavaSupport = project
+  .in(file("baklava"))
+  .dependsOn(core.jvm, enumeratumSupport.jvm, instances.jvm % "test -> test")
+  .settings(baklavaSettings *)
+  .settings(publishSettings *)
+  .settings(
+    name               := "baklava",
+    description        := "Library to eliminate the boilerplate code that comes with the use of baklava",
+    moduleName         := "kebs-baklava",
+    crossScalaVersions := supportedScalaVersions
   )
 
 lazy val slickSupport = project
@@ -525,7 +542,16 @@ lazy val taggedMeta = crossProject(JSPlatform, NativePlatform, JVMPlatform)
 
 lazy val examples = project
   .in(file("examples"))
-  .dependsOn(slickSupport, sprayJsonSupport, playJsonSupport.jvm, pekkoHttpSupport, taggedMeta.jvm, circeSupport.jvm, instances.jvm)
+  .dependsOn(
+    baklavaSupport,
+    slickSupport,
+    sprayJsonSupport,
+    playJsonSupport.jvm,
+    pekkoHttpSupport,
+    taggedMeta.jvm,
+    circeSupport.jvm,
+    instances.jvm
+  )
   .settings(examplesSettings *)
   .settings(noPublishSettings *)
   .settings(disableScala(List("3")))
@@ -599,6 +625,7 @@ lazy val kebs = project
     core.jvm,
     core.js,
     core.native,
+    baklavaSupport,
     slickSupport,
     doobieSupport,
     sprayJsonSupport,
