@@ -1,6 +1,6 @@
 package pl.iterators.kebs.baklava.params
 
-import pl.iterators.baklava.*
+import pl.iterators.baklava.{ToHeader, ToPathParam, ToQueryParam}
 import pl.iterators.kebs.core.instances.InstanceConverter
 import pl.iterators.kebs.core.macros.ValueClassLike
 

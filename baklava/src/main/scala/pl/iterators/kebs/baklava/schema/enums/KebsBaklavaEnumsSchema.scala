@@ -1,6 +1,6 @@
 package pl.iterators.kebs.baklava.schema.enums
 
-import pl.iterators.baklava.*
+import pl.iterators.baklava.{Schema, SchemaType}
 import pl.iterators.kebs.core.enums.{EnumLike, ValueEnumLike, ValueEnumLikeEntry}
 
 import scala.reflect.ClassTag
