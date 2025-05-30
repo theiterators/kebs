@@ -21,7 +21,7 @@ import java.util.UUID
 
   type UUIDId = UUID
   object UUIDId {
-    def generate[T]: UUIDId @@ T = UUID.randomUUID().taggedWith[T]
+    def generate[T]: UUIDId @@ T                = UUID.randomUUID().taggedWith[T]
     def fromString[T](str: String): UUIDId @@ T =
       UUID.fromString(str).taggedWith[T]
   }
@@ -39,7 +39,7 @@ object Domain extends Tags {
   case object O
 
   sealed trait Greeting extends EnumEntry
-  object Greeting extends Enum[Greeting] {
+  object Greeting       extends Enum[Greeting] {
     case object Hello   extends Greeting
     case object GoodBye extends Greeting
     case object Hi      extends Greeting
@@ -65,7 +65,7 @@ object Domain extends Tags {
   case class Color(red: Red, green: Green, blue: Blue)
 
   sealed abstract class ShirtSize(val value: String) extends StringEnumEntry with ValueEnumLikeEntry[String]
-  object ShirtSize extends StringEnum[ShirtSize] {
+  object ShirtSize                                   extends StringEnum[ShirtSize] {
     case object Small  extends ShirtSize("S")
     case object Medium extends ShirtSize("M")
     case object Large  extends ShirtSize("L")
@@ -74,7 +74,7 @@ object Domain extends Tags {
   }
 
   sealed trait SortOrder extends EnumEntry
-  object SortOrder extends Enum[SortOrder] {
+  object SortOrder       extends Enum[SortOrder] {
     case object Asc  extends SortOrder
     case object Desc extends SortOrder
 

@@ -8,7 +8,7 @@ class KebsJsonSchemaMacros(override val c: whitebox.Context) extends MacroUtils 
   import c.universe._
 
   final def materializeSchema[T: c.WeakTypeTag]: c.Expr[JsonSchemaWrapper[T]] = {
-    val T = weakTypeOf[T]
+    val T    = weakTypeOf[T]
     val tree =
       q"""{
          val schema = _root_.json.Json.schema[$T]
