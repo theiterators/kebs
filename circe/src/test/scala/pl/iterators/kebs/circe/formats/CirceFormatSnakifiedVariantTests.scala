@@ -61,7 +61,7 @@ class CirceFormatSnakifiedVariantTests extends AnyFunSuite with Matchers {
   test("Format snakified - case class with > 22 fields") {
     val decoder = implicitly[Decoder[ClassWith23Fields]]
     val encoder = implicitly[Encoder[ClassWith23Fields]]
-    val obj = ClassWith23Fields(
+    val obj     = ClassWith23Fields(
       F1("f1 value"),
       2,
       3L,

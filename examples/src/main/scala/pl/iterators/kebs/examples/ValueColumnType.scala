@@ -44,7 +44,7 @@ object ValueColumnType {
       def workCity: Rep[City]                           = column[City]("work_city")
       def workArea: Rep[Area]                           = column[Area]("work_area")
 
-      protected def mobile = (mobileCountryCode, mobileNumber) <> (Mobile.tupled, Mobile.unapply)
+      protected def mobile         = (mobileCountryCode, mobileNumber) <> (Mobile.tupled, Mobile.unapply)
       protected def billingAddress =
         (billingAddressLine1, billingAddressLine2, billingPostalCode, billingCity, billingCountry) <> (Address.tupled, Address.unapply)
       protected def billingInfo =
@@ -77,7 +77,7 @@ object ValueColumnType {
       def workCity: Rep[City]                           = column[City]("work_city")
       def workArea: Rep[Area]                           = column[Area]("work_area")
 
-      protected def mobile = (mobileCountryCode, mobileNumber) <> (Mobile.tupled, Mobile.unapply)
+      protected def mobile         = (mobileCountryCode, mobileNumber) <> (Mobile.tupled, Mobile.unapply)
       protected def billingAddress =
         (billingAddressLine1, billingAddressLine2, billingPostalCode, billingCity, billingCountry) <> (Address.tupled, Address.unapply)
       protected def billingInfo =

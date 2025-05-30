@@ -11,7 +11,7 @@ trait KebsAkkaHttpEnumUnmarshallers {
   private final def enumUnmarshaller[E](`enum`: EnumLike[E]): FromStringUnmarshaller[E] = Unmarshaller { _ => name =>
     `enum`.withNameInsensitiveOption(name) match {
       case Some(enumEntry) => FastFuture.successful(enumEntry)
-      case None =>
+      case None            =>
         FastFuture.failed(
           new IllegalArgumentException(s"""Invalid value '$name'. Expected one of: ${`enum`.getNamesToValuesMap.keysIterator
               .mkString(", ")}""")
@@ -28,7 +28,7 @@ trait KebsAkkaHttpValueEnumUnmarshallers {
     _ => v =>
       `enum`.withValueOption(v) match {
         case Some(enumEntry) => FastFuture.successful(enumEntry)
-        case None =>
+        case None            =>
           FastFuture.failed(
             new IllegalArgumentException(s"""Invalid value '$v'. Expected one of: ${`enum`.getValuesToEntriesMap.keysIterator
                 .mkString(", ")}""")

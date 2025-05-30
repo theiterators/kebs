@@ -9,7 +9,7 @@ import enumeratum.{Enum, EnumEntry}
 
 object PekkoHttpUnmarshallers {
   sealed abstract class Column(val value: Int) extends IntEnumEntry
-  object Column extends IntEnum[Column] {
+  object Column                                extends IntEnum[Column] {
     case object Name extends Column(1)
     case object Date extends Column(2)
     case object Type extends Column(3)
@@ -18,7 +18,7 @@ object PekkoHttpUnmarshallers {
   }
 
   sealed trait SortOrder extends EnumEntry
-  object SortOrder extends Enum[SortOrder] {
+  object SortOrder       extends Enum[SortOrder] {
     case object Asc  extends SortOrder
     case object Desc extends SortOrder
 
@@ -34,7 +34,7 @@ object PekkoHttpUnmarshallers {
     final def enumUnmarshaller[E <: EnumEntry](`enum`: Enum[E]): FromStringUnmarshaller[E] = Unmarshaller { _ => name =>
       `enum`.withNameInsensitiveOption(name) match {
         case Some(enumEntry) => FastFuture.successful(enumEntry)
-        case None =>
+        case None            =>
           FastFuture.failed(new IllegalArgumentException(s"""Invalid value '$name'. Expected one of: ${`enum`.namesToValuesMap.keysIterator
               .mkString(", ")}"""))
       }
@@ -42,7 +42,7 @@ object PekkoHttpUnmarshallers {
     final def valueEnumUnmarshaller[V, E <: ValueEnumEntry[V]](`enum`: ValueEnum[V, E]): Unmarshaller[V, E] = Unmarshaller { _ => v =>
       `enum`.withValueOpt(v) match {
         case Some(enumEntry) => FastFuture.successful(enumEntry)
-        case None =>
+        case None            =>
           FastFuture.failed(new IllegalArgumentException(s"""Invalid value '$v'. Expected one of: ${`enum`.valuesToEntriesMap.keysIterator
               .mkString(", ")}"""))
       }
@@ -51,7 +51,7 @@ object PekkoHttpUnmarshallers {
     implicit val fromStringLimitUnmarshaller: FromStringUnmarshaller[Limit]         = Unmarshaller.intFromStringUnmarshaller map Limit
     implicit val fromStringOffsetUnmarshaller: FromStringUnmarshaller[Offset]       = Unmarshaller.intFromStringUnmarshaller map Offset
     implicit val fromStringSortOrderUnmarshaller: FromStringUnmarshaller[SortOrder] = enumUnmarshaller(SortOrder)
-    implicit val fromStringColumnUnmarshaller: FromStringUnmarshaller[Column] =
+    implicit val fromStringColumnUnmarshaller: FromStringUnmarshaller[Column]       =
       Unmarshaller.intFromStringUnmarshaller andThen valueEnumUnmarshaller(Column)
 
     val route = get {
