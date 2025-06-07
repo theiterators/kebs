@@ -3,10 +3,10 @@ import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
 
-const projectTitle = 'kebs';
+const projectTitle = 'Kebs';
 const organizationName = 'theiterators';
 const editDocsUrl = 'https://github.com/theiterators/kebs/tree/master/docs/';
-const docsPath = '../kebs-docs/target/mdoc';
+const docsPath = '../docs';
 const navbarTitle = 'kebs';
 const projectGitHubUrl = 'https://github.com/theiterators/kebs';
 
@@ -53,6 +53,7 @@ const config: Config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl: editDocsUrl,
+          path: docsPath
         },
         theme: {
           customCss: './src/css/custom.css',
@@ -91,8 +92,8 @@ const config: Config = {
           title: 'Docs',
           items: [
             {
-              label: 'Documentation',
-              to: '/docs/intro',
+              label: 'Introduction',
+              to: '/',
             },
           ],
         },

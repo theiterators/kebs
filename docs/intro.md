@@ -1,7 +1,7 @@
 ---
 sidebar_position: 1
+title: Introduction to Kebs
 ---
-
 ## Kebs
 ##### Scala library to eliminate boilerplate
 [![Maven Central](https://img.shields.io/maven-central/v/pl.iterators/kebs-slick_2.13.svg)](https://central.sonatype.com/artifact/pl.iterators/kebs-core_2.13/2.1.2)
