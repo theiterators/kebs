@@ -613,6 +613,22 @@ lazy val pureConfigSupport = project
     moduleName := "kebs-pureconfig"
   )
 
+lazy val docs = project
+  .in(file("kebs-docs"))
+  .dependsOn(core.jvm % "test->test;compile->compile")
+  .enablePlugins(MdocPlugin, DocusaurusPlugin)
+  .settings(noPublishSettings *)
+  .settings(
+    name        := "docs",
+    description := "Kebs documentation",
+    moduleName  := "kebs-docs"
+  )
+  .settings(
+    mdocVariables := Map(
+      "VERSION" -> version.value
+    )
+  )
+
 lazy val kebs = project
   .in(file("."))
   .aggregate(
