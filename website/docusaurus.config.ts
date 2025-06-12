@@ -30,7 +30,7 @@ const config: Config = {
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'iteratorshq', // Usually your GitHub org/user name.
+  organizationName: 'theiterators', // Usually your GitHub org/user name.
   projectName: 'kebs', // Usually your repo name.
 
   onBrokenLinks: 'throw',
