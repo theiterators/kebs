@@ -13,8 +13,8 @@ jobs:
       - name: Configure SSH for git access
         run: |
           mkdir -p ~/.ssh
-          echo "${GIT_DEPLOY_KEY}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+          echo "${GIT_DEPLOY_KEY}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan github.com >> ~/.ssh/known_hosts
       - uses: actions/setup-node@v4
         with:
