@@ -7,7 +7,7 @@ import pl.iterators.kebs.core.enums.{ValueEnumLike, ValueEnumLikeEntry}
 
 object ValueEnumTest extends Properties("Deriving") with KebsValueEnumeratum {
   sealed abstract class LibraryItem(val value: Int) extends IntEnumEntry with ValueEnumLikeEntry[Int]
-  object LibraryItem extends IntEnum[LibraryItem] {
+  object LibraryItem                                extends IntEnum[LibraryItem] {
     case object Book     extends LibraryItem(value = 1)
     case object Movie    extends LibraryItem(value = 2)
     case object Magazine extends LibraryItem(3)
