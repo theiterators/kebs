@@ -35,5 +35,5 @@ docs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - uses: olafurpg/setup-scala@v13
+      - uses: olafurpg/setup-scala@v14
       - run: sbt '++2.13.15 docs/mdoc'
