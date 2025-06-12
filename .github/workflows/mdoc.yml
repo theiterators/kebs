@@ -20,6 +20,12 @@ jobs:
       - uses: sbt/setup-sbt@v1
       - uses: olafurpg/setup-gpg@v3
       - run: sbt '++2.13.15; docs/docusaurusPublishGhpages'
+      - name: Configure SSH for git access
+        run: |
+          mkdir -p ~/.ssh
+          echo "${GIT_DEPLOY_KEY}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
         env:
           GIT_DEPLOY_KEY: ${{ secrets.GIT_DEPLOY_KEY }}
       - name: Check git diff
