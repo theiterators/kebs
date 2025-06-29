@@ -54,7 +54,7 @@ final class macroImpl(val c: whitebox.Context) {
     val tagTypes             = taggedTypes.map(_.tagType).distinct
     val tagTypeCompanions    = tagTypes.flatMap(_.maybeCompanion)
 
-    val allCompanions = taggedTypeCompanions ++ tagTypeCompanions
+    val allCompanions          = taggedTypeCompanions ++ tagTypeCompanions
     val generatedTagCompanions =
       taggedTypes.groupBy(_.tagType).iterator.map { case (tag, taggedTypes) => tag.generateCompanion(taggedTypes) }.toList
     val generatedTaggedTypeCompanions = taggedTypes.map(taggedType => taggedType.generateCompanion)
@@ -108,7 +108,7 @@ final class macroImpl(val c: whitebox.Context) {
     def generateApplyMethod: Tree = {
       val arg      = TermName("arg")
       val fromCall = if (typeParams.nonEmpty) q"from[..${typeArguments(typeParams)}]($arg)" else q"from($arg)"
-      val body =
+      val body     =
         if (hasValidations)
           q"$fromCall.fold(l => throw new IllegalArgumentException(l.toString), identity)"
         else

@@ -25,7 +25,7 @@ class SlickMappedEnumColumnTypeTests extends AnyFunSuite with Matchers with Kebs
   }
 
   sealed trait WorkerAccountStatus extends EnumEntry
-  object WorkerAccountStatus extends Enum[WorkerAccountStatus] {
+  object WorkerAccountStatus       extends Enum[WorkerAccountStatus] {
     case object Unapproved extends WorkerAccountStatus
     case object Active     extends WorkerAccountStatus
     case object Blocked    extends WorkerAccountStatus

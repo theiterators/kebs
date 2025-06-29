@@ -24,7 +24,7 @@ class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
   protected def extractJsonFieldNames(fields: List[MethodSymbol]): List[String] = extractFieldNames(fields)
 
   private def inferFormats(ps: List[Type]) = ps.map(p => inferImplicitValue(jsonFormatOf(p), s"Cannot infer JsonFormat[$p]"))
-  private def isRecursiveSearch = c.enclosingImplicits match {
+  private def isRecursiveSearch            = c.enclosingImplicits match {
     case Nil          => false
     case head :: tail => tail.exists(_.pt =:= head.pt)
   }
@@ -39,7 +39,7 @@ class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
       val jsonFormats           = inferFormats(Ps)
       val jsonFieldsWithFormats = jsonFieldNames zip jsonFormats
       val jsonVar               = TermName("json")
-      val applyArgs = jsonFieldsWithFormats.map { case (jsonField, jf) =>
+      val applyArgs             = jsonFieldsWithFormats.map { case (jsonField, jf) =>
         q"${_this}._kebs_getField($jsonVar, $jsonField)($jf)"
       }
 
@@ -47,7 +47,7 @@ class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
 
       val classFieldNames = extractFieldNames(fields).map(TermName.apply)
       val objVar          = TermName("obj")
-      val jsFieldList = classFieldNames zip jsonFieldsWithFormats map { case (classField, (jsonField, jf)) =>
+      val jsFieldList     = classFieldNames zip jsonFieldsWithFormats map { case (classField, (jsonField, jf)) =>
         q"($jsonField, $jf.write($objVar.$classField))"
       }
       val objMap =
@@ -72,7 +72,7 @@ class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
     def isLookingFor(t: Type) = c.enclosingImplicits.headOption.exists(_.pt.typeSymbol == t.typeSymbol)
 
     val jsonFormat = caseAccessors(T) match {
-      case Nil => materializeJsonFormat0(T)
+      case Nil         => materializeJsonFormat0(T)
       case (_1 :: Nil) =>
         if (preferFlat && (isLookingFor(jsonFormatOf(T)) || isLookingFor(jsonWriterOf(T)) || isLookingFor(jsonReaderOf(T))))
           c.abort(c.enclosingPosition, "Flat format preferred")
@@ -87,7 +87,7 @@ class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
     assertCaseClass(T, s"To materialize recursive RootJsonFormat, ${T.typeSymbol} must be a case class")
 
     caseAccessors(T) match {
-      case Nil => c.abort(c.enclosingPosition, s"${T.typeSymbol} is case object")
+      case Nil    => c.abort(c.enclosingPosition, s"${T.typeSymbol} is case object")
       case fields =>
         val format = materializeRootJsonFormat(T, fields)
         c.Expr[RootJsonFormat[T]](q"""{

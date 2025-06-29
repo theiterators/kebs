@@ -9,14 +9,14 @@ trait ValueEnumLikeEntry[ValueType] {
 trait ValueEnumLike[ValueType, EntryType <: ValueEnumLikeEntry[ValueType]] {
   def values: immutable.Seq[EntryType]
   def getValuesToEntriesMap: Map[ValueType, EntryType] = ValueEnumLike.valuesToEntriesMap(this)
-  def withValue(i: ValueType): EntryType =
+  def withValue(i: ValueType): EntryType               =
     withValueOption(i).getOrElse(throw new NoSuchElementException(ValueEnumLike.buildNotFoundMessage(this, i)))
   def withValueOption(i: ValueType): Option[EntryType] = ValueEnumLike.valuesToEntriesMap(this).get(i)
-  def valueOf(value: ValueType): EntryType =
+  def valueOf(value: ValueType): EntryType             =
     values.find(entry => value == entry.value).getOrElse(throw new IllegalArgumentException(s"enum case not found: $value"))
   def valueOfOption(value: ValueType): Option[EntryType] = values.find(entry => value == entry.value)
   def fromOrdinal(ordinal: Int): EntryType = values.lift(ordinal).getOrElse(throw new NoSuchElementException(ordinal.toString))
-  def indexOf(member: EntryType): Int =
+  def indexOf(member: EntryType): Int      =
     values.zipWithIndex.find { case (entry, _) => member == entry }.map { case (_, index) => index }.getOrElse(-1)
 }
 

@@ -19,7 +19,7 @@ object Domain extends Domain {
   case class UserId(id: UUID)
 
   sealed trait Color extends EnumEntry
-  object Color extends Enum[Color] {
+  object Color       extends Enum[Color] {
     case object Red   extends Color
     case object Blue  extends Color
     case object Green extends Color
