@@ -51,7 +51,7 @@ object PlayJsonFormat {
   case class Location(latitude: Double, longitude: Double)
 
   sealed trait ThingStatus extends EnumEntry
-  object ThingStatus extends Enum[ThingStatus] with PlayJsonEnum[ThingStatus] {
+  object ThingStatus       extends Enum[ThingStatus] with PlayJsonEnum[ThingStatus] {
     case object Active     extends ThingStatus
     case object Unapproved extends ThingStatus
     case object Blocked    extends ThingStatus

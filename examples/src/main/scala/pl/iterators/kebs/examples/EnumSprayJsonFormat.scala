@@ -130,7 +130,7 @@ object EnumSprayJsonFormat {
   case class Location(latitude: Double, longitude: Double)
 
   sealed trait ThingStatus extends EnumEntry
-  object ThingStatus extends Enum[ThingStatus] {
+  object ThingStatus       extends Enum[ThingStatus] {
     case object Active     extends ThingStatus
     case object Unapproved extends ThingStatus
     case object Blocked    extends ThingStatus

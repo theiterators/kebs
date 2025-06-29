@@ -22,7 +22,7 @@ object Domain {
 
   opaque type UUIDId = UUID
   object UUIDId extends Opaque[UUIDId, UUID] {
-    def generate[T]: UUIDId = UUID.randomUUID()
+    def generate[T]: UUIDId                = UUID.randomUUID()
     def fromString[T](str: String): UUIDId =
       UUID.fromString(str)
   }
