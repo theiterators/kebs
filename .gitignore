@@ -69,4 +69,10 @@ project/plugins/project/
 .vscode
 .bloop
 project/.bloop
+
+#Docusaurus
+website/build/
+website/yarn.lock
 website/node_modules
+website/.docusaurus
+website/.cache-loader
