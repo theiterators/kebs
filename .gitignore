@@ -69,3 +69,4 @@ project/plugins/project/
 .vscode
 .bloop
 project/.bloop
+website/node_modules
