@@ -43,11 +43,25 @@ Compile-time only type distinctions:
 
 ```scala
 import pl.iterators.kebs.tagged._
+import pl.iterators.kebs.tag.meta.tagged
 
-trait UserIdTag
-type UserId = String @@ UserIdTag
+@tagged trait Domain {
+  trait UserIdTag
+  type UserId = String @@ UserIdTag
 
-val userId: UserId = "user123".taggedWith[UserIdTag]
+  object UserId {
+    def validate(value: String): Either[String, String] =
+      if (value.nonEmpty) Right(value) else Left("UserId cannot be empty")
+  }
+}
+
+object Domain extends Domain
+
+// Usage
+
+import Domain._
+
+val userId: UserId = UserId("user123") // Validated construction
 ```
 
 ### 3. Opaque Types (Scala 3)
