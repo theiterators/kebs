@@ -1,13 +1,13 @@
 package pl.iterators.kebs.baklava.schema
 
-import pl.iterators.baklava.{Schema, SchemaDerivation, SchemaType}
+import pl.iterators.baklava.{Schema, SchemaType}
 import pl.iterators.kebs.core.instances.InstanceConverter
 import pl.iterators.kebs.core.macros.ValueClassLike
 
 import scala.annotation.unused
 import scala.reflect.ClassTag
 
-trait KebsBaklavaSchema extends SchemaDerivation {
+trait KebsBaklavaSchema {
   implicit def valueClassLikeSchema[T, A](implicit
       @unused valueClassLike: ValueClassLike[T, A],
       schema: Schema[A],
