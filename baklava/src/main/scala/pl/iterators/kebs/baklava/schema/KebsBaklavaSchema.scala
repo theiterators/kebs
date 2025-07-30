@@ -4,17 +4,16 @@ import pl.iterators.baklava.{Schema, SchemaType}
 import pl.iterators.kebs.core.instances.InstanceConverter
 import pl.iterators.kebs.core.macros.ValueClassLike
 
-import scala.annotation.unused
 import scala.reflect.ClassTag
 
 trait KebsBaklavaSchema {
   implicit def valueClassLikeSchema[T, A](implicit
-      @unused valueClassLike: ValueClassLike[T, A],
+      valueClassLike: ValueClassLike[T, A],
       schema: Schema[A],
       cls: ClassTag[T]
   ): Schema[T] = {
     new Schema[T] {
-      val className: String                  = cls.runtimeClass.getName // TODO: this won't capture opaque type's name
+      val className: String                  = cls.runtimeClass.getName // TODO: this won't capture opaque type's name.
       val `type`: SchemaType                 = schema.`type`
       val format: Option[String]             = schema.format
       val properties: Map[String, Schema[?]] = schema.properties
@@ -22,13 +21,13 @@ trait KebsBaklavaSchema {
       val `enum`: Option[Set[String]]        = schema.`enum`
       val required: Boolean                  = schema.required
       val additionalProperties: Boolean      = schema.additionalProperties
-      val default: Option[T]                 = None
+      val default: Option[T]                 = schema.default.map(valueClassLike.apply)
       val description: Option[String]        = schema.description
     }
   }
 
   implicit def instanceConverter[T, A](implicit
-      @unused instanceConverter: InstanceConverter[T, A],
+      instanceConverter: InstanceConverter[T, A],
       schema: Schema[A],
       cls: ClassTag[T]
   ): Schema[T] = {
@@ -40,6 +39,7 @@ trait KebsBaklavaSchema {
         case "java.time.Instant"       => Some("date-time")
         case "java.time.ZonedDateTime" => Some("date-time")
         case "java.net.URI"            => Some("uri")
+        case "java.util.UUID"          => Some("uuid")
         case _                         => schema.format
       }
       val properties: Map[String, Schema[?]] = schema.properties
@@ -47,7 +47,7 @@ trait KebsBaklavaSchema {
       val `enum`: Option[Set[String]]        = schema.`enum`
       val required: Boolean                  = schema.required
       val additionalProperties: Boolean      = schema.additionalProperties
-      val default: Option[T]                 = None
+      val default: Option[T]                 = schema.default.map(instanceConverter.decode)
       val description: Option[String]        = schema.description
     }
   }
