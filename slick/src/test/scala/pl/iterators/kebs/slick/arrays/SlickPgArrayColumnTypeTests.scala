@@ -38,7 +38,7 @@ class SlickPgArrayColumnTypeTests extends AnyFunSuite with Matchers with KebsEnu
   }
 
   sealed trait AnEnum extends EnumEntry
-  object AnEnum extends Enum[AnEnum] {
+  object AnEnum       extends Enum[AnEnum] {
     case object Something     extends AnEnum
     case object SomethingElse extends AnEnum
 

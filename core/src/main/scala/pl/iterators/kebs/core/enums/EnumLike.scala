@@ -11,7 +11,7 @@ trait EnumLike[T] {
   def withNameUppercaseOnlyOption(name: String): Option[T] = valuesToNamesMap.find(_._2.toUpperCase == name).map(_._1)
   def withNameInsensitiveOption(name: String): Option[T]   = valuesToNamesMap.find(_._2.equalsIgnoreCase(name)).map(_._1)
   def withNameLowercaseOnlyOption(name: String): Option[T] = valuesToNamesMap.find(_._2.toLowerCase == name).map(_._1)
-  def withNameUppercaseOnly(name: String): T =
+  def withNameUppercaseOnly(name: String): T               =
     withNameUppercaseOnlyOption(name).getOrElse(throw new NoSuchElementException(buildNotFoundMessage(name)))
   def withNameLowercaseOnly(name: String): T =
     withNameLowercaseOnlyOption(name).getOrElse(throw new NoSuchElementException(buildNotFoundMessage(name)))

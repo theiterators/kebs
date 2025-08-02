@@ -148,8 +148,8 @@ class SprayJsonFormatTests extends AnyFunSuite with Matchers {
   test("Root format - case class with > 22 fields (issue #7)") {
     import pl.iterators.kebs.sprayjson.model._
 
-    val jf  = implicitly[JsonFormat[ClassWith23Fields]]
-    val obj = ClassWith23Fields.Example
+    val jf   = implicitly[JsonFormat[ClassWith23Fields]]
+    val obj  = ClassWith23Fields.Example
     val json = JsObject(
       Map(
         "f1"             -> JsString("f1 value"),
@@ -187,8 +187,8 @@ class SprayJsonFormatTests extends AnyFunSuite with Matchers {
     import KebsProtocolNullOptions._
     import pl.iterators.kebs.sprayjson.model._
 
-    val jf  = implicitly[JsonFormat[ClassWith23Fields]]
-    val obj = ClassWith23Fields.Example
+    val jf   = implicitly[JsonFormat[ClassWith23Fields]]
+    val obj  = ClassWith23Fields.Example
     val json = JsObject(
       Map(
         "f1"             -> JsString("f1 value"),
@@ -234,7 +234,7 @@ class SprayJsonFormatTests extends AnyFunSuite with Matchers {
 
     val jf = implicitly[JsonFormat[ClassWith23FieldsNested]]
 
-    val obj = ClassWith23FieldsNested.Example
+    val obj  = ClassWith23FieldsNested.Example
     val json = JsObject(
       Map(
         "f1" -> JsString("f1 value"),

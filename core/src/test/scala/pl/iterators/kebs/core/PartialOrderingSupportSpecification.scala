@@ -12,7 +12,7 @@ object PartialOrderingSupportSpecification extends Properties("PartialOrderingSu
     PO.tryCompare(e1, e2)
 
   implicit private val partialOrdering: PartialOrdering[String] = new PartialOrdering[String] {
-    private val maxLength = 10
+    private val maxLength                                      = 10
     override def tryCompare(x: String, y: String): Option[Int] = (x.length, y.length) match {
       case (lx, ly) if (lx < maxLength && ly < maxLength) => Some(x.compareTo(y))
       case _                                              => None
