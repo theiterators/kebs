@@ -109,7 +109,7 @@ class CirceFormatTests extends AnyFunSuite with Matchers {
     val decoder = implicitly[Decoder[ClassWith23Fields]]
     val encoder = implicitly[Encoder[ClassWith23Fields]]
     val obj     = ClassWith23Fields.Example
-    val json = Json.fromFields(
+    val json    = Json.fromFields(
       Seq(
         "f1"             -> Json.fromString("f1 value"),
         "f2"             -> Json.fromInt(2),
@@ -146,7 +146,7 @@ class CirceFormatTests extends AnyFunSuite with Matchers {
     val decoder = implicitly[Decoder[ClassWith23FieldsNested]]
     val encoder = implicitly[Encoder[ClassWith23FieldsNested]]
     val obj     = ClassWith23FieldsNested.Example
-    val json = Json.fromFields(
+    val json    = Json.fromFields(
       Map(
         "f1" -> Json.fromString("f1 value"),
         "f2" -> Json.fromFields(
