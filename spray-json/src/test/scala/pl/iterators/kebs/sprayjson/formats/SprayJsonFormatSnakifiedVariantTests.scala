@@ -73,8 +73,8 @@ class SprayJsonFormatSnakifiedVariantTests extends AnyFunSuite with Matchers {
     import pl.iterators.kebs.sprayjson.model._
     import KebsProtocol._
 
-    val jf  = implicitly[JsonFormat[ClassWith23Fields]]
-    val obj = ClassWith23Fields.Example
+    val jf   = implicitly[JsonFormat[ClassWith23Fields]]
+    val obj  = ClassWith23Fields.Example
     val json = JsObject(
       Map(
         "f1"               -> JsString("f1 value"),
@@ -112,8 +112,8 @@ class SprayJsonFormatSnakifiedVariantTests extends AnyFunSuite with Matchers {
     import KebsProtocolNullOptions._
     import pl.iterators.kebs.sprayjson.model._
 
-    val jf  = implicitly[JsonFormat[ClassWith23Fields]]
-    val obj = ClassWith23Fields.Example
+    val jf   = implicitly[JsonFormat[ClassWith23Fields]]
+    val obj  = ClassWith23Fields.Example
     val json = JsObject(
       Map(
         "f1"               -> JsString("f1 value"),

@@ -21,7 +21,7 @@ trait KebsSprayJsonEnums {
       case _              => enumValueDeserializationError(`enum`, json)
     }
   }
-  def jsonFormat[E](`enum`: EnumLike[E]) = enumJsonFormat[E](`enum`, _.toString, `enum`.withNameInsensitiveOption(_))
+  def jsonFormat[E](`enum`: EnumLike[E])          = enumJsonFormat[E](`enum`, _.toString, `enum`.withNameInsensitiveOption(_))
   def lowercaseJsonFormat[E](`enum`: EnumLike[E]) =
     enumJsonFormat[E](`enum`, _.toString.toLowerCase, `enum`.withNameLowercaseOnlyOption(_))
   def uppercaseJsonFormat[E](`enum`: EnumLike[E]) =

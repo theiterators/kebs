@@ -11,7 +11,7 @@ ThisBuild / conflictWarning    := ConflictWarning.disable
 ThisBuild / versionScheme      := Some("early-semver")
 Test / scalafmtOnCompile       := true
 ThisBuild / scalafmtOnCompile  := true
-ThisBuild / publishTo := {
+ThisBuild / publishTo          := {
   val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
   if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
   else localStaging.value
@@ -45,7 +45,7 @@ lazy val crossBuildSettings = Seq(crossScalaVersions := supportedScalaVersions)
 lazy val publishSettings = Seq(
   pomIncludeRepository := const(true),
   licenses             := Seq("MIT License" -> url("http://opensource.org/licenses/MIT")),
-  developers := List(
+  developers           := List(
     Developer(id = "luksow", name = "Łukasz Sowa", email = "lsowa@iteratorshq.com", url = url("https://github.com/luksow")),
     Developer(
       id = "pkiersznowski",
@@ -127,19 +127,19 @@ val scalacheckDerived   = "io.github.martinhh" %% "scalacheck-derived"   % "0.6.
 val enumeratumVersion         = "1.7.5"
 val enumeratumPlayJsonVersion = "1.8.2"
 val enumeratum                = Def.setting("com.beachape" %%% "enumeratum" % enumeratumVersion)
-def enumeratumInExamples = {
+def enumeratumInExamples      = {
   val playJsonSupport = "com.beachape" %% "enumeratum-play-json" % enumeratumPlayJsonVersion
   Seq("com.beachape" %% "enumeratum" % enumeratumVersion, playJsonSupport)
 }
 val optionalEnumeratum = Def.setting("com.beachape" %%% "enumeratum" % enumeratumVersion % "provided")
 val enumeratumInTest   = Def.setting("com.beachape" %%% "enumeratum" % enumeratumVersion % "test")
 
-val akkaVersion       = "2.6.20"
-val akkaHttpVersion   = "10.2.10"
-val akkaStream        = "com.typesafe.akka" %% "akka-stream"         % akkaVersion
-val akkaStreamTestkit = "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion
-val akkaHttp          = "com.typesafe.akka" %% "akka-http"           % akkaHttpVersion
-val akkaHttpTestkit   = "com.typesafe.akka" %% "akka-http-testkit"   % akkaHttpVersion
+val akkaVersion        = "2.6.20"
+val akkaHttpVersion    = "10.2.10"
+val akkaStream         = "com.typesafe.akka" %% "akka-stream"         % akkaVersion
+val akkaStreamTestkit  = "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion
+val akkaHttp           = "com.typesafe.akka" %% "akka-http"           % akkaHttpVersion
+val akkaHttpTestkit    = "com.typesafe.akka" %% "akka-http-testkit"   % akkaHttpVersion
 def akkaHttpInExamples = {
   val akkaHttpSprayJson = "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion
   Seq(

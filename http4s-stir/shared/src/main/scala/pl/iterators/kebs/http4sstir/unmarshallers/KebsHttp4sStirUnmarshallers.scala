@@ -11,7 +11,7 @@ trait KebsHttp4sStirEnumUnmarshallers {
   private final def enumUnmarshaller[E](`enum`: EnumLike[E]): FromStringUnmarshaller[E] = Unmarshaller { name =>
     `enum`.withNameInsensitiveOption(name) match {
       case Some(enumEntry) => IO.pure(enumEntry)
-      case None =>
+      case None            =>
         IO.raiseError(new IllegalArgumentException(s"""Invalid value '$name'. Expected one of: ${`enum`.getNamesToValuesMap.keysIterator
             .mkString(", ")}"""))
     }
@@ -25,7 +25,7 @@ private[kebs] trait LowerPriorityKebsHttp4sStirValueEnumUnmarshallers {
   final def valueEnumUnmarshaller[V, E <: ValueEnumLikeEntry[V]](`enum`: ValueEnumLike[V, E]): Unmarshaller[V, E] = Unmarshaller { v =>
     `enum`.values.find(e => e.value == v) match {
       case Some(enumEntry) => IO.pure(enumEntry)
-      case None =>
+      case None            =>
         IO.raiseError(
           new IllegalArgumentException(s"""Invalid value '$v'. Expected one of: ${`enum`.getValuesToEntriesMap.keysIterator
               .mkString(", ")}""")

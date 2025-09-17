@@ -84,7 +84,7 @@ class TimeInstancesMixinTests extends AnyFunSuite with Matchers {
 
       override implicit val localDateTimeFormatter: InstanceConverter[LocalDateTime, String] =
         new InstanceConverter[LocalDateTime, String] {
-          override def encode(obj: LocalDateTime): String = obj.format(formatter)
+          override def encode(obj: LocalDateTime): String   = obj.format(formatter)
           override def decode(value: String): LocalDateTime =
             try {
               LocalDateTime.parse(value, formatter)

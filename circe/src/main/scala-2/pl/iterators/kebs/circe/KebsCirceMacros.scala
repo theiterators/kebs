@@ -85,7 +85,7 @@ class KebsCirceMacros(override val c: whitebox.Context) extends MacroUtils {
   private def inferEncoderFormats(ps: List[Type]) = ps.map(p => inferImplicitValue(encoderOf(p), s"Cannot infer Encoder[$p]"))
   protected def extractJsonFieldNames(fields: List[MethodSymbol]): Seq[String] = extractFieldNames(fields)
   protected val preferFlat: Boolean                                            = true
-  protected val semiAutoNamingStrategy: Tree =
+  protected val semiAutoNamingStrategy: Tree                                   =
     q"implicit lazy val __config: _root_.io.circe.generic.extras.Configuration = _root_.io.circe.generic.extras.Configuration.default"
 }
 

@@ -18,7 +18,7 @@ object KebsSprayMacros {
   inline def summonAllLabels[A <: Tuple]: List[String] = {
     inline erasedValue[A] match {
       case _: EmptyTuple => Nil
-      case _: (t *: ts) =>
+      case _: (t *: ts)  =>
         label[t] :: summonAllLabels[ts]
     }
   }

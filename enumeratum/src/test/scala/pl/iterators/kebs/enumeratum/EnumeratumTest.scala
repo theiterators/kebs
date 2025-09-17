@@ -8,7 +8,7 @@ import pl.iterators.kebs.core.enums.EnumLike
 object EnumeratumTest extends Properties("Deriving") with KebsEnumeratum {
 
   sealed trait Greeting extends EnumEntry
-  object Greeting extends Enum[Greeting] {
+  object Greeting       extends Enum[Greeting] {
     val values = findValues
     case object Hello   extends Greeting
     case object GoodBye extends Greeting

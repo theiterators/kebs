@@ -50,7 +50,7 @@ object EnumValueColumnType {
       def workArea: Rep[Area]                           = column[Area]("work_area")
       def status: Rep[WorkerAccountStatus]              = column[WorkerAccountStatus]("status")
 
-      protected def mobile = (mobileCountryCode, mobileNumber) <> (Mobile.tupled, Mobile.unapply)
+      protected def mobile         = (mobileCountryCode, mobileNumber) <> (Mobile.tupled, Mobile.unapply)
       protected def billingAddress =
         (billingAddressLine1, billingAddressLine2, billingPostalCode, billingCity, billingCountry) <> (Address.tupled, Address.unapply)
       protected def billingInfo =
@@ -85,7 +85,7 @@ object EnumValueColumnType {
       def workArea: Rep[Area]                           = column[Area]("work_area")
       def status: Rep[WorkerAccountStatus]              = column[WorkerAccountStatus]("status")
 
-      protected def mobile = (mobileCountryCode, mobileNumber) <> (Mobile.tupled, Mobile.unapply)
+      protected def mobile         = (mobileCountryCode, mobileNumber) <> (Mobile.tupled, Mobile.unapply)
       protected def billingAddress =
         (billingAddressLine1, billingAddressLine2, billingPostalCode, billingCity, billingCountry) <> (Address.tupled, Address.unapply)
       protected def billingInfo =
@@ -126,7 +126,7 @@ object EnumValueColumnType {
       def workArea: Rep[Area]                           = column[Area]("work_area")
       def status: Rep[WorkerAccountStatus]              = column[WorkerAccountStatus]("status")
 
-      protected def mobile = (mobileCountryCode, mobileNumber) <> (Mobile.tupled, Mobile.unapply)
+      protected def mobile         = (mobileCountryCode, mobileNumber) <> (Mobile.tupled, Mobile.unapply)
       protected def billingAddress =
         (billingAddressLine1, billingAddressLine2, billingPostalCode, billingCity, billingCountry) <> (Address.tupled, Address.unapply)
       protected def billingInfo =
@@ -167,7 +167,7 @@ object EnumValueColumnType {
   case class Mobile(countryCode: String, number: String)
 
   sealed trait WorkerAccountStatus extends EnumEntry
-  object WorkerAccountStatus extends Enum[WorkerAccountStatus] {
+  object WorkerAccountStatus       extends Enum[WorkerAccountStatus] {
     case object Unapproved extends WorkerAccountStatus
     case object Active     extends WorkerAccountStatus
     case object Blocked    extends WorkerAccountStatus
