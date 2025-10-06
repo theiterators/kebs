@@ -104,7 +104,7 @@ val scalaTest  = Def.setting("org.scalatest" %%% "scalatest" % "3.2.19")
 val scalaCheck = Def.setting("org.scalacheck" %%% "scalacheck" % "1.18.1")
 
 val baklava         = "pl.iterators"        %% "baklava-core"    % "1.0.8"
-val slick           = "com.typesafe.slick"  %% "slick"           % "3.6.0"
+val slick           = "com.typesafe.slick"  %% "slick"           % "3.6.1"
 val optionalSlick   = optional(slick)
 val playJson        = Def.setting("org.playframework" %%% "play-json" % "3.0.4")
 val slickPg         = "com.github.tminglei" %% "slick-pg"        % "0.23.0"
