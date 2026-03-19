@@ -1,33 +1,10 @@
 package pl.iterators.kebs.jsoniter
 
 import java.time.ZonedDateTime
-import enumeratum.values.{LongEnum, LongEnumEntry}
-import enumeratum.{Enum, EnumEntry}
 import pl.iterators.kebs.core.enums.ValueEnumLikeEntry
+import com.github.plokhotnyuk.jsoniter_scala.core._
 
 package object model {
-
-  sealed abstract class LongGreeting(val value: Long) extends LongEnumEntry with ValueEnumLikeEntry[Long]
-
-  object LongGreeting extends LongEnum[LongGreeting] {
-    val values = findValues
-
-    case object Hello   extends LongGreeting(0L)
-    case object GoodBye extends LongGreeting(1L)
-    case object Hi      extends LongGreeting(2L)
-    case object Bye     extends LongGreeting(3L)
-  }
-
-  sealed trait Greeting extends EnumEntry
-
-  object Greeting extends Enum[Greeting] {
-    val values = findValues
-
-    case object Hello   extends Greeting
-    case object GoodBye extends Greeting
-    case object Hi      extends Greeting
-    case object Bye     extends Greeting
-  }
 
   case class C(anInteger: Int)
   case class D(intField: Int, stringField: String)

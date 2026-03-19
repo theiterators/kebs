@@ -9,9 +9,19 @@ import pl.iterators.kebs.core.macros.ValueClassLike
 import scala.deriving.Mirror
 import scala.util.Try
 import scala.util.NotGiven
-import ExportedCodecs._
 
-private[jsoniter] trait KebsJsoniterFlatCodec {
+private[jsoniter] trait KebsJsoniterFlatCodecFallback {
+  inline implicit def exportCodec[A]: JsonValueCodec[A] =
+    JsonCodecMaker.make[A](
+      CodecMakerConfig
+        .withAllowRecursiveTypes(true)
+        .withTransientEmpty(false)
+        .withTransientNull(false)
+        .withTransientNone(false)
+    )
+}
+
+private[jsoniter] trait KebsJsoniterFlatCodec extends KebsJsoniterFlatCodecFallback {
 
   implicit def flatCodec[T, A](using rep: ValueClassLike[T, A], codecA: JsonValueCodec[A]): JsonValueCodec[T] = {
     new JsonValueCodec[T] {
@@ -46,17 +56,6 @@ private[jsoniter] trait KebsJsoniterFlatCodec {
 
 }
 
-object ExportedCodecs {
-  inline implicit def exportCodec[A](using NotGiven[ValueClassLike[A, ?]], NotGiven[InstanceConverter[A, ?]]): JsonValueCodec[A] =
-    JsonCodecMaker.make[A](
-      CodecMakerConfig
-        .withAllowRecursiveTypes(true)
-        .withTransientEmpty(false)
-        .withTransientNull(false)
-        .withTransientNone(false)
-    )
-}
-
 /* private[jsoniter] trait KebsJsoniterSnakifiedDerivation {
 
   inline implicit def exportCodec[A](using NotGiven[ValueClassLike[A, ?]], NotGiven[InstanceConverter[A, ?]]): JsonValueCodec[A] =
@@ -87,6 +86,6 @@ private[jsoniter] trait KebsJsoniterCapitalizedDerivation {
 
 trait KebsJsoniterSnakified   extends KebsJsoniterSnakifiedDerivation with KebsJsoniterFlatCodec
 trait KebsJsoniterCapitalized extends KebsJsoniterCapitalizedDerivation with KebsJsoniterFlatCodec
-*/
+ */
 
-trait KebsJsoniter            extends KebsJsoniterFlatCodec
+trait KebsJsoniter extends KebsJsoniterFlatCodec

@@ -3,15 +3,13 @@ package pl.iterators.kebs.jsoniter.formats
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.jsoniter.KebsJsoniter
-import pl.iterators.kebs.jsoniter.ExportedCodecs._
 import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
 import pl.iterators.kebs.jsoniter.model._
 import com.github.plokhotnyuk.jsoniter_scala.core._
 
 import com.github.plokhotnyuk.jsoniter_scala.core.JsonValueCodec
-import pl.iterators.kebs.jsoniter.model._
 
-class CirceFormatTests extends AnyFunSuite with Matchers {
+class JsoniterFormatTests extends AnyFunSuite with Matchers {
   object JsoniterProtocol extends KebsJsoniter with CaseClass1ToValueClass
   import JsoniterProtocol._
 
@@ -59,7 +57,6 @@ class CirceFormatTests extends AnyFunSuite with Matchers {
 
   test("Format - compound") {
     val codec = implicitly[JsonValueCodec[Compound]]
-
     readFromString[Compound](
       "{\"CField\":10,\"DField\":{\"intField\":100,\"stringField\":\"abb\"}}"
     )(codec) shouldBe Compound(C(10), D(100, "abb"))
