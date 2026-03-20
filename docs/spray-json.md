@@ -106,7 +106,7 @@ object ThingProtocol extends DefaultJsonProtocol
 
 This covers `Instant`, `LocalDate`, `ZonedDateTime`, `Duration`, `UUID`, `Currency`, `Locale`, `URI`, and more.
 
-For alternative encodings (e.g. `Instant` as epoch millis instead of ISO string), see the [instances documentation](other.md#kebs-instances).
+For alternative encodings (e.g. `Instant` as epoch millis instead of ISO string), see the [instances documentation](instances.md).
 
 ## Recursive formats
 

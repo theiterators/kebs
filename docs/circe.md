@@ -31,7 +31,7 @@ This derives encoders/decoders for:
 - 1-element case classes (flat format)
 - Multi-field case classes
 - Case classes with > 22 fields
-- Types with an `InstanceConverter` (e.g. `UUID`, `java.time` types — see [instances](other.md#kebs-instances))
+- Types with an `InstanceConverter` (e.g. `UUID`, `java.time` types — see [instances](instances.md))
 
 ## Snakified / capitalized field names
 
@@ -97,7 +97,7 @@ import pl.iterators.kebs.instances.KebsInstances
 object ThingProtocol extends KebsCirce with KebsInstances
 ```
 
-For alternative encodings (e.g. `Instant` as epoch millis), see the [instances documentation](other.md#kebs-instances).
+For alternative encodings (e.g. `Instant` as epoch millis), see the [instances documentation](instances.md).
 
 ## Scala 3 note
 
