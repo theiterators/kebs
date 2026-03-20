@@ -1,7 +1,7 @@
 import sbt.librarymanagement.ConflictWarning
 
-val scala_2_13             = "2.13.16"
-val scala_3                = "3.3.5"
+val scala_2_13             = "2.13.18"
+val scala_3                = "3.3.7"
 val mainScalaVersion       = scala_3
 val supportedScalaVersions = Seq(scala_2_13, scala_3)
 
@@ -11,7 +11,7 @@ ThisBuild / conflictWarning    := ConflictWarning.disable
 ThisBuild / versionScheme      := Some("early-semver")
 Test / scalafmtOnCompile       := true
 ThisBuild / scalafmtOnCompile  := true
-ThisBuild / publishTo := {
+ThisBuild / publishTo          := {
   val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
   if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
   else localStaging.value
@@ -45,7 +45,7 @@ lazy val crossBuildSettings = Seq(crossScalaVersions := supportedScalaVersions)
 lazy val publishSettings = Seq(
   pomIncludeRepository := const(true),
   licenses             := Seq("MIT License" -> url("http://opensource.org/licenses/MIT")),
-  developers := List(
+  developers           := List(
     Developer(id = "luksow", name = "Łukasz Sowa", email = "lsowa@iteratorshq.com", url = url("https://github.com/luksow")),
     Developer(
       id = "pkiersznowski",
@@ -103,15 +103,15 @@ def paradiseFlag(scalaVersion: String): Seq[String] =
 val scalaTest  = Def.setting("org.scalatest" %%% "scalatest" % "3.2.19")
 val scalaCheck = Def.setting("org.scalacheck" %%% "scalacheck" % "1.18.1")
 
-val baklava         = "pl.iterators"        %% "baklava-core"    % "1.0.8"
+val baklava         = "pl.iterators"        %% "baklava-core"    % "1.1.0"
 val slick           = "com.typesafe.slick"  %% "slick"           % "3.6.0"
 val optionalSlick   = optional(slick)
-val playJson        = Def.setting("org.playframework" %%% "play-json" % "3.0.4")
+val playJson        = Def.setting("org.playframework" %%% "play-json" % "3.0.6")
 val slickPg         = "com.github.tminglei" %% "slick-pg"        % "0.23.0"
 val doobie          = "org.tpolecat"        %% "doobie-core"     % "1.0.0-RC10"
 val doobiePg        = "org.tpolecat"        %% "doobie-postgres" % "1.0.0-RC10"
 val sprayJson       = "io.spray"            %% "spray-json"      % "1.3.6"
-val circeV          = "0.14.10"
+val circeV          = "0.14.15"
 val circe           = Def.setting("io.circe" %%% "circe-core" % circeV)
 val circeAuto       = Def.setting("io.circe" %%% "circe-generic" % circeV)
 val circeAutoExtras = Def.setting("io.circe" %%% "circe-generic-extras" % "0.14.4")
@@ -124,22 +124,22 @@ val scalacheck = "org.scalacheck" %% "scalacheck" % "1.18.1"
 val scalacheckMagnolify = "com.spotify"         % "magnolify-scalacheck" % "0.8.0"
 val scalacheckDerived   = "io.github.martinhh" %% "scalacheck-derived"   % "0.6.0"
 
-val enumeratumVersion         = "1.7.5"
+val enumeratumVersion         = "1.9.6"
 val enumeratumPlayJsonVersion = "1.8.2"
 val enumeratum                = Def.setting("com.beachape" %%% "enumeratum" % enumeratumVersion)
-def enumeratumInExamples = {
+def enumeratumInExamples      = {
   val playJsonSupport = "com.beachape" %% "enumeratum-play-json" % enumeratumPlayJsonVersion
   Seq("com.beachape" %% "enumeratum" % enumeratumVersion, playJsonSupport)
 }
 val optionalEnumeratum = Def.setting("com.beachape" %%% "enumeratum" % enumeratumVersion % "provided")
 val enumeratumInTest   = Def.setting("com.beachape" %%% "enumeratum" % enumeratumVersion % "test")
 
-val akkaVersion       = "2.6.20"
-val akkaHttpVersion   = "10.2.10"
-val akkaStream        = "com.typesafe.akka" %% "akka-stream"         % akkaVersion
-val akkaStreamTestkit = "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion
-val akkaHttp          = "com.typesafe.akka" %% "akka-http"           % akkaHttpVersion
-val akkaHttpTestkit   = "com.typesafe.akka" %% "akka-http-testkit"   % akkaHttpVersion
+val akkaVersion        = "2.6.20"
+val akkaHttpVersion    = "10.2.10"
+val akkaStream         = "com.typesafe.akka" %% "akka-stream"         % akkaVersion
+val akkaStreamTestkit  = "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion
+val akkaHttp           = "com.typesafe.akka" %% "akka-http"           % akkaHttpVersion
+val akkaHttpTestkit    = "com.typesafe.akka" %% "akka-http-testkit"   % akkaHttpVersion
 def akkaHttpInExamples = {
   val akkaHttpSprayJson = "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion
   Seq(
@@ -149,8 +149,8 @@ def akkaHttpInExamples = {
   )
 }
 
-val pekkoVersion       = "1.1.5"
-val pekkoHttpVersion   = "1.1.0"
+val pekkoVersion       = "1.4.0"
+val pekkoHttpVersion   = "1.3.0"
 val pekkoHttpJsonV     = "2.0.0"
 val pekkoStream        = "org.apache.pekko" %% "pekko-stream"         % pekkoVersion
 val pekkoStreamTestkit = "org.apache.pekko" %% "pekko-stream-testkit" % pekkoVersion
@@ -162,10 +162,10 @@ def pekkoHttpInExamples = {
   Seq(pekkoStream, pekkoHttp, pekkoHttpSprayJson)
 }
 
-val http4sVersion = "0.23.32"
+val http4sVersion = "0.23.33"
 val http4s        = Def.setting("org.http4s" %%% "http4s-dsl" % http4sVersion)
 
-val http4sStirVersion = "0.4.0"
+val http4sStirVersion = "0.4.1"
 val http4sStir        = Def.setting("pl.iterators" %%% "http4s-stir" % http4sStirVersion)
 val http4sStirTestkit = Def.setting("pl.iterators" %%% "http4s-stir-testkit" % http4sStirVersion)
 

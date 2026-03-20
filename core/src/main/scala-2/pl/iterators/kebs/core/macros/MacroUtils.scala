@@ -28,8 +28,8 @@ abstract class MacroUtils {
     }
   }
 
-  protected def companion(t: Type): Symbol = t.typeSymbol.companion
-  protected def apply(caseClassType: Type) = q"${companion(caseClassType)}.apply"
+  protected def companion(t: Type): Symbol                                    = t.typeSymbol.companion
+  protected def apply(caseClassType: Type)                                    = q"${companion(caseClassType)}.apply"
   protected def inferImplicitValue(p: Type, msgIfNotFound: => String): c.Tree = {
     val implicitTree = c.inferImplicitValue(p)
     if (implicitTree.isEmpty) c.abort(c.enclosingPosition, msgIfNotFound)
