@@ -1,5 +1,5 @@
 ---
-sidebar_position: 8
+sidebar_position: 12
 title: Akka HTTP / Pekko HTTP
 ---
 
