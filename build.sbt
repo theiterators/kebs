@@ -101,15 +101,15 @@ def paradiseFlag(scalaVersion: String): Seq[String] =
     Seq("-Ymacro-annotations")
 
 val scalaTest  = Def.setting("org.scalatest" %%% "scalatest" % "3.2.19")
-val scalaCheck = Def.setting("org.scalacheck" %%% "scalacheck" % "1.18.1")
+val scalaCheck = Def.setting("org.scalacheck" %%% "scalacheck" % "1.19.0")
 
-val baklava         = "pl.iterators"        %% "baklava-core"    % "1.1.0"
-val slick           = "com.typesafe.slick"  %% "slick"           % "3.6.0"
+val baklava         = "pl.iterators"        %% "baklava-core"    % "1.1.1"
+val slick           = "com.typesafe.slick"  %% "slick"           % "3.6.1"
 val optionalSlick   = optional(slick)
 val playJson        = Def.setting("org.playframework" %%% "play-json" % "3.0.6")
-val slickPg         = "com.github.tminglei" %% "slick-pg"        % "0.23.0"
-val doobie          = "org.tpolecat"        %% "doobie-core"     % "1.0.0-RC10"
-val doobiePg        = "org.tpolecat"        %% "doobie-postgres" % "1.0.0-RC10"
+val slickPg         = "com.github.tminglei" %% "slick-pg"        % "0.23.1"
+val doobie          = "org.tpolecat"        %% "doobie-core"     % "1.0.0-RC12"
+val doobiePg        = "org.tpolecat"        %% "doobie-postgres" % "1.0.0-RC12"
 val sprayJson       = "io.spray"            %% "spray-json"      % "1.3.6"
 val circeV          = "0.14.15"
 val circe           = Def.setting("io.circe" %%% "circe-core" % circeV)
@@ -119,10 +119,10 @@ val circeParser     = Def.setting("io.circe" %%% "circe-parser" % circeV)
 
 val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.11"
 
-val scalacheck = "org.scalacheck" %% "scalacheck" % "1.18.1"
+val scalacheck = "org.scalacheck" %% "scalacheck" % "1.19.0"
 
-val scalacheckMagnolify = "com.spotify"         % "magnolify-scalacheck" % "0.8.0"
-val scalacheckDerived   = "io.github.martinhh" %% "scalacheck-derived"   % "0.6.0"
+val scalacheckMagnolify = "com.spotify"         % "magnolify-scalacheck" % "0.9.4"
+val scalacheckDerived   = "io.github.martinhh" %% "scalacheck-derived"   % "0.10.0"
 
 val enumeratumVersion         = "1.9.6"
 val enumeratumPlayJsonVersion = "1.8.2"
@@ -169,7 +169,7 @@ val http4sStirVersion = "0.4.1"
 val http4sStir        = Def.setting("pl.iterators" %%% "http4s-stir" % http4sStirVersion)
 val http4sStirTestkit = Def.setting("pl.iterators" %%% "http4s-stir-testkit" % http4sStirVersion)
 
-val pureConfigVersion       = "0.17.8"
+val pureConfigVersion       = "0.17.10"
 val pureConfig              = "com.github.pureconfig" %% "pureconfig-core"           % pureConfigVersion
 val pureConfigGeneric       = "com.github.pureconfig" %% "pureconfig-generic"        % pureConfigVersion
 val pureConfigGenericScala3 = "com.github.pureconfig" %% "pureconfig-generic-scala3" % pureConfigVersion
