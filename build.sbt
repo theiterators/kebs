@@ -11,11 +11,17 @@ ThisBuild / conflictWarning    := ConflictWarning.disable
 ThisBuild / versionScheme      := Some("early-semver")
 Test / scalafmtOnCompile       := true
 ThisBuild / scalafmtOnCompile  := true
-ThisBuild / publishTo          := {
+ThisBuild / publishTo := {
   val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
   if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
   else localStaging.value
 }
+
+ThisBuild / tlBaseVersion                       := "2.1"
+ThisBuild / tlCiHeaderCheck                     := false
+ThisBuild / tlMimaPreviousVersions              := Set.empty // TODO: re-enable after next release
+ThisBuild / githubWorkflowJavaVersions          := Seq(JavaSpec.temurin("11"), JavaSpec.temurin("17"))
+ThisBuild / githubWorkflowPublishTargetBranches := Seq(RefPredicate.StartsWith(Ref.Tag("v")), RefPredicate.Equals(Ref.Branch("master")))
 
 lazy val baseSettings = Seq(
   organization         := "pl.iterators",
