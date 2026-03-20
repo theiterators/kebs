@@ -5,36 +5,45 @@ import styles from './styles.module.css';
 
 type FeatureItem = {
   title: string;
-  Svg: React.ComponentType<React.ComponentProps<'svg'>>;
   description: ReactNode;
 };
 
 const FeatureList: FeatureItem[] = [
   {
-    title: 'Easy to Use',
-    Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
+    title: 'Zero boilerplate',
     description: (
       <>
+        Stop writing <code>MappedColumnType.base</code>, <code>deriveEncoder</code>,
+        and <code>Unmarshaller.strict</code> for every wrapper type. Kebs derives
+        all of that at compile time from a single typeclass.
       </>
     ),
   },
   {
-    title: 'Focus on What Matters',
-    Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
+    title: 'Use strong types everywhere',
     description: (
       <>
+        Value classes, opaque types, tagged types, and enums just work with Slick,
+        Doobie, Circe, Spray JSON, Play JSON, Akka HTTP, Pekko HTTP, http4s,
+        ScalaCheck, PureConfig, and more.
       </>
     ),
-  }
+  },
+  {
+    title: 'Scala 2 & 3',
+    description: (
+      <>
+        Full cross-build support for Scala 2.13 and Scala 3, including
+        JVM, Scala.js, and Scala Native where applicable.
+      </>
+    ),
+  },
 ];
 
-function Feature({title, Svg, description}: FeatureItem) {
+function Feature({title, description}: FeatureItem) {
   return (
     <div className={clsx('col col--4')}>
-      <div className="text--center">
-        <Svg className={styles.featureSvg} role="img" />
-      </div>
-      <div className="text--center padding-horiz--md">
+      <div className="text--center padding-horiz--md" style={{paddingTop: '2rem'}}>
         <Heading as="h3">{title}</Heading>
         <p>{description}</p>
       </div>
