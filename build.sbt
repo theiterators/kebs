@@ -19,7 +19,7 @@ ThisBuild / publishTo := {
 
 ThisBuild / tlBaseVersion                       := "2.1"
 ThisBuild / tlCiHeaderCheck                     := false
-ThisBuild / tlMimaPreviousVersions              := Set.empty // TODO: re-enable after next release
+ThisBuild / tlMimaPreviousVersions              := Set("2.1.4")
 ThisBuild / githubWorkflowJavaVersions          := Seq(JavaSpec.temurin("11"), JavaSpec.temurin("17"))
 ThisBuild / githubWorkflowPublishTargetBranches := Seq(RefPredicate.StartsWith(Ref.Tag("v")), RefPredicate.Equals(Ref.Branch("master")))
 
@@ -95,7 +95,11 @@ def disableScala(v: List[String]) =
         (Test / test).value
       }
     },
-    publish / skip := (v.contains(scalaBinaryVersion.value))
+    publish / skip := (v.contains(scalaBinaryVersion.value)),
+    mimaPreviousArtifacts := {
+      if (v.contains(scalaBinaryVersion.value)) Set.empty
+      else mimaPreviousArtifacts.value
+    }
   )
 
 def optional(dependency: ModuleID) = dependency % "provided"
