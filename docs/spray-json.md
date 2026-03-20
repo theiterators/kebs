@@ -24,9 +24,17 @@ import spray.json.DefaultJsonProtocol
 object ThingProtocol extends DefaultJsonProtocol with KebsSprayJson
 ```
 
+Or use the package object directly (it extends `DefaultJsonProtocol` + `KebsSprayJson`):
+
+```scala
+import pl.iterators.kebs.sprayjson._
+```
+
 This gives you:
 - **Flat format** for 1-element case classes (`case class ThingId(uuid: UUID)` serializes as just the UUID, not `{"uuid": "..."}`)
 - **Automatic format** for multi-field case classes (no need to call `jsonFormatN`)
+- **Case object** format (serializes as `{}`)
+- **Parametrized (generic) case classes**
 - **Support for case classes with > 22 fields**
 
 ## Snakified / capitalized field names
@@ -35,13 +43,27 @@ This gives you:
 import pl.iterators.kebs.sprayjson.KebsSprayJsonSnakified
 
 object ThingProtocol extends DefaultJsonProtocol with KebsSprayJsonSnakified
-// or
-import pl.iterators.kebs.sprayjson.KebsSprayJsonCapitalized
 
-object ThingProtocol extends DefaultJsonProtocol with KebsSprayJsonCapitalized
+// or via package object:
+import pl.iterators.kebs.sprayjson.snakified._
 ```
 
-Snakified names are computed at compile time.
+Capitalized variant:
+
+```scala
+import pl.iterators.kebs.sprayjson.KebsSprayJsonCapitalized
+// or: import pl.iterators.kebs.sprayjson.capitalized._
+```
+
+Snakified/capitalized names are computed at compile time.
+
+## NullOptions support
+
+Mix in spray-json's `NullOptions` to serialize `None` as `null` instead of omitting the field:
+
+```scala
+object ThingProtocol extends DefaultJsonProtocol with KebsSprayJson with NullOptions
+```
 
 ## Enum support
 
@@ -60,6 +82,31 @@ import pl.iterators.kebs.sprayjson.enums.{KebsSprayJsonEnumsUppercase, KebsSpray
 object ThingProtocol extends DefaultJsonProtocol
     with KebsSprayJson with KebsSprayJsonEnumsUppercase with KebsSprayJsonValueEnums
 ```
+
+Or via the enums package object:
+
+```scala
+import pl.iterators.kebs.sprayjson.enums._            // default casing
+import pl.iterators.kebs.sprayjson.enums.uppercase._   // UPPERCASE
+import pl.iterators.kebs.sprayjson.enums.lowercase._   // lowercase
+```
+
+## Instance support (java.time, UUID, etc.)
+
+Mix in `kebs-instances` traits to get automatic `JsonFormat` for common types:
+
+```scala
+import pl.iterators.kebs.instances.TimeInstances
+import pl.iterators.kebs.instances.UtilInstances
+import pl.iterators.kebs.instances.net.URIString
+
+object ThingProtocol extends DefaultJsonProtocol
+    with KebsSprayJson with TimeInstances with UtilInstances with URIString
+```
+
+This covers `Instant`, `LocalDate`, `ZonedDateTime`, `Duration`, `UUID`, `Currency`, `Locale`, `URI`, and more.
+
+For alternative encodings (e.g. `Instant` as epoch millis instead of ISO string), see the [instances documentation](other.md#kebs-instances).
 
 ## Recursive formats
 

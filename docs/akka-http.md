@@ -5,7 +5,7 @@ title: Akka HTTP / Pekko HTTP
 
 # kebs-akka-http / kebs-pekko-http
 
-Automatic unmarshallers for Akka HTTP and Pekko HTTP.
+Automatic unmarshallers and path matchers for Akka HTTP and Pekko HTTP.
 
 ## Setup
 
@@ -17,9 +17,9 @@ libraryDependencies += "pl.iterators" %% "kebs-akka-http" % kebsVersion
 libraryDependencies += "pl.iterators" %% "kebs-pekko-http" % kebsVersion
 ```
 
-## Usage
+## Unmarshallers
 
-Provides automatic `FromStringUnmarshaller` for value classes, enums, and instance types in `parameters`, `path`, and `entity` directives:
+Provides automatic `FromStringUnmarshaller` for value classes, enums, and instance types in `parameters`, `formFields`, and `entity` directives:
 
 ```scala
 import pl.iterators.kebs.pekkohttp.unmarshallers.KebsPekkoHttpUnmarshallers
@@ -39,10 +39,71 @@ val route = get {
     (sortBy, order, offset, limit) => // ...
   }
 }
+
+// Also works with formFields:
+val formRoute = post {
+  formFields("yearMonth".as[YearMonth]) { yearMonth => // ... }
+}
 ```
 
-The Akka HTTP variant uses the same pattern with `KebsAkkaHttpUnmarshallers`:
+For Akka HTTP, use `KebsAkkaHttpUnmarshallers` instead:
 
 ```scala
 import pl.iterators.kebs.akkahttp.unmarshallers.KebsAkkaHttpUnmarshallers
+```
+
+## Path matchers
+
+A separate `matchers` package provides typed path segment extraction via extension methods on `PathMatcher1`:
+
+```scala
+import pl.iterators.kebs.pekkohttp.matchers.KebsPekkoHttpMatchers
+// or: import pl.iterators.kebs.pekkohttp.matchers._
+
+// For Akka HTTP:
+// import pl.iterators.kebs.akkahttp.matchers.KebsAkkaHttpMatchers
+```
+
+### `.as[T]` — value class wrapping
+
+Converts a path segment via `ValueClassLike`:
+
+```scala
+path("user" / LongNumber.as[UserId])          // Long → UserId
+path("item" / JavaUUID.as[ItemId])             // UUID → ItemId
+path("name" / Segment.as[Name])               // String → Name
+```
+
+### `.to[T]` — instance conversion
+
+Converts a path segment via `InstanceConverter`:
+
+```scala
+path("date" / Segment.to[ZonedDateTime])       // String → ZonedDateTime
+path("day" / IntNumber.to[DayOfWeek])          // Int → DayOfWeek
+path("ts" / LongNumber.to[Instant])            // Long → Instant (with InstantEpochMilliLong)
+```
+
+### `.asEnum[T]` — enum by name
+
+Converts a string segment via `EnumLike` (case-insensitive):
+
+```scala
+path("greeting" / Segment.asEnum[Greeting])    // "hello" → Greeting.Hello
+```
+
+### `.asValueEnum[T]` — value enum by value
+
+Converts a segment via `ValueEnumLike`:
+
+```scala
+path("item" / IntNumber.asValueEnum[LibraryItem])  // 1 → LibraryItem.Book
+```
+
+### Chaining
+
+Matchers can be chained — first convert, then wrap:
+
+```scala
+path("uri" / Segment.to[URI].as[TaggedUri])    // String → URI → TaggedUri
 ```

@@ -15,58 +15,46 @@ libraryDependencies += "pl.iterators" %% "kebs-slick" % kebsVersion
 
 ## Value class mappings
 
-Instead of writing manual `MappedColumnType.base` for every wrapper type:
-
-```scala
-case class UserId(userId: String) extends AnyVal
-case class EmailAddress(emailAddress: String) extends AnyVal
-
-// without kebs — manual mappings for each type
-object People {
-  implicit val userIdColumnType: BaseColumnType[UserId] =
-    MappedColumnType.base(_.userId, UserId.apply)
-  implicit val emailAddressColumnType: BaseColumnType[EmailAddress] =
-    MappedColumnType.base(_.emailAddress, EmailAddress.apply)
-  // ... and so on for every type
-}
-```
-
-Mix in `KebsSlickSupport` and `CaseClass1ToValueClass`:
+Instead of writing manual `MappedColumnType.base` for every wrapper type, mix in `KebsSlickSupport`:
 
 ```scala
 import pl.iterators.kebs.slick.KebsSlickSupport
 import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
 
-class People(tag: Tag) extends Table[Person](tag, "people")
-    with KebsSlickSupport with CaseClass1ToValueClass {
-  def userId: Rep[UserId] = column[UserId]("user_id")
-  // ...
+// With a custom driver (e.g. slick-pg):
+object MyPostgresProfile extends ExPostgresDriver with PgArraySupport {
+  override val api: API = new API {}
+  trait API extends super.API with ArrayImplicits with KebsSlickSupport with CaseClass1ToValueClass
 }
 ```
 
-With a custom driver (e.g. slick-pg), mix in to the profile API:
+This derives `BaseColumnType[CC]` for any single-field case class, tagged type, or opaque type. It also derives `List[CC]` column types for Postgres arrays.
+
+### Column extension methods
+
+Wrapped columns automatically get the extension methods of their underlying type:
+
+- `Rep[CC]` where `CC` wraps `String` gets `StringColumnExtensionMethods` (`.toLowerCase`, `.like`, etc.)
+- `Rep[CC]` where `CC` wraps a numeric type gets arithmetic and comparison methods
+- `Rep[CC]` where `CC` wraps `Boolean` gets `&&`, `||`, etc.
+
+You can also compare a `Rep[CC]` directly against its unwrapped base type without explicit conversion.
+
+## Instance support (java.time, UUID, etc.)
+
+When `kebs-instances` traits are mixed into the API, types with an `InstanceConverter` (e.g. `java.time.YearMonth`, `URI`, `UUID`) also get automatic column types and array support:
 
 ```scala
-import pl.iterators.kebs.slick.KebsSlickSupport
+import pl.iterators.kebs.instances.time.YearMonthString
 
-object MyPostgresProfile extends ExPostgresDriver with PgArraySupport {
-  override val api: API = new API {}
-  trait API extends super.API with ArrayImplicits with KebsSlickSupport
-}
+trait API extends super.API with KebsSlickSupport with CaseClass1ToValueClass with YearMonthString
 ```
 
 ## Postgres array support
 
-Works automatically when mixing `KebsSlickSupport` with `ArrayImplicits`:
+Works automatically for value classes, enums, and instance types:
 
 ```scala
-object MyPostgresProfile extends ExPostgresDriver with PgArraySupport {
-  override val api: API = new API {}
-  trait API extends super.API with ArrayImplicits with KebsSlickSupport
-}
-
-import MyPostgresProfile.api._
-
 class ArrayTestTable(tag: Tag)
     extends Table[(Long, List[Institution], Option[List[MarketFinancialProduct]])](tag, "ArrayTest") {
   def id                   = column[Long]("id", O.AutoInc, O.PrimaryKey)
@@ -78,25 +66,21 @@ class ArrayTestTable(tag: Tag)
 
 ## Postgres hstore support
 
-Mix in `KebsSlickSupport` with `HStoreImplicits` and the appropriate instance (e.g. `YearMonthString`):
+Mix in `HStoreImplicits` alongside `KebsSlickSupport` and the appropriate instance traits:
 
 ```scala
 import pl.iterators.kebs.instances.time.YearMonthString
 
 object MyPostgresProfile extends ExPostgresProfile with PgHStoreSupport {
   override val api: APIWithHstore = new APIWithHstore {}
-  trait APIWithHstore extends super.API with HStoreImplicits with KebsSlickSupport with YearMonthString
-}
-
-import MyPostgresProfile.api._
-
-class HStoreTestTable(tag: Tag)
-    extends Table[(Long, Map[YearMonth, Boolean])](tag, "HStoreTest") {
-  def id      = column[Long]("id")
-  def history = column[Map[YearMonth, Boolean]]("history")
-  def *       = (id, history)
+  trait APIWithHstore extends super.API with HStoreImplicits
+      with KebsSlickSupport with CaseClass1ToValueClass with YearMonthString
 }
 ```
+
+Hstore columns gain rich query operators: `+>` (get value), `??` (key exists), `?&` (all keys exist), `@>` (contains), `@+` (concatenate), `--` (delete keys), `slice`, and more.
+
+Value classes, instance types, and enums can all be used as hstore map keys and values. Custom types can participate by providing a `ToFromStringForHstore[T]` implicit.
 
 ## Enum support
 
@@ -105,10 +89,7 @@ For Enumeratum (Scala 2 & 3):
 ```scala
 import pl.iterators.kebs.enumeratum.{KebsEnumeratum, KebsValueEnumeratum}
 
-object MyPostgresProfile extends ExPostgresDriver {
-  override val api: API = new API {}
-  trait API extends super.API with KebsSlickSupport with KebsEnumeratum with KebsValueEnumeratum
-}
+trait API extends super.API with KebsSlickSupport with KebsEnumeratum with KebsValueEnumeratum
 ```
 
 For Scala 3 native enums:
@@ -116,10 +97,11 @@ For Scala 3 native enums:
 ```scala
 import pl.iterators.kebs.enums.{KebsEnum, KebsValueEnum}
 
-object MyPostgresProfile extends ExPostgresDriver {
-  override val api: API = new API {}
-  trait API extends super.API with KebsSlickSupport with KebsEnum with KebsValueEnum
-}
+trait API extends super.API with KebsSlickSupport with KebsEnum with KebsValueEnum
 ```
 
-Value enums (storing numeric/other values instead of names) require extending your entries with `ValueEnumLikeEntry`.
+### Enum casing strategies
+
+By default, enums are stored using their entry name. For lowercase or uppercase storage, use the casing variant inner traits instead of the default enum implicits. These are available as inner traits within `KebsSlickSupport` (e.g. `KebsLowercaseEnumImplicits`, `KebsUppercaseEnumImplicits`).
+
+Enum types also work as Postgres array column types (`List[MyEnum]`) and as hstore map keys/values.
