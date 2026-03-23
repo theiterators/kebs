@@ -6,11 +6,31 @@ import com.github.plokhotnyuk.jsoniter_scala.macros._
 import com.github.plokhotnyuk.jsoniter_scala.core._
 import pl.iterators.kebs.core.macros.ValueClassLike
 
-import scala.deriving.Mirror
 import scala.util.Try
-import scala.util.NotGiven
 
-private[jsoniter] trait KebsJsoniterFlatCodecFallback {
+private[jsoniter] object KebsJsoniterCodecs {
+  def valueClassCodec[T, A](rep: ValueClassLike[T, A], codecA: JsonValueCodec[A]): JsonValueCodec[T] =
+    new JsonValueCodec[T] {
+      override def decodeValue(in: JsonReader, default: T): T = {
+        val d: A = Try(rep.unapply(default)).toOption.getOrElse(null.asInstanceOf[A])
+        rep.apply(codecA.decodeValue(in, d))
+      }
+      override def encodeValue(x: T, out: JsonWriter): Unit = codecA.encodeValue(rep.unapply(x), out)
+      override val nullValue: T                             = Try(rep.apply(codecA.nullValue)).toOption.getOrElse(null.asInstanceOf[T])
+    }
+
+  def instanceConverterCodec[T, A](rep: InstanceConverter[T, A], codecA: JsonValueCodec[A]): JsonValueCodec[T] =
+    new JsonValueCodec[T] {
+      override def decodeValue(in: JsonReader, default: T): T = {
+        val d: A = Try(rep.encode(default)).toOption.getOrElse(null.asInstanceOf[A])
+        rep.decode(codecA.decodeValue(in, d))
+      }
+      override def encodeValue(x: T, out: JsonWriter): Unit = codecA.encodeValue(rep.encode(x), out)
+      override val nullValue: T                             = Try(rep.decode(codecA.nullValue)).toOption.getOrElse(null.asInstanceOf[T])
+    }
+}
+
+private[jsoniter] trait KebsJsoniterDefaultFallback {
   inline implicit def exportCodec[A]: JsonValueCodec[A] =
     JsonCodecMaker.make[A](
       CodecMakerConfig
@@ -21,44 +41,8 @@ private[jsoniter] trait KebsJsoniterFlatCodecFallback {
     )
 }
 
-private[jsoniter] trait KebsJsoniterFlatCodec extends KebsJsoniterFlatCodecFallback {
-
-  implicit def flatCodec[T, A](using rep: ValueClassLike[T, A], codecA: JsonValueCodec[A]): JsonValueCodec[T] = {
-    new JsonValueCodec[T] {
-      override def decodeValue(in: JsonReader, default: T): T = {
-        val instanceConvertedDefault: A = Try(rep.unapply(default)).toOption.getOrElse(null.asInstanceOf[A])
-        val a                           = codecA.decodeValue(in, instanceConvertedDefault)
-        rep.apply(a)
-      }
-      override def encodeValue(x: T, out: JsonWriter): Unit = {
-        codecA.encodeValue(rep.unapply(x), out)
-      }
-      override val nullValue: T =
-        Try(rep.apply(codecA.nullValue)).toOption.getOrElse(null.asInstanceOf[T])
-    }
-  }
-
-  implicit def instanceConverterCodec[T, A](using rep: InstanceConverter[T, A], codecA: JsonValueCodec[A]): JsonValueCodec[T] = {
-    new JsonValueCodec[T] {
-      override def decodeValue(in: JsonReader, default: T): T = {
-        val instanceConvertedDefault: A = Try(rep.encode(default)).toOption.getOrElse(null.asInstanceOf[A])
-        val a                           = codecA.decodeValue(in, instanceConvertedDefault)
-        rep.decode(a)
-      }
-      override def encodeValue(x: T, out: JsonWriter): Unit = {
-        codecA.encodeValue(rep.encode(x), out)
-      }
-      override val nullValue: T = {
-        Try(rep.decode(codecA.nullValue)).toOption.getOrElse(null.asInstanceOf[T])
-      }
-    }
-  }
-
-}
-
-/* private[jsoniter] trait KebsJsoniterSnakifiedDerivation {
-
-  inline implicit def exportCodec[A](using NotGiven[ValueClassLike[A, ?]], NotGiven[InstanceConverter[A, ?]]): JsonValueCodec[A] =
+private[jsoniter] trait KebsJsoniterSnakifiedFallback {
+  inline implicit def exportCodec[A]: JsonValueCodec[A] =
     JsonCodecMaker.make[A](
       CodecMakerConfig
         .withAllowRecursiveTypes(true)
@@ -68,12 +52,17 @@ private[jsoniter] trait KebsJsoniterFlatCodec extends KebsJsoniterFlatCodecFallb
         .withAdtLeafClassNameMapper(x => JsonCodecMaker.enforce_snake_case(JsonCodecMaker.simpleClassName(x)))
         .withFieldNameMapper(JsonCodecMaker.enforce_snake_case)
     )
-
 }
 
-private[jsoniter] trait KebsJsoniterCapitalizedDerivation {
+private[jsoniter] trait KebsJsoniterSnakifiedBase extends KebsJsoniterSnakifiedFallback {
+  implicit def flatCodec[T, A](using rep: ValueClassLike[T, A], codecA: JsonValueCodec[A]): JsonValueCodec[T] =
+    KebsJsoniterCodecs.valueClassCodec(rep, codecA)
+  implicit def instanceConverterCodec[T, A](using rep: InstanceConverter[T, A], codecA: JsonValueCodec[A]): JsonValueCodec[T] =
+    KebsJsoniterCodecs.instanceConverterCodec(rep, codecA)
+}
 
-  inline implicit def exportCodec[A](using NotGiven[ValueClassLike[A, ?]], NotGiven[InstanceConverter[A, ?]]): JsonValueCodec[A] =
+private[jsoniter] trait KebsJsoniterCapitalizedFallback {
+  inline implicit def exportCodec[A]: JsonValueCodec[A] =
     JsonCodecMaker.make[A](
       CodecMakerConfig
         .withAllowRecursiveTypes(true)
@@ -84,8 +73,20 @@ private[jsoniter] trait KebsJsoniterCapitalizedDerivation {
     )
 }
 
-trait KebsJsoniterSnakified   extends KebsJsoniterSnakifiedDerivation with KebsJsoniterFlatCodec
-trait KebsJsoniterCapitalized extends KebsJsoniterCapitalizedDerivation with KebsJsoniterFlatCodec
- */
+private[jsoniter] trait KebsJsoniterCapitalizedBase extends KebsJsoniterCapitalizedFallback {
+  implicit def flatCodec[T, A](using rep: ValueClassLike[T, A], codecA: JsonValueCodec[A]): JsonValueCodec[T] =
+    KebsJsoniterCodecs.valueClassCodec(rep, codecA)
+  implicit def instanceConverterCodec[T, A](using rep: InstanceConverter[T, A], codecA: JsonValueCodec[A]): JsonValueCodec[T] =
+    KebsJsoniterCodecs.instanceConverterCodec(rep, codecA)
+}
 
-trait KebsJsoniter extends KebsJsoniterFlatCodec
+private[jsoniter] trait KebsJsoniterDefaultBase extends KebsJsoniterDefaultFallback {
+  implicit def flatCodec[T, A](using rep: ValueClassLike[T, A], codecA: JsonValueCodec[A]): JsonValueCodec[T] =
+    KebsJsoniterCodecs.valueClassCodec(rep, codecA)
+  implicit def instanceConverterCodec[T, A](using rep: InstanceConverter[T, A], codecA: JsonValueCodec[A]): JsonValueCodec[T] =
+    KebsJsoniterCodecs.instanceConverterCodec(rep, codecA)
+}
+
+trait KebsJsoniter            extends KebsJsoniterDefaultBase
+trait KebsJsoniterSnakified   extends KebsJsoniterSnakifiedBase
+trait KebsJsoniterCapitalized extends KebsJsoniterCapitalizedBase
