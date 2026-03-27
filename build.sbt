@@ -11,7 +11,7 @@ ThisBuild / conflictWarning    := ConflictWarning.disable
 ThisBuild / versionScheme      := Some("early-semver")
 Test / scalafmtOnCompile       := true
 ThisBuild / scalafmtOnCompile  := true
-ThisBuild / publishTo := {
+ThisBuild / publishTo          := {
   val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
   if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
   else localStaging.value
@@ -95,7 +95,7 @@ def disableScala(v: List[String]) =
         (Test / test).value
       }
     },
-    publish / skip := (v.contains(scalaBinaryVersion.value)),
+    publish / skip        := (v.contains(scalaBinaryVersion.value)),
     mimaPreviousArtifacts := {
       if (v.contains(scalaBinaryVersion.value)) Set.empty
       else mimaPreviousArtifacts.value
@@ -110,7 +110,7 @@ def paradiseFlag(scalaVersion: String): Seq[String] =
   else
     Seq("-Ymacro-annotations")
 
-val scalaTest  = Def.setting("org.scalatest" %%% "scalatest" % "3.2.19")
+val scalaTest  = Def.setting("org.scalatest" %%% "scalatest" % "3.2.20")
 val scalaCheck = Def.setting("org.scalacheck" %%% "scalacheck" % "1.19.0")
 
 val baklava         = "pl.iterators"        %% "baklava-core"    % "1.1.1"
