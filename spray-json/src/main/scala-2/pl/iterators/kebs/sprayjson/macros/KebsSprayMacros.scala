@@ -63,7 +63,13 @@ class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
     }
   }
 
-  protected val preferFlat: Boolean = true
+  protected val preferFlat: Boolean = false
+  private def hasValueClassLike(T: Type, fields: List[MethodSymbol]): Boolean = {
+    val F1             = resultType(fields.head, T)
+    val valueClassLike = c.mirror.staticClass("pl.iterators.kebs.core.macros.ValueClassLike").toType.typeConstructor
+    val appliedVCL     = appliedType(valueClassLike, T, F1)
+    c.inferImplicitValue(appliedVCL, silent = true) != EmptyTree
+  }
 
   final def materializeRootFormat[T: c.WeakTypeTag]: c.Expr[RootJsonFormat[T]] = {
     val T = weakTypeOf[T]
@@ -74,7 +80,7 @@ class KebsSprayMacros(override val c: whitebox.Context) extends MacroUtils {
     val jsonFormat = caseAccessors(T) match {
       case Nil         => materializeJsonFormat0(T)
       case (_1 :: Nil) =>
-        if (preferFlat && (isLookingFor(jsonFormatOf(T)) || isLookingFor(jsonWriterOf(T)) || isLookingFor(jsonReaderOf(T))))
+        if ((isLookingFor(jsonFormatOf(T)) || isLookingFor(jsonWriterOf(T)) || isLookingFor(jsonReaderOf(T))) && hasValueClassLike(T, List(_1)))
           c.abort(c.enclosingPosition, "Flat format preferred")
         else materializeRootJsonFormat(T, List(_1))
       case fields => materializeRootJsonFormat(T, fields)
