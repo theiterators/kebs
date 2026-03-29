@@ -22,6 +22,7 @@ ThisBuild / tlCiHeaderCheck                     := false
 ThisBuild / tlMimaPreviousVersions              := Set("2.1.5")
 ThisBuild / githubWorkflowJavaVersions          := Seq(JavaSpec.temurin("11"), JavaSpec.temurin("17"))
 ThisBuild / githubWorkflowPublishTargetBranches := Seq(RefPredicate.StartsWith(Ref.Tag("v")), RefPredicate.Equals(Ref.Branch("master")))
+ThisBuild / githubWorkflowPublishPreamble += WorkflowStep.Run(List("git fetch --tags"), name = Some("Fetch git tags"))
 
 lazy val baseSettings = Seq(
   organization         := "pl.iterators",
