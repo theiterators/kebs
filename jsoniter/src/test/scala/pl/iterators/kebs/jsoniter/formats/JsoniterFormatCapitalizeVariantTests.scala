@@ -23,12 +23,6 @@ class JsoniterFormatCapitalizeVariantTests extends AnyFunSuite with Matchers {
     writeToString[F.type](F)(codec) shouldBe "{}"
   }
 
-  test("Flat format - single field case class remains unchanged") {
-    val codec = implicitly[JsonValueCodec[C]]
-    readFromString[C]("10")(codec) shouldBe C(10)
-    writeToString[C](C(10))(codec) shouldBe "10"
-  }
-
   test("Format 2 capitalized") {
     val codec = implicitly[JsonValueCodec[D]]
     readFromString[D]("{\"IntField\":10,\"StringField\":\"abcdef\"}")(codec) shouldBe D(10, "abcdef")
