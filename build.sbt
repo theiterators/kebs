@@ -243,7 +243,8 @@ lazy val circeSettings = commonSettings ++ Seq(
 
 lazy val jsoniterSettings = commonSettings ++ Seq(
   libraryDependencies += jsoniter.value,
-  libraryDependencies += jsoniterMacros.value
+  libraryDependencies += jsoniterMacros.value,
+  libraryDependencies += enumeratumInTest.value
 )
 
 lazy val akkaHttpSettings = commonSettings ++ Seq(
