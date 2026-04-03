@@ -37,7 +37,7 @@ private[jsoniter] final class KebsInstanceConverterCodec[T, A](
 }
 
 object KebsJsoniterMacros {
-  def exportCodec[A: c.WeakTypeTag](c: blackbox.Context): c.Expr[JsonValueCodec[A]] = {
+  private def exportCodecWithConfig[A: c.WeakTypeTag](c: blackbox.Context)(configTree: c.universe.Tree): c.Expr[JsonValueCodec[A]] = {
     import c.universe._
     val tpe = weakTypeOf[A]
 
@@ -82,18 +82,46 @@ object KebsJsoniterMacros {
             ): Unit = $codecVar.encodeValue(x, out)
             override def nullValue: $tpe = if ($codecVar != null) $codecVar.nullValue else null.asInstanceOf[$tpe]
           }
-        $codecVar = _root_.com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker.make[$tpe](
-          _root_.com.github.plokhotnyuk.jsoniter_scala.macros.CodecMakerConfig
-            .withAllowRecursiveTypes(true)
-            .withTransientEmpty(false)
-            .withTransientNone(false)
-        )
+        $codecVar = _root_.com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker.make[$tpe]($configTree)
         $codecProxy
       }
     """
     )
 
     c.Expr[JsonValueCodec[A]](innerCall)
+  }
+
+  def exportCodec[A: c.WeakTypeTag](c: blackbox.Context): c.Expr[JsonValueCodec[A]] = {
+    import c.universe._
+    exportCodecWithConfig[A](c)(
+      q"""_root_.com.github.plokhotnyuk.jsoniter_scala.macros.CodecMakerConfig
+            .withAllowRecursiveTypes(true)
+            .withTransientEmpty(false)
+            .withTransientNone(false)"""
+    )
+  }
+
+  def exportSnakifiedCodec[A: c.WeakTypeTag](c: blackbox.Context): c.Expr[JsonValueCodec[A]] = {
+    import c.universe._
+    exportCodecWithConfig[A](c)(
+      q"""_root_.com.github.plokhotnyuk.jsoniter_scala.macros.CodecMakerConfig
+            .withAllowRecursiveTypes(true)
+            .withTransientEmpty(false)
+            .withTransientNone(false)
+            .withAdtLeafClassNameMapper(x => _root_.com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker.enforce_snake_case(_root_.com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker.simpleClassName(x)))
+            .withFieldNameMapper(_root_.com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker.enforce_snake_case)"""
+    )
+  }
+
+  def exportCapitalizedCodec[A: c.WeakTypeTag](c: blackbox.Context): c.Expr[JsonValueCodec[A]] = {
+    import c.universe._
+    exportCodecWithConfig[A](c)(
+      q"""_root_.com.github.plokhotnyuk.jsoniter_scala.macros.CodecMakerConfig
+            .withAllowRecursiveTypes(true)
+            .withTransientEmpty(false)
+            .withTransientNone(false)
+            .withFieldNameMapper(_root_.com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker.EnforcePascalCase)"""
+    )
   }
 
   def flatCodecImpl[T: c.WeakTypeTag, A: c.WeakTypeTag](c: blackbox.Context)(
@@ -151,4 +179,30 @@ private[jsoniter] trait KebsJsoniterFlatCodec extends KebsJsoniterFlatCodecFallb
   // format: on
 }
 
-trait KebsJsoniter extends KebsJsoniterFlatCodec
+private[jsoniter] trait KebsJsoniterSnakifiedFlatCodecFallback {
+  implicit def deriveCodec[A]: JsonValueCodec[A] = macro KebsJsoniterMacros.exportSnakifiedCodec[A]
+}
+
+private[jsoniter] trait KebsJsoniterSnakifiedFlatCodec extends KebsJsoniterSnakifiedFlatCodecFallback {
+
+  // format: off
+  implicit def flatCodec[T, A](implicit rep: ValueClassLike[T, A]): JsonValueCodec[T] = macro KebsJsoniterMacros.flatCodecImpl[T, A]
+  implicit def instanceConverterCodec[T, A](implicit rep: InstanceConverter[T, A]): JsonValueCodec[T] = macro KebsJsoniterMacros.instanceConverterCodecImpl[T, A]
+  // format: on
+}
+
+private[jsoniter] trait KebsJsoniterCapitalizedFlatCodecFallback {
+  implicit def deriveCodec[A]: JsonValueCodec[A] = macro KebsJsoniterMacros.exportCapitalizedCodec[A]
+}
+
+private[jsoniter] trait KebsJsoniterCapitalizedFlatCodec extends KebsJsoniterCapitalizedFlatCodecFallback {
+
+  // format: off
+  implicit def flatCodec[T, A](implicit rep: ValueClassLike[T, A]): JsonValueCodec[T] = macro KebsJsoniterMacros.flatCodecImpl[T, A]
+  implicit def instanceConverterCodec[T, A](implicit rep: InstanceConverter[T, A]): JsonValueCodec[T] = macro KebsJsoniterMacros.instanceConverterCodecImpl[T, A]
+  // format: on
+}
+
+trait KebsJsoniter            extends KebsJsoniterFlatCodec
+trait KebsJsoniterSnakified   extends KebsJsoniterSnakifiedFlatCodec
+trait KebsJsoniterCapitalized extends KebsJsoniterCapitalizedFlatCodec
