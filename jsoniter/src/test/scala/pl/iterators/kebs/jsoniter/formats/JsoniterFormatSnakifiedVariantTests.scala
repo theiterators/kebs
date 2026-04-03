@@ -42,7 +42,7 @@ class JsoniterFormatSnakifiedVariantTests extends AnyFunSuite with Matchers {
   test("Format snakified - case class with > 22 fields") {
     val codec = implicitly[JsonValueCodec[ClassWith23Fields]]
     val obj   = ClassWith23Fields.Example
-    val json =
+    val json  =
       "{\"f_1\":\"f1 value\",\"f_2\":2,\"f_3\":3,\"f_4\":null,\"f_5\":\"f5 value\",\"field_number_six\":\"six\",\"f_7\":[\"f7 value 1\",\"f7 value 2\"],\"f_8\":\"f8 value\",\"f_9\":\"f9 value\",\"f_10\":\"f10 value\",\"f_11\":\"f11 value\",\"f_12\":\"f12 value\",\"f_13\":\"f13 value\",\"f_14\":\"f14 value\",\"f_15\":\"f15 value\",\"f_16\":\"f16 value\",\"f_17\":\"f17 value\",\"f_18\":\"f18 value\",\"f_19\":\"f19 value\",\"f_20\":\"f20 value\",\"f_21\":\"f21 value\",\"f_22\":\"f22 value\",\"f_23\":true}"
 
     writeToString[ClassWith23Fields](obj)(codec) shouldBe json

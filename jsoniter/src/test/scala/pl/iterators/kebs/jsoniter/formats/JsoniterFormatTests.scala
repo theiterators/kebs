@@ -79,7 +79,7 @@ class JsoniterFormatTests extends AnyFunSuite with Matchers {
   test("Format - case class with > 22 fields") {
     val codec = implicitly[JsonValueCodec[ClassWith23Fields]]
     val obj   = ClassWith23Fields.Example
-    val json =
+    val json  =
       "{\"f1\":\"f1 value\",\"f2\":2,\"f3\":3,\"f4\":null,\"f5\":\"f5 value\",\"fieldNumberSix\":\"six\",\"f7\":[\"f7 value 1\",\"f7 value 2\"],\"f8\":\"f8 value\",\"f9\":\"f9 value\",\"f10\":\"f10 value\",\"f11\":\"f11 value\",\"f12\":\"f12 value\",\"f13\":\"f13 value\",\"f14\":\"f14 value\",\"f15\":\"f15 value\",\"f16\":\"f16 value\",\"f17\":\"f17 value\",\"f18\":\"f18 value\",\"f19\":\"f19 value\",\"f20\":\"f20 value\",\"f21\":\"f21 value\",\"f22\":\"f22 value\",\"f23\":true}"
 
     writeToString[ClassWith23Fields](obj)(codec) shouldBe json
@@ -89,7 +89,7 @@ class JsoniterFormatTests extends AnyFunSuite with Matchers {
   test("Nested case classes with > 22 fields") {
     val codec = implicitly[JsonValueCodec[ClassWith23FieldsNested]]
     val obj   = ClassWith23FieldsNested.Example
-    val json =
+    val json  =
       "{\"f1\":\"f1 value\",\"f2\":{\"f1\":\"f1 value\",\"f2\":2,\"f3\":3,\"f4\":null,\"f5\":\"f5 value\",\"fieldNumberSix\":\"six\",\"f7\":[\"f7 value 1\",\"f7 value 2\"],\"f8\":\"f8 value\",\"f9\":\"f9 value\",\"f10\":\"f10 value\",\"f11\":\"f11 value\",\"f12\":\"f12 value\",\"f13\":\"f13 value\",\"f14\":\"f14 value\",\"f15\":\"f15 value\",\"f16\":\"f16 value\",\"f17\":\"f17 value\",\"f18\":\"f18 value\",\"f19\":\"f19 value\",\"f20\":\"f20 value\",\"f21\":\"f21 value\",\"f22\":\"f22 value\",\"f23\":true},\"f3\":3,\"f4\":null,\"f5\":\"f5 value\",\"fieldNumberSix\":\"six\",\"f7\":[\"f7 value 1\",\"f7 value 2\"],\"f8\":\"f8 value\",\"f9\":\"f9 value\",\"f10\":\"f10 value\",\"f11\":\"f11 value\",\"f12\":\"f12 value\",\"f13\":\"f13 value\",\"f14\":\"f14 value\",\"f15\":\"f15 value\",\"f16\":\"f16 value\",\"f17\":\"f17 value\",\"f18\":\"f18 value\",\"f19\":\"f19 value\",\"f20\":\"f20 value\",\"f21\":\"f21 value\",\"f22\":\"f22 value\",\"f23\":true}"
 
     writeToString[ClassWith23FieldsNested](obj)(codec) shouldBe json
