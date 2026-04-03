@@ -17,7 +17,7 @@ class SlickMappedValueEnumColumnTypeTests extends AnyFunSuite with Matchers with
   import MyPostgresProfile.api._
 
   sealed abstract class WorkerAccountStatusInt(val value: Int) extends IntEnumEntry with ValueEnumLikeEntry[Int]
-  object WorkerAccountStatusInt extends IntEnum[WorkerAccountStatusInt] {
+  object WorkerAccountStatusInt                                extends IntEnum[WorkerAccountStatusInt] {
     case object Unapproved extends WorkerAccountStatusInt(0)
     case object Active     extends WorkerAccountStatusInt(1)
     case object Blocked    extends WorkerAccountStatusInt(2)

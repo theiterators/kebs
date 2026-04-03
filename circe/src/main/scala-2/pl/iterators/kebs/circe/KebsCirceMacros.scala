@@ -18,7 +18,7 @@ class KebsCirceMacros(override val c: whitebox.Context) extends MacroUtils {
       case Nil =>
         q"""_root_.io.circe.Decoder.decodeJsonObject.emap(obj => if(obj.isEmpty) Right(${T.termSymbol}) else Left("Empty JsonObject"))"""
       case _1 :: Nil =>
-        if (preferFlat && (isLookingFor(decoderOf(T))))
+        if (isLookingFor(decoderOf(T)) && hasValueClassLike(T, List(_1)))
           c.abort(c.enclosingPosition, "Flat format preferred")
         else
           _materializeDecoder(T, List(_1))
@@ -50,7 +50,7 @@ class KebsCirceMacros(override val c: whitebox.Context) extends MacroUtils {
       case Nil =>
         q"""_root_.io.circe.Encoder.instance[${T.typeSymbol}](_ => _root_.io.circe.Json.fromJsonObject(_root_.io.circe.JsonObject.empty))"""
       case _1 :: Nil =>
-        if (preferFlat && (isLookingFor(encoderOf(T))))
+        if (isLookingFor(encoderOf(T)) && hasValueClassLike(T, List(_1)))
           c.abort(c.enclosingPosition, "Flat format preferred")
         else
           _materializeEncoder(T, List(_1))
@@ -84,7 +84,13 @@ class KebsCirceMacros(override val c: whitebox.Context) extends MacroUtils {
   private def inferDecoderFormats(ps: List[Type]) = ps.map(p => inferImplicitValue(decoderOf(p), s"Cannot infer Decoder[$p]"))
   private def inferEncoderFormats(ps: List[Type]) = ps.map(p => inferImplicitValue(encoderOf(p), s"Cannot infer Encoder[$p]"))
   protected def extractJsonFieldNames(fields: List[MethodSymbol]): Seq[String] = extractFieldNames(fields)
-  protected val preferFlat: Boolean                                            = true
+  protected val preferFlat: Boolean                                            = false
+  private def hasValueClassLike(T: Type, fields: List[MethodSymbol]): Boolean  = {
+    val F1             = resultType(fields.head, T)
+    val valueClassLike = c.mirror.staticClass("pl.iterators.kebs.core.macros.ValueClassLike").toType.typeConstructor
+    val appliedVCL     = appliedType(valueClassLike, T, F1)
+    c.inferImplicitValue(appliedVCL, silent = true) != EmptyTree
+  }
   protected val semiAutoNamingStrategy: Tree =
     q"implicit lazy val __config: _root_.io.circe.generic.extras.Configuration = _root_.io.circe.generic.extras.Configuration.default"
 }

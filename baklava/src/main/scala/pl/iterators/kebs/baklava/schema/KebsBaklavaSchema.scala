@@ -32,8 +32,8 @@ trait KebsBaklavaSchema {
       cls: ClassTag[T]
   ): Schema[T] = {
     new Schema[T] {
-      val className: String  = cls.runtimeClass.getName
-      val `type`: SchemaType = schema.`type`
+      val className: String      = cls.runtimeClass.getName
+      val `type`: SchemaType     = schema.`type`
       val format: Option[String] = cls.runtimeClass.getName match {
         case "java.time.LocalDate"     => Some("date")
         case "java.time.Instant"       => Some("date-time")
