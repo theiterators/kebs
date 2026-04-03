@@ -413,11 +413,9 @@ lazy val circeSupport = crossProject(JSPlatform, NativePlatform, JVMPlatform)
     moduleName  := "kebs-circe"
   )
 
-lazy val jsoniterSupport = crossProject(JSPlatform, NativePlatform, JVMPlatform)
-  .withoutSuffixFor(JVMPlatform)
-  .crossType(CrossType.Pure)
+lazy val jsoniterSupport = project
   .in(file("jsoniter"))
-  .dependsOn(core, enumSupport, enumeratumSupport % "test -> test", instances % "test -> test")
+  .dependsOn(core.jvm, enumSupport.jvm, enumeratumSupport.jvm % "test -> test", instances.jvm % "test -> test")
   .settings(jsoniterSettings *)
   .settings(crossBuildSettings *)
   .settings(publishSettings *)
@@ -688,9 +686,7 @@ lazy val kebs = project
     circeSupport.jvm,
     circeSupport.js,
     circeSupport.native,
-    jsoniterSupport.jvm,
-    jsoniterSupport.js,
-    jsoniterSupport.native,
+    jsoniterSupport,
     jsonschemaSupport,
     scalacheckSupport,
     akkaHttpSupport,
