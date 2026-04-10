@@ -420,9 +420,10 @@ lazy val jsoniterSupport = project
   .settings(crossBuildSettings *)
   .settings(publishSettings *)
   .settings(
-    name        := "jsoniter",
-    description := "Automatic generation of jsoniter formats for case-classes",
-    moduleName  := "kebs-jsoniter"
+    name                   := "jsoniter",
+    description            := "Automatic generation of jsoniter formats for case-classes",
+    moduleName             := "kebs-jsoniter",
+    tlMimaPreviousVersions := Set.empty
   )
 
 lazy val akkaHttpSupport = project
