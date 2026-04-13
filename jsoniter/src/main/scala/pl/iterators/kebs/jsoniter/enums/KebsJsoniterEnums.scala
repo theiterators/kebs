@@ -50,7 +50,7 @@ trait KebsJsoniterValueEnums {
         val value = baseCodec.decodeValue(in, baseCodec.nullValue)
         `enum`.withValueOption(value).getOrElse {
           val enumValues = `enum`.getValuesToEntriesMap.keys.mkString(", ")
-          throw new RuntimeException(s"$value is not a member of $enumValues")
+          in.decodeError(s"$value is not a member of $enumValues")
         }
       }
       override def encodeValue(x: E, out: JsonWriter): Unit = baseCodec.encodeValue(x.value, out)

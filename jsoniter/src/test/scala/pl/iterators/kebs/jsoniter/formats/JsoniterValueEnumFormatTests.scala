@@ -29,7 +29,7 @@ class JsoniterValueEnumFormatTests extends AnyFunSuite with Matchers with KebsVa
   test("value enum codec - deserialization error") {
     import KebsProtocol._
     val codec = implicitly[JsonValueCodec[LongGreeting]]
-    intercept[RuntimeException] {
+    intercept[JsonReaderException] {
       readFromString[LongGreeting]("4")(codec)
     }.getMessage should include("4 is not a member of")
   }

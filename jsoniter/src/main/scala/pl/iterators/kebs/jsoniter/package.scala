@@ -1,6 +1,4 @@
-package pl.iterators.kebs.jsoniter
-
-import pl.iterators.kebs.jsoniter.KebsJsoniter
+package pl.iterators.kebs
 
 package object jsoniter extends KebsJsoniter {
   object snakified   extends KebsJsoniterSnakified
