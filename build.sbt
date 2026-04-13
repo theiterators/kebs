@@ -126,6 +126,9 @@ val circe           = Def.setting("io.circe" %%% "circe-core" % circeV)
 val circeAuto       = Def.setting("io.circe" %%% "circe-generic" % circeV)
 val circeAutoExtras = Def.setting("io.circe" %%% "circe-generic-extras" % "0.14.4")
 val circeParser     = Def.setting("io.circe" %%% "circe-parser" % circeV)
+val jsoniterV = "2.37.0"
+val jsoniter = Def.setting("com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-core" % jsoniterV)
+val jsoniterMacros = Def.setting("com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-macros" % jsoniterV)
 
 val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.11"
 
@@ -246,6 +249,12 @@ lazy val circeSettings = commonSettings ++ Seq(
 ) ++ Seq(
   libraryDependencies ++= (if (scalaVersion.value.startsWith("3")) Nil
                            else Seq(circeAutoExtras.value))
+)
+
+lazy val jsoniterSettings = commonSettings ++ Seq(
+  libraryDependencies += jsoniter.value,
+  libraryDependencies += jsoniterMacros.value,
+  libraryDependencies += enumeratumInTest.value
 )
 
 lazy val akkaHttpSettings = commonSettings ++ Seq(
@@ -402,6 +411,19 @@ lazy val circeSupport = crossProject(JSPlatform, NativePlatform, JVMPlatform)
     name        := "circe",
     description := "Automatic generation of circe formats for case-classes",
     moduleName  := "kebs-circe"
+  )
+
+lazy val jsoniterSupport = project
+  .in(file("jsoniter"))
+  .dependsOn(core.jvm, enumSupport.jvm, enumeratumSupport.jvm % "test -> test", instances.jvm % "test -> test")
+  .settings(jsoniterSettings *)
+  .settings(crossBuildSettings *)
+  .settings(publishSettings *)
+  .settings(
+    name                   := "jsoniter",
+    description            := "Automatic generation of jsoniter formats for case-classes",
+    moduleName             := "kebs-jsoniter",
+    tlMimaPreviousVersions := Set.empty
   )
 
 lazy val akkaHttpSupport = project
@@ -665,6 +687,7 @@ lazy val kebs = project
     circeSupport.jvm,
     circeSupport.js,
     circeSupport.native,
+    jsoniterSupport,
     jsonschemaSupport,
     scalacheckSupport,
     akkaHttpSupport,
