@@ -113,7 +113,7 @@ def paradiseFlag(scalaVersion: String): Seq[String] =
 val scalaTest  = Def.setting("org.scalatest" %%% "scalatest" % "3.2.20")
 val scalaCheck = Def.setting("org.scalacheck" %%% "scalacheck" % "1.19.0")
 
-val baklava         = "pl.iterators"        %% "baklava-core"    % "1.1.1"
+val baklava         = "pl.iterators"        %% "baklava-core"    % "1.2.0"
 val slick           = "com.typesafe.slick"  %% "slick"           % "3.6.1"
 val optionalSlick   = optional(slick)
 val playJson        = Def.setting("org.playframework" %%% "play-json" % "3.0.6")
