@@ -126,7 +126,9 @@ val circe           = Def.setting("io.circe" %%% "circe-core" % circeV)
 val circeAuto       = Def.setting("io.circe" %%% "circe-generic" % circeV)
 val circeAutoExtras = Def.setting("io.circe" %%% "circe-generic-extras" % "0.14.4")
 val circeParser     = Def.setting("io.circe" %%% "circe-parser" % circeV)
-val jsoniterV = "2.37.0"
+// >= 2.34.x required for CodecMakerConfig.withTransientNull; 2.38.17 is what the
+// explicit-deriveCodec design was validated against
+val jsoniterV = "2.38.17"
 val jsoniter = Def.setting("com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-core" % jsoniterV)
 val jsoniterMacros = Def.setting("com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-macros" % jsoniterV)
 
