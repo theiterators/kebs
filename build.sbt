@@ -417,7 +417,13 @@ lazy val circeSupport = crossProject(JSPlatform, NativePlatform, JVMPlatform)
 
 lazy val jsoniterSupport = project
   .in(file("jsoniter"))
-  .dependsOn(core.jvm, enumSupport.jvm, enumeratumSupport.jvm % "test -> test", instances.jvm % "test -> test")
+  .dependsOn(
+    core.jvm,
+    enumSupport.jvm,
+    enumeratumSupport.jvm % "test -> test",
+    instances.jvm         % "test -> test",
+    opaque.jvm            % "test -> test"
+  )
   .settings(jsoniterSettings *)
   .settings(crossBuildSettings *)
   .settings(publishSettings *)
