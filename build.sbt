@@ -256,7 +256,10 @@ lazy val circeSettings = commonSettings ++ Seq(
 lazy val jsoniterSettings = commonSettings ++ Seq(
   libraryDependencies += jsoniter.value,
   libraryDependencies += jsoniterMacros.value,
-  libraryDependencies += enumeratumInTest.value
+  libraryDependencies += enumeratumInTest.value,
+  // test-only: the Any-probe regression tests resolve pekko-http marshallers
+  libraryDependencies += pekkoHttp   % "test",
+  libraryDependencies += pekkoStream % "test"
 )
 
 lazy val akkaHttpSettings = commonSettings ++ Seq(
