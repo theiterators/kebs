@@ -11,6 +11,8 @@ class JsoniterFormatCapitalizeVariantTests extends AnyFunSuite with Matchers {
   object JsoniterProtocol extends KebsJsoniterCapitalized with CaseClass1ToValueClass
   import JsoniterProtocol._
 
+  implicit val intCodec: JsonValueCodec[Int] = deriveCodec[Int]
+
   test("Flat format remains unchanged") {
     val codec = implicitly[JsonValueCodec[C]]
     readFromString[C]("10")(codec) shouldBe C(10)
@@ -18,19 +20,19 @@ class JsoniterFormatCapitalizeVariantTests extends AnyFunSuite with Matchers {
   }
 
   test("Format 0 remains unchanged") {
-    val codec = implicitly[JsonValueCodec[F.type]]
+    val codec: JsonValueCodec[F.type] = deriveCodec[F.type]
     readFromString[F.type]("{}")(codec) shouldBe F
     writeToString[F.type](F)(codec) shouldBe "{}"
   }
 
   test("Format 2 capitalized") {
-    val codec = implicitly[JsonValueCodec[D]]
+    val codec: JsonValueCodec[D] = deriveCodec[D]
     readFromString[D]("{\"IntField\":10,\"StringField\":\"abcdef\"}")(codec) shouldBe D(10, "abcdef")
     writeToString[D](D(10, "abcdef"))(codec) shouldBe "{\"IntField\":10,\"StringField\":\"abcdef\"}"
   }
 
   test("Format capitalized - compound") {
-    val codec = implicitly[JsonValueCodec[Compound]]
+    val codec: JsonValueCodec[Compound] = deriveCodec[Compound]
     readFromString[Compound](
       "{\"CField\":10,\"DField\":{\"IntField\":100,\"StringField\":\"abb\"}}"
     )(codec) shouldBe Compound(C(10), D(100, "abb"))

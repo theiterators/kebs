@@ -11,8 +11,10 @@ class JsoniterFormatSnakifiedVariantTests extends AnyFunSuite with Matchers {
   object JsoniterProtocol extends KebsJsoniterSnakified with CaseClass1ToValueClass
   import JsoniterProtocol._
 
+  implicit val intCodec: JsonValueCodec[Int] = deriveCodec[Int]
+
   test("Format 0 remains unchanged") {
-    val codec = implicitly[JsonValueCodec[F.type]]
+    val codec: JsonValueCodec[F.type] = deriveCodec[F.type]
     readFromString[F.type]("{}")(codec) shouldBe F
     writeToString[F.type](F)(codec) shouldBe "{}"
   }
@@ -24,13 +26,13 @@ class JsoniterFormatSnakifiedVariantTests extends AnyFunSuite with Matchers {
   }
 
   test("Format 2 snakified") {
-    val codec = implicitly[JsonValueCodec[D]]
+    val codec: JsonValueCodec[D] = deriveCodec[D]
     readFromString[D]("{\"int_field\":10,\"string_field\":\"abcdef\"}")(codec) shouldBe D(10, "abcdef")
     writeToString[D](D(10, "abcdef"))(codec) shouldBe "{\"int_field\":10,\"string_field\":\"abcdef\"}"
   }
 
   test("Format snakified - compound") {
-    val codec = implicitly[JsonValueCodec[Compound]]
+    val codec: JsonValueCodec[Compound] = deriveCodec[Compound]
     readFromString[Compound](
       "{\"c_field\":10,\"d_field\":{\"int_field\":100,\"string_field\":\"abb\"}}"
     )(codec) shouldBe Compound(C(10), D(100, "abb"))
@@ -40,9 +42,9 @@ class JsoniterFormatSnakifiedVariantTests extends AnyFunSuite with Matchers {
   }
 
   test("Format snakified - case class with > 22 fields") {
-    val codec = implicitly[JsonValueCodec[ClassWith23Fields]]
-    val obj   = ClassWith23Fields.Example
-    val json  =
+    val codec: JsonValueCodec[ClassWith23Fields] = deriveCodec[ClassWith23Fields]
+    val obj                                      = ClassWith23Fields.Example
+    val json                                     =
       "{\"f_1\":\"f1 value\",\"f_2\":2,\"f_3\":3,\"f_4\":null,\"f_5\":\"f5 value\",\"field_number_six\":\"six\",\"f_7\":[\"f7 value 1\",\"f7 value 2\"],\"f_8\":\"f8 value\",\"f_9\":\"f9 value\",\"f_10\":\"f10 value\",\"f_11\":\"f11 value\",\"f_12\":\"f12 value\",\"f_13\":\"f13 value\",\"f_14\":\"f14 value\",\"f_15\":\"f15 value\",\"f_16\":\"f16 value\",\"f_17\":\"f17 value\",\"f_18\":\"f18 value\",\"f_19\":\"f19 value\",\"f_20\":\"f20 value\",\"f_21\":\"f21 value\",\"f_22\":\"f22 value\",\"f_23\":true}"
 
     writeToString[ClassWith23Fields](obj)(codec) shouldBe json
