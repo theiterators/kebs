@@ -39,7 +39,18 @@ private[jsoniter] object KebsJsoniterCodecs {
   * marshaller hijack pekko's `text/plain` handling of plain Strings.
   */
 private[jsoniter] object KebsJsoniterBaseCodecs {
-  implicit val stringBaseCodec: JsonValueCodec[String]                 = JsonCodecMaker.make
+  // A JsonCodecMaker.make codec for a reference type assumes a non-null value on encode (e.g. the String
+  // codec calls x.length()). When deriveCodec runs with withTransientNull(false), the outer derived codec
+  // keeps null fields in the payload and delegates them here, so a null field would NPE. Wrapping makes the
+  // reference-typed base codecs write JSON null instead. Primitive codecs below never see null, so stay bare.
+  private def nullSafe[A <: AnyRef](underlying: JsonValueCodec[A]): JsonValueCodec[A] =
+    new JsonValueCodec[A] {
+      override def decodeValue(in: JsonReader, default: A): A = underlying.decodeValue(in, default)
+      override def encodeValue(x: A, out: JsonWriter): Unit   = if (x == null) out.writeNull() else underlying.encodeValue(x, out)
+      override def nullValue: A                               = underlying.nullValue
+    }
+
+  implicit val stringBaseCodec: JsonValueCodec[String]                 = nullSafe(JsonCodecMaker.make)
   implicit val intBaseCodec: JsonValueCodec[Int]                       = JsonCodecMaker.make
   implicit val longBaseCodec: JsonValueCodec[Long]                     = JsonCodecMaker.make
   implicit val doubleBaseCodec: JsonValueCodec[Double]                 = JsonCodecMaker.make
@@ -47,17 +58,17 @@ private[jsoniter] object KebsJsoniterBaseCodecs {
   implicit val shortBaseCodec: JsonValueCodec[Short]                   = JsonCodecMaker.make
   implicit val byteBaseCodec: JsonValueCodec[Byte]                     = JsonCodecMaker.make
   implicit val booleanBaseCodec: JsonValueCodec[Boolean]               = JsonCodecMaker.make
-  implicit val bigDecimalBaseCodec: JsonValueCodec[BigDecimal]         = JsonCodecMaker.make
-  implicit val bigIntBaseCodec: JsonValueCodec[BigInt]                 = JsonCodecMaker.make
-  implicit val uuidBaseCodec: JsonValueCodec[UUID]                     = JsonCodecMaker.make
-  implicit val instantBaseCodec: JsonValueCodec[Instant]               = JsonCodecMaker.make
-  implicit val localDateBaseCodec: JsonValueCodec[LocalDate]           = JsonCodecMaker.make
-  implicit val localDateTimeBaseCodec: JsonValueCodec[LocalDateTime]   = JsonCodecMaker.make
-  implicit val localTimeBaseCodec: JsonValueCodec[LocalTime]           = JsonCodecMaker.make
-  implicit val offsetDateTimeBaseCodec: JsonValueCodec[OffsetDateTime] = JsonCodecMaker.make
-  implicit val zonedDateTimeBaseCodec: JsonValueCodec[ZonedDateTime]   = JsonCodecMaker.make
-  implicit val durationBaseCodec: JsonValueCodec[JDuration]            = JsonCodecMaker.make
-  implicit val finiteDurationBaseCodec: JsonValueCodec[FiniteDuration] = JsonCodecMaker.make
+  implicit val bigDecimalBaseCodec: JsonValueCodec[BigDecimal]         = nullSafe(JsonCodecMaker.make)
+  implicit val bigIntBaseCodec: JsonValueCodec[BigInt]                 = nullSafe(JsonCodecMaker.make)
+  implicit val uuidBaseCodec: JsonValueCodec[UUID]                     = nullSafe(JsonCodecMaker.make)
+  implicit val instantBaseCodec: JsonValueCodec[Instant]               = nullSafe(JsonCodecMaker.make)
+  implicit val localDateBaseCodec: JsonValueCodec[LocalDate]           = nullSafe(JsonCodecMaker.make)
+  implicit val localDateTimeBaseCodec: JsonValueCodec[LocalDateTime]   = nullSafe(JsonCodecMaker.make)
+  implicit val localTimeBaseCodec: JsonValueCodec[LocalTime]           = nullSafe(JsonCodecMaker.make)
+  implicit val offsetDateTimeBaseCodec: JsonValueCodec[OffsetDateTime] = nullSafe(JsonCodecMaker.make)
+  implicit val zonedDateTimeBaseCodec: JsonValueCodec[ZonedDateTime]   = nullSafe(JsonCodecMaker.make)
+  implicit val durationBaseCodec: JsonValueCodec[JDuration]            = nullSafe(JsonCodecMaker.make)
+  implicit val finiteDurationBaseCodec: JsonValueCodec[FiniteDuration] = nullSafe(JsonCodecMaker.make)
 }
 
 /** Shape-specific instances: they require ValueClassLike / InstanceConverter evidence, so they always pin the type variable during

@@ -45,6 +45,11 @@ object PascalFields {
   implicit val codec: JsonValueCodec[PascalFields] = CapitalizedDeriveCodecProtocol.deriveCodec
 }
 
+final case class NullableFields(count: Int, label: String)
+object NullableFields {
+  implicit val codec: JsonValueCodec[NullableFields] = DeriveCodecProtocol.deriveCodec
+}
+
 class DeriveCodecScala3Tests extends AnyFunSuite with Matchers {
 
   val user = User(
@@ -86,5 +91,9 @@ class DeriveCodecScala3Tests extends AnyFunSuite with Matchers {
 
   test("deriveCodec on a kebs type is a guarded compile error") {
     assertDoesNotCompile("DeriveCodecProtocol.deriveCodec[UserId]")
+  }
+
+  test("null in a plain reference field is encoded as JSON null, not an NPE") {
+    writeToString(NullableFields(10, null)) shouldBe "{\"count\":10,\"label\":null}"
   }
 }
