@@ -171,6 +171,7 @@ val pekkoStream        = "org.apache.pekko" %% "pekko-stream"         % pekkoVer
 val pekkoStreamTestkit = "org.apache.pekko" %% "pekko-stream-testkit" % pekkoVersion
 val pekkoHttp          = "org.apache.pekko" %% "pekko-http"           % pekkoHttpVersion
 val pekkoHttpTestkit   = "org.apache.pekko" %% "pekko-http-testkit"   % pekkoHttpVersion
+val pekkoHttpJsoniterScala = "com.github.pjfanning" %% "pekko-http-jsoniter-scala" % pekkoHttpJsonV
 
 def pekkoHttpInExamples = {
   val pekkoHttpSprayJson = "org.apache.pekko" %% "pekko-http-spray-json" % pekkoHttpVersion
@@ -277,6 +278,14 @@ lazy val pekkoHttpSettings = commonSettings ++ Seq(
   libraryDependencies += pekkoHttpTestkit   % "test",
   libraryDependencies += enumeratumInTest.value,
   scalacOptions ++= paradiseFlag(scalaVersion.value)
+)
+
+lazy val jsoniterPekkoHttpSettings = commonSettings ++ Seq(
+  libraryDependencies += pekkoHttp,
+  libraryDependencies += pekkoStream,
+  libraryDependencies += pekkoHttpJsoniterScala,
+  libraryDependencies += pekkoStreamTestkit % "test",
+  libraryDependencies += pekkoHttpTestkit   % "test"
 )
 
 lazy val http4sSettings = commonSettings ++ Seq(
@@ -434,6 +443,20 @@ lazy val jsoniterSupport = project
     name                   := "jsoniter",
     description            := "Automatic generation of jsoniter formats for case-classes",
     moduleName             := "kebs-jsoniter",
+    tlMimaPreviousVersions := Set.empty
+  )
+
+lazy val jsoniterPekkoHttpSupport = project
+  .in(file("jsoniter-pekko-http"))
+  .dependsOn(jsoniterSupport, opaque.jvm % "test -> test", instances.jvm % "test -> test")
+  .settings(jsoniterPekkoHttpSettings *)
+  .settings(crossBuildSettings *)
+  .settings(publishSettings *)
+  .settings(disableScala(List("2.13")))
+  .settings(
+    name                   := "jsoniter-pekko-http",
+    description            := "Opt-in automatic jsoniter-scala marshalling for pekko-http (Scala 3)",
+    moduleName             := "kebs-jsoniter-pekko-http",
     tlMimaPreviousVersions := Set.empty
   )
 
@@ -699,6 +722,7 @@ lazy val kebs = project
     circeSupport.js,
     circeSupport.native,
     jsoniterSupport,
+    jsoniterPekkoHttpSupport,
     jsonschemaSupport,
     scalacheckSupport,
     akkaHttpSupport,
