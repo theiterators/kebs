@@ -51,7 +51,8 @@ libraryDependencies ++= Seq(
 | `kebs-spray-json` | Spray `JsonFormat` derivation (flat, snakified, >22 fields) |
 | `kebs-play-json` | Play JSON `Format` instances |
 | `kebs-circe` | Circe `Encoder` / `Decoder` derivation (snakified/capitalized) |
-| `kebs-jsoniter` | jsoniter-scala `JsonValueCodec` derivation (snakified/capitalized) |
+| `kebs-jsoniter` | jsoniter-scala `JsonValueCodec` derivation (snakified/capitalized); explicit `deriveCodec` on Scala 3 |
+| `kebs-jsoniter-pekko-http` | opt-in automatic jsoniter marshalling for pekko-http (Scala 3) |
 | `kebs-akka-http` | Akka HTTP unmarshallers + path matchers (Scala 2 only) |
 | `kebs-pekko-http` | Pekko HTTP unmarshallers + path matchers |
 | `kebs-http4s` | http4s path/query parameter codecs |
