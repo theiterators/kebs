@@ -5,9 +5,9 @@ import org.apache.pekko.http.scaladsl.marshalling.{Marshaller, ToEntityMarshalle
 import org.apache.pekko.http.scaladsl.model._
 import org.apache.pekko.util.ByteString
 
-/** Minimal pekko glue with the same shape as pjfanning's JsoniterScalaSupport: a contravariant marshaller whose type variable is pinned
-  * only by the implicit codec parameter.
-  */
+/*
+ * Basically for any type A that has JsonValueCodec[A] in scope it generates ToEntityMarshaller[A] -- useful for testing pekko synchronization
+ */
 trait JsoniterMarshallingGlue {
   implicit def marshaller[A](implicit codec: JsonValueCodec[A]): ToEntityMarshaller[A] = {
     val ct = ContentType.WithFixedCharset(MediaTypes.`application/json`)

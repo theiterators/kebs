@@ -39,10 +39,6 @@ private[jsoniter] object KebsJsoniterCodecs {
   * marshaller hijack pekko's `text/plain` handling of plain Strings.
   */
 private[jsoniter] object KebsJsoniterBaseCodecs {
-  // A JsonCodecMaker.make codec for a reference type assumes a non-null value on encode (e.g. the String
-  // codec calls x.length()). When deriveCodec runs with withTransientNull(false), the outer derived codec
-  // keeps null fields in the payload and delegates them here, so a null field would NPE. Wrapping makes the
-  // reference-typed base codecs write JSON null instead. Primitive codecs below never see null, so stay bare.
   private def nullSafe[A <: AnyRef](underlying: JsonValueCodec[A]): JsonValueCodec[A] =
     new JsonValueCodec[A] {
       override def decodeValue(in: JsonReader, default: A): A = underlying.decodeValue(in, default)
@@ -106,7 +102,7 @@ private[jsoniter] trait KebsJsoniterValueCodecs {
   * derivation macro's nested lookups; being local to the expansion they can never leak into marshaller resolution at the call site.
   */
 trait KebsJsoniter extends KebsJsoniterValueCodecs {
-  @nowarn("msg=unused") // the locals are consumed by the macro expansion at each call site
+  @nowarn("msg=unused")
   inline def deriveCodec[A]: JsonValueCodec[A] =
     summonFrom {
       case _: ValueClassLike[A, t] =>

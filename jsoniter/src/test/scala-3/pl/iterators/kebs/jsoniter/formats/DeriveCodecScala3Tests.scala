@@ -26,10 +26,6 @@ object CapitalizedDeriveCodecProtocol extends KebsJsoniterCapitalized
 
 final case class User(id: UserId, name: Option[UserName], createdAt: CreatedAt, homepage: URI)
 object User {
-  // URI's codec is only reachable via URIString's InstanceConverter, which is a member of DeriveCodecProtocol
-  // (not of deriveCodec's own inline body, unlike the flatCodec path for opaque types above); jsoniter's macro-time
-  // implicit search only sees it when it is imported into scope, matching the established convention in every other
-  // kebs-jsoniter test file (`object Protocol extends KebsJsoniter with X; import Protocol._`).
   import DeriveCodecProtocol._
   implicit val codec: JsonValueCodec[User]         = deriveCodec
   implicit val seqCodec: JsonValueCodec[Seq[User]] = deriveCodec
