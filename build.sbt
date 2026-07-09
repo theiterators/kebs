@@ -126,6 +126,11 @@ val circe           = Def.setting("io.circe" %%% "circe-core" % circeV)
 val circeAuto       = Def.setting("io.circe" %%% "circe-generic" % circeV)
 val circeAutoExtras = Def.setting("io.circe" %%% "circe-generic-extras" % "0.14.4")
 val circeParser     = Def.setting("io.circe" %%% "circe-parser" % circeV)
+// >= 2.34.x required for CodecMakerConfig.withTransientNull; 2.38.17 is what the
+// explicit-deriveCodec design was validated against
+val jsoniterV = "2.38.17"
+val jsoniter = Def.setting("com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-core" % jsoniterV)
+val jsoniterMacros = Def.setting("com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-macros" % jsoniterV)
 
 val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.11"
 
@@ -166,6 +171,7 @@ val pekkoStream        = "org.apache.pekko" %% "pekko-stream"         % pekkoVer
 val pekkoStreamTestkit = "org.apache.pekko" %% "pekko-stream-testkit" % pekkoVersion
 val pekkoHttp          = "org.apache.pekko" %% "pekko-http"           % pekkoHttpVersion
 val pekkoHttpTestkit   = "org.apache.pekko" %% "pekko-http-testkit"   % pekkoHttpVersion
+val pekkoHttpJsoniterScala = "com.github.pjfanning" %% "pekko-http-jsoniter-scala" % pekkoHttpJsonV
 
 def pekkoHttpInExamples = {
   val pekkoHttpSprayJson = "org.apache.pekko" %% "pekko-http-spray-json" % pekkoHttpVersion
@@ -248,6 +254,15 @@ lazy val circeSettings = commonSettings ++ Seq(
                            else Seq(circeAutoExtras.value))
 )
 
+lazy val jsoniterSettings = commonSettings ++ Seq(
+  libraryDependencies += jsoniter.value,
+  libraryDependencies += jsoniterMacros.value,
+  libraryDependencies += enumeratumInTest.value,
+  // test-only: the Any-probe regression tests resolve pekko-http marshallers
+  libraryDependencies += pekkoHttp   % "test",
+  libraryDependencies += pekkoStream % "test"
+)
+
 lazy val akkaHttpSettings = commonSettings ++ Seq(
   libraryDependencies += (akkaHttp).cross(CrossVersion.for3Use2_13),
   libraryDependencies += (akkaStreamTestkit % "test").cross(CrossVersion.for3Use2_13),
@@ -263,6 +278,14 @@ lazy val pekkoHttpSettings = commonSettings ++ Seq(
   libraryDependencies += pekkoHttpTestkit   % "test",
   libraryDependencies += enumeratumInTest.value,
   scalacOptions ++= paradiseFlag(scalaVersion.value)
+)
+
+lazy val jsoniterPekkoHttpSettings = commonSettings ++ Seq(
+  libraryDependencies += pekkoHttp,
+  libraryDependencies += pekkoStream,
+  libraryDependencies += pekkoHttpJsoniterScala,
+  libraryDependencies += pekkoStreamTestkit % "test",
+  libraryDependencies += pekkoHttpTestkit   % "test"
 )
 
 lazy val http4sSettings = commonSettings ++ Seq(
@@ -402,6 +425,39 @@ lazy val circeSupport = crossProject(JSPlatform, NativePlatform, JVMPlatform)
     name        := "circe",
     description := "Automatic generation of circe formats for case-classes",
     moduleName  := "kebs-circe"
+  )
+
+lazy val jsoniterSupport = project
+  .in(file("jsoniter"))
+  .dependsOn(
+    core.jvm,
+    enumSupport.jvm,
+    enumeratumSupport.jvm % "test -> test",
+    instances.jvm         % "test -> test",
+    opaque.jvm            % "test -> test"
+  )
+  .settings(jsoniterSettings *)
+  .settings(crossBuildSettings *)
+  .settings(publishSettings *)
+  .settings(
+    name                   := "jsoniter",
+    description            := "Automatic generation of jsoniter formats for case-classes",
+    moduleName             := "kebs-jsoniter",
+    tlMimaPreviousVersions := Set.empty
+  )
+
+lazy val jsoniterPekkoHttpSupport = project
+  .in(file("jsoniter-pekko-http"))
+  .dependsOn(jsoniterSupport, opaque.jvm % "test -> test", instances.jvm % "test -> test")
+  .settings(jsoniterPekkoHttpSettings *)
+  .settings(crossBuildSettings *)
+  .settings(publishSettings *)
+  .settings(disableScala(List("2.13")))
+  .settings(
+    name                   := "jsoniter-pekko-http",
+    description            := "Opt-in automatic jsoniter-scala marshalling for pekko-http (Scala 3)",
+    moduleName             := "kebs-jsoniter-pekko-http",
+    tlMimaPreviousVersions := Set.empty
   )
 
 lazy val akkaHttpSupport = project
@@ -665,6 +721,8 @@ lazy val kebs = project
     circeSupport.jvm,
     circeSupport.js,
     circeSupport.native,
+    jsoniterSupport,
+    jsoniterPekkoHttpSupport,
     jsonschemaSupport,
     scalacheckSupport,
     akkaHttpSupport,
