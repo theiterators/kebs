@@ -18,7 +18,7 @@ jobs:
           ssh-keyscan github.com >> ~/.ssh/known_hosts
       - uses: actions/setup-node@v4
         with:
-          node-version: "18"
+          node-version: "22"
       - uses: actions/setup-java@v4
         with:
           java-version: 17
