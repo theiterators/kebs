@@ -113,7 +113,7 @@ def paradiseFlag(scalaVersion: String): Seq[String] =
 val scalaTest  = Def.setting("org.scalatest" %%% "scalatest" % "3.2.20")
 val scalaCheck = Def.setting("org.scalacheck" %%% "scalacheck" % "1.19.0")
 
-val baklava         = "pl.iterators"        %% "baklava-core"    % "1.1.1"
+val baklava         = "pl.iterators"        %% "baklava-core"    % "1.4.1"
 val slick           = "com.typesafe.slick"  %% "slick"           % "3.6.1"
 val optionalSlick   = optional(slick)
 val playJson        = Def.setting("org.playframework" %%% "play-json" % "3.0.6")
@@ -131,7 +131,7 @@ val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.11"
 
 val scalacheck = "org.scalacheck" %% "scalacheck" % "1.19.0"
 
-val scalacheckMagnolify = "com.spotify"         % "magnolify-scalacheck" % "0.9.4"
+val scalacheckMagnolify = "com.spotify"         % "magnolify-scalacheck" % "0.9.5"
 val scalacheckDerived   = "io.github.martinhh" %% "scalacheck-derived"   % "0.10.0"
 
 val enumeratumVersion         = "1.9.8"
@@ -159,7 +159,7 @@ def akkaHttpInExamples = {
   )
 }
 
-val pekkoVersion       = "1.5.0"
+val pekkoVersion       = "1.6.0"
 val pekkoHttpVersion   = "1.3.0"
 val pekkoHttpJsonV     = "2.0.0"
 val pekkoStream        = "org.apache.pekko" %% "pekko-stream"         % pekkoVersion
