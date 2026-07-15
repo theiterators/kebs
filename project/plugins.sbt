@@ -2,7 +2,7 @@ logLevel := Level.Warn
 
 addSbtPlugin("org.scalameta"      % "sbt-scalafmt"             % "2.6.1")
 addSbtPlugin("pl.project13.scala" % "sbt-jmh"                  % "0.4.8")
-addSbtPlugin("org.typelevel"      % "sbt-typelevel-ci-release" % "0.8.5")
+addSbtPlugin("org.typelevel"      % "sbt-typelevel-ci-release" % "0.8.7")
 addSbtPlugin("org.jmotor.sbt"     % "sbt-dependency-updates"   % "1.2.9")
 addSbtPlugin("org.scalameta"      % "sbt-mdoc"                 % "2.9.0")
 
