@@ -35,7 +35,7 @@ object SprayJsonWithPekkoHttpExample {
         }
       }
 
-      private val formatter = DateTimeFormatter.ISO_LOCAL_TIME
+      private val formatter                   = DateTimeFormatter.ISO_LOCAL_TIME
       private val deserializationErrorMessage =
         s"Expected date time in ISO offset date time format ex. ${LocalTime.now().format(formatter)}"
     }
@@ -51,7 +51,7 @@ object SprayJsonWithPekkoHttpExample {
         }
       }
 
-      private val formatter = DateTimeFormatter.ISO_LOCAL_DATE
+      private val formatter                   = DateTimeFormatter.ISO_LOCAL_DATE
       private val deserializationErrorMessage =
         s"Expected date time in ISO offset date time format ex. ${LocalDate.now().format(formatter)}"
     }
@@ -76,7 +76,7 @@ object SprayJsonWithPekkoHttpExample {
       Http().singleRequest(request).flatMap { response =>
         response.status match {
           case OK => Unmarshal(response.entity).to[AvailableReservationsResponse]
-          case _ =>
+          case _  =>
             response.entity.toStrict(5.seconds).flatMap { entity =>
               val body = entity.data.decodeString("UTF-8")
               logger.warning(errorMessage(request, response, body))
@@ -106,7 +106,7 @@ object SprayJsonWithPekkoHttpExample {
         response.status match {
           case OK       => Unmarshal(response.entity).to[ReservationDetailsResponse].map(DetailsResult.Success)
           case NotFound => Future.successful(DetailsResult.Expired)
-          case _ =>
+          case _        =>
             response.entity.toStrict(5.seconds).map { entity =>
               val body = entity.data.decodeString("UTF-8")
               logger.warning(errorMessage(request, response, body))
@@ -127,7 +127,7 @@ object SprayJsonWithPekkoHttpExample {
             case status if status.isSuccess() => Unmarshal(response.entity).to[ReservationBookedResponse].map(ReservationResult.Success)
             case NotFound                     => Future.successful(ReservationResult.Expired)
             case PreconditionFailed           => Future.successful(ReservationResult.Conflict)
-            case _ =>
+            case _                            =>
               response.entity.toStrict(5.seconds).map { entity =>
                 val body = entity.data.decodeString("UTF-8")
                 logger.warning(errorMessage(request, response, body))
@@ -149,7 +149,7 @@ object SprayJsonWithPekkoHttpExample {
         .flatMap { response =>
           response.status match {
             case status if status.isSuccess() => Unmarshal(response.entity).to[Reservations].map(Right(_))
-            case _ =>
+            case _                            =>
               response.entity.toStrict(5.seconds).map { entity =>
                 val body = entity.data.decodeString("UTF-8")
                 logger.warning(errorMessage(request, response, body))
@@ -172,7 +172,7 @@ object SprayJsonWithPekkoHttpExample {
           response.status match {
             case status if status.isSuccess() => Future.successful(Right(CancellationResult.Cancelled))
             case PreconditionFailed           => Future.successful(Right(CancellationResult.CancellationForbidden))
-            case _ =>
+            case _                            =>
               response.entity.toStrict(5.seconds).map { entity =>
                 val body = entity.data.decodeString("UTF-8")
                 logger.warning(errorMessage(request, response, body))
