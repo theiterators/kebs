@@ -17,9 +17,9 @@ ThisBuild / publishTo          := {
   else localStaging.value
 }
 
-ThisBuild / tlBaseVersion                       := "2.1"
+ThisBuild / tlBaseVersion                       := "2.2"
 ThisBuild / tlCiHeaderCheck                     := false
-ThisBuild / tlMimaPreviousVersions              := Set("2.1.5")
+ThisBuild / tlMimaPreviousVersions              := Set("2.1.6")
 ThisBuild / githubWorkflowJavaVersions          := Seq(JavaSpec.temurin("11"), JavaSpec.temurin("17"))
 ThisBuild / githubWorkflowPublishTargetBranches := Seq(RefPredicate.StartsWith(Ref.Tag("v")), RefPredicate.Equals(Ref.Branch("master")))
 
@@ -443,7 +443,7 @@ lazy val http4sSupport = crossProject(JSPlatform, NativePlatform, JVMPlatform)
   .dependsOn(core, instances, enumSupport % "test -> test", opaque % "test -> test", tagged % "test -> test", taggedMeta % "test -> test")
   .settings(http4sSettings *)
   .nativeSettings(
-    tlVersionIntroduced := List("2.13", "3").map(_ -> "2.1.7").toMap
+    tlVersionIntroduced := List("2.13", "3").map(_ -> "2.2.0").toMap
   )
   .settings(publishSettings *)
   .settings(
@@ -471,7 +471,7 @@ lazy val http4sStirSupport = crossProject(JSPlatform, NativePlatform, JVMPlatfor
     libraryDependencies += http4sStirTestkit.value % "test"
   )
   .nativeSettings(
-    tlVersionIntroduced := List("2.13", "3").map(_ -> "2.1.7").toMap
+    tlVersionIntroduced := List("2.13", "3").map(_ -> "2.2.0").toMap
   )
   .settings(publishSettings *)
   .settings(

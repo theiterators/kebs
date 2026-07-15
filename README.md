@@ -35,10 +35,10 @@ implicit val userIdEnc: Encoder[UserId] = Encoder[String].contramap(_.value)
 ```scala
 // build.sbt — pick the modules you need
 libraryDependencies ++= Seq(
-  "pl.iterators" %% "kebs-slick"      % "2.1.6",
-  "pl.iterators" %% "kebs-circe"      % "2.1.6",
-  "pl.iterators" %% "kebs-pekko-http" % "2.1.6",
-  "pl.iterators" %% "kebs-instances"  % "2.1.6"
+  "pl.iterators" %% "kebs-slick"      % "2.2.0",
+  "pl.iterators" %% "kebs-circe"      % "2.2.0",
+  "pl.iterators" %% "kebs-pekko-http" % "2.2.0",
+  "pl.iterators" %% "kebs-instances"  % "2.2.0"
 )
 ```
 
