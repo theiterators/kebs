@@ -184,7 +184,7 @@ val pureConfig              = "com.github.pureconfig" %% "pureconfig-core"      
 val pureConfigGeneric       = "com.github.pureconfig" %% "pureconfig-generic"        % pureConfigVersion
 val pureConfigGenericScala3 = "com.github.pureconfig" %% "pureconfig-generic-scala3" % pureConfigVersion
 
-val scalaJavaTime = Def.setting("io.github.cquiroz" %%% "scala-java-time" % "2.6.0")
+val scalaJavaTime = Def.setting("io.github.cquiroz" %%% "scala-java-time" % "2.7.0")
 
 lazy val commonSettings = baseSettings ++ Seq(
   scalacOptions ++=
