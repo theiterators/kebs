@@ -131,7 +131,7 @@ val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.11"
 
 val scalacheck = "org.scalacheck" %% "scalacheck" % "1.19.0"
 
-val scalacheckMagnolify = "com.spotify"         % "magnolify-scalacheck" % "0.9.5"
+val scalacheckMagnolify = "com.spotify"         % "magnolify-scalacheck" % "0.9.6"
 val scalacheckDerived   = "io.github.martinhh" %% "scalacheck-derived"   % "0.10.0"
 
 val enumeratumVersion         = "1.9.8"
