@@ -1,7 +1,7 @@
 import sbt.librarymanagement.ConflictWarning
 
 val scala_2_13             = "2.13.18"
-val scala_3                = "3.3.8"
+val scala_3                = "3.9.0"
 val mainScalaVersion       = scala_3
 val supportedScalaVersions = Seq(scala_2_13, scala_3)
 
@@ -20,7 +20,7 @@ ThisBuild / publishTo          := {
 ThisBuild / tlBaseVersion                       := "2.2"
 ThisBuild / tlCiHeaderCheck                     := false
 ThisBuild / tlMimaPreviousVersions              := Set("2.1.6")
-ThisBuild / githubWorkflowJavaVersions          := Seq(JavaSpec.temurin("11"), JavaSpec.temurin("17"))
+ThisBuild / githubWorkflowJavaVersions          := Seq(JavaSpec.temurin("17"), JavaSpec.temurin("21"))
 ThisBuild / githubWorkflowPublishTargetBranches := Seq(RefPredicate.StartsWith(Ref.Tag("v")), RefPredicate.Equals(Ref.Branch("master")))
 
 lazy val baseSettings = Seq(
@@ -111,9 +111,9 @@ def paradiseFlag(scalaVersion: String): Seq[String] =
     Seq("-Ymacro-annotations")
 
 val scalaTest  = Def.setting("org.scalatest" %%% "scalatest" % "3.2.20")
-val scalaCheck = Def.setting("org.scalacheck" %%% "scalacheck" % "1.19.0")
+val scalaCheck = Def.setting("org.scalacheck" %%% "scalacheck" % "1.20.0")
 
-val baklava         = "pl.iterators"        %% "baklava-core"    % "2.0.0"
+val baklava         = "pl.iterators"        %% "baklava-core"    % "2.1.0"
 val slick           = "com.typesafe.slick"  %% "slick"           % "3.6.1"
 val optionalSlick   = optional(slick)
 val playJson        = Def.setting("org.playframework" %%% "play-json" % "3.0.6")
@@ -129,9 +129,9 @@ val circeParser     = Def.setting("io.circe" %%% "circe-parser" % circeV)
 
 val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.11"
 
-val scalacheck = "org.scalacheck" %% "scalacheck" % "1.19.0"
+val scalacheck = "org.scalacheck" %% "scalacheck" % "1.20.0"
 
-val scalacheckMagnolify = "com.spotify"         % "magnolify-scalacheck" % "0.9.5"
+val scalacheckMagnolify = "com.spotify"         % "magnolify-scalacheck" % "0.9.6"
 val scalacheckDerived   = "io.github.martinhh" %% "scalacheck-derived"   % "0.10.0"
 
 val enumeratumVersion         = "1.9.8"
@@ -159,8 +159,8 @@ def akkaHttpInExamples = {
   )
 }
 
-val pekkoVersion       = "1.6.0"
-val pekkoHttpVersion   = "1.3.0"
+val pekkoVersion       = "1.7.0"
+val pekkoHttpVersion   = "1.4.0"
 val pekkoHttpJsonV     = "2.0.0"
 val pekkoStream        = "org.apache.pekko" %% "pekko-stream"         % pekkoVersion
 val pekkoStreamTestkit = "org.apache.pekko" %% "pekko-stream-testkit" % pekkoVersion
@@ -189,7 +189,7 @@ val scalaJavaTime = Def.setting("io.github.cquiroz" %%% "scala-java-time" % "2.7
 lazy val commonSettings = baseSettings ++ Seq(
   scalacOptions ++=
     (if (scalaVersion.value.startsWith("3"))
-       Seq("-language:implicitConversions", "-Ykind-projector", "-Xignore-scala2-macros")
+       Seq("-language:implicitConversions", "-Xkind-projector", "-Xignore-scala2-macros")
      else Seq("-language:implicitConversions", "-language:experimental.macros")),
 //  (scalacOptions in Test) ++= Seq("-Ymacro-debug-lite" /*, "-Xlog-implicits"*/ ),
   libraryDependencies += scalaTest.value % "test"
