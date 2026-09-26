@@ -13,7 +13,7 @@ trait KebsBaklavaEnumsSchema {
       val format: Option[String]             = None
       val properties: Map[String, Schema[?]] = Map.empty
       val items: Option[Schema[?]]           = None
-      val `enum`: Option[Set[String]]        = Some(enumLike.values.map(_.toString).toSet)
+      val `enum`: Option[Set[String]]        = Some(enumLike.names.toSet)
       val required: Boolean                  = true
       val additionalProperties: Boolean      = false
       val default: Option[T]                 = None
@@ -28,7 +28,7 @@ trait KebsBaklavaEnumsSchema {
         val format: Option[String]             = None
         val properties: Map[String, Schema[?]] = Map.empty
         val items: Option[Schema[?]]           = None
-        val `enum`: Option[Set[String]]        = Some(enumLike.values.map(_.toString.toUpperCase).toSet)
+        val `enum`: Option[Set[String]]        = Some(enumLike.names.map(_.toUpperCase).toSet)
         val required: Boolean                  = true
         val additionalProperties: Boolean      = false
         val default: Option[T]                 = None
@@ -44,7 +44,7 @@ trait KebsBaklavaEnumsSchema {
         val format: Option[String]             = None
         val properties: Map[String, Schema[?]] = Map.empty
         val items: Option[Schema[?]]           = None
-        val `enum`: Option[Set[String]]        = Some(enumLike.values.map(_.toString.toLowerCase).toSet)
+        val `enum`: Option[Set[String]]        = Some(enumLike.names.map(_.toLowerCase).toSet)
         val required: Boolean                  = true
         val additionalProperties: Boolean      = false
         val default: Option[T]                 = None

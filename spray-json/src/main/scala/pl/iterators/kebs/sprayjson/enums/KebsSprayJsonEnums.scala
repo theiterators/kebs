@@ -5,12 +5,12 @@ import spray.json.{JsString, JsValue, JsonFormat}
 
 trait KebsSprayJsonEnums {
   @inline protected final def enumNameDeserializationError[E](`enum`: EnumLike[E], name: String) = {
-    val enumNames = `enum`.getNamesToValuesMap.values.mkString(", ")
+    val enumNames = `enum`.names.mkString(", ")
     spray.json.deserializationError(s"$name should be one of $enumNames")
   }
 
   @inline protected final def enumValueDeserializationError[E](`enum`: EnumLike[E], value: JsValue) = {
-    val enumNames = `enum`.getNamesToValuesMap.values.mkString(", ")
+    val enumNames = `enum`.names.mkString(", ")
     spray.json.deserializationError(s"$value should be a string of value $enumNames")
   }
 
@@ -21,11 +21,11 @@ trait KebsSprayJsonEnums {
       case _              => enumValueDeserializationError(`enum`, json)
     }
   }
-  def jsonFormat[E](`enum`: EnumLike[E])          = enumJsonFormat[E](`enum`, _.toString, `enum`.withNameInsensitiveOption(_))
+  def jsonFormat[E](`enum`: EnumLike[E])          = enumJsonFormat[E](`enum`, `enum`.getName, `enum`.withNameInsensitiveOption(_))
   def lowercaseJsonFormat[E](`enum`: EnumLike[E]) =
-    enumJsonFormat[E](`enum`, _.toString.toLowerCase, `enum`.withNameLowercaseOnlyOption(_))
+    enumJsonFormat[E](`enum`, `enum`.getName(_).toLowerCase, `enum`.withNameLowercaseOnlyOption(_))
   def uppercaseJsonFormat[E](`enum`: EnumLike[E]) =
-    enumJsonFormat[E](`enum`, _.toString.toUpperCase, `enum`.withNameUppercaseOnlyOption(_))
+    enumJsonFormat[E](`enum`, `enum`.getName(_).toUpperCase, `enum`.withNameUppercaseOnlyOption(_))
 
   implicit def jsonEnumFormat[E](implicit ev: EnumLike[E]): JsonFormat[E] = jsonFormat(ev)
 

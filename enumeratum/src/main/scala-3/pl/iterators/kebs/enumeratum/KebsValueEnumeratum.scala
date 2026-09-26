@@ -1,6 +1,5 @@
 package pl.iterators.kebs.enumeratum
 
-import scala.collection.immutable
 import enumeratum.values._
 import scala.compiletime.{constValue, erasedValue, error, summonInline}
 import scala.deriving._
@@ -12,9 +11,7 @@ trait KebsValueEnumeratum {
       m: Mirror.SumOf[E]
   ): ValueEnumLike[V, E] = {
     val enumValues = summonValueCases[m.MirroredElemTypes, V, E]
-    new ValueEnumLike[V, E] {
-      override def values: immutable.Seq[E] = enumValues
-    }
+    ValueEnumLike[V, E](enumValues)
   }
 }
 

@@ -22,6 +22,15 @@ class SprayEnumJsonFormatTests extends AnyFunSuite with Matchers with KebsEnumer
 
   import Greeting._
 
+  sealed trait Status extends EnumEntry
+
+  object Status extends Enum[Status] {
+    val values = findValues
+
+    case object Active   extends Status { override val entryName = "is-active" }
+    case object Inactive extends Status
+  }
+
   object KebsProtocol          extends DefaultJsonProtocol with KebsSprayJson with KebsSprayJsonEnums
   object KebsProtocolUppercase extends DefaultJsonProtocol with KebsSprayJson with KebsSprayJsonEnumsUppercase
   object KebsProtocolLowercase extends DefaultJsonProtocol with KebsSprayJson with KebsSprayJsonEnumsLowercase
@@ -63,5 +72,27 @@ class SprayEnumJsonFormatTests extends AnyFunSuite with Matchers with KebsEnumer
     jf.read(JsString("GOODBYE")) shouldBe GoodBye
     jf.write(Hello) shouldBe JsString("HELLO")
     jf.write(GoodBye) shouldBe JsString("GOODBYE")
+  }
+
+  test("enum JsonFormat uses entryName") {
+    import KebsProtocol._
+    val jf = implicitly[JsonFormat[Status]]
+    jf.write(Status.Active) shouldBe JsString("is-active")
+    jf.read(JsString("IS-ACTIVE")) shouldBe Status.Active
+    the[DeserializationException] thrownBy jf.read(JsString("Active")) should have message "Active should be one of is-active, Inactive"
+  }
+
+  test("enum JsonFormat uses entryName - lowercase") {
+    import KebsProtocolLowercase._
+    val jf = implicitly[JsonFormat[Status]]
+    jf.write(Status.Active) shouldBe JsString("is-active")
+    jf.read(JsString("is-active")) shouldBe Status.Active
+  }
+
+  test("enum JsonFormat uses entryName - uppercase") {
+    import KebsProtocolUppercase._
+    val jf = implicitly[JsonFormat[Status]]
+    jf.write(Status.Active) shouldBe JsString("IS-ACTIVE")
+    jf.read(JsString("IS-ACTIVE")) shouldBe Status.Active
   }
 }

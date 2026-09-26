@@ -20,7 +20,18 @@ trait ValueEnumLike[ValueType, EntryType <: ValueEnumLikeEntry[ValueType]] {
     values.zipWithIndex.find { case (entry, _) => member == entry }.map { case (_, index) => index }.getOrElse(-1)
 }
 
-private[core] object ValueEnumLike {
+object ValueEnumLike {
+
+  /** Builds a [[ValueEnumLike]] from entries in declaration order. Lookup maps are computed once. */
+  def apply[ValueType, EntryType <: ValueEnumLikeEntry[ValueType]](
+      entries: => immutable.Seq[EntryType]
+  ): ValueEnumLike[ValueType, EntryType] = new ValueEnumLike[ValueType, EntryType] {
+    override lazy val values: immutable.Seq[EntryType]                 = entries
+    override lazy val getValuesToEntriesMap: Map[ValueType, EntryType] = values.map(v => v.value -> v).toMap
+    override def withValueOption(i: ValueType): Option[EntryType]      = getValuesToEntriesMap.get(i)
+    override def valueOfOption(value: ValueType): Option[EntryType]    = getValuesToEntriesMap.get(value)
+  }
+
   private def valuesToEntriesMap[ValueType, EntryType <: ValueEnumLikeEntry[ValueType]](
       `enum`: ValueEnumLike[ValueType, EntryType]
   ): Map[ValueType, EntryType] = `enum`.values.map(v => v.value -> v).toMap

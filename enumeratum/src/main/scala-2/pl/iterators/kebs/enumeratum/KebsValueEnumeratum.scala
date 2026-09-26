@@ -25,12 +25,12 @@ class ValueEnumEntryMacros(val c: blackbox.Context) {
     val ValueType = weakTypeOf[ValueType]
     val EnumEntry = weakTypeOf[E]
 
+    val Companion = EnumEntry.typeSymbol.companion
+    // e.g. a case object's own type: there is no enum companion to take values from
+    if (Companion == NoSymbol) c.abort(c.enclosingPosition, s"${EnumEntry.typeSymbol} has no companion object")
+
     c.Expr[ValueEnumLike[ValueType, E]](
-      q"""
-        new _root_.pl.iterators.kebs.core.enums.ValueEnumLike[${ValueType}, ${EnumEntry}] {
-          override def values: Seq[$EnumEntry] = ${EnumEntry.typeSymbol.companion}.values.toSeq
-        }
-      """
+      q"_root_.pl.iterators.kebs.core.enums.ValueEnumLike[$ValueType, $EnumEntry]($Companion.values.toList)"
     )
   }
 }
