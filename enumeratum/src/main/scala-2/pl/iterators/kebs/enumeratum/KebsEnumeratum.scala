@@ -20,7 +20,6 @@ class EnumeratumEntryMacros(val c: blackbox.Context) extends MacroUtils {
     assertEnumEntry(EnumEntry, s"${EnumEntry.typeSymbol} must subclass EnumEntry")
 
     val Companion = companion(EnumEntry)
-    // e.g. a case object's own type: there is no enum companion to take values from
     if (Companion == NoSymbol) c.abort(c.enclosingPosition, s"${EnumEntry.typeSymbol} has no companion object")
 
     c.Expr[EnumLike[E]](

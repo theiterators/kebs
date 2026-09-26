@@ -33,10 +33,6 @@ trait EnumLike[T] {
 }
 
 object EnumLike {
-
-  /** Builds an [[EnumLike]] from entries in declaration order, with `name` giving the serialized name of an entry (e.g. enumeratum's
-    * `entryName`). Lookup maps are computed once.
-    */
   def apply[T](entries: => immutable.Seq[T], name: T => String): EnumLike[T] = new EnumLike[T] {
     override lazy val values: immutable.Seq[T]            = entries
     override lazy val valuesToNamesMap: Map[T, String]    = values.map(v => v -> name(v)).toMap

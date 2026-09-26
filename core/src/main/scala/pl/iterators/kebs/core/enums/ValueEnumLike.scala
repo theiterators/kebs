@@ -21,8 +21,6 @@ trait ValueEnumLike[ValueType, EntryType <: ValueEnumLikeEntry[ValueType]] {
 }
 
 object ValueEnumLike {
-
-  /** Builds a [[ValueEnumLike]] from entries in declaration order. Lookup maps are computed once. */
   def apply[ValueType, EntryType <: ValueEnumLikeEntry[ValueType]](
       entries: => immutable.Seq[EntryType]
   ): ValueEnumLike[ValueType, EntryType] = new ValueEnumLike[ValueType, EntryType] {

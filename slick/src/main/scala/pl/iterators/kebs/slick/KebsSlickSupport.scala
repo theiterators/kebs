@@ -181,10 +181,7 @@ trait KebsSlickSupport { this: JdbcProfile =>
       }
   }
 
-  /** `Seq` columns of value classes and instance-converted types, stored as `List` columns.
-    *
-    * Opt-in: in Scala 3 these instances confuse type inference of slick-pg array extension methods (e.g. `@>`) on `List` columns.
-    */
+  // opt-in, as in Scala 3 these break inference of slick-pg array extension methods (e.g. `@>`) on List columns
   trait KebsSeqImplicits {
     implicit def seqValueColumnType[CC, B](implicit rep1: ValueClassLike[CC, B], bct: BaseColumnType[List[B]]): BaseColumnType[Seq[CC]] =
       MappedColumnType.base[Seq[CC], List[B]](_.map(rep1.unapply).toList, _.map(rep1.apply))
