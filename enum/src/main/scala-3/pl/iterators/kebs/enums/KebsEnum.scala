@@ -9,9 +9,7 @@ import pl.iterators.kebs.core.enums.EnumLike
 trait KebsEnum {
   inline implicit def kebsEnumScala[E <: Enum](using m: Mirror.SumOf[E]): EnumLike[E] = {
     val enumValues = summonCases[m.MirroredElemTypes, E]
-    new EnumLike[E] {
-      override def valuesToNamesMap: Map[E, String] = enumValues.map(v => v -> v.toString).toMap
-    }
+    EnumLike[E](enumValues, _.toString)
   }
 }
 

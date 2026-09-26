@@ -64,6 +64,8 @@ class ArrayTestTable(tag: Tag)
 }
 ```
 
+`Seq` columns (stored as Postgres arrays, like `List`) are also supported. For enums they work out of the box. For value classes and instance types, mix in `KebsSeqImplicits`. It is opt-in because in Scala 3 these instances confuse type inference of slick-pg array extension methods (such as `@>`) on `List` columns.
+
 ## Postgres hstore support
 
 Mix in `HStoreImplicits` alongside `KebsSlickSupport` and the appropriate instance traits:
@@ -104,4 +106,4 @@ trait API extends super.API with KebsSlickSupport with KebsEnum with KebsValueEn
 
 By default, enums are stored using their entry name. For lowercase or uppercase storage, use the casing variant inner traits instead of the default enum implicits. These are available as inner traits within `KebsSlickSupport` (e.g. `KebsLowercaseEnumImplicits`, `KebsUppercaseEnumImplicits`).
 
-Enum types also work as Postgres array column types (`List[MyEnum]`) and as hstore map keys/values.
+Enum types also work as Postgres array column types (`List[MyEnum]`, `Seq[MyEnum]`) and as hstore map keys/values.

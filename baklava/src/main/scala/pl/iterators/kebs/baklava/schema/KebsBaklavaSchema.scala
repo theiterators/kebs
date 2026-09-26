@@ -13,16 +13,17 @@ trait KebsBaklavaSchema {
       cls: ClassTag[T]
   ): Schema[T] = {
     new Schema[T] {
-      val className: String                  = cls.runtimeClass.getName // TODO: this won't capture opaque type's name.
-      val `type`: SchemaType                 = schema.`type`
-      val format: Option[String]             = schema.format
-      val properties: Map[String, Schema[?]] = schema.properties
-      val items: Option[Schema[?]]           = schema.items
-      val `enum`: Option[Set[String]]        = schema.`enum`
-      val required: Boolean                  = schema.required
-      val additionalProperties: Boolean      = schema.additionalProperties
-      val default: Option[T]                 = schema.default.map(valueClassLike.apply)
-      val description: Option[String]        = schema.description
+      val className: String                                      = cls.runtimeClass.getName // TODO: this won't capture opaque type's name.
+      val `type`: SchemaType                                     = schema.`type`
+      val format: Option[String]                                 = schema.format
+      val properties: Map[String, Schema[?]]                     = schema.properties
+      val items: Option[Schema[?]]                               = schema.items
+      val `enum`: Option[Set[String]]                            = schema.`enum`
+      val required: Boolean                                      = schema.required
+      val additionalProperties: Boolean                          = schema.additionalProperties
+      override val additionalPropertiesSchema: Option[Schema[?]] = schema.additionalPropertiesSchema
+      val default: Option[T]                                     = schema.default.map(valueClassLike.apply)
+      val description: Option[String]                            = schema.description
     }
   }
 
@@ -42,13 +43,14 @@ trait KebsBaklavaSchema {
         case "java.util.UUID"          => Some("uuid")
         case _                         => schema.format
       }
-      val properties: Map[String, Schema[?]] = schema.properties
-      val items: Option[Schema[?]]           = schema.items
-      val `enum`: Option[Set[String]]        = schema.`enum`
-      val required: Boolean                  = schema.required
-      val additionalProperties: Boolean      = schema.additionalProperties
-      val default: Option[T]                 = schema.default.map(instanceConverter.decode)
-      val description: Option[String]        = schema.description
+      val properties: Map[String, Schema[?]]                     = schema.properties
+      val items: Option[Schema[?]]                               = schema.items
+      val `enum`: Option[Set[String]]                            = schema.`enum`
+      val required: Boolean                                      = schema.required
+      val additionalProperties: Boolean                          = schema.additionalProperties
+      override val additionalPropertiesSchema: Option[Schema[?]] = schema.additionalPropertiesSchema
+      val default: Option[T]                                     = schema.default.map(instanceConverter.decode)
+      val description: Option[String]                            = schema.description
     }
   }
 }
