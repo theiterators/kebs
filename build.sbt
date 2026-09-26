@@ -196,7 +196,8 @@ lazy val commonSettings = baseSettings ++ Seq(
 )
 
 lazy val baklavaSettings = commonSettings ++ Seq(
-  libraryDependencies += baklava
+  libraryDependencies += baklava,
+  libraryDependencies += (enumeratumInTest.value)
 )
 
 lazy val slickSettings = commonSettings ++ Seq(

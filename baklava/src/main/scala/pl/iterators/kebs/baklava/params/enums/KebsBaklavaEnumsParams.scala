@@ -3,6 +3,8 @@ package pl.iterators.kebs.baklava.params.enums
 import pl.iterators.baklava.{ToHeader, ToPathParam, ToQueryParam}
 import pl.iterators.kebs.core.enums.{EnumLike, ValueEnumLike, ValueEnumLikeEntry}
 
+import scala.annotation.unused
+
 trait KebsBaklavaEnumsParams {
   implicit def toQueryParamEnum[T](implicit _enum: EnumLike[T]): ToQueryParam[T] = new ToQueryParam[T] {
     override def apply(t: T): Seq[String] = Seq(_enum.getName(t))
@@ -52,27 +54,26 @@ trait KebsBaklavaEnumsParams {
 }
 
 trait KebsBaklavaValueEnumsParams {
-  implicit def toQueryParamValueEnum[T, V <: ValueEnumLikeEntry[T]](implicit
-      valueEnumLike: ValueEnumLike[T, V],
+  implicit def toQueryParamValueEnum[V, E <: ValueEnumLikeEntry[V]](implicit
+      @unused valueEnumLike: ValueEnumLike[V, E],
       tsm: ToQueryParam[V]
-  ): ToQueryParam[T] = new ToQueryParam[T] {
-    override def apply(t: T): Seq[String] = tsm(valueEnumLike.valueOf(t))
+  ): ToQueryParam[E] = new ToQueryParam[E] {
+    override def apply(e: E): Seq[String] = tsm(e.value)
   }
 
-  implicit def toPathParamValueEnum[T, V <: ValueEnumLikeEntry[T]](implicit
-      valueEnumLike: ValueEnumLike[T, V],
+  implicit def toPathParamValueEnum[V, E <: ValueEnumLikeEntry[V]](implicit
+      @unused valueEnumLike: ValueEnumLike[V, E],
       tsm: ToPathParam[V]
-  ): ToPathParam[T] = new ToPathParam[T] {
-    override def apply(t: T): String = tsm(valueEnumLike.valueOf(t))
+  ): ToPathParam[E] = new ToPathParam[E] {
+    override def apply(e: E): String = tsm(e.value)
   }
 
-  implicit def toHeaderValueEnum[T, V <: ValueEnumLikeEntry[T]](implicit
-      valueEnumLike: ValueEnumLike[T, V],
+  implicit def toHeaderValueEnum[V, E <: ValueEnumLikeEntry[V]](implicit
+      valueEnumLike: ValueEnumLike[V, E],
       tsm: ToHeader[V]
-  ): ToHeader[T] = new ToHeader[T] {
-    override def apply(value: T): Option[String] = tsm(valueEnumLike.valueOf(value))
+  ): ToHeader[E] = new ToHeader[E] {
+    override def apply(e: E): Option[String] = tsm(e.value)
 
-    override def unapply(value: String): Option[T] =
-      tsm.unapply(value).flatMap(v => valueEnumLike.getValuesToEntriesMap.toList.find(_._2 == v).map(_._1))
+    override def unapply(value: String): Option[E] = tsm.unapply(value).flatMap(valueEnumLike.withValueOption)
   }
 }
