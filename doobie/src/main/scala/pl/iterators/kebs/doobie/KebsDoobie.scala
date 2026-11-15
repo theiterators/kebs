@@ -1,6 +1,6 @@
 package pl.iterators.kebs.doobie
 
-import doobie.Meta
+import org.typelevel.doobie.Meta
 import pl.iterators.kebs.core.instances.InstanceConverter
 import pl.iterators.kebs.core.macros.ValueClassLike
 

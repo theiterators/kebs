@@ -2,10 +2,10 @@ package pl.iterators.kebs.doobie
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import doobie._
-import doobie.implicits._
-import doobie.postgres._
-import doobie.postgres.implicits._
+import org.typelevel.doobie._
+import org.typelevel.doobie.implicits._
+import org.typelevel.doobie.postgres._
+import org.typelevel.doobie.postgres.implicits._
 import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
 import pl.iterators.kebs.doobie.enums._
 import pl.iterators.kebs.doobie._
