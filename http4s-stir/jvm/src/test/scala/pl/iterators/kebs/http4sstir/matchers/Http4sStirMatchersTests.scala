@@ -1,7 +1,7 @@
 package pl.iterators.kebs.http4sstir.matchers
 
 import pl.iterators.stir.server.Directives
-import pl.iterators.stir.testkit.ScalatestRouteTest
+import pl.iterators.stir.testkit.{RouteTestTimeout, ScalatestRouteTest}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
@@ -13,6 +13,7 @@ import pl.iterators.kebs.instances.time.{DayOfWeekInt, ZonedDateTimeString}
 import pl.iterators.kebs.instances.time.mixins.InstantEpochMilliLong
 import pl.iterators.kebs.http4sstir.domain.Domain._
 
+import scala.concurrent.duration._
 import java.net.URI
 import java.time.{DayOfWeek, Instant, ZonedDateTime}
 
@@ -29,6 +30,9 @@ class Http4sStirMatchersTests
     with KebsEnumForTests
     with KebsValueEnumForTests
     with CaseClass1ToValueClass {
+  // the first request of a suite can take over the 1s default on a cold CI JVM
+  implicit val routeTestTimeout: RouteTestTimeout = RouteTestTimeout(5.seconds)
+
   implicit def runtime: cats.effect.unsafe.IORuntime = cats.effect.unsafe.IORuntime.global
 
   test("No ValueClassLike implicits derived") {
