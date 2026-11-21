@@ -52,14 +52,15 @@ private[playjson] trait PlayJsonMacrosImpl extends JsonDerivationMacrosImpl { th
     }
   }
 
-  def deriveOWrites[T: Type](config: Expr[JsonConfig]): Expr[OWrites[T]] = {
-    val writes = deriveWritesRoot[T](config, consultExisting = false, stepAside = false)
+  // derived products and sums write objects; OWrites lets play's OFormat.oFormatFromReadsAndOWrites serve OFormat requests
+  def deriveOWrites[T: Type](config: Expr[JsonConfig], consultExisting: Boolean, stepAside: Boolean): Expr[OWrites[T]] = {
+    val writes = deriveWritesRoot[T](config, consultExisting, stepAside)
     Expr.quote(PlayDerivationRuntime.asOWrites(Expr.splice(writes)))
   }
 
   def deriveOFormat[T: Type](config: Expr[JsonConfig]): Expr[OFormat[T]] = {
     val reads  = deriveReadsRoot[T](config, consultExisting = false, stepAside = false)
-    val writes = deriveOWrites[T](config)
+    val writes = deriveOWrites[T](config, consultExisting = false, stepAside = false)
     Expr.quote(OFormat[T](Expr.splice(reads), Expr.splice(writes)))
   }
 

@@ -140,6 +140,13 @@ class SprayJsonConfigTests extends AnyFunSuite with Matchers {
     "implicitly[RootJsonFormat[MultiList]]" shouldNot typeCheck
   }
 
+  test("a protocol mixed into a class") {
+    class Routes extends DefaultJsonProtocol with KebsSprayJson {
+      def located: RootJsonFormat[Located] = implicitly[RootJsonFormat[Located]]
+    }
+    new Routes().located.write(Located("n", Point(1, 2))) shouldBe """{"name":"n","at":"1,2"}""".parseJson
+  }
+
   test("missing and malformed fields are reported like spray's fromField") {
     import Default._
     val missing = intercept[DeserializationException](implicitly[RootJsonFormat[Located]].read("""{"name":"n"}""".parseJson))

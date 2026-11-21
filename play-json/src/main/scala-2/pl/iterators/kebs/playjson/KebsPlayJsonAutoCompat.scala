@@ -2,7 +2,7 @@ package pl.iterators.kebs.playjson
 
 import pl.iterators.kebs.core.json.JsonConfig
 import pl.iterators.kebs.playjson.internal.PlayJsonMacrosImpl
-import play.api.libs.json.{OFormat, OWrites, Reads, Writes}
+import play.api.libs.json.{OFormat, OWrites, Reads}
 
 import scala.language.experimental.macros
 import scala.reflect.macros.whitebox
@@ -11,8 +11,8 @@ import scala.reflect.macros.whitebox
 private[playjson] trait KebsPlayJsonAutoCompat { self: KebsPlayJson =>
   implicit def kebsAutoReads[T]: Reads[T] = macro KebsPlayJsonMacros.autoReads[T]
   implicit def kebsAutoReadsSealed[T]: Reads[T] = macro KebsPlayJsonMacros.autoReadsSealed[T]
-  implicit def kebsAutoWrites[T]: Writes[T] = macro KebsPlayJsonMacros.autoWrites[T]
-  implicit def kebsAutoWritesSealed[T]: Writes[T] = macro KebsPlayJsonMacros.autoWritesSealed[T]
+  implicit def kebsAutoWrites[T]: OWrites[T] = macro KebsPlayJsonMacros.autoWrites[T]
+  implicit def kebsAutoWritesSealed[T]: OWrites[T] = macro KebsPlayJsonMacros.autoWritesSealed[T]
 
   def deriveReads[T]: Reads[T] = macro KebsPlayJsonMacros.explicitReads[T]
   def deriveWrites[T]: OWrites[T] = macro KebsPlayJsonMacros.explicitWrites[T]
@@ -54,14 +54,14 @@ final private[playjson] class KebsPlayJsonMacros(val c: whitebox.Context) extend
     retyped(deriveReadsRoot[T](config, consultExisting = true, stepAside = true))
   }
 
-  def autoWrites[T: c.WeakTypeTag]: c.Expr[Writes[T]] = {
+  def autoWrites[T: c.WeakTypeTag]: c.Expr[OWrites[T]] = {
     implicitEntry[T](sealedType = false)
-    retyped(deriveWritesRoot[T](config, consultExisting = true, stepAside = true))
+    retyped(deriveOWrites[T](config, consultExisting = true, stepAside = true))
   }
 
-  def autoWritesSealed[T: c.WeakTypeTag]: c.Expr[Writes[T]] = {
+  def autoWritesSealed[T: c.WeakTypeTag]: c.Expr[OWrites[T]] = {
     implicitEntry[T](sealedType = true)
-    retyped(deriveWritesRoot[T](config, consultExisting = true, stepAside = true))
+    retyped(deriveOWrites[T](config, consultExisting = true, stepAside = true))
   }
 
   def explicitReads[T: c.WeakTypeTag]: c.Expr[Reads[T]] = {
@@ -71,7 +71,7 @@ final private[playjson] class KebsPlayJsonMacros(val c: whitebox.Context) extend
 
   def explicitWrites[T: c.WeakTypeTag]: c.Expr[OWrites[T]] = {
     explicitEntry[T]()
-    retyped(deriveOWrites[T](config))
+    retyped(deriveOWrites[T](config, consultExisting = false, stepAside = false))
   }
 
   def explicitFormat[T: c.WeakTypeTag]: c.Expr[OFormat[T]] = {
