@@ -234,7 +234,7 @@ lazy val sprayJsonSettings = commonSettings ++ hearthMacroSettings ++ Seq(
   libraryDependencies += optionalEnumeratum.value
 )
 
-lazy val playJsonSettings = commonSettings ++ Seq(
+lazy val playJsonSettings = commonSettings ++ hearthMacroSettings ++ Seq(
   libraryDependencies += playJson.value,
   libraryDependencies += (enumeratumInTest.value)
 )
