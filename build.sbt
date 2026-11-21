@@ -126,8 +126,8 @@ val doobiePg        = "org.typelevel"       %% "doobie-postgres" % "1.0.0-RC14"
 val sprayJson       = "io.spray"            %% "spray-json"      % "1.3.6"
 val circeV          = "0.14.17"
 val circe           = Def.setting("io.circe" %%% "circe-core" % circeV)
-val circeAuto       = Def.setting("io.circe" %%% "circe-generic" % circeV)
-val circeAutoExtras = Def.setting("io.circe" %%% "circe-generic-extras" % "0.14.4")
+val kindlingsV      = "0.4.0"
+val kindlingsCirce  = Def.setting("com.kubuszok" %%% "kindlings-circe-derivation" % kindlingsV)
 val circeParser     = Def.setting("io.circe" %%% "circe-parser" % circeV)
 
 val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.11"
@@ -241,12 +241,9 @@ lazy val playJsonSettings = commonSettings ++ Seq(
 
 lazy val circeSettings = commonSettings ++ Seq(
   libraryDependencies += circe.value,
-  libraryDependencies += circeAuto.value,
+  libraryDependencies += kindlingsCirce.value,
   libraryDependencies += optionalEnumeratum.value,
   libraryDependencies += (circeParser.value % "test")
-) ++ Seq(
-  libraryDependencies ++= (if (scalaVersion.value.startsWith("3")) Nil
-                           else Seq(circeAutoExtras.value))
 )
 
 lazy val pekkoHttpSettings = commonSettings ++ Seq(
