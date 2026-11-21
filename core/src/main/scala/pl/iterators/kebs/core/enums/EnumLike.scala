@@ -34,13 +34,25 @@ trait EnumLike[T] {
 
 object EnumLike {
   def apply[T](entries: => immutable.Seq[T], name: T => String): EnumLike[T] = new EnumLike[T] {
-    override lazy val values: immutable.Seq[T]            = entries
-    override lazy val valuesToNamesMap: Map[T, String]    = values.map(v => v -> name(v)).toMap
-    override lazy val getNamesToValuesMap: Map[String, T] = values.map(v => name(v) -> v).toMap
-    override lazy val names: immutable.Seq[String]        = values.map(name)
-    private lazy val indices: Map[T, Int]                 = values.zipWithIndex.toMap
-    override def getName(e: T): String                    = name(e)
-    override def withNameOption(name: String): Option[T]  = getNamesToValuesMap.get(name)
-    override def indexOf(member: T): Int                  = indices.getOrElse(member, -1)
+    override lazy val values: immutable.Seq[T]                        = entries
+    override lazy val valuesToNamesMap: Map[T, String]                = values.map(v => v -> name(v)).toMap
+    override lazy val getNamesToValuesMap: Map[String, T]             = values.map(v => name(v) -> v).toMap
+    override lazy val names: immutable.Seq[String]                    = values.map(name)
+    private lazy val indices: Map[T, Int]                             = values.zipWithIndex.toMap
+    private lazy val byLowercaseName: Map[String, T]                  = firstByKey(_.toLowerCase)
+    private lazy val byUppercaseName: Map[String, T]                  = firstByKey(_.toUpperCase)
+    override def getName(e: T): String                                = name(e)
+    override def withNameOption(name: String): Option[T]              = getNamesToValuesMap.get(name)
+    override def indexOf(member: T): Int                              = indices.getOrElse(member, -1)
+    override def withNameInsensitiveOption(name: String): Option[T]   = byLowercaseName.get(name.toLowerCase)
+    override def withNameUppercaseOnlyOption(name: String): Option[T] = byUppercaseName.get(name)
+    override def withNameLowercaseOnlyOption(name: String): Option[T] = byLowercaseName.get(name)
+
+    // declaration order, the first entry wins when two names map to the same key
+    private def firstByKey(key: String => String): Map[String, T] =
+      values.foldLeft(Map.empty[String, T]) { (acc, v) =>
+        val k = key(name(v))
+        if (acc.contains(k)) acc else acc.updated(k, v)
+      }
   }
 }
