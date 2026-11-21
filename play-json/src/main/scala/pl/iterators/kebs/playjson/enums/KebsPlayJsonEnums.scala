@@ -1,6 +1,6 @@
 package pl.iterators.kebs.playjson.enums
 
-import pl.iterators.kebs.core.enums.{EnumLike, ValueEnumLike, ValueEnumLikeEntry}
+import pl.iterators.kebs.core.enums.{EnumLike, EnumNaming, ValueEnumLike, ValueEnumLikeEntry}
 import play.api.libs.json.{JsError, JsSuccess, Reads, Writes}
 
 trait KebsPlayJsonEnums {
@@ -15,39 +15,31 @@ trait KebsPlayJsonEnums {
   protected final def enumEncoder[E](`enum`: EnumLike[E], _map: E => String): Writes[E] =
     Writes.StringWrites.contramap(_map)
 
-  def enumDecoder[E](`enum`: EnumLike[E]): Reads[E] =
-    enumDecoder[E](`enum`, `enum`.withNameInsensitiveOption(_))
-  def enumEncoder[E](`enum`: EnumLike[E]): Writes[E] =
-    enumEncoder[E](`enum`, (e: E) => `enum`.getName(e))
-
-  def lowercaseEnumDecoder[E](`enum`: EnumLike[E]): Reads[E] =
-    enumDecoder[E](`enum`, `enum`.withNameLowercaseOnlyOption(_))
-  def lowercaseEnumEncoder[E](`enum`: EnumLike[E]): Writes[E] =
-    enumEncoder[E](`enum`, (e: E) => `enum`.getName(e).toLowerCase)
-
-  def uppercaseEnumDecoder[E](`enum`: EnumLike[E]): Reads[E] =
-    enumDecoder[E](`enum`, `enum`.withNameUppercaseOnlyOption(_))
-  def uppercaseEnumEncoder[E](`enum`: EnumLike[E]): Writes[E] =
-    enumEncoder[E](`enum`, (e: E) => `enum`.getName(e).toUpperCase())
-
-  implicit def enumDecoderImpl[E](implicit ev: EnumLike[E]): Reads[E] = enumDecoder(ev)
-
-  implicit def enumEncoderImpl[E](implicit ev: EnumLike[E]): Writes[E] = enumEncoder(ev)
-
-  trait KebsPlayJsonEnumsUppercase {
-    implicit def enumDecoderImpl[E](implicit ev: EnumLike[E]): Reads[E] =
-      uppercaseEnumDecoder(ev)
-
-    implicit def enumEncoderImpl[E](implicit ev: EnumLike[E]): Writes[E] =
-      uppercaseEnumEncoder(ev)
+  def namedEnumDecoder[E](`enum`: EnumLike[E], naming: EnumNaming): Reads[E] = {
+    val named = naming.applyTo(`enum`)
+    enumDecoder[E](named, (name: String) => naming.lookup(named, name))
+  }
+  def namedEnumEncoder[E](`enum`: EnumLike[E], naming: EnumNaming): Writes[E] = {
+    val named = naming.applyTo(`enum`)
+    enumEncoder[E](named, (e: E) => named.getName(e))
   }
 
-  trait KebsPlayJsonEnumsLowercase {
-    implicit def enumDecoderImpl[E](implicit ev: EnumLike[E]): Reads[E] =
-      lowercaseEnumDecoder(ev)
+  def enumDecoder[E](`enum`: EnumLike[E]): Reads[E]           = namedEnumDecoder(`enum`, EnumNaming.default)
+  def enumEncoder[E](`enum`: EnumLike[E]): Writes[E]          = namedEnumEncoder(`enum`, EnumNaming.default)
+  def lowercaseEnumDecoder[E](`enum`: EnumLike[E]): Reads[E]  = namedEnumDecoder(`enum`, EnumNaming.lowercase)
+  def lowercaseEnumEncoder[E](`enum`: EnumLike[E]): Writes[E] = namedEnumEncoder(`enum`, EnumNaming.lowercase)
+  def uppercaseEnumDecoder[E](`enum`: EnumLike[E]): Reads[E]  = namedEnumDecoder(`enum`, EnumNaming.uppercase)
+  def uppercaseEnumEncoder[E](`enum`: EnumLike[E]): Writes[E] = namedEnumEncoder(`enum`, EnumNaming.uppercase)
 
-    implicit def enumEncoderImpl[E](implicit ev: EnumLike[E]): Writes[E] =
-      lowercaseEnumEncoder(ev)
+  implicit def enumDecoderImpl[E](implicit ev: EnumLike[E], naming: EnumNaming): Reads[E]  = namedEnumDecoder(ev, naming)
+  implicit def enumEncoderImpl[E](implicit ev: EnumLike[E], naming: EnumNaming): Writes[E] = namedEnumEncoder(ev, naming)
+
+  trait KebsPlayJsonEnumsUppercase extends KebsPlayJsonEnums {
+    implicit val kebsEnumNaming: EnumNaming = EnumNaming.uppercase
+  }
+
+  trait KebsPlayJsonEnumsLowercase extends KebsPlayJsonEnums {
+    implicit val kebsEnumNaming: EnumNaming = EnumNaming.lowercase
   }
 }
 

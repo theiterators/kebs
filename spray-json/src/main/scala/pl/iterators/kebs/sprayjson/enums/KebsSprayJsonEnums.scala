@@ -1,6 +1,6 @@
 package pl.iterators.kebs.sprayjson
 
-import pl.iterators.kebs.core.enums.{EnumLike, ValueEnumLike, ValueEnumLikeEntry}
+import pl.iterators.kebs.core.enums.{EnumLike, EnumNaming, ValueEnumLike, ValueEnumLikeEntry}
 import spray.json.{JsString, JsValue, JsonFormat}
 
 trait KebsSprayJsonEnums {
@@ -21,20 +21,24 @@ trait KebsSprayJsonEnums {
       case _              => enumValueDeserializationError(`enum`, json)
     }
   }
-  def jsonFormat[E](`enum`: EnumLike[E])          = enumJsonFormat[E](`enum`, `enum`.getName, `enum`.withNameInsensitiveOption(_))
-  def lowercaseJsonFormat[E](`enum`: EnumLike[E]) =
-    enumJsonFormat[E](`enum`, `enum`.getName(_).toLowerCase, `enum`.withNameLowercaseOnlyOption(_))
-  def uppercaseJsonFormat[E](`enum`: EnumLike[E]) =
-    enumJsonFormat[E](`enum`, `enum`.getName(_).toUpperCase, `enum`.withNameUppercaseOnlyOption(_))
 
-  implicit def jsonEnumFormat[E](implicit ev: EnumLike[E]): JsonFormat[E] = jsonFormat(ev)
-
-  trait KebsSprayJsonEnumsUppercase {
-    implicit def jsonEnumFormat[E](implicit ev: EnumLike[E]): JsonFormat[E] = uppercaseJsonFormat(ev)
+  def namedJsonFormat[E](`enum`: EnumLike[E], naming: EnumNaming): JsonFormat[E] = {
+    val named = naming.applyTo(`enum`)
+    enumJsonFormat[E](named, named.getName(_), naming.lookup(named, _))
   }
 
-  trait KebsSprayJsonEnumsLowercase {
-    implicit def jsonEnumFormat[E](implicit ev: EnumLike[E]): JsonFormat[E] = lowercaseJsonFormat(ev)
+  def jsonFormat[E](`enum`: EnumLike[E]): JsonFormat[E]          = namedJsonFormat(`enum`, EnumNaming.default)
+  def lowercaseJsonFormat[E](`enum`: EnumLike[E]): JsonFormat[E] = namedJsonFormat(`enum`, EnumNaming.lowercase)
+  def uppercaseJsonFormat[E](`enum`: EnumLike[E]): JsonFormat[E] = namedJsonFormat(`enum`, EnumNaming.uppercase)
+
+  implicit def jsonEnumFormat[E](implicit ev: EnumLike[E], naming: EnumNaming): JsonFormat[E] = namedJsonFormat(ev, naming)
+
+  trait KebsSprayJsonEnumsUppercase extends KebsSprayJsonEnums {
+    implicit val kebsEnumNaming: EnumNaming = EnumNaming.uppercase
+  }
+
+  trait KebsSprayJsonEnumsLowercase extends KebsSprayJsonEnums {
+    implicit val kebsEnumNaming: EnumNaming = EnumNaming.lowercase
   }
 }
 

@@ -1,14 +1,9 @@
 package pl.iterators.kebs.circe.enums
 
 import io.circe._
-import pl.iterators.kebs.core.enums.{EnumLike, ValueEnumLike, ValueEnumLikeEntry}
+import pl.iterators.kebs.core.enums.{EnumLike, EnumNaming, ValueEnumLike, ValueEnumLikeEntry}
 
 trait KebsCirceEnums {
-  @inline protected final def enumNameDeserializationError[E](`enum`: EnumLike[E], name: String): String = {
-    val enumNames = `enum`.names.mkString(", ")
-    s"$name should be one of $enumNames"
-  }
-
   @inline protected final def enumValueDeserializationError[E](`enum`: EnumLike[E], value: Json): String = {
     val enumNames = `enum`.names.mkString(", ")
     s"$value should be a string of value $enumNames"
@@ -21,39 +16,31 @@ trait KebsCirceEnums {
   protected final def enumEncoder[E](`enum`: EnumLike[E], _map: E => String): Encoder[E] =
     (obj: E) => Encoder.encodeString(_map(obj))
 
-  def enumDecoder[E](`enum`: EnumLike[E]): Decoder[E] =
-    enumDecoder[E](`enum`, `enum`.withNameInsensitiveOption(_))
-  def enumEncoder[E](`enum`: EnumLike[E]): Encoder[E] =
-    enumEncoder[E](`enum`, (e: E) => `enum`.getName(e))
-
-  def lowercaseEnumDecoder[E](`enum`: EnumLike[E]): Decoder[E] =
-    enumDecoder[E](`enum`, `enum`.withNameLowercaseOnlyOption(_))
-  def lowercaseEnumEncoder[E](`enum`: EnumLike[E]): Encoder[E] =
-    enumEncoder[E](`enum`, (e: E) => `enum`.getName(e).toLowerCase)
-
-  def uppercaseEnumDecoder[E](`enum`: EnumLike[E]): Decoder[E] =
-    enumDecoder[E](`enum`, `enum`.withNameUppercaseOnlyOption(_))
-  def uppercaseEnumEncoder[E](`enum`: EnumLike[E]): Encoder[E] =
-    enumEncoder[E](`enum`, (e: E) => `enum`.getName(e).toUpperCase())
-
-  implicit def enumDecoderImpl[E](implicit ev: EnumLike[E]): Decoder[E] = enumDecoder(ev)
-
-  implicit def enumEncoderImpl[E](implicit ev: EnumLike[E]): Encoder[E] = enumEncoder(ev)
-
-  trait KebsCirceEnumsUppercase {
-    implicit def enumDecoderImpl[E](implicit ev: EnumLike[E]): Decoder[E] =
-      uppercaseEnumDecoder(ev)
-
-    implicit def enumEncoderImpl[E](implicit ev: EnumLike[E]): Encoder[E] =
-      uppercaseEnumEncoder(ev)
+  def namedEnumDecoder[E](`enum`: EnumLike[E], naming: EnumNaming): Decoder[E] = {
+    val named = naming.applyTo(`enum`)
+    enumDecoder[E](named, (name: String) => naming.lookup(named, name))
+  }
+  def namedEnumEncoder[E](`enum`: EnumLike[E], naming: EnumNaming): Encoder[E] = {
+    val named = naming.applyTo(`enum`)
+    enumEncoder[E](named, (e: E) => named.getName(e))
   }
 
-  trait KebsCirceEnumsLowercase {
-    implicit def enumDecoderImpl[E](implicit ev: EnumLike[E]): Decoder[E] =
-      lowercaseEnumDecoder(ev)
+  def enumDecoder[E](`enum`: EnumLike[E]): Decoder[E]          = namedEnumDecoder(`enum`, EnumNaming.default)
+  def enumEncoder[E](`enum`: EnumLike[E]): Encoder[E]          = namedEnumEncoder(`enum`, EnumNaming.default)
+  def lowercaseEnumDecoder[E](`enum`: EnumLike[E]): Decoder[E] = namedEnumDecoder(`enum`, EnumNaming.lowercase)
+  def lowercaseEnumEncoder[E](`enum`: EnumLike[E]): Encoder[E] = namedEnumEncoder(`enum`, EnumNaming.lowercase)
+  def uppercaseEnumDecoder[E](`enum`: EnumLike[E]): Decoder[E] = namedEnumDecoder(`enum`, EnumNaming.uppercase)
+  def uppercaseEnumEncoder[E](`enum`: EnumLike[E]): Encoder[E] = namedEnumEncoder(`enum`, EnumNaming.uppercase)
 
-    implicit def enumEncoderImpl[E](implicit ev: EnumLike[E]): Encoder[E] =
-      lowercaseEnumEncoder(ev)
+  implicit def enumDecoderImpl[E](implicit ev: EnumLike[E], naming: EnumNaming): Decoder[E] = namedEnumDecoder(ev, naming)
+  implicit def enumEncoderImpl[E](implicit ev: EnumLike[E], naming: EnumNaming): Encoder[E] = namedEnumEncoder(ev, naming)
+
+  trait KebsCirceEnumsUppercase extends KebsCirceEnums {
+    implicit val kebsEnumNaming: EnumNaming = EnumNaming.uppercase
+  }
+
+  trait KebsCirceEnumsLowercase extends KebsCirceEnums {
+    implicit val kebsEnumNaming: EnumNaming = EnumNaming.lowercase
   }
 }
 
