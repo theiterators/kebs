@@ -6,6 +6,9 @@ import pl.iterators.kebs.core.enums.{EnumLike, EnumNaming, ValueEnumLike, ValueE
 import scala.reflect.ClassTag
 
 trait KebsBaklavaEnumsSchema {
+  // mixing the base trait with a preset must not compile (it would silently pick one of them)
+  protected def kebsEnumCodecs: Unit = ()
+
   implicit def enumLikeSchema[T](implicit enumLike: EnumLike[T], naming: EnumNaming, cls: ClassTag[T]): Schema[T] =
     new Schema[T] {
       val className: String                  = cls.runtimeClass.getName
@@ -21,11 +24,15 @@ trait KebsBaklavaEnumsSchema {
     }
 
   trait KebsBaklavaEnumsUppercaseSchema {
+    protected def kebsEnumCodecs: Unit = ()
+
     implicit def enumLikeSchema[T](implicit enumLike: EnumLike[T], cls: ClassTag[T]): Schema[T] =
       KebsBaklavaEnumsSchema.this.enumLikeSchema(enumLike, EnumNaming.uppercase, cls)
   }
 
   trait KebsBaklavaEnumsLowercaseSchema {
+    protected def kebsEnumCodecs: Unit = ()
+
     implicit def enumLikeSchema[T](implicit enumLike: EnumLike[T], cls: ClassTag[T]): Schema[T] =
       KebsBaklavaEnumsSchema.this.enumLikeSchema(enumLike, EnumNaming.lowercase, cls)
   }

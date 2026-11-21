@@ -10,6 +10,20 @@ object EnumNamingTestDomain {
   case object Light   extends Tone
   case object DarkRed extends Tone
   val tones: EnumLike[Tone] = EnumLike[Tone](List(Light, DarkRed), _.toString)
+
+  sealed trait DataUnit
+  case object Megabit  extends DataUnit
+  case object Megabyte extends DataUnit
+  val units: EnumLike[DataUnit] = EnumLike[DataUnit](List(Megabit, Megabyte), { case Megabit => "Mb"; case Megabyte => "MB" })
+
+  class Scoped {
+    implicit val enumNaming: EnumNaming = EnumNaming.snakeCase
+    def outer: EnumNaming               = implicitly[EnumNaming]
+    def inner: EnumNaming               = {
+      implicit val enumNaming: EnumNaming = EnumNaming.kebabCase
+      implicitly[EnumNaming]
+    }
+  }
 }
 
 class EnumNamingTests extends AnyFunSuite with Matchers {
@@ -29,6 +43,24 @@ class EnumNamingTests extends AnyFunSuite with Matchers {
     EnumNaming.screamingSnakeCase.lookup(named, "dark_red") shouldBe Some(DarkRed)
     EnumNaming(Naming.screamingSnakeCase, caseInsensitive = false).lookup(named, "dark_red") shouldBe None
     EnumNaming(Naming.screamingSnakeCase, caseInsensitive = false).lookup(named, "DARK_RED") shouldBe Some(DarkRed)
+  }
+
+  test("an exact match wins over a case-insensitive one") {
+    EnumNaming.default.lookup(units, "MB") shouldBe Some(Megabyte)
+    EnumNaming.default.lookup(units, "Mb") shouldBe Some(Megabit)
+    EnumNaming.default.lookup(units, "mB") shouldBe Some(Megabit)
+  }
+
+  test("importing EnumNaming's members does not make the default ambiguous") {
+    import EnumNaming._
+    implicit val enumNaming: EnumNaming = kebabCase
+    implicitly[EnumNaming] shouldBe kebabCase
+  }
+
+  test("an EnumNaming is overridden by shadowing the same name") {
+    val scoped = new Scoped
+    scoped.outer shouldBe EnumNaming.snakeCase
+    scoped.inner shouldBe EnumNaming.kebabCase
   }
 
   test("an implicit EnumNaming in scope beats the default") {

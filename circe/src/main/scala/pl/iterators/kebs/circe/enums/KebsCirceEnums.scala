@@ -4,6 +4,9 @@ import io.circe._
 import pl.iterators.kebs.core.enums.{EnumLike, EnumNaming, ValueEnumLike, ValueEnumLikeEntry}
 
 trait KebsCirceEnums {
+  // mixing the base trait with a preset must not compile (it would silently pick one of them)
+  protected def kebsEnumCodecs: Unit = ()
+
   @inline protected final def enumValueDeserializationError[E](`enum`: EnumLike[E], value: Json): String = {
     val enumNames = `enum`.names.mkString(", ")
     s"$value should be a string of value $enumNames"
@@ -36,11 +39,15 @@ trait KebsCirceEnums {
   implicit def enumEncoderImpl[E](implicit ev: EnumLike[E], naming: EnumNaming): Encoder[E] = namedEnumEncoder(ev, naming)
 
   trait KebsCirceEnumsUppercase {
+    protected def kebsEnumCodecs: Unit = ()
+
     implicit def enumDecoderImpl[E](implicit ev: EnumLike[E]): Decoder[E] = uppercaseEnumDecoder(ev)
     implicit def enumEncoderImpl[E](implicit ev: EnumLike[E]): Encoder[E] = uppercaseEnumEncoder(ev)
   }
 
   trait KebsCirceEnumsLowercase {
+    protected def kebsEnumCodecs: Unit = ()
+
     implicit def enumDecoderImpl[E](implicit ev: EnumLike[E]): Decoder[E] = lowercaseEnumDecoder(ev)
     implicit def enumEncoderImpl[E](implicit ev: EnumLike[E]): Encoder[E] = lowercaseEnumEncoder(ev)
   }

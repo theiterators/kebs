@@ -11,6 +11,15 @@ import pl.iterators.kebs.core.enums.EnumNaming
 import pl.iterators.kebs.enumeratum.{KebsEnumeratum, KebsValueEnumeratum}
 import pl.iterators.kebs.testkit.model.{Color, Level}
 
+object DoobieEnumH2Tests {
+  sealed trait DataUnit extends enumeratum.EnumEntry
+  object DataUnit       extends enumeratum.Enum[DataUnit] {
+    case object Megabit  extends DataUnit { override val entryName = "Mb" }
+    case object Megabyte extends DataUnit { override val entryName = "MB" }
+    val values = findValues
+  }
+}
+
 class DoobieEnumH2Tests extends AnyFunSuite with Matchers with KebsEnumeratum with KebsValueEnumeratum {
   private def transactor(db: String): Transactor[IO] =
     Transactor.fromDriverManager[IO]("org.h2.Driver", s"jdbc:h2:mem:$db;DB_CLOSE_DELAY=-1", "sa", "", None)
@@ -53,6 +62,12 @@ class DoobieEnumH2Tests extends AnyFunSuite with Matchers with KebsEnumeratum wi
   test("names are read case-insensitively") {
     import pl.iterators.kebs.doobie.enums._
     read[Color]("lenient-read", "darkblue") shouldBe Color.DarkBlue
+  }
+
+  test("names differing only in case are read back exactly") {
+    import DoobieEnumH2Tests.DataUnit
+    import pl.iterators.kebs.doobie.enums._
+    read[DataUnit]("units-read", "MB") shouldBe DataUnit.Megabyte
   }
 
   test("value enums store their values") {

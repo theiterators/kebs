@@ -4,6 +4,9 @@ import pl.iterators.kebs.core.enums.{EnumLike, EnumNaming, ValueEnumLike, ValueE
 import play.api.libs.json.{JsError, JsSuccess, Reads, Writes}
 
 trait KebsPlayJsonEnums {
+  // mixing the base trait with a preset must not compile (it would silently pick one of them)
+  protected def kebsEnumCodecs: Unit = ()
+
   protected final def enumDecoder[E](`enum`: EnumLike[E], _comap: String => Option[E]): Reads[E] =
     Reads.StringReads.flatMapResult { str =>
       _comap(str) match {
@@ -35,11 +38,15 @@ trait KebsPlayJsonEnums {
   implicit def enumEncoderImpl[E](implicit ev: EnumLike[E], naming: EnumNaming): Writes[E] = namedEnumEncoder(ev, naming)
 
   trait KebsPlayJsonEnumsUppercase {
+    protected def kebsEnumCodecs: Unit = ()
+
     implicit def enumDecoderImpl[E](implicit ev: EnumLike[E]): Reads[E]  = uppercaseEnumDecoder(ev)
     implicit def enumEncoderImpl[E](implicit ev: EnumLike[E]): Writes[E] = uppercaseEnumEncoder(ev)
   }
 
   trait KebsPlayJsonEnumsLowercase {
+    protected def kebsEnumCodecs: Unit = ()
+
     implicit def enumDecoderImpl[E](implicit ev: EnumLike[E]): Reads[E]  = lowercaseEnumDecoder(ev)
     implicit def enumEncoderImpl[E](implicit ev: EnumLike[E]): Writes[E] = lowercaseEnumEncoder(ev)
   }

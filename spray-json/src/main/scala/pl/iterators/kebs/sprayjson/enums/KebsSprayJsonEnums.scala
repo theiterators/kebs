@@ -4,6 +4,9 @@ import pl.iterators.kebs.core.enums.{EnumLike, EnumNaming, ValueEnumLike, ValueE
 import spray.json.{JsString, JsValue, JsonFormat}
 
 trait KebsSprayJsonEnums {
+  // mixing the base trait with a preset must not compile (it would silently pick one of them)
+  protected def kebsEnumCodecs: Unit = ()
+
   @inline protected final def enumNameDeserializationError[E](`enum`: EnumLike[E], name: String) = {
     val enumNames = `enum`.names.mkString(", ")
     spray.json.deserializationError(s"$name should be one of $enumNames")
@@ -34,10 +37,14 @@ trait KebsSprayJsonEnums {
   implicit def jsonEnumFormat[E](implicit ev: EnumLike[E], naming: EnumNaming): JsonFormat[E] = namedJsonFormat(ev, naming)
 
   trait KebsSprayJsonEnumsUppercase {
+    protected def kebsEnumCodecs: Unit = ()
+
     implicit def jsonEnumFormat[E](implicit ev: EnumLike[E]): JsonFormat[E] = uppercaseJsonFormat(ev)
   }
 
   trait KebsSprayJsonEnumsLowercase {
+    protected def kebsEnumCodecs: Unit = ()
+
     implicit def jsonEnumFormat[E](implicit ev: EnumLike[E]): JsonFormat[E] = lowercaseJsonFormat(ev)
   }
 }

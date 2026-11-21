@@ -6,6 +6,9 @@ import pl.iterators.kebs.core.enums.{EnumLike, EnumNaming, ValueEnumLike, ValueE
 import scala.annotation.unused
 
 trait KebsBaklavaEnumsParams {
+  // mixing the base trait with a preset must not compile (it would silently pick one of them)
+  protected def kebsEnumCodecs: Unit = ()
+
   implicit def toQueryParamEnum[T](implicit _enum: EnumLike[T], naming: EnumNaming): ToQueryParam[T] = new ToQueryParam[T] {
     private val named                     = naming.applyTo(_enum)
     override def apply(t: T): Seq[String] = Seq(named.getName(t))
@@ -23,6 +26,8 @@ trait KebsBaklavaEnumsParams {
   }
 
   trait KebsBaklavaEnumsUppercaseParams {
+    protected def kebsEnumCodecs: Unit = ()
+
     implicit def toQueryParamEnum[T](implicit _enum: EnumLike[T]): ToQueryParam[T] =
       KebsBaklavaEnumsParams.this.toQueryParamEnum(_enum, EnumNaming.uppercase)
     implicit def toPathParamEnum[T](implicit _enum: EnumLike[T]): ToPathParam[T] =
@@ -32,6 +37,8 @@ trait KebsBaklavaEnumsParams {
   }
 
   trait KebsBaklavaEnumsLowercaseParams {
+    protected def kebsEnumCodecs: Unit = ()
+
     implicit def toQueryParamEnum[T](implicit _enum: EnumLike[T]): ToQueryParam[T] =
       KebsBaklavaEnumsParams.this.toQueryParamEnum(_enum, EnumNaming.lowercase)
     implicit def toPathParamEnum[T](implicit _enum: EnumLike[T]): ToPathParam[T] =

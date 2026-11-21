@@ -220,6 +220,9 @@ trait KebsSlickSupport { this: JdbcProfile =>
   }
 
   trait KebsEnumImplicits extends SlickValueEnum with SlickEnum {
+    // mixing the base trait with a preset must not compile (it would silently pick one of them)
+    protected def kebsEnumCodecs: Unit = ()
+
     implicit def enumValueColumn[E](implicit
         ev: EnumLike[E],
         naming: EnumNaming,
@@ -270,6 +273,8 @@ trait KebsSlickSupport { this: JdbcProfile =>
   }
 
   trait KebsLowercaseEnumImplicits extends SlickValueEnum with SlickEnum {
+    protected def kebsEnumCodecs: Unit = ()
+
     implicit def enumValueColumn[E](implicit ev: EnumLike[E], bct: BaseColumnType[String], cls: ClassTag[E]): BaseColumnType[E] =
       namedEnumColumn(ev, EnumNaming.lowercase)
 
@@ -291,6 +296,8 @@ trait KebsSlickSupport { this: JdbcProfile =>
   }
 
   trait KebsUppercaseEnumImplicits extends SlickValueEnum with SlickEnum {
+    protected def kebsEnumCodecs: Unit = ()
+
     implicit def enumValueColumn[E](implicit ev: EnumLike[E], bct: BaseColumnType[String], cls: ClassTag[E]): BaseColumnType[E] =
       namedEnumColumn(ev, EnumNaming.uppercase)
 

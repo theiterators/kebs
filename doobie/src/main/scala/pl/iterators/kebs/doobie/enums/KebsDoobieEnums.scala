@@ -6,6 +6,9 @@ import pl.iterators.kebs.core.enums.{EnumLike, EnumNaming, ValueEnumLike, ValueE
 import scala.reflect.ClassTag
 
 trait KebsDoobieEnums {
+  // mixing the base trait with a preset must not compile (it would silently pick one of them)
+  protected def kebsEnumCodecs: Unit = ()
+
   implicit def enumMeta[E](implicit e: EnumLike[E], naming: EnumNaming, m: Meta[String]): Meta[E] = {
     val named = naming.applyTo(e)
     m.imap(naming.lookupOrThrow(named, _))(named.getName)
@@ -30,6 +33,8 @@ trait KebsDoobieEnums {
   }
 
   trait KebsDoobieEnumsUppercase {
+    protected def kebsEnumCodecs: Unit = ()
+
     implicit def enumUppercaseMeta[E](implicit e: EnumLike[E], m: Meta[String]): Meta[E] =
       enumMeta(e, EnumNaming.uppercase, m)
     implicit def enumUppercaseArrayMeta[E](implicit e: EnumLike[E], m: Meta[Array[String]], cte: ClassTag[E]): Meta[Array[E]] =
@@ -43,6 +48,8 @@ trait KebsDoobieEnums {
   }
 
   trait KebsDoobieEnumsLowercase {
+    protected def kebsEnumCodecs: Unit = ()
+
     implicit def enumLowercaseMeta[E](implicit e: EnumLike[E], m: Meta[String]): Meta[E] =
       enumMeta(e, EnumNaming.lowercase, m)
     implicit def enumLowercaseArrayMeta[E](implicit e: EnumLike[E], m: Meta[Array[String]], cte: ClassTag[E]): Meta[Array[E]] =
