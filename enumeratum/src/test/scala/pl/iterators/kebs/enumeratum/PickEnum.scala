@@ -2,9 +2,7 @@ package pl.iterators.kebs.enumeratum
 
 import pl.iterators.kebs.core.enums.EnumLike
 
-/** A type class with an instance that needs EnumLike and a low-priority fallback: a type without an EnumLike must get the fallback, never
-  * a compile error.
-  */
+// enum codecs are searched like this: no EnumLike must mean the fallback, never a compile error
 final class PickEnum[A](val chosen: String)
 trait LowPriorityPickEnum {
   implicit def fallback[A]: PickEnum[A] = new PickEnum[A]("fallback")

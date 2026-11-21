@@ -6,9 +6,7 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.core.enums.{EnumLike, ValueEnumLike, ValueEnumLikeEntry}
 
-/** Enums declared inside a class: on Scala 3 enumeratum's `findValues` returns no entries there, so kebs must not rely on an empty
-  * companion `values` (kebs 2 listed the case objects).
-  */
+// enumeratum's Scala 3 findValues finds nothing for enums declared inside a class
 class EnumeratumClassNestedTests extends AnyFunSuite with Matchers with KebsEnumeratum with KebsValueEnumeratum {
   sealed trait Greeting extends EnumEntry
   object Greeting       extends Enum[Greeting] {

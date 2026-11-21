@@ -10,7 +10,7 @@ object EnumeratumOrphanTestDomain {
   case object O2      extends Orphan
 }
 
-/** Scala 2: an EnumEntry without an Enum companion gets no EnumLike, silently (unchanged from kebs 2). */
+// no Enum companion: no instance, as in kebs 2
 class EnumeratumOrphanTests extends AnyFunSuite with Matchers with KebsEnumeratum {
   import EnumeratumOrphanTestDomain._
 

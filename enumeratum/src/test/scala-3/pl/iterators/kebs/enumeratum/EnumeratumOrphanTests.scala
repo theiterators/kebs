@@ -11,7 +11,7 @@ object EnumeratumOrphanTestDomain {
   case object O2      extends Orphan
 }
 
-/** Scala 3: kebs 2 listed the case objects through the Mirror even without an Enum companion; kebs 3 keeps that. */
+// no Enum companion: kebs 2 listed the case objects via the Mirror
 class EnumeratumOrphanTests extends AnyFunSuite with Matchers with KebsEnumeratum {
   import EnumeratumOrphanTestDomain._
 

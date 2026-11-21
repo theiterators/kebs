@@ -199,7 +199,6 @@ lazy val doobieSettings = commonSettings ++ Seq(
   libraryDependencies += (enumeratumInTest.value)
 )
 
-// modules whose macros are written with hearth (shared code + cross-quotes)
 lazy val hearthMacroSettings = Seq(
   libraryDependencies += "com.kubuszok" %%% "hearth" % hearthV,
   libraryDependencies ++= (if (scalaVersion.value.startsWith("3"))

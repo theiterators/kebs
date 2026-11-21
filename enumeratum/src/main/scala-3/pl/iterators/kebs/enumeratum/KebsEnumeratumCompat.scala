@@ -8,8 +8,7 @@ import pl.iterators.kebs.enumeratum.internal.EnumeratumMacrosImpl
 import scala.deriving.Mirror
 import scala.quoted.*
 
-// The Mirror evidence keeps non-sum types out; without an Enum companion the case objects are listed instead (kebs 2
-// behaviour on Scala 3), so the macro does not fail after the implicit has been selected.
+// selected via the Mirror, so never abort: without an Enum companion the case objects are listed (kebs 2 behaviour)
 trait KebsEnumeratum {
   inline implicit def enumLikeFromEnumeratum[E <: EnumEntry](using m: Mirror.SumOf[E]): EnumLike[E] = ${ EnumeratumMacros.enumLike[E] }
 }
