@@ -16,6 +16,9 @@ trait KebsPekkoHttpMatchers extends org.apache.pekko.http.scaladsl.server.PathMa
   }
 
   implicit class SegmentEnumIsomorphism[U](segment: PathMatcher1[String]) {
-    def asEnum[T](implicit e: EnumLike[T]): PathMatcher1[T] = segment.map(e.withNameIgnoreCase)
+    def asEnum[T](implicit e: EnumLike[T], naming: EnumNaming): PathMatcher1[T] = {
+      val named = naming.applyTo(e)
+      segment.map(naming.lookupOrThrow(named, _))
+    }
   }
 }

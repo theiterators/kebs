@@ -121,6 +121,7 @@ val optionalSlick   = optional(slick)
 val playJson        = Def.setting("org.playframework" %%% "play-json" % "3.0.6")
 val slickPg         = "com.github.tminglei" %% "slick-pg"        % "0.23.1"
 val doobie          = "org.typelevel"       %% "doobie-core"     % "1.0.0-RC14"
+val h2              = "com.h2database"       % "h2"              % "2.5.252"
 val doobiePg        = "org.typelevel"       %% "doobie-postgres" % "1.0.0-RC14"
 val sprayJson       = "io.spray"            %% "spray-json"      % "1.3.6"
 val circeV          = "0.14.17"
@@ -195,6 +196,7 @@ lazy val slickSettings = commonSettings ++ Seq(
 
 lazy val doobieSettings = commonSettings ++ Seq(
   libraryDependencies += doobie,
+  libraryDependencies += (h2 % "test"),
   libraryDependencies += (doobiePg % "test"),
   libraryDependencies += (enumeratumInTest.value)
 )
@@ -321,7 +323,7 @@ lazy val core = crossProject(JSPlatform, NativePlatform, JVMPlatform)
 
 lazy val baklavaSupport = project
   .in(file("baklava"))
-  .dependsOn(core.jvm, enumeratumSupport.jvm, instances.jvm % "test -> test")
+  .dependsOn(core.jvm, enumeratumSupport.jvm, instances.jvm % "test -> test", testkit.jvm % "test -> compile")
   .settings(baklavaSettings *)
   .settings(publishSettings *)
   .settings(
@@ -333,7 +335,7 @@ lazy val baklavaSupport = project
 
 lazy val slickSupport = project
   .in(file("slick"))
-  .dependsOn(core.jvm, enumeratumSupport.jvm, instances.jvm % "test -> test")
+  .dependsOn(core.jvm, enumeratumSupport.jvm, instances.jvm % "test -> test", testkit.jvm % "test -> compile")
   .settings(slickSettings *)
   .settings(publishSettings *)
   .settings(
@@ -345,7 +347,7 @@ lazy val slickSupport = project
 
 lazy val doobieSupport = project
   .in(file("doobie"))
-  .dependsOn(instances.jvm, enumeratumSupport.jvm, enumSupport.jvm, opaque.jvm % "test -> test")
+  .dependsOn(instances.jvm, enumeratumSupport.jvm, enumSupport.jvm, opaque.jvm % "test -> test", testkit.jvm % "test -> compile")
   .settings(doobieSettings *)
   .settings(publishSettings *)
   .settings(
@@ -403,8 +405,7 @@ lazy val pekkoHttpSupport = project
     enumSupport.jvm,
     instances.jvm  % "test -> test",
     tagged.jvm     % "test -> test",
-    taggedMeta.jvm % "test -> test"
-  )
+    taggedMeta.jvm % "test -> test", testkit.jvm % "test -> compile")
   .settings(pekkoHttpSettings *)
   .settings(publishSettings *)
   .settings(
@@ -418,7 +419,7 @@ lazy val http4sSupport = crossProject(JSPlatform, NativePlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
   .crossType(CrossType.Full)
   .in(file("http4s"))
-  .dependsOn(core, instances, enumSupport % "test -> test", opaque % "test -> test", tagged % "test -> test", taggedMeta % "test -> test")
+  .dependsOn(core, instances, enumSupport % "test -> test", opaque % "test -> test", tagged % "test -> test", taggedMeta % "test -> test", testkit % "test -> compile")
   .settings(http4sSettings *)
   .nativeSettings(
     tlVersionIntroduced := List("2.13", "3").map(_ -> "2.2.0").toMap
@@ -442,8 +443,7 @@ lazy val http4sStirSupport = crossProject(JSPlatform, NativePlatform, JVMPlatfor
     circeSupport % "test -> test",
     opaque       % "test -> test",
     tagged       % "test -> test",
-    taggedMeta   % "test -> test"
-  )
+    taggedMeta   % "test -> test", testkit % "test -> compile")
   .settings(http4sStirSettings *)
   .jvmSettings(
     libraryDependencies += http4sStirTestkit.value % "test"
