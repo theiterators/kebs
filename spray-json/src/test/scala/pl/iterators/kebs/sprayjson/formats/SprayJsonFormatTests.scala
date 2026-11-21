@@ -7,6 +7,7 @@ import pl.iterators.kebs.sprayjson.KebsSprayJson
 import spray.json._
 
 import java.util.UUID
+import scala.annotation.nowarn
 
 class SprayJsonFormatTests extends AnyFunSuite with Matchers {
   object KebsProtocol extends DefaultJsonProtocol with KebsSprayJson with CaseClass1ToValueClass
@@ -111,6 +112,8 @@ class SprayJsonFormatTests extends AnyFunSuite with Matchers {
   }
 
   case class Thing(thingId: String, parent: Option[Thing])
+  // the deprecated alias keeps working
+  @nowarn("cat=deprecation")
   implicit val thingFormat: RootJsonFormat[Thing] = jsonFormatRec[Thing]
 
   test("bug: mutually recursive") {
