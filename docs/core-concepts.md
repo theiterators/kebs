@@ -62,6 +62,8 @@ trait EnumLike[T] {
 
 Instances are provided for Scala 3 `enum` types (via `kebs-enum`), Scala 2 `scala.Enumeration` (via `kebs-enum`), and Enumeratum enums (via `kebs-enumeratum`).
 
+An entry's name comes from `getName`: `entryName` for Enumeratum enums (including custom `entryName` overrides and casing mixins such as `EnumEntry.Uppercase`), and `toString` for Scala 3 `enum`s and `scala.Enumeration`. All integration modules serialize and look up enums by this name. `values` keeps declaration order.
+
 ## ValueEnumLikeEntry[V] / ValueEnumLike[V, E]
 
 For enumerations where each entry maps to a specific value (e.g. an `Int` or `String`) rather than its name.

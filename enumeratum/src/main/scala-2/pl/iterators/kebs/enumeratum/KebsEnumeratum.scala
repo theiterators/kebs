@@ -19,8 +19,11 @@ class EnumeratumEntryMacros(val c: blackbox.Context) extends MacroUtils {
     val EnumEntry = weakTypeOf[E]
     assertEnumEntry(EnumEntry, s"${EnumEntry.typeSymbol} must subclass EnumEntry")
 
+    val Companion = companion(EnumEntry)
+    if (Companion == NoSymbol) c.abort(c.enclosingPosition, s"${EnumEntry.typeSymbol} has no companion object")
+
     c.Expr[EnumLike[E]](
-      q"new _root_.pl.iterators.kebs.core.enums.EnumLike[${EnumEntry.typeSymbol}] { override def valuesToNamesMap: Map[${EnumEntry.typeSymbol}, String] = ${companion(EnumEntry)}.values.map(v => v -> v.entryName).toMap }"
+      q"_root_.pl.iterators.kebs.core.enums.EnumLike[$EnumEntry]($Companion.values.toList, (e: $EnumEntry) => e.entryName)"
     )
   }
 }

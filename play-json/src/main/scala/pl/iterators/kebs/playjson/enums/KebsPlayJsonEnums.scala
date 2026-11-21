@@ -8,7 +8,7 @@ trait KebsPlayJsonEnums {
     Reads.StringReads.flatMapResult { str =>
       _comap(str) match {
         case Some(e) => JsSuccess(e)
-        case None    => JsError(s"$str should be one of ${`enum`.getNamesToValuesMap.values.mkString(", ")}")
+        case None    => JsError(s"$str should be one of ${`enum`.names.mkString(", ")}")
       }
     }
 
@@ -18,17 +18,17 @@ trait KebsPlayJsonEnums {
   def enumDecoder[E](`enum`: EnumLike[E]): Reads[E] =
     enumDecoder[E](`enum`, `enum`.withNameInsensitiveOption(_))
   def enumEncoder[E](`enum`: EnumLike[E]): Writes[E] =
-    enumEncoder[E](`enum`, (e: E) => e.toString)
+    enumEncoder[E](`enum`, (e: E) => `enum`.getName(e))
 
   def lowercaseEnumDecoder[E](`enum`: EnumLike[E]): Reads[E] =
     enumDecoder[E](`enum`, `enum`.withNameLowercaseOnlyOption(_))
   def lowercaseEnumEncoder[E](`enum`: EnumLike[E]): Writes[E] =
-    enumEncoder[E](`enum`, (e: E) => e.toString.toLowerCase)
+    enumEncoder[E](`enum`, (e: E) => `enum`.getName(e).toLowerCase)
 
   def uppercaseEnumDecoder[E](`enum`: EnumLike[E]): Reads[E] =
     enumDecoder[E](`enum`, `enum`.withNameUppercaseOnlyOption(_))
   def uppercaseEnumEncoder[E](`enum`: EnumLike[E]): Writes[E] =
-    enumEncoder[E](`enum`, (e: E) => e.toString.toUpperCase())
+    enumEncoder[E](`enum`, (e: E) => `enum`.getName(e).toUpperCase())
 
   implicit def enumDecoderImpl[E](implicit ev: EnumLike[E]): Reads[E] = enumDecoder(ev)
 

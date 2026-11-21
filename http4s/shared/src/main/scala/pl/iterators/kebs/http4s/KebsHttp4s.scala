@@ -28,9 +28,7 @@ trait KebsHttp4s {
   object EnumString {
     def apply[T](implicit e: EnumLike[T]) = new PathVar[T](str =>
       Try(
-        e.values
-          .find(_.toString.toUpperCase == str.toUpperCase)
-          .getOrElse(throw new IllegalArgumentException(s"enum case not found: $str"))
+        e.withNameInsensitiveOption(str).getOrElse(throw new IllegalArgumentException(s"enum case not found: $str"))
       )
     )
   }
@@ -67,7 +65,7 @@ trait KebsHttp4s {
   ): QueryParamDecoder[T] = qpd.emap(u => Try(rep.decode(u)).toEither.left.map(t => ParseFailure(t.getMessage, t.getMessage)))
   implicit def enumQueryParamDecoder[E](implicit e: EnumLike[E]): QueryParamDecoder[E] = QueryParamDecoder[String].emap(str =>
     Try(
-      e.values.find(_.toString.toUpperCase == str.toUpperCase).getOrElse(throw new IllegalArgumentException(s"enum case not found: $str"))
+      e.withNameInsensitiveOption(str).getOrElse(throw new IllegalArgumentException(s"enum case not found: $str"))
     ).toEither.left.map(t => ParseFailure(t.getMessage, t.getMessage))
   )
 }

@@ -3,112 +3,77 @@ package pl.iterators.kebs.baklava.params.enums
 import pl.iterators.baklava.{ToHeader, ToPathParam, ToQueryParam}
 import pl.iterators.kebs.core.enums.{EnumLike, ValueEnumLike, ValueEnumLikeEntry}
 
+import scala.annotation.unused
+
 trait KebsBaklavaEnumsParams {
   implicit def toQueryParamEnum[T](implicit _enum: EnumLike[T]): ToQueryParam[T] = new ToQueryParam[T] {
-    override def apply(t: T): Seq[String] = {
-      val _ = _enum // fix warning
-      Seq(t.toString) // todo use getName with kebs 2.1.0
-    }
+    override def apply(t: T): Seq[String] = Seq(_enum.getName(t))
   }
 
   implicit def toPathParamEnum[T](implicit _enum: EnumLike[T]): ToPathParam[T] = new ToPathParam[T] {
-    override def apply(t: T): String = {
-      val _ = _enum // fix warning
-      t.toString // todo use getName with kebs 2.1.0
-    }
+    override def apply(t: T): String = _enum.getName(t)
   }
 
   implicit def toHeaderEnum[T](implicit _enum: EnumLike[T]): ToHeader[T] = new ToHeader[T] {
-    override def apply(value: T): Option[String] = {
-      val _ = _enum // fix warning
-      Some(value.toString) // todo use getName with kebs 2.1.0
-    }
+    override def apply(value: T): Option[String] = Some(_enum.getName(value))
 
-    override def unapply(value: String): Option[T] = {
-      val _ = _enum // fix warning
-      _enum.values.find(_.toString == value)
-    }
+    override def unapply(value: String): Option[T] = _enum.withNameOption(value)
   }
 
   trait KebsBaklavaEnumsUppercaseParams {
     implicit def toQueryParamEnum[T](implicit _enum: EnumLike[T]): ToQueryParam[T] = new ToQueryParam[T] {
-      override def apply(t: T): Seq[String] = {
-        val _ = _enum // fix warning
-        Seq(t.toString.toUpperCase)
-      }
+      override def apply(t: T): Seq[String] = Seq(_enum.getName(t).toUpperCase)
     }
 
     implicit def toPathParamEnum[T](implicit _enum: EnumLike[T]): ToPathParam[T] = new ToPathParam[T] {
-      override def apply(t: T): String = {
-        val _ = _enum // fix warning
-        t.toString.toUpperCase
-      }
+      override def apply(t: T): String = _enum.getName(t).toUpperCase
     }
 
     implicit def toHeaderEnum[T](implicit _enum: EnumLike[T]): ToHeader[T] = new ToHeader[T] {
-      override def apply(value: T): Option[String] = {
-        val _ = _enum // fix warning
-        Some(value.toString.toUpperCase)
-      }
+      override def apply(value: T): Option[String] = Some(_enum.getName(value).toUpperCase)
 
-      override def unapply(value: String): Option[T] = {
-        val _ = _enum // fix warning
-        _enum.values.find(_.toString.toUpperCase == value)
-      }
+      override def unapply(value: String): Option[T] = _enum.withNameUppercaseOnlyOption(value)
     }
   }
 
   trait KebsBaklavaEnumsLowercaseParams {
     implicit def toQueryParamEnum[T](implicit _enum: EnumLike[T]): ToQueryParam[T] = new ToQueryParam[T] {
-      override def apply(t: T): Seq[String] = {
-        val _ = _enum // fix warning
-        Seq(t.toString.toLowerCase)
-      }
+      override def apply(t: T): Seq[String] = Seq(_enum.getName(t).toLowerCase)
     }
 
     implicit def toPathParamEnum[T](implicit _enum: EnumLike[T]): ToPathParam[T] = new ToPathParam[T] {
-      override def apply(t: T): String = {
-        val _ = _enum // fix warning
-        t.toString.toLowerCase
-      }
+      override def apply(t: T): String = _enum.getName(t).toLowerCase
     }
 
     implicit def toHeaderEnum[T](implicit _enum: EnumLike[T]): ToHeader[T] = new ToHeader[T] {
-      override def apply(value: T): Option[String] = {
-        val _ = _enum // fix warning
-        Some(value.toString.toLowerCase)
-      }
+      override def apply(value: T): Option[String] = Some(_enum.getName(value).toLowerCase)
 
-      override def unapply(value: String): Option[T] = {
-        val _ = _enum // fix warning
-        _enum.values.find(_.toString.toLowerCase == value)
-      }
+      override def unapply(value: String): Option[T] = _enum.withNameLowercaseOnlyOption(value)
     }
   }
 }
 
 trait KebsBaklavaValueEnumsParams {
-  implicit def toQueryParamValueEnum[T, V <: ValueEnumLikeEntry[T]](implicit
-      valueEnumLike: ValueEnumLike[T, V],
+  implicit def toQueryParamValueEnum[V, E <: ValueEnumLikeEntry[V]](implicit
+      @unused valueEnumLike: ValueEnumLike[V, E],
       tsm: ToQueryParam[V]
-  ): ToQueryParam[T] = new ToQueryParam[T] {
-    override def apply(t: T): Seq[String] = tsm(valueEnumLike.valueOf(t))
+  ): ToQueryParam[E] = new ToQueryParam[E] {
+    override def apply(e: E): Seq[String] = tsm(e.value)
   }
 
-  implicit def toPathParamValueEnum[T, V <: ValueEnumLikeEntry[T]](implicit
-      valueEnumLike: ValueEnumLike[T, V],
+  implicit def toPathParamValueEnum[V, E <: ValueEnumLikeEntry[V]](implicit
+      @unused valueEnumLike: ValueEnumLike[V, E],
       tsm: ToPathParam[V]
-  ): ToPathParam[T] = new ToPathParam[T] {
-    override def apply(t: T): String = tsm(valueEnumLike.valueOf(t))
+  ): ToPathParam[E] = new ToPathParam[E] {
+    override def apply(e: E): String = tsm(e.value)
   }
 
-  implicit def toHeaderValueEnum[T, V <: ValueEnumLikeEntry[T]](implicit
-      valueEnumLike: ValueEnumLike[T, V],
+  implicit def toHeaderValueEnum[V, E <: ValueEnumLikeEntry[V]](implicit
+      valueEnumLike: ValueEnumLike[V, E],
       tsm: ToHeader[V]
-  ): ToHeader[T] = new ToHeader[T] {
-    override def apply(value: T): Option[String] = tsm(valueEnumLike.valueOf(value))
+  ): ToHeader[E] = new ToHeader[E] {
+    override def apply(e: E): Option[String] = tsm(e.value)
 
-    override def unapply(value: String): Option[T] =
-      tsm.unapply(value).flatMap(v => valueEnumLike.getValuesToEntriesMap.toList.find(_._2 == v).map(_._1))
+    override def unapply(value: String): Option[E] = tsm.unapply(value).flatMap(valueEnumLike.withValueOption)
   }
 }

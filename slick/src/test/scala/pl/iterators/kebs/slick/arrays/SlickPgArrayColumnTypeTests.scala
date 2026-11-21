@@ -24,6 +24,18 @@ class SlickPgArrayColumnTypeTests extends AnyFunSuite with Matchers with KebsEnu
         with KebsEnumImplicits
   }
 
+  object MyPostgresProfileWithSeq extends ExPostgresProfile with PgArraySupport with KebsSlickSupport {
+    override val api: APIWithSeq = new APIWithSeq {}
+    trait APIWithSeq
+        extends ExtPostgresAPI
+        with ArrayImplicits
+        with KebsBasicImplicits
+        with KebsValueClassLikeImplicits
+        with KebsSeqImplicits
+        with CaseClass1ToValueClass
+        with KebsEnumImplicits
+  }
+
   import MyPostgresProfile.api._
   test("List column type") {
     """
@@ -66,5 +78,19 @@ class SlickPgArrayColumnTypeTests extends AnyFunSuite with Matchers with KebsEnu
       |      def * = (id, institutions, enums)
       |    }
       """.stripMargin should compile
+  }
+
+  test("Seq column type with value classes and enums") {
+    import MyPostgresProfileWithSeq.api._
+    """
+      |    class SeqTestTable(tag: Tag) extends Table[(Long, Seq[Institution], Option[Seq[MarketFinancialProduct]], Seq[AnEnum])](tag, "SeqTest") {
+      |      def id = column[Long]("id", O.AutoInc, O.PrimaryKey)
+      |      def institutions = column[Seq[Institution]]("institutions")
+      |      def mktFinancialProducts = column[Option[Seq[MarketFinancialProduct]]]("mktFinancialProducts")
+      |      def enums = column[Seq[AnEnum]]("enums")
+      |
+      |      def * = (id, institutions, mktFinancialProducts, enums)
+      |    }
+    """.stripMargin should compile
   }
 }

@@ -13,7 +13,7 @@ trait KebsBaklavaEnumsSchema {
       val format: Option[String]             = None
       val properties: Map[String, Schema[?]] = Map.empty
       val items: Option[Schema[?]]           = None
-      val `enum`: Option[Set[String]]        = Some(enumLike.values.map(_.toString).toSet)
+      val `enum`: Option[Set[String]]        = Some(enumLike.names.toSet)
       val required: Boolean                  = true
       val additionalProperties: Boolean      = false
       val default: Option[T]                 = None
@@ -28,7 +28,7 @@ trait KebsBaklavaEnumsSchema {
         val format: Option[String]             = None
         val properties: Map[String, Schema[?]] = Map.empty
         val items: Option[Schema[?]]           = None
-        val `enum`: Option[Set[String]]        = Some(enumLike.values.map(_.toString.toUpperCase).toSet)
+        val `enum`: Option[Set[String]]        = Some(enumLike.names.map(_.toUpperCase).toSet)
         val required: Boolean                  = true
         val additionalProperties: Boolean      = false
         val default: Option[T]                 = None
@@ -44,7 +44,7 @@ trait KebsBaklavaEnumsSchema {
         val format: Option[String]             = None
         val properties: Map[String, Schema[?]] = Map.empty
         val items: Option[Schema[?]]           = None
-        val `enum`: Option[Set[String]]        = Some(enumLike.values.map(_.toString.toLowerCase).toSet)
+        val `enum`: Option[Set[String]]        = Some(enumLike.names.map(_.toLowerCase).toSet)
         val required: Boolean                  = true
         val additionalProperties: Boolean      = false
         val default: Option[T]                 = None
@@ -54,21 +54,21 @@ trait KebsBaklavaEnumsSchema {
 }
 
 trait KebsBaklavaValueEnumsSchema {
-  implicit def valueEnumLikeSchema[T, V <: ValueEnumLikeEntry[T]](implicit
-      valueEnumLike: ValueEnumLike[T, V],
+  implicit def valueEnumLikeSchema[V, E <: ValueEnumLikeEntry[V]](implicit
+      valueEnumLike: ValueEnumLike[V, E],
       schema: Schema[V],
-      cls: ClassTag[T]
-  ): Schema[T] = {
-    new Schema[T] {
+      cls: ClassTag[E]
+  ): Schema[E] = {
+    new Schema[E] {
       val className: String                  = cls.runtimeClass.getName
       val `type`: SchemaType                 = schema.`type`
       val format: Option[String]             = schema.format
       val properties: Map[String, Schema[?]] = schema.properties
       val items: Option[Schema[?]]           = schema.items
-      val `enum`: Option[Set[String]]        = Some(valueEnumLike.values.map(_.toString).toSet)
+      val `enum`: Option[Set[String]]        = Some(valueEnumLike.values.map(_.value.toString).toSet)
       val required: Boolean                  = schema.required
       val additionalProperties: Boolean      = schema.additionalProperties
-      val default: Option[T]                 = None
+      val default: Option[E]                 = None
       val description: Option[String]        = schema.description
     }
   }

@@ -22,11 +22,25 @@ trait EnumLike[T] {
   def valueOf(name: String): T =
     getNamesToValuesMap.getOrElse(name, throw new IllegalArgumentException(s"enum case not found: $name"))
   def valueOfIgnoreCase(name: String): T =
-    values.find(_.toString.equalsIgnoreCase(name)).getOrElse(throw new IllegalArgumentException(s"enum case not found: $name"))
-  def withNameIgnoreCase(name: String): T               = values.find(_.toString.equalsIgnoreCase((name))).get
-  def withNameIgnoreCaseOption(name: String): Option[T] = values.find(_.toString.equalsIgnoreCase((name)))
+    withNameInsensitiveOption(name).getOrElse(throw new IllegalArgumentException(s"enum case not found: $name"))
+  def withNameIgnoreCase(name: String): T =
+    withNameInsensitiveOption(name).getOrElse(throw new NoSuchElementException(buildNotFoundMessage(name)))
+  def withNameIgnoreCaseOption(name: String): Option[T] = withNameInsensitiveOption(name)
   def fromOrdinal(ordinal: Int): T = values.lift(ordinal).getOrElse(throw new NoSuchElementException(ordinal.toString))
   def indexOf(member: T): Int      = values.zipWithIndex.toMap.getOrElse(member, -1)
 
   private def buildNotFoundMessage(name: String): String = s"$name should be one of ${names.mkString(", ")}"
+}
+
+object EnumLike {
+  def apply[T](entries: => immutable.Seq[T], name: T => String): EnumLike[T] = new EnumLike[T] {
+    override lazy val values: immutable.Seq[T]            = entries
+    override lazy val valuesToNamesMap: Map[T, String]    = values.map(v => v -> name(v)).toMap
+    override lazy val getNamesToValuesMap: Map[String, T] = values.map(v => name(v) -> v).toMap
+    override lazy val names: immutable.Seq[String]        = values.map(name)
+    private lazy val indices: Map[T, Int]                 = values.zipWithIndex.toMap
+    override def getName(e: T): String                    = name(e)
+    override def withNameOption(name: String): Option[T]  = getNamesToValuesMap.get(name)
+    override def indexOf(member: T): Int                  = indices.getOrElse(member, -1)
+  }
 }
