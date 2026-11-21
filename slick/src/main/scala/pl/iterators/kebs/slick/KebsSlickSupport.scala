@@ -269,11 +269,45 @@ trait KebsSlickSupport { this: JdbcProfile =>
     }
   }
 
-  trait KebsLowercaseEnumImplicits extends KebsEnumImplicits {
-    implicit val kebsEnumNaming: EnumNaming = EnumNaming.lowercase
+  trait KebsLowercaseEnumImplicits extends SlickValueEnum with SlickEnum {
+    implicit def enumValueColumn[E](implicit ev: EnumLike[E], bct: BaseColumnType[String], cls: ClassTag[E]): BaseColumnType[E] =
+      namedEnumColumn(ev, EnumNaming.lowercase)
+
+    implicit def enumListColumn[E](implicit ev: EnumLike[E], bct: BaseColumnType[List[String]]): BaseColumnType[List[E]] = {
+      val named = EnumNaming.lowercase.applyTo(ev)
+      MappedColumnType.base[List[E], List[String]](_.map(named.getName), _.map(EnumNaming.lowercase.lookupOrThrow(named, _)))
+    }
+
+    implicit def enumSeqColumn[E](implicit ev: EnumLike[E], bct: BaseColumnType[List[String]]): BaseColumnType[Seq[E]] = {
+      val named = EnumNaming.lowercase.applyTo(ev)
+      MappedColumnType.base[Seq[E], List[String]](_.map(named.getName).toList, _.map(EnumNaming.lowercase.lookupOrThrow(named, _)))
+    }
+
+    implicit def toFromStringForHstoreEnum[E](implicit ev: EnumLike[E]): ToFromStringForHstore[E] = new ToFromStringForHstore[E] {
+      private val named                   = EnumNaming.lowercase.applyTo(ev)
+      override def to(value: E): String   = named.getName(value)
+      override def from(value: String): E = EnumNaming.lowercase.lookupOrThrow(named, value)
+    }
   }
 
-  trait KebsUppercaseEnumImplicits extends KebsEnumImplicits {
-    implicit val kebsEnumNaming: EnumNaming = EnumNaming.uppercase
+  trait KebsUppercaseEnumImplicits extends SlickValueEnum with SlickEnum {
+    implicit def enumValueColumn[E](implicit ev: EnumLike[E], bct: BaseColumnType[String], cls: ClassTag[E]): BaseColumnType[E] =
+      namedEnumColumn(ev, EnumNaming.uppercase)
+
+    implicit def enumListColumn[E](implicit ev: EnumLike[E], bct: BaseColumnType[List[String]]): BaseColumnType[List[E]] = {
+      val named = EnumNaming.uppercase.applyTo(ev)
+      MappedColumnType.base[List[E], List[String]](_.map(named.getName), _.map(EnumNaming.uppercase.lookupOrThrow(named, _)))
+    }
+
+    implicit def enumSeqColumn[E](implicit ev: EnumLike[E], bct: BaseColumnType[List[String]]): BaseColumnType[Seq[E]] = {
+      val named = EnumNaming.uppercase.applyTo(ev)
+      MappedColumnType.base[Seq[E], List[String]](_.map(named.getName).toList, _.map(EnumNaming.uppercase.lookupOrThrow(named, _)))
+    }
+
+    implicit def toFromStringForHstoreEnum[E](implicit ev: EnumLike[E]): ToFromStringForHstore[E] = new ToFromStringForHstore[E] {
+      private val named                   = EnumNaming.uppercase.applyTo(ev)
+      override def to(value: E): String   = named.getName(value)
+      override def from(value: String): E = EnumNaming.uppercase.lookupOrThrow(named, value)
+    }
   }
 }

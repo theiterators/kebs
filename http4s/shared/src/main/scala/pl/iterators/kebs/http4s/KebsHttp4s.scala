@@ -1,7 +1,7 @@
 package pl.iterators.kebs.http4s
 
 import org.http4s._
-import pl.iterators.kebs.core.enums.EnumLike
+import pl.iterators.kebs.core.enums.{EnumLike, EnumNaming}
 import pl.iterators.kebs.core.instances.InstanceConverter
 import pl.iterators.kebs.core.macros.ValueClassLike
 
@@ -26,11 +26,10 @@ trait KebsHttp4s {
   }
 
   object EnumString {
-    def apply[T](implicit e: EnumLike[T]) = new PathVar[T](str =>
-      Try(
-        e.withNameInsensitiveOption(str).getOrElse(throw new IllegalArgumentException(s"enum case not found: $str"))
-      )
-    )
+    def apply[T](implicit e: EnumLike[T], naming: EnumNaming) = {
+      val named = naming.applyTo(e)
+      new PathVar[T](str => Try(naming.lookup(named, str).getOrElse(throw new IllegalArgumentException(s"enum case not found: $str"))))
+    }
   }
 
   object WrappedInt {
@@ -63,9 +62,10 @@ trait KebsHttp4s {
       rep: InstanceConverter[T, U],
       qpd: QueryParamDecoder[U]
   ): QueryParamDecoder[T] = qpd.emap(u => Try(rep.decode(u)).toEither.left.map(t => ParseFailure(t.getMessage, t.getMessage)))
-  implicit def enumQueryParamDecoder[E](implicit e: EnumLike[E]): QueryParamDecoder[E] = QueryParamDecoder[String].emap(str =>
-    Try(
-      e.withNameInsensitiveOption(str).getOrElse(throw new IllegalArgumentException(s"enum case not found: $str"))
-    ).toEither.left.map(t => ParseFailure(t.getMessage, t.getMessage))
-  )
+  implicit def enumQueryParamDecoder[E](implicit e: EnumLike[E], naming: EnumNaming): QueryParamDecoder[E] = {
+    val named = naming.applyTo(e)
+    QueryParamDecoder[String].emap(str =>
+      naming.lookup(named, str).toRight(ParseFailure(s"enum case not found: $str", s"enum case not found: $str"))
+    )
+  }
 }

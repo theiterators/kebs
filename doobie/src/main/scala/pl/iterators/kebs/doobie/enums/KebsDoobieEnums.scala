@@ -29,12 +29,30 @@ trait KebsDoobieEnums {
     m.imap(_.map(_.map(naming.lookupOrThrow(named, _))))(_.map(_.map(named.getName)))
   }
 
-  trait KebsDoobieEnumsUppercase extends KebsDoobieEnums {
-    implicit val kebsEnumNaming: EnumNaming = EnumNaming.uppercase
+  trait KebsDoobieEnumsUppercase {
+    implicit def enumUppercaseMeta[E](implicit e: EnumLike[E], m: Meta[String]): Meta[E] =
+      enumMeta(e, EnumNaming.uppercase, m)
+    implicit def enumUppercaseArrayMeta[E](implicit e: EnumLike[E], m: Meta[Array[String]], cte: ClassTag[E]): Meta[Array[E]] =
+      enumArrayMeta(e, EnumNaming.uppercase, m, cte)
+    implicit def enumUppercaseOptionArrayMeta[E](implicit
+        e: EnumLike[E],
+        m: Meta[Array[Option[String]]],
+        cte: ClassTag[Option[E]]
+    ): Meta[Array[Option[E]]] =
+      enumOptionArrayMeta(e, EnumNaming.uppercase, m, cte)
   }
 
-  trait KebsDoobieEnumsLowercase extends KebsDoobieEnums {
-    implicit val kebsEnumNaming: EnumNaming = EnumNaming.lowercase
+  trait KebsDoobieEnumsLowercase {
+    implicit def enumLowercaseMeta[E](implicit e: EnumLike[E], m: Meta[String]): Meta[E] =
+      enumMeta(e, EnumNaming.lowercase, m)
+    implicit def enumLowercaseArrayMeta[E](implicit e: EnumLike[E], m: Meta[Array[String]], cte: ClassTag[E]): Meta[Array[E]] =
+      enumArrayMeta(e, EnumNaming.lowercase, m, cte)
+    implicit def enumLowercaseOptionArrayMeta[E](implicit
+        e: EnumLike[E],
+        m: Meta[Array[Option[String]]],
+        cte: ClassTag[Option[E]]
+    ): Meta[Array[Option[E]]] =
+      enumOptionArrayMeta(e, EnumNaming.lowercase, m, cte)
   }
 }
 

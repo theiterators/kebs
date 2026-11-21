@@ -1,19 +1,19 @@
 package pl.iterators.kebs.baklava.schema.enums
 
 import pl.iterators.baklava.{Schema, SchemaType}
-import pl.iterators.kebs.core.enums.{EnumLike, ValueEnumLike, ValueEnumLikeEntry}
+import pl.iterators.kebs.core.enums.{EnumLike, EnumNaming, ValueEnumLike, ValueEnumLikeEntry}
 
 import scala.reflect.ClassTag
 
 trait KebsBaklavaEnumsSchema {
-  implicit def enumLikeSchema[T](implicit enumLike: EnumLike[T], cls: ClassTag[T]): Schema[T] =
+  implicit def enumLikeSchema[T](implicit enumLike: EnumLike[T], naming: EnumNaming, cls: ClassTag[T]): Schema[T] =
     new Schema[T] {
       val className: String                  = cls.runtimeClass.getName
       val `type`: SchemaType                 = SchemaType.StringType
       val format: Option[String]             = None
       val properties: Map[String, Schema[?]] = Map.empty
       val items: Option[Schema[?]]           = None
-      val `enum`: Option[Set[String]]        = Some(enumLike.names.toSet)
+      val `enum`: Option[Set[String]]        = Some(naming.applyTo(enumLike).names.toSet)
       val required: Boolean                  = true
       val additionalProperties: Boolean      = false
       val default: Option[T]                 = None
@@ -22,34 +22,12 @@ trait KebsBaklavaEnumsSchema {
 
   trait KebsBaklavaEnumsUppercaseSchema {
     implicit def enumLikeSchema[T](implicit enumLike: EnumLike[T], cls: ClassTag[T]): Schema[T] =
-      new Schema[T] {
-        val className: String                  = cls.runtimeClass.getName
-        val `type`: SchemaType                 = SchemaType.StringType
-        val format: Option[String]             = None
-        val properties: Map[String, Schema[?]] = Map.empty
-        val items: Option[Schema[?]]           = None
-        val `enum`: Option[Set[String]]        = Some(enumLike.names.map(_.toUpperCase).toSet)
-        val required: Boolean                  = true
-        val additionalProperties: Boolean      = false
-        val default: Option[T]                 = None
-        val description: Option[String]        = None
-      }
+      KebsBaklavaEnumsSchema.this.enumLikeSchema(enumLike, EnumNaming.uppercase, cls)
   }
 
   trait KebsBaklavaEnumsLowercaseSchema {
     implicit def enumLikeSchema[T](implicit enumLike: EnumLike[T], cls: ClassTag[T]): Schema[T] =
-      new Schema[T] {
-        val className: String                  = cls.runtimeClass.getName
-        val `type`: SchemaType                 = SchemaType.StringType
-        val format: Option[String]             = None
-        val properties: Map[String, Schema[?]] = Map.empty
-        val items: Option[Schema[?]]           = None
-        val `enum`: Option[Set[String]]        = Some(enumLike.names.map(_.toLowerCase).toSet)
-        val required: Boolean                  = true
-        val additionalProperties: Boolean      = false
-        val default: Option[T]                 = None
-        val description: Option[String]        = None
-      }
+      KebsBaklavaEnumsSchema.this.enumLikeSchema(enumLike, EnumNaming.lowercase, cls)
   }
 }
 

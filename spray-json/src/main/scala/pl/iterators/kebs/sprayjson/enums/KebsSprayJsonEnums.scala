@@ -33,12 +33,12 @@ trait KebsSprayJsonEnums {
 
   implicit def jsonEnumFormat[E](implicit ev: EnumLike[E], naming: EnumNaming): JsonFormat[E] = namedJsonFormat(ev, naming)
 
-  trait KebsSprayJsonEnumsUppercase extends KebsSprayJsonEnums {
-    implicit val kebsEnumNaming: EnumNaming = EnumNaming.uppercase
+  trait KebsSprayJsonEnumsUppercase {
+    implicit def jsonEnumFormat[E](implicit ev: EnumLike[E]): JsonFormat[E] = uppercaseJsonFormat(ev)
   }
 
-  trait KebsSprayJsonEnumsLowercase extends KebsSprayJsonEnums {
-    implicit val kebsEnumNaming: EnumNaming = EnumNaming.lowercase
+  trait KebsSprayJsonEnumsLowercase {
+    implicit def jsonEnumFormat[E](implicit ev: EnumLike[E]): JsonFormat[E] = lowercaseJsonFormat(ev)
   }
 }
 

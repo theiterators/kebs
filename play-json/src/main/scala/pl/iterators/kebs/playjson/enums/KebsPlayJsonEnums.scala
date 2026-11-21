@@ -34,12 +34,14 @@ trait KebsPlayJsonEnums {
   implicit def enumDecoderImpl[E](implicit ev: EnumLike[E], naming: EnumNaming): Reads[E]  = namedEnumDecoder(ev, naming)
   implicit def enumEncoderImpl[E](implicit ev: EnumLike[E], naming: EnumNaming): Writes[E] = namedEnumEncoder(ev, naming)
 
-  trait KebsPlayJsonEnumsUppercase extends KebsPlayJsonEnums {
-    implicit val kebsEnumNaming: EnumNaming = EnumNaming.uppercase
+  trait KebsPlayJsonEnumsUppercase {
+    implicit def enumDecoderImpl[E](implicit ev: EnumLike[E]): Reads[E]  = uppercaseEnumDecoder(ev)
+    implicit def enumEncoderImpl[E](implicit ev: EnumLike[E]): Writes[E] = uppercaseEnumEncoder(ev)
   }
 
-  trait KebsPlayJsonEnumsLowercase extends KebsPlayJsonEnums {
-    implicit val kebsEnumNaming: EnumNaming = EnumNaming.lowercase
+  trait KebsPlayJsonEnumsLowercase {
+    implicit def enumDecoderImpl[E](implicit ev: EnumLike[E]): Reads[E]  = lowercaseEnumDecoder(ev)
+    implicit def enumEncoderImpl[E](implicit ev: EnumLike[E]): Writes[E] = lowercaseEnumEncoder(ev)
   }
 }
 

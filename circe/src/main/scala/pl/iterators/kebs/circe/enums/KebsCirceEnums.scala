@@ -35,12 +35,14 @@ trait KebsCirceEnums {
   implicit def enumDecoderImpl[E](implicit ev: EnumLike[E], naming: EnumNaming): Decoder[E] = namedEnumDecoder(ev, naming)
   implicit def enumEncoderImpl[E](implicit ev: EnumLike[E], naming: EnumNaming): Encoder[E] = namedEnumEncoder(ev, naming)
 
-  trait KebsCirceEnumsUppercase extends KebsCirceEnums {
-    implicit val kebsEnumNaming: EnumNaming = EnumNaming.uppercase
+  trait KebsCirceEnumsUppercase {
+    implicit def enumDecoderImpl[E](implicit ev: EnumLike[E]): Decoder[E] = uppercaseEnumDecoder(ev)
+    implicit def enumEncoderImpl[E](implicit ev: EnumLike[E]): Encoder[E] = uppercaseEnumEncoder(ev)
   }
 
-  trait KebsCirceEnumsLowercase extends KebsCirceEnums {
-    implicit val kebsEnumNaming: EnumNaming = EnumNaming.lowercase
+  trait KebsCirceEnumsLowercase {
+    implicit def enumDecoderImpl[E](implicit ev: EnumLike[E]): Decoder[E] = lowercaseEnumDecoder(ev)
+    implicit def enumEncoderImpl[E](implicit ev: EnumLike[E]): Encoder[E] = lowercaseEnumEncoder(ev)
   }
 }
 

@@ -1,55 +1,43 @@
 package pl.iterators.kebs.baklava.params.enums
 
 import pl.iterators.baklava.{ToHeader, ToPathParam, ToQueryParam}
-import pl.iterators.kebs.core.enums.{EnumLike, ValueEnumLike, ValueEnumLikeEntry}
+import pl.iterators.kebs.core.enums.{EnumLike, EnumNaming, ValueEnumLike, ValueEnumLikeEntry}
 
 import scala.annotation.unused
 
 trait KebsBaklavaEnumsParams {
-  implicit def toQueryParamEnum[T](implicit _enum: EnumLike[T]): ToQueryParam[T] = new ToQueryParam[T] {
-    override def apply(t: T): Seq[String] = Seq(_enum.getName(t))
+  implicit def toQueryParamEnum[T](implicit _enum: EnumLike[T], naming: EnumNaming): ToQueryParam[T] = new ToQueryParam[T] {
+    private val named                     = naming.applyTo(_enum)
+    override def apply(t: T): Seq[String] = Seq(named.getName(t))
   }
 
-  implicit def toPathParamEnum[T](implicit _enum: EnumLike[T]): ToPathParam[T] = new ToPathParam[T] {
-    override def apply(t: T): String = _enum.getName(t)
+  implicit def toPathParamEnum[T](implicit _enum: EnumLike[T], naming: EnumNaming): ToPathParam[T] = new ToPathParam[T] {
+    private val named                = naming.applyTo(_enum)
+    override def apply(t: T): String = named.getName(t)
   }
 
-  implicit def toHeaderEnum[T](implicit _enum: EnumLike[T]): ToHeader[T] = new ToHeader[T] {
-    override def apply(value: T): Option[String] = Some(_enum.getName(value))
-
-    override def unapply(value: String): Option[T] = _enum.withNameOption(value)
+  implicit def toHeaderEnum[T](implicit _enum: EnumLike[T], naming: EnumNaming): ToHeader[T] = new ToHeader[T] {
+    private val named                              = naming.applyTo(_enum)
+    override def apply(value: T): Option[String]   = Some(named.getName(value))
+    override def unapply(value: String): Option[T] = naming.lookup(named, value)
   }
 
   trait KebsBaklavaEnumsUppercaseParams {
-    implicit def toQueryParamEnum[T](implicit _enum: EnumLike[T]): ToQueryParam[T] = new ToQueryParam[T] {
-      override def apply(t: T): Seq[String] = Seq(_enum.getName(t).toUpperCase)
-    }
-
-    implicit def toPathParamEnum[T](implicit _enum: EnumLike[T]): ToPathParam[T] = new ToPathParam[T] {
-      override def apply(t: T): String = _enum.getName(t).toUpperCase
-    }
-
-    implicit def toHeaderEnum[T](implicit _enum: EnumLike[T]): ToHeader[T] = new ToHeader[T] {
-      override def apply(value: T): Option[String] = Some(_enum.getName(value).toUpperCase)
-
-      override def unapply(value: String): Option[T] = _enum.withNameUppercaseOnlyOption(value)
-    }
+    implicit def toQueryParamEnum[T](implicit _enum: EnumLike[T]): ToQueryParam[T] =
+      KebsBaklavaEnumsParams.this.toQueryParamEnum(_enum, EnumNaming.uppercase)
+    implicit def toPathParamEnum[T](implicit _enum: EnumLike[T]): ToPathParam[T] =
+      KebsBaklavaEnumsParams.this.toPathParamEnum(_enum, EnumNaming.uppercase)
+    implicit def toHeaderEnum[T](implicit _enum: EnumLike[T]): ToHeader[T] =
+      KebsBaklavaEnumsParams.this.toHeaderEnum(_enum, EnumNaming.uppercase)
   }
 
   trait KebsBaklavaEnumsLowercaseParams {
-    implicit def toQueryParamEnum[T](implicit _enum: EnumLike[T]): ToQueryParam[T] = new ToQueryParam[T] {
-      override def apply(t: T): Seq[String] = Seq(_enum.getName(t).toLowerCase)
-    }
-
-    implicit def toPathParamEnum[T](implicit _enum: EnumLike[T]): ToPathParam[T] = new ToPathParam[T] {
-      override def apply(t: T): String = _enum.getName(t).toLowerCase
-    }
-
-    implicit def toHeaderEnum[T](implicit _enum: EnumLike[T]): ToHeader[T] = new ToHeader[T] {
-      override def apply(value: T): Option[String] = Some(_enum.getName(value).toLowerCase)
-
-      override def unapply(value: String): Option[T] = _enum.withNameLowercaseOnlyOption(value)
-    }
+    implicit def toQueryParamEnum[T](implicit _enum: EnumLike[T]): ToQueryParam[T] =
+      KebsBaklavaEnumsParams.this.toQueryParamEnum(_enum, EnumNaming.lowercase)
+    implicit def toPathParamEnum[T](implicit _enum: EnumLike[T]): ToPathParam[T] =
+      KebsBaklavaEnumsParams.this.toPathParamEnum(_enum, EnumNaming.lowercase)
+    implicit def toHeaderEnum[T](implicit _enum: EnumLike[T]): ToHeader[T] =
+      KebsBaklavaEnumsParams.this.toHeaderEnum(_enum, EnumNaming.lowercase)
   }
 }
 

@@ -323,7 +323,7 @@ lazy val core = crossProject(JSPlatform, NativePlatform, JVMPlatform)
 
 lazy val baklavaSupport = project
   .in(file("baklava"))
-  .dependsOn(core.jvm, enumeratumSupport.jvm, instances.jvm % "test -> test")
+  .dependsOn(core.jvm, enumeratumSupport.jvm, instances.jvm % "test -> test", testkit.jvm % "test -> compile")
   .settings(baklavaSettings *)
   .settings(publishSettings *)
   .settings(
@@ -405,8 +405,7 @@ lazy val pekkoHttpSupport = project
     enumSupport.jvm,
     instances.jvm  % "test -> test",
     tagged.jvm     % "test -> test",
-    taggedMeta.jvm % "test -> test"
-  )
+    taggedMeta.jvm % "test -> test", testkit.jvm % "test -> compile")
   .settings(pekkoHttpSettings *)
   .settings(publishSettings *)
   .settings(
@@ -420,7 +419,7 @@ lazy val http4sSupport = crossProject(JSPlatform, NativePlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
   .crossType(CrossType.Full)
   .in(file("http4s"))
-  .dependsOn(core, instances, enumSupport % "test -> test", opaque % "test -> test", tagged % "test -> test", taggedMeta % "test -> test")
+  .dependsOn(core, instances, enumSupport % "test -> test", opaque % "test -> test", tagged % "test -> test", taggedMeta % "test -> test", testkit % "test -> compile")
   .settings(http4sSettings *)
   .nativeSettings(
     tlVersionIntroduced := List("2.13", "3").map(_ -> "2.2.0").toMap
@@ -444,8 +443,7 @@ lazy val http4sStirSupport = crossProject(JSPlatform, NativePlatform, JVMPlatfor
     circeSupport % "test -> test",
     opaque       % "test -> test",
     tagged       % "test -> test",
-    taggedMeta   % "test -> test"
-  )
+    taggedMeta   % "test -> test", testkit % "test -> compile")
   .settings(http4sStirSettings *)
   .jvmSettings(
     libraryDependencies += http4sStirTestkit.value % "test"
