@@ -43,6 +43,7 @@ private[sprayjson] trait SprayFormatMacrosImpl extends JsonDerivationMacrosImpl 
   final private class SprayDerivation(config: Expr[JsonConfig]) extends JsonDerivation[JsonFormat] {
     protected def codecType[A: Type]: Type[JsonFormat[A]] = Type.of[JsonFormat[A]]
     protected def ignoredForFields: Seq[UntypedMethod]    = sprayIgnoredForFields
+    protected def entryPoints: Seq[UntypedMethod]         = derivationEntryPoints
 
     protected def optionCodec[A: Type](inner: Expr[JsonFormat[A]]): Expr[JsonFormat[Option[A]]] =
       Expr.quote(SprayDerivationRuntime.optionFormat[A](Expr.splice(inner)))

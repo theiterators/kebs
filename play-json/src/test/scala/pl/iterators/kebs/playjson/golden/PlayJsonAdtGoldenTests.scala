@@ -90,6 +90,14 @@ class PlayJsonAdtGoldenTests extends AnyFunSuite with Matchers {
     message should include("Empty")
   }
 
+  test("a case object at its own type is not derived (play's Writes is invariant, enum instances do not apply)") {
+    import Enums._
+    "Json.toJson(Color.DarkBlue)" shouldNot typeCheck
+    """Json.obj("color" -> Color.DarkBlue)""" shouldNot typeCheck
+    """Json.parse("{}").validate[Color.Red.type]""" shouldNot typeCheck
+    "Json.toJson(Empty)" shouldNot typeCheck
+  }
+
   test("enum instances still win over ADT derivation") {
     import Enums._
     Json.toJson[Color](Color.DarkBlue) shouldBe JsString("DarkBlue")

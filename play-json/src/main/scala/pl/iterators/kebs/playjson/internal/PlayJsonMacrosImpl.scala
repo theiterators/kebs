@@ -81,6 +81,7 @@ private[playjson] trait PlayJsonMacrosImpl extends JsonDerivationMacrosImpl { th
   final private class ReadsDerivation(config: Expr[JsonConfig]) extends JsonDerivation[Reads] {
     protected def codecType[A: Type]: Type[Reads[A]]   = Type.of[Reads[A]]
     protected def ignoredForFields: Seq[UntypedMethod] = readsIgnoredForFields
+    protected def entryPoints: Seq[UntypedMethod]      = readsEntryPoints
 
     protected def optionCodec[A: Type](inner: Expr[Reads[A]]): Expr[Reads[Option[A]]] =
       Expr.quote(PlayDerivationRuntime.optionReads[A](Expr.splice(inner)))
@@ -227,6 +228,7 @@ private[playjson] trait PlayJsonMacrosImpl extends JsonDerivationMacrosImpl { th
   final private class WritesDerivation(config: Expr[JsonConfig]) extends JsonDerivation[Writes] {
     protected def codecType[A: Type]: Type[Writes[A]]  = Type.of[Writes[A]]
     protected def ignoredForFields: Seq[UntypedMethod] = writesIgnoredForFields
+    protected def entryPoints: Seq[UntypedMethod]      = writesEntryPoints
 
     protected def optionCodec[A: Type](inner: Expr[Writes[A]]): Expr[Writes[Option[A]]] =
       Expr.quote(PlayDerivationRuntime.optionWrites[A](Expr.splice(inner)))

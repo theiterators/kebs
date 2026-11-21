@@ -64,6 +64,7 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
   abstract class JsonDerivation[Codec[_]] {
     protected def codecType[A: Type]: Type[Codec[A]]
     protected def ignoredForFields: Seq[UntypedMethod]
+    protected def entryPoints: Seq[UntypedMethod]
     protected def optionCodec[A: Type](inner: Expr[Codec[A]]): Expr[Codec[Option[A]]]
     protected def collectionCodec[Item: Type, R: Type, C: Type](
         inner: Expr[Codec[Item]],
@@ -106,6 +107,7 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
           .orElse(structural[F])
           .orElse(flat[F])
           .orElse(derived[F])
+          .orElse(anyExisting[F])
           .getOrElse(
             Environment.reportErrorAndAbort(
               s"No ${codecType[F].prettyPrint} in scope, and kebs derives one only for case classes and sealed " +
@@ -214,6 +216,11 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
           }
         case _ => None
       }
+
+    // last resort, the library's own container codecs too (e.g. play's Map with KeyWrites keys): only kebs' entry
+    // points stay ignored, so recursion still cannot leave this expansion
+    private def anyExisting[F: Type]: Option[Expr[Codec[F]]] =
+      summonInstance[Codec[F]](entryPoints)(using codecType[F]).map(found => shared[F](key[F]("anyExisting"))(found))
 
     private def existing[F: Type]: Option[Expr[Codec[F]]] =
       summonInstance[Codec[F]](ignoredForFields)(using codecType[F]).map(found => shared[F](key[F]("existing"))(found))

@@ -22,8 +22,12 @@ object PlayDerivationRuntime {
   def productReads[T](config: JsonConfig, scalaNames: List[String], renamed: List[Option[String]])(
       readFields: (Fields, JsValue) => JsResult[T]
   ): Reads[T] = new Reads[T] {
-    private lazy val names                = fields(config, scalaNames, renamed)
-    def reads(json: JsValue): JsResult[T] = readFields(names, json)
+    private lazy val names = fields(config, scalaNames, renamed)
+    // as Json.reads: field paths of a non-object would all be "missing", and all-Option products would read garbage
+    def reads(json: JsValue): JsResult[T] = json match {
+      case obj: JsObject => readFields(names, obj)
+      case _             => JsError("error.expected.jsobject")
+    }
   }
 
   def productWrites[T](config: JsonConfig, scalaNames: List[String], renamed: List[Option[String]])(

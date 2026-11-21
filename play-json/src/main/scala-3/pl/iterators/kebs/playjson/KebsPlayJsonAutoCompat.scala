@@ -6,11 +6,15 @@ import pl.iterators.kebs.playjson.internal.PlayJsonMacrosImpl
 import play.api.libs.json.{OFormat, OWrites, Reads}
 
 import scala.deriving.Mirror
+import scala.util.NotGiven
 import scala.quoted.*
 
 // a parent of KebsPlayJson, so that its flat and InstanceConverter instances win by owner
 private[playjson] trait KebsPlayJsonAutoCompat { self: KebsPlayJson =>
-  inline implicit def kebsAutoReads[T](using m: Mirror.ProductOf[T]): Reads[T] = KebsPlayJsonMacros.autoReads[T](kebsJsonConfig)
+  // not a case object's own type: play's Reads/Writes are invariant, so kebs' enum instances do not apply there and
+  // deriving `{}` would replace a compile error with wrong JSON
+  inline implicit def kebsAutoReads[T](using m: Mirror.ProductOf[T], notCaseObject: NotGiven[T <:< Singleton]): Reads[T] =
+    KebsPlayJsonMacros.autoReads[T](kebsJsonConfig)
 
   // transparent and stepping aside when an instance exists: a sealed enum also has kebs' enum instances, which must win
   transparent inline implicit def kebsAutoReadsSealed[T](using m: Mirror.SumOf[T]): Reads[T] =
@@ -18,7 +22,7 @@ private[playjson] trait KebsPlayJsonAutoCompat { self: KebsPlayJson =>
 
   // OWrites, so that play's OFormat.oFormatFromReadsAndOWrites serves OFormat requests; transparent and stepping aside
   // when an instance exists: otherwise it would beat a companion Format and have to wrap a non-object Writes
-  transparent inline implicit def kebsAutoWrites[T](using m: Mirror.ProductOf[T]): OWrites[T] =
+  transparent inline implicit def kebsAutoWrites[T](using m: Mirror.ProductOf[T], notCaseObject: NotGiven[T <:< Singleton]): OWrites[T] =
     KebsPlayJsonMacros.autoWrites[T](kebsJsonConfig)
   transparent inline implicit def kebsAutoWritesSealed[T](using m: Mirror.SumOf[T]): OWrites[T] =
     KebsPlayJsonMacros.autoWritesSealed[T](kebsJsonConfig)

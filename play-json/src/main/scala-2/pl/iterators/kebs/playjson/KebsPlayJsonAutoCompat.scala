@@ -33,6 +33,9 @@ final private[playjson] class KebsPlayJsonMacros(val c: whitebox.Context) extend
     val T = weakTypeOf[T]
     if (sealedType && !isSealed(T)) c.abort(c.enclosingPosition, s"$T is not a sealed hierarchy")
     if (!sealedType && !isCaseClass(T)) c.abort(c.enclosingPosition, s"$T is not a case class")
+    // play's Writes is invariant, so kebs' enum instances do not apply to a case object's own type: deriving `{}` there
+    // would replace a compile error with wrong JSON
+    if (T.typeSymbol.isModuleClass) c.abort(c.enclosingPosition, s"$T is a case object; it is derived only as a case")
     if (isStandardLibrary[T] || isBeingDerived[T]) c.abort(c.enclosingPosition, s"$T is not derived here")
   }
 

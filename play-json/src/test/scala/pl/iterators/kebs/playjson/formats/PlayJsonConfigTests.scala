@@ -30,6 +30,9 @@ object PlayJsonConfigTestDomain {
   }
   final case class Tag(name: String, x: Int)
   final case class Tagged(tags: List[Tag], first: Option[Tag])
+  final case class Opts(a: Option[Int], b: Option[String])
+  final case class HoldsOpts(o: Opts, n: Int)
+  final case class IntKeys(byId: Map[Int, String])
 }
 
 class PlayJsonConfigTests extends AnyFunSuite with Matchers {
@@ -104,6 +107,25 @@ class PlayJsonConfigTests extends AnyFunSuite with Matchers {
     import Default._
     Kebab.deriveFormat[Comp2].writes(Comp2(1)) shouldBe Json.parse("""{"some-field":1}""")
     Json.toJson(Comp2(1)) shouldBe Json.parse("""{"someField":1}""")
+  }
+
+  test("a non-object input is an error, as in play's Json.reads") {
+    import Default._
+    def errors(result: JsResult[?]): Set[String] = result match {
+      case JsError(errors) => errors.flatMap { case (path, es) => es.flatMap(_.messages).map(m => s"$path $m") }.toSet
+      case other           => fail(s"expected an error, got $other")
+    }
+    for (json <- List("5", "\"x\"", "null", "[1,2]")) {
+      errors(Json.parse(json).validate[Opts]) shouldBe Set(" error.expected.jsobject")
+      errors(Json.parse(s"""{"o":$json,"n":1}""").validate[HoldsOpts]) shouldBe Set("/o error.expected.jsobject")
+    }
+    errors(Json.parse("5").validate[Located]) shouldBe Set(" error.expected.jsobject")
+  }
+
+  test("a Map with keys play can write as strings") {
+    import Default._
+    Json.toJson(IntKeys(Map(1 -> "a"))) shouldBe Json.parse("""{"byId":{"1":"a"}}""")
+    Json.parse("""{"byId":{"1":"a"}}""").validate[IntKeys] shouldBe JsSuccess(IntKeys(Map(1 -> "a")))
   }
 
   test("a user's instance of a container field wins") {
