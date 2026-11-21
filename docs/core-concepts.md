@@ -5,7 +5,7 @@ title: Core Concepts
 
 # Core Concepts
 
-Kebs is built on four typeclasses. Each integration module (circe, slick, akka-http, etc.) provides implicit derivation rules that delegate to these.
+Kebs is built on four typeclasses. Each integration module (circe, slick, pekko-http, etc.) provides implicit derivation rules that delegate to these.
 
 ## ValueClassLike[VC, F1]
 

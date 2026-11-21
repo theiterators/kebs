@@ -106,4 +106,4 @@ import pl.iterators.kebs.http4sstir.matchers.KebsHttp4sStirMatchers
 // or: import pl.iterators.kebs.http4sstir.matchers._
 ```
 
-Same extension methods as [Akka/Pekko HTTP matchers](akka-http.md#path-matchers): `.as[T]`, `.to[T]`, `.asEnum[T]`, `.asValueEnum[T]`, and chaining (`.to[URI].as[TaggedUri]`).
+Same extension methods as [Pekko HTTP matchers](pekko-http.md#path-matchers): `.as[T]`, `.to[T]`, `.asEnum[T]`, `.asValueEnum[T]`, and chaining (`.to[URI].as[TaggedUri]`).
