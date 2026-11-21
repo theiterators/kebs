@@ -2,7 +2,7 @@ package pl.iterators.kebs.http4sstir.unmarshallers
 
 import org.http4s.UrlForm
 import pl.iterators.stir.server.{Directives, MalformedQueryParamRejection}
-import pl.iterators.stir.testkit.ScalatestRouteTest
+import pl.iterators.stir.testkit.{RouteTestTimeout, ScalatestRouteTest}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
@@ -13,6 +13,7 @@ import pl.iterators.kebs.instances.time.{DayOfWeekInt, YearMonthString}
 import pl.iterators.kebs.http4sstir.domain.Domain._
 import pl.iterators.kebs.http4sstir.unmarshallers.KebsHttp4sStirUnmarshallers
 
+import scala.concurrent.duration._
 import java.time.{DayOfWeek, YearMonth}
 
 class Http4sStirUnmarshallersTests
@@ -28,6 +29,9 @@ class Http4sStirUnmarshallersTests
     with KebsEnumForTests
     with KebsValueEnumForTests
     with CaseClass1ToValueClass {
+  // the first request of a suite can take over the 1s default on a cold CI JVM
+  implicit val routeTestTimeout: RouteTestTimeout = RouteTestTimeout(5.seconds)
+
   implicit def runtime: cats.effect.unsafe.IORuntime = cats.effect.unsafe.IORuntime.global
 
   test("No ValueClassLike implicits derived") {
