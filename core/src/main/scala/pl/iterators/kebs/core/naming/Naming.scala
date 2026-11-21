@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap
 final case class Naming(transform: String => String) {
   // derived codecs rename on every encode/decode; names are field and case names, so the set is small (the cap guards
   // against a naming applied to arbitrary runtime strings)
-  private[this] val memo = new ConcurrentHashMap[String, String]
+  private val memo = new ConcurrentHashMap[String, String]
 
   def apply(name: String): String = {
     val cached = memo.get(name)

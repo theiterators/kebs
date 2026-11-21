@@ -1,8 +1,8 @@
-package pl.iterators.kebs.sprayjson.internal
+package pl.iterators.kebs.core.macros.internal
 
 // types whose derivation is on the macro stack: on Scala 2 an implicit search started inside the macro reaches kebs'
 // entry point again, and deriving the same type there would never end
-private[sprayjson] object SprayDerivationGuard {
+private[kebs] object JsonDerivationGuard {
   private val inProgress = new ThreadLocal[Set[String]] {
     override def initialValue(): Set[String] = Set.empty
   }
