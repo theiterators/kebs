@@ -8,15 +8,15 @@ import pl.iterators.kebs.core.annotations.{fieldName, transientField}
 import pl.iterators.kebs.core.json.JsonConfig
 import pl.iterators.kebs.core.macros.ValueClassLike
 import pl.iterators.kebs.sprayjson.KebsSprayJson
-import spray.json.{JsValue, JsonFormat, RootJsonFormat}
+import spray.json.{CollectionFormats, JsValue, JsonFormat, RootJsonFormat, StandardFormats}
 
 import scala.annotation.nowarn
 import scala.collection.mutable
 
 private[sprayjson] trait SprayFormatMacrosImpl { this: MacroCommons & StdExtensions =>
 
-  // the derivation runs inside `implicit val f: RootJsonFormat[T] = jsonFormatN[T]`, where `f` itself is in scope
-  protected def isEnclosingDefinition(expr: UntypedExpr): Boolean
+  // Scala 3: a private constructor is still reachable through the Mirror's fromProduct
+  protected def constructViaMirror[F: Type](arguments: List[Expr_??]): Option[Expr[F]] = None
 
   private var extensionsLoaded = false
 
@@ -36,20 +36,41 @@ private[sprayjson] trait SprayFormatMacrosImpl { this: MacroCommons & StdExtensi
   private def protocolMethods(names: Set[String]): Seq[UntypedMethod] =
     Type.of[KebsSprayJson].unsortedMethods.filter(method => names(method.name)).map(_.asUntyped)
 
-  private lazy val derivationEntryPoints = protocolMethods(Set("jsonFormatN", "jsonFormatRec", "jsonFormatSealed"))
+  private lazy val derivationEntryPoints = protocolMethods(Set("kebsAutoJsonFormat", "kebsAutoJsonFormatSealed"))
   // kebs' own generic formats do not count as an existing root instance: a root request derives an object (kebs 2)
   private lazy val ignoredAtRoot =
-    protocolMethods(Set("jsonFormatN", "jsonFormatRec", "jsonFormatSealed", "jsonFlatFormat", "jsonConversionFormat2"))
+    derivationEntryPoints ++ protocolMethods(Set("jsonFlatFormat", "jsonConversionFormat2"))
+  // spray's Option/collection formats would look the element up through kebs' entry point again (outside this
+  // expansion, which recursive types never leave); kebs takes these apart itself, a user's own container format wins
+  private lazy val ignoredForFields = derivationEntryPoints ++
+    (Type.of[CollectionFormats].unsortedMethods ++ Type.of[StandardFormats].unsortedMethods.filter(_.name == "optionFormat"))
+      .filter(_.isImplicit)
+      .map(_.asUntyped)
 
-  // stepAside: fail when a format exists, for an entry point whose failure only skips it (Scala 3 transparent inline)
-  def deriveRootFormat[T: Type](config: Expr[JsonConfig], stepAside: Boolean = false): Expr[RootJsonFormat[T]] = {
+  private def summonFormat[F: Type](ignored: Seq[UntypedMethod]): Option[Expr[JsonFormat[F]]] =
+    Type.of[JsonFormat[F]].summonExprIgnoring(ignored*) match {
+      case SummoningResult.Found(found) => Some(found)
+      case SummoningResult.Ambiguous(_) =>
+        Environment.reportErrorAndAbort(s"Ambiguous JsonFormat instances for ${Type[F].prettyPrint}")
+      case _ => None
+    }
+
+  def isBeingDerived[T: Type]: Boolean = SprayDerivationGuard.isBeingDerived(Type[T].plainPrint)
+
+  def isStandardLibrary[T: Type]: Boolean = {
+    val name = Type.fqcn[T]
+    name.startsWith("scala.") || name.startsWith("java.") || name.startsWith("(")
+  }
+
+  // implicit entry points consult existing formats first; an explicit jsonFormatN/jsonFormatSealed call always derives.
+  // stepAside: fail when a format exists, for an entry point whose failure only skips it
+  def deriveRootFormat[T: Type](config: Expr[JsonConfig], consultExisting: Boolean, stepAside: Boolean): Expr[RootJsonFormat[T]] = {
     loadExtensions()
-    implicit val JsonFormatT: Type[JsonFormat[T]] = Type.of[JsonFormat[T]]
-    JsonFormatT.summonExprIgnoring(ignoredAtRoot*).toEither match {
-      case Right(found) if !isEnclosingDefinition(found.asUntyped) =>
+    (if (consultExisting) summonFormat[T](ignoredAtRoot) else None) match {
+      case Some(found) =>
         if (stepAside) Environment.reportErrorAndAbort(s"${Type[T].prettyPrint} already has a JsonFormat")
         Expr.quote(SprayDerivationRuntime.asRoot(Expr.splice(found)))
-      case _ => new Derivation(config).root[T]
+      case None => new Derivation(config).root[T]
     }
   }
 
@@ -92,18 +113,22 @@ private[sprayjson] trait SprayFormatMacrosImpl { this: MacroCommons & StdExtensi
           val builder = ValDefBuilder.ofLazy[RootJsonFormat[F]]("kebsFormat")
           cache = builder.forwardDeclare(cache, k)
           declared += k
-          val body = build()
+          val body = SprayDerivationGuard.deriving(Type[F].plainPrint)(build())
           cache = builder.buildCachedWith(cache, k)(_ => body)
           cache.get0Ary[RootJsonFormat[F]](k).get
         }
     }
 
+    // standard library sums and tuples have spray formats; deriving them would silently change their JSON shape
     private def derivation[F: Type]: Option[() => Expr[RootJsonFormat[F]]] =
-      Expr
-        .singletonOf[F]
-        .map(value => () => Expr.quote(SprayDerivationRuntime.singleton[F](Expr.splice(value))))
-        .orElse(CaseClass.parse[F].toOption.map(caseClass => () => product[F](caseClass)))
-        .orElse(leavesOf[F].map(leaves => () => sum[F](leaves)))
+      if (isStandardLibrary[F] && (Type.isSealed[F] || Type.fqcn[F].startsWith("scala.Tuple") || Type.fqcn[F].startsWith("(")))
+        None
+      else
+        Expr
+          .singletonOf[F]
+          .map(value => () => Expr.quote(SprayDerivationRuntime.singleton[F](Expr.splice(value))))
+          .orElse(CaseClass.parse[F].toOption.map(caseClass => () => product[F](caseClass)))
+          .orElse(leavesOf[F].map(leaves => () => sum[F](leaves)))
 
     // nested sealed hierarchies are flattened to their leaves (as kindlings/circe do)
     private def leavesOf[F: Type]: Option[List[(String, ??)]] =
@@ -179,19 +204,19 @@ private[sprayjson] trait SprayFormatMacrosImpl { this: MacroCommons & StdExtensi
       implicit val RootF: Type[RootJsonFormat[F]]   = Type.of[RootJsonFormat[F]]
       if (declared(key[F]("derived"))) cache.get0Ary[RootJsonFormat[F]](key[F]("derived")).get.upcast[JsonFormat[F]]
       else
-        structural[F]
-          .orElse(existing[F])
+        existing[F]
+          .orElse(structural[F])
           .orElse(flat[F])
           .orElse(derived[F].map(_.upcast[JsonFormat[F]]))
           .getOrElse(
             Environment.reportErrorAndAbort(
-              s"No JsonFormat for ${Type[F].prettyPrint} in scope, and kebs cannot derive one: not a case class"
+              s"No JsonFormat for ${Type[F].prettyPrint} in scope, and kebs derives one only for case classes and " +
+                "sealed hierarchies outside the standard library (a recursive type through a tuple or an Either needs " +
+                "an explicit implicit lazy val)"
             )
           )
     }
 
-    // decomposed here rather than summoned: spray's own formats would look up the element type through kebs' entry
-    // point again, outside this expansion, which recursive types never leave
     private def structural[F: Type]: Option[Expr[JsonFormat[F]]] = if (Type[F] =:= Type.of[String]) None
     else
       Type[F] match {
@@ -243,9 +268,7 @@ private[sprayjson] trait SprayFormatMacrosImpl { this: MacroCommons & StdExtensi
       }
 
     private def existing[F: Type]: Option[Expr[JsonFormat[F]]] =
-      Type.of[JsonFormat[F]].summonExprIgnoring(derivationEntryPoints*).toEither.toOption.map { found =>
-        shared[F](key[F]("existing"))(found)
-      }
+      summonFormat[F](ignoredForFields).map(found => shared[F](key[F]("existing"))(found))
 
     // flat although no format of the field type exists yet: kebs 2 flattened Wrapper(inner: Inner) with Inner derived
     private def flat[F: Type]: Option[Expr[JsonFormat[F]]] =
@@ -266,8 +289,15 @@ private[sprayjson] trait SprayFormatMacrosImpl { this: MacroCommons & StdExtensi
           }
         )
 
-    private def parameters[F](caseClass: CaseClass[F]): List[Parameter] =
-      caseClass.primaryConstructor.parameters.flatMap(_.values.toList)
+    private def parameters[F: Type](caseClass: CaseClass[F]): List[Parameter] =
+      caseClass.primaryConstructor.parameters match {
+        case single :: Nil => single.values.toList
+        case Nil           => Nil
+        case lists         =>
+          Environment.reportErrorAndAbort(
+            s"kebs derives case classes with one parameter list; ${Type[F].prettyPrint} has ${lists.size}"
+          )
+      }
 
     private def product[F: Type](caseClass: CaseClass[F]): Expr[RootJsonFormat[F]] = {
       implicit val StringType: Type[String]                   = Type.of[String]
@@ -292,6 +322,9 @@ private[sprayjson] trait SprayFormatMacrosImpl { this: MacroCommons & StdExtensi
       }
     }
 
+    // Option semantics (missing reads as None, None omitted) unless the user has a format of the Option type itself
+    private def optionField[A: Type]: Option[??] = if (existing[A].isDefined) None else optionItem[A]
+
     private def optionItem[A: Type]: Option[??] = Type[A] match {
       case IsOption(isOption) =>
         import isOption.Underlying as Item
@@ -314,7 +347,7 @@ private[sprayjson] trait SprayFormatMacrosImpl { this: MacroCommons & StdExtensi
           // a field not accessible at the call site
           Expr.quote(Expr.splice(obj).asInstanceOf[Product].productElement(Expr.splice(index)).asInstanceOf[A])
         }
-        optionItem[A] match {
+        optionField[A] match {
           case Some(item) =>
             import item.Underlying as X
             Expr.quote(
@@ -346,12 +379,14 @@ private[sprayjson] trait SprayFormatMacrosImpl { this: MacroCommons & StdExtensi
         names: Expr[SprayDerivationRuntime.Fields],
         json: Expr[JsValue]
     ): Expr[F] = {
-      val arguments = fields.map(field => field.param.name -> argument(field, names, json)).toMap
+      val ordered   = fields.map(field => field.param.name -> argument(field, names, json))
+      val arguments = ordered.toMap
       viaCompanionApply[F](arguments)
         .orElse(caseClass.construct[MIO](param => MIO.pure(arguments(param.name))).unsafe.runSync._2 match {
           case Right(Some(constructed)) => Some(constructed)
           case _                        => None
         })
+        .orElse(constructViaMirror[F](ordered.map(_._2)))
         .getOrElse(Environment.reportErrorAndAbort(s"${Type[F].prettyPrint} has no accessible constructor or apply"))
     }
 
@@ -363,7 +398,7 @@ private[sprayjson] trait SprayFormatMacrosImpl { this: MacroCommons & StdExtensi
       val value: Expr[A] =
         if (field.transient) default.get
         else
-          optionItem[A] match {
+          optionField[A] match {
             case Some(item) =>
               import item.Underlying as X
               (default match {

@@ -28,6 +28,18 @@ object SprayJsonConfigTestDomain {
   final case class Located(name: String, at: Point)
   final case class Inner(a: Int)
   final case class Outer(inner: Inner, n: Int)
+  final case class Comp2(someField: Int)
+  object Comp2 {
+    import DefaultJsonProtocol._
+    implicit val format: RootJsonFormat[Comp2] = jsonFormat1(Comp2.apply)
+  }
+  final case class Tag(name: String, x: Int)
+  final case class Tagged(tags: List[Tag], first: Option[Tag])
+  final case class Rng private (from: Int, to: Int)
+  object Rng {
+    def of(from: Int, to: Int): Rng = new Rng(from, to)
+  }
+  final case class MultiList(a: Int)(val b: String)
 }
 
 class SprayJsonConfigTests extends AnyFunSuite with Matchers {
@@ -81,6 +93,51 @@ class SprayJsonConfigTests extends AnyFunSuite with Matchers {
     val format = Kebab.jsonFormatN[Naming]
     format.write(Naming(1, "a", 2, "u")) shouldBe
     """{"some-field":1,"another-field-name":"a","field1-name":2,"http-url":"u"}""".parseJson
+  }
+
+  test("an explicit derivation call always derives, with that protocol's config") {
+    import Default._
+    Kebab.jsonFormatN[Comp2].write(Comp2(1)) shouldBe """{"some-field":1}""".parseJson
+    implicitly[RootJsonFormat[Comp2]].write(Comp2(1)) shouldBe """{"someField":1}""".parseJson
+  }
+
+  test("a derived format handed to an implicit val is not that val") {
+    object Holder {
+      import Default._
+      private def derived: RootJsonFormat[Inner] = jsonFormatN[Inner]
+      implicit val format: RootJsonFormat[Inner] = derived
+    }
+    Holder.format.write(Inner(1)) shouldBe """{"a":1}""".parseJson
+  }
+
+  test("a user's format of a container field wins") {
+    import Default._
+    implicit val tagsFormat: JsonFormat[List[Tag]] = new JsonFormat[List[Tag]] {
+      def write(tags: List[Tag]): JsValue = JsString(tags.map(t => s"${t.name}:${t.x}").mkString(","))
+      def read(json: JsValue): List[Tag]  = json match {
+        case JsString(s) =>
+          s.split(',').toList.map { tag =>
+            val Array(name, x) = tag.split(':')
+            Tag(name, x.toInt)
+          }
+        case other => deserializationError(s"Expected tags, got $other")
+      }
+    }
+    val tagged = Tagged(List(Tag("a", 1)), Some(Tag("b", 2)))
+    val json   = """{"tags":"a:1","first":{"name":"b","x":2}}""".parseJson
+    implicitly[RootJsonFormat[Tagged]].write(tagged) shouldBe json
+    implicitly[RootJsonFormat[Tagged]].read(json) shouldBe tagged
+  }
+
+  test("a case class with a private constructor") {
+    import Default._
+    implicitly[RootJsonFormat[Rng]].write(Rng.of(1, 2)) shouldBe """{"from":1,"to":2}""".parseJson
+    implicitly[RootJsonFormat[Rng]].read("""{"from":1,"to":2}""".parseJson) shouldBe Rng.of(1, 2)
+  }
+
+  test("a case class with more than one parameter list is rejected") {
+    import Default._
+    "implicitly[RootJsonFormat[MultiList]]" shouldNot typeCheck
   }
 
   test("missing and malformed fields are reported like spray's fromField") {

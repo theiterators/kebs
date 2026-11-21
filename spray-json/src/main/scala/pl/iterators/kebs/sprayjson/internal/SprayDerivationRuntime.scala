@@ -11,6 +11,8 @@ import scala.collection.mutable
 object SprayDerivationRuntime {
   final class Fields(val names: Array[String], val writeNull: Boolean, val useDefaults: Boolean)
 
+  // JsObject(members*) keeps them sorted, as spray's own formats (and kebs 2) printed them
+
   def product[T](config: JsonConfig, scalaNames: List[String], renamed: List[Option[String]])(
       writeFields: (Fields, T) => List[JsField],
       readFields: (Fields, JsValue) => T
@@ -20,7 +22,7 @@ object SprayDerivationRuntime {
       config.noneHandling == NoneHandling.WriteNull,
       config.useDefaults
     )
-    def write(obj: T): JsValue = JsObject(writeFields(fields, obj).toMap)
+    def write(obj: T): JsValue = JsObject(writeFields(fields, obj)*)
     def read(json: JsValue): T = readFields(fields, json)
   }
 

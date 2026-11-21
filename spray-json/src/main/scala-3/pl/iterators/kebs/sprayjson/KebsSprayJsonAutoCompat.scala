@@ -9,39 +9,48 @@ import scala.quoted.*
 
 // a parent of KebsSprayJson, so that jsonFlatFormat wins a JsonFormat request for a value class (as in kebs 2)
 private[sprayjson] trait KebsSprayJsonAutoCompat { self: KebsSprayJson =>
-  inline implicit def jsonFormatN[T](using m: Mirror.ProductOf[T]): RootJsonFormat[T] = KebsSprayJsonMacros.derive[T](kebsJsonConfig)
+  inline implicit def kebsAutoJsonFormat[T](using m: Mirror.ProductOf[T]): RootJsonFormat[T] =
+    KebsSprayJsonMacros.auto[T](kebsJsonConfig)
 
   // transparent and stepping aside when a format exists: a sealed enum also has kebs' enum format, which must win
-  transparent inline implicit def jsonFormatSealed[T](using m: Mirror.SumOf[T]): RootJsonFormat[T] =
-    KebsSprayJsonMacros.deriveSealed[T](kebsJsonConfig)
+  transparent inline implicit def kebsAutoJsonFormatSealed[T](using m: Mirror.SumOf[T]): RootJsonFormat[T] =
+    KebsSprayJsonMacros.autoSealed[T](kebsJsonConfig)
+
+  inline def jsonFormatN[T]: RootJsonFormat[T]      = KebsSprayJsonMacros.explicit[T](kebsJsonConfig)
+  inline def jsonFormatSealed[T]: RootJsonFormat[T] = KebsSprayJsonMacros.explicit[T](kebsJsonConfig)
 
   @deprecated("jsonFormatN handles recursive types", "3.0.0")
-  inline final def jsonFormatRec[T](using m: Mirror.ProductOf[T]): RootJsonFormat[T] = KebsSprayJsonMacros.derive[T](kebsJsonConfig)
+  inline final def jsonFormatRec[T]: RootJsonFormat[T] = KebsSprayJsonMacros.explicit[T](kebsJsonConfig)
 }
 
 final private[sprayjson] class KebsSprayJsonMacros(q: Quotes) extends hearth.MacroCommonsScala3(using q), SprayFormatMacrosImpl {
-  import quotes.reflect.*
 
-  override protected def isEnclosingDefinition(expr: UntypedExpr): Boolean = {
-    def strip(term: Term): Term = term match {
-      case Inlined(_, _, inner) => strip(inner)
-      case Typed(inner, _)      => strip(inner)
-      case other                => other
+  override protected def constructViaMirror[F: Type](arguments: List[Expr_??]): Option[Expr[F]] = {
+    given Quotes = q
+    scala.quoted.Expr.summon[Mirror.ProductOf[F]].map { mirror =>
+      val values = Varargs(arguments.map(_.value.asInstanceOf[scala.quoted.Expr[Any]]))
+      '{ $mirror.fromProduct(Tuple.fromArray(Array[Any]($values*))).asInstanceOf[F] }
     }
-    val referenced = strip(expr).symbol
-    !referenced.isNoSymbol &&
-    Iterator.iterate(Symbol.spliceOwner)(_.owner).takeWhile(owner => !owner.isNoSymbol && !owner.isClassDef).contains(referenced)
+  }
+
+  def autoSealed[T: Type](config: Expr[JsonConfig]): Expr[RootJsonFormat[T]] = {
+    // spray formats the standard library itself; failing here only skips this candidate
+    if (isStandardLibrary[T]) Environment.reportErrorAndAbort(s"${Type[T].prettyPrint} is not derived here")
+    deriveRootFormat[T](config, consultExisting = true, stepAside = true)
   }
 }
 
 private[sprayjson] object KebsSprayJsonMacros {
-  inline def derive[T](inline config: JsonConfig): RootJsonFormat[T] = ${ deriveImpl[T]('config) }
+  inline def auto[T](inline config: JsonConfig): RootJsonFormat[T]                   = ${ autoImpl[T]('config) }
+  transparent inline def autoSealed[T](inline config: JsonConfig): RootJsonFormat[T] = ${ autoSealedImpl[T]('config) }
+  inline def explicit[T](inline config: JsonConfig): RootJsonFormat[T]               = ${ explicitImpl[T]('config) }
 
-  transparent inline def deriveSealed[T](inline config: JsonConfig): RootJsonFormat[T] = ${ deriveSealedImpl[T]('config) }
+  def autoImpl[T: Type](config: Expr[JsonConfig])(using q: Quotes): Expr[RootJsonFormat[T]] =
+    new KebsSprayJsonMacros(q).deriveRootFormat[T](config, consultExisting = true, stepAside = false)
 
-  def deriveImpl[T: Type](config: Expr[JsonConfig])(using q: Quotes): Expr[RootJsonFormat[T]] =
-    new KebsSprayJsonMacros(q).deriveRootFormat[T](config)
+  def autoSealedImpl[T: Type](config: Expr[JsonConfig])(using q: Quotes): Expr[RootJsonFormat[T]] =
+    new KebsSprayJsonMacros(q).autoSealed[T](config)
 
-  def deriveSealedImpl[T: Type](config: Expr[JsonConfig])(using q: Quotes): Expr[RootJsonFormat[T]] =
-    new KebsSprayJsonMacros(q).deriveRootFormat[T](config, stepAside = true)
+  def explicitImpl[T: Type](config: Expr[JsonConfig])(using q: Quotes): Expr[RootJsonFormat[T]] =
+    new KebsSprayJsonMacros(q).deriveRootFormat[T](config, consultExisting = false, stepAside = false)
 }
