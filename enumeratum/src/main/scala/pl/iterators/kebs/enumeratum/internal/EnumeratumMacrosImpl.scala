@@ -2,6 +2,7 @@ package pl.iterators.kebs.enumeratum.internal
 
 import enumeratum.EnumEntry
 import pl.iterators.kebs.core.enums.EnumLike
+import pl.iterators.kebs.core.macros.internal.EnumCasesMacrosImpl
 
 /** Shared (Scala 2.13 + Scala 3) derivation of enumeratum entries and `EnumLike`.
   *
@@ -10,7 +11,7 @@ import pl.iterators.kebs.core.enums.EnumLike
   * `ValueEnumLike[V, E <: ValueEnumLikeEntry[V]]`, cannot appear inside Scala 2 cross-quotes - the entry points build those from the
   * entries.)
   */
-private[kebs] trait EnumeratumMacrosImpl { this: hearth.MacroCommons =>
+private[kebs] trait EnumeratumMacrosImpl extends EnumCasesMacrosImpl { this: hearth.MacroCommons =>
 
   /** Entries of `E`: the companion's `values`; with a `fallback` (Scala 3) the fallback is also used when `values` turns out empty at
     * runtime - enumeratum's Scala 3 `findValues` finds nothing for an enum declared inside a class.
@@ -34,20 +35,6 @@ private[kebs] trait EnumeratumMacrosImpl { this: hearth.MacroCommons =>
       EnumLike[E](Expr.splice(entries), (e: E) => Expr.splice(Expr.quote(e).upcast[EnumEntry]).entryName)
     }
   }
-
-  /** The case objects of `E` (nested sealed hierarchies flattened) in declaration order, if every leaf is one. */
-  def caseObjectsOf[E: Type]: Option[Expr[List[E]]] =
-    Enum.parse[E].toOption.flatMap(_.exhaustiveChildren).flatMap { children =>
-      val singletons = children.toList.map { case (_, child) =>
-        import child.Underlying as C
-        Expr.singletonOf[C].map(_.upcast[E])
-      }
-      if (singletons.nonEmpty && singletons.forall(_.isDefined))
-        Some(singletons.flatten.foldRight(Expr.quote(List.empty[E])) { (head, tail) =>
-          Expr.quote(Expr.splice(head) :: Expr.splice(tail))
-        })
-      else None
-    }
 
   /** `E.values.toList` when `E`'s companion has a `values` member returning a `Seq[E]` (enumeratum `Enum`/`ValueEnum`). */
   private def companionValues[E: Type]: Option[Expr[List[E]]] = {
