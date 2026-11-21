@@ -199,25 +199,29 @@ lazy val doobieSettings = commonSettings ++ Seq(
   libraryDependencies += (enumeratumInTest.value)
 )
 
-lazy val coreSettings = commonMacroSettings ++ Seq(
+// modules whose macros are written with hearth (shared code + cross-quotes)
+lazy val hearthMacroSettings = Seq(
   libraryDependencies += "com.kubuszok" %%% "hearth" % hearthV,
   libraryDependencies ++= (if (scalaVersion.value.startsWith("3"))
                              Seq(compilerPlugin("com.kubuszok" % "hearth-cross-quotes_3" % hearthV))
                            else Nil),
   // harmless on hearth's path-dependent Method/Type ADTs
   scalacOptions ++= (if (scalaVersion.value.startsWith("3")) Nil
-                     else Seq("-Wconf:msg=The outer reference in this type test cannot be checked at run time:s")),
+                     else Seq("-Wconf:msg=The outer reference in this type test cannot be checked at run time:s"))
+)
+
+lazy val coreSettings = commonMacroSettings ++ hearthMacroSettings ++ Seq(
   libraryDependencies += (scalaCheck.value % "test"),
   libraryDependencies += (scalaTest.value  % "test")
 )
 
-lazy val enumSettings = commonMacroSettings ++ Seq(
+lazy val enumSettings = commonMacroSettings ++ hearthMacroSettings ++ Seq(
   libraryDependencies += scalaCheck.value % "test",
   libraryDependencies += scalaTest.value  % "test",
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
-lazy val enumeratumSettings = commonMacroSettings ++ Seq(
+lazy val enumeratumSettings = commonMacroSettings ++ hearthMacroSettings ++ Seq(
   libraryDependencies += scalaCheck.value % "test",
   libraryDependencies += scalaTest.value  % "test",
   libraryDependencies += optionalEnumeratum.value,
