@@ -1,7 +1,7 @@
 import sbt.librarymanagement.ConflictWarning
 
 val scala_2_13             = "2.13.18"
-val scala_3                = "3.3.8"
+val scala_3                = "3.3.9"
 val mainScalaVersion       = scala_3
 val supportedScalaVersions = Seq(scala_2_13, scala_3)
 
@@ -121,7 +121,7 @@ val slickPg         = "com.github.tminglei" %% "slick-pg"        % "0.23.1"
 val doobie          = "org.tpolecat"        %% "doobie-core"     % "1.0.0-RC12"
 val doobiePg        = "org.tpolecat"        %% "doobie-postgres" % "1.0.0-RC12"
 val sprayJson       = "io.spray"            %% "spray-json"      % "1.3.6"
-val circeV          = "0.14.16"
+val circeV          = "0.14.17"
 val circe           = Def.setting("io.circe" %%% "circe-core" % circeV)
 val circeAuto       = Def.setting("io.circe" %%% "circe-generic" % circeV)
 val circeAutoExtras = Def.setting("io.circe" %%% "circe-generic-extras" % "0.14.4")
@@ -132,7 +132,7 @@ val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.11"
 val scalacheck = "org.scalacheck" %% "scalacheck" % "1.19.0"
 
 val scalacheckMagnolify = "com.spotify"         % "magnolify-scalacheck" % "0.9.5"
-val scalacheckDerived   = "io.github.martinhh" %% "scalacheck-derived"   % "0.10.0"
+val scalacheckDerived   = "io.github.martinhh" %% "scalacheck-derived"   % "0.11.0"
 
 val enumeratumVersion         = "1.9.8"
 val enumeratumPlayJsonVersion = "1.8.2"
@@ -159,7 +159,7 @@ def akkaHttpInExamples = {
   )
 }
 
-val pekkoVersion       = "1.6.0"
+val pekkoVersion       = "1.7.1"
 val pekkoHttpVersion   = "1.4.2"
 val pekkoHttpJsonV     = "2.0.0"
 val pekkoStream        = "org.apache.pekko" %% "pekko-stream"         % pekkoVersion
@@ -172,14 +172,14 @@ def pekkoHttpInExamples = {
   Seq(pekkoStream, pekkoHttp, pekkoHttpSprayJson)
 }
 
-val http4sVersion = "0.23.36"
+val http4sVersion = "0.23.39"
 val http4s        = Def.setting("org.http4s" %%% "http4s-dsl" % http4sVersion)
 
-val http4sStirVersion = "0.5.0"
+val http4sStirVersion = "0.7.1"
 val http4sStir        = Def.setting("pl.iterators" %%% "http4s-stir" % http4sStirVersion)
 val http4sStirTestkit = Def.setting("pl.iterators" %%% "http4s-stir-testkit" % http4sStirVersion)
 
-val pureConfigVersion       = "0.17.10"
+val pureConfigVersion       = "0.17.11"
 val pureConfig              = "com.github.pureconfig" %% "pureconfig-core"           % pureConfigVersion
 val pureConfigGeneric       = "com.github.pureconfig" %% "pureconfig-generic"        % pureConfigVersion
 val pureConfigGenericScala3 = "com.github.pureconfig" %% "pureconfig-generic-scala3" % pureConfigVersion
