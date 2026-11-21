@@ -382,7 +382,7 @@ lazy val circeSupport = crossProject(JSPlatform, NativePlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("circe"))
-  .dependsOn(core, enumSupport, enumeratumSupport % "test -> test", instances % "test -> test")
+  .dependsOn(core, enumSupport, enumeratumSupport % "test -> test", instances % "test -> test", testkit % "test -> compile")
   .settings(circeSettings *)
   .settings(crossBuildSettings *)
   .settings(publishSettings *)
@@ -625,6 +625,21 @@ lazy val docs = project
     )
   )
 
+lazy val testkit = crossProject(JSPlatform, NativePlatform, JVMPlatform)
+  .withoutSuffixFor(JVMPlatform)
+  .crossType(CrossType.Pure)
+  .in(file("testkit"))
+  .dependsOn(core)
+  .settings(commonSettings *)
+  .settings(noPublishSettings *)
+  .settings(
+    name               := "testkit",
+    description        := "Shared test models and contract suites (not published)",
+    moduleName         := "kebs-testkit",
+    crossScalaVersions := supportedScalaVersions,
+    libraryDependencies += enumeratum.value
+  )
+
 lazy val kebs = project
   .in(file("."))
   .aggregate(
@@ -637,6 +652,9 @@ lazy val kebs = project
     core.jvm,
     core.js,
     core.native,
+    testkit.jvm,
+    testkit.js,
+    testkit.native,
     baklavaSupport,
     slickSupport,
     doobieSupport,
