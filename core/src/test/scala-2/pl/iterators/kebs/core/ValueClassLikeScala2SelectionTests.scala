@@ -8,7 +8,7 @@ object ValueClassLikeScala2SelectionDomain {
   final case class PrivateField(private val value: Int)
 }
 
-/** On Scala 2 a private case field has no readable accessor: kebs 2 gave no instance, silently; kebs 3 keeps that. */
+// a private case field has no accessor on Scala 2: no instance, as in kebs 2
 class ValueClassLikeScala2SelectionTests extends AnyFunSuite with Matchers with CaseClass1ToValueClass {
   import ValueClassLikeScala2SelectionDomain._
 

@@ -6,7 +6,7 @@ import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.circe.KebsCirce
 import pl.iterators.kebs.testkit.model._
 
-/** Scala 2 only: kebs 2 on Scala 3 does not derive sealed traits. The kebs 3 circe plan moves this to shared tests. */
+// Scala 2 only: kebs 2 on Scala 3 does not derive sealed traits
 class CirceAdtGoldenTests extends AnyFunSuite with Matchers {
   private def json(s: String): Json = io.circe.parser.parse(s).fold(throw _, identity)
 

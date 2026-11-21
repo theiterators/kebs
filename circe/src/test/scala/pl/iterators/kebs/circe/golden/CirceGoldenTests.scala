@@ -12,9 +12,7 @@ import pl.iterators.kebs.testkit.model._
 
 import java.time.Instant
 
-/** Wire format of kebs 2.x (captured before the kebs 3 rewrite). kebs 3 must produce the same JSON with default configuration; a
-  * deliberate change belongs in the migration guide, not in a silently edited expectation.
-  */
+// kebs 2.x wire format (verified against v2.3.0); a deliberate change goes to the migration guide, not into these expectations
 class CirceGoldenTests extends AnyFunSuite with Matchers {
   private def json(s: String): Json = io.circe.parser.parse(s).fold(throw _, identity)
 

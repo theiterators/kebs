@@ -11,9 +11,7 @@ import play.api.libs.json._
 
 import java.time.Instant
 
-/** What kebs 2.x provides for play-json (flat value classes, enums, instance converters) next to user-written `Json.format` codecs. kebs 3
-  * adds case-class derivation; these codecs must keep winning and keep this output.
-  */
+// kebs 2.x output next to user-written Json.format codecs (verified against v2.3.0); those codecs must keep winning over derivation
 class PlayJsonGoldenTests extends AnyFunSuite with Matchers {
   private def golden[A](value: A, expected: String)(implicit format: Format[A]): Unit = {
     format.writes(value) shouldBe Json.parse(expected)

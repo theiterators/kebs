@@ -6,10 +6,7 @@ import scala.deriving.Mirror
 import scala.quoted.*
 
 private[macros] trait CaseClass1ToValueClassCompat {
-  // The Mirror evidence infers F1 and keeps types that are not single-field products from reaching the macro.
-  // A non-transparent inline given is expanded after it has been selected, so the macro must never fail once the
-  // Mirror matched: what hearth cannot build or read (private/protected constructor, private field) goes through
-  // the Mirror itself, as in kebs 2.
+  // selected via the Mirror, so the macro must not abort - it falls back to the Mirror instead
   inline implicit def repFromCaseClass[T <: Product, F1](using
       m: Mirror.ProductOf[T],
       teq: m.MirroredElemTypes =:= F1 *: EmptyTuple.type

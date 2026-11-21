@@ -204,7 +204,7 @@ lazy val coreSettings = commonMacroSettings ++ Seq(
   libraryDependencies ++= (if (scalaVersion.value.startsWith("3"))
                              Seq(compilerPlugin("com.kubuszok" % "hearth-cross-quotes_3" % hearthV))
                            else Nil),
-  // hearth's path-dependent Method/Type ADTs trigger this harmless Scala 2 warning in macro code
+  // harmless on hearth's path-dependent Method/Type ADTs
   scalacOptions ++= (if (scalaVersion.value.startsWith("3")) Nil
                      else Seq("-Wconf:msg=The outer reference in this type test cannot be checked at run time:s")),
   libraryDependencies += (scalaCheck.value % "test"),

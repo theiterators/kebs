@@ -4,9 +4,7 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.core.macros.{CaseClass1ToValueClass, ValueClassLike}
 
-/** A type class with a flat instance (needs ValueClassLike) and a low-priority fallback: a type without a ValueClassLike must get the
-  * fallback, never a compile error - this is how every flat format in kebs is searched.
-  */
+// flat formats are searched like this everywhere in kebs: no ValueClassLike must mean the fallback, never a compile error
 final class Pick[A](val chosen: String)
 trait LowPriorityPick {
   implicit def fallback[A]: Pick[A] = new Pick[A]("fallback")

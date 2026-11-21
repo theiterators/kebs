@@ -6,16 +6,13 @@ import pl.iterators.kebs.core.enums.ValueEnumLikeEntry
 
 import java.time.Instant
 
-/** Models shared by the golden and contract test suites of all kebs modules (compiled in a separate module on purpose: derivation must
-  * also work for types read from the classpath).
-  */
+// a separate module on purpose: derivation must also work for types read from the classpath
 object model {
   final case class Id(value: String)
   final case class Person(id: Id, name: String, age: Int, nickname: Option[String])
   final case class Naming(someField: Int, anotherFieldName: String, field1Name: Int, httpURL: String)
   final case class Event(id: Id, at: Instant)
 
-  /** The usual validated value class: private constructor, smart constructor in the companion. */
   final case class Email private (value: String)
   object Email {
     def from(value: String): Email = new Email(value.toLowerCase)

@@ -5,18 +5,10 @@ import hearth.fp.instances.*
 import hearth.fp.syntax.*
 import pl.iterators.kebs.core.macros.ValueClassLike
 
-/** Shared (Scala 2.13 + Scala 3) implementation of `ValueClassLike` derivation for single-field case classes.
-  *
-  * Values are constructed through the companion's `apply` (so validating/normalising `apply`s are honoured); the primary constructor is
-  * used when no matching `apply` is callable at the call site, and an optional [[ProductFallback]] (Scala 3: `Mirror.fromProduct` /
-  * `productElement`) when neither is accessible.
-  */
 private[kebs] trait ValueClassLikeMacrosImpl { this: hearth.MacroCommons =>
 
-  /** How to build and read `T` when neither its `apply`/constructor nor its field accessor is accessible. */
   final class ProductFallback[T, F](val construct: Expr[F] => Expr[T], val access: Expr[T] => Expr[F])
 
-  /** Scala 2 entry point: `F` is the type of the only field; aborts (no instance) when `T` does not qualify. */
   def deriveValueClassLike[T: Type]: Expr_?? = {
     val caseClass: CaseClass[T] = CaseClass.parse[T].toOption match {
       case Some(cc) => cc
@@ -25,16 +17,13 @@ private[kebs] trait ValueClassLikeMacrosImpl { this: hearth.MacroCommons =>
     val field: Parameter = singleField(caseClass).getOrElse(
       Environment.reportErrorAndAbort(s"To derive ValueClassLike, ${Type[T].prettyPrint} must have exactly one field")
     )
-    // a nested path (`field.tpe.Underlying`) breaks cross-quotes on Scala 2.13 - bind it first
+    // a nested path (field.tpe.Underlying) breaks cross-quotes on 2.13
     val fieldType: ?? = field.tpe
     import fieldType.Underlying as F
     implicit val ValueClassLikeType: Type[ValueClassLike[T, F]] = Type.of[ValueClassLike[T, F]]
     build[T, F](Some(caseClass), None).as_??
   }
 
-  /** Scala 3 entry point: `F` is fixed by the `Mirror` that selected the implicit, so this never aborts — whatever hearth cannot build or
-    * read goes through `fallback`.
-    */
   def deriveValueClassLikeWithFallback[T: Type, F: Type](fallback: ProductFallback[T, F]): Expr[ValueClassLike[T, F]] = {
     val caseClass = CaseClass.parse[T].toOption.filter(cc => singleField(cc).exists(_.tpe.Underlying =:= Type[F]))
     build[T, F](caseClass, Some(fallback))
@@ -50,6 +39,7 @@ private[kebs] trait ValueClassLikeMacrosImpl { this: hearth.MacroCommons =>
       caseClass: Option[CaseClass[T]],
       fallback: Option[ProductFallback[T, F]]
   ): Expr[ValueClassLike[T, F]] = {
+    // companion apply first, so that validating/normalising applys are honoured
     def construct(arg: Expr[F]): Expr[T] =
       viaCompanionApply[T, F](arg)
         .orElse(caseClass.flatMap(viaConstructor[T, F](_, arg)))
@@ -80,7 +70,6 @@ private[kebs] trait ValueClassLikeMacrosImpl { this: hearth.MacroCommons =>
       case _                        => None
     }
 
-  /** Calls `T.apply(arg)` if the companion has an `apply` taking exactly one argument of type `F`. */
   private def viaCompanionApply[T: Type, F: Type](arg: Expr[F]): Option[Expr[T]] = {
     def walk(method: Method): Option[Expr[T]] = method match {
       case _: Method.OnInstance     => None
