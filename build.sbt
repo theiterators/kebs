@@ -1,7 +1,7 @@
 import sbt.librarymanagement.ConflictWarning
 
 val scala_2_13             = "2.13.18"
-val scala_3                = "3.3.9"
+val scala_3                = "3.9.0"
 val mainScalaVersion       = scala_3
 val supportedScalaVersions = Seq(scala_2_13, scala_3)
 
@@ -17,10 +17,10 @@ ThisBuild / publishTo          := {
   else localStaging.value
 }
 
-ThisBuild / tlBaseVersion                       := "2.3"
+ThisBuild / tlBaseVersion                       := "3.0"
 ThisBuild / tlCiHeaderCheck                     := false
-ThisBuild / tlMimaPreviousVersions              := Set("2.2.2")
-ThisBuild / githubWorkflowJavaVersions          := Seq(JavaSpec.temurin("11"), JavaSpec.temurin("17"))
+ThisBuild / tlMimaPreviousVersions              := Set.empty
+ThisBuild / githubWorkflowJavaVersions          := Seq(JavaSpec.temurin("17"), JavaSpec.temurin("21"))
 ThisBuild / githubWorkflowPublishTargetBranches := Seq(RefPredicate.StartsWith(Ref.Tag("v")), RefPredicate.Equals(Ref.Branch("master")))
 
 lazy val baseSettings = Seq(
@@ -30,7 +30,7 @@ lazy val baseSettings = Seq(
   homepage             := Some(url("https://github.com/theiterators/kebs")),
   scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature", "-encoding", "utf8") ++ (if (scalaVersion.value.startsWith("3"))
                                                                                              Seq("-Xmax-inlines", "64", "-Yretain-trees")
-                                                                                           else Seq.empty)
+                                                                                           else Seq("-Xsource:3", "-Wconf:cat=scala3-migration:s"))
 )
 
 lazy val commonMacroSettings = baseSettings ++ Seq(
@@ -110,6 +110,8 @@ def paradiseFlag(scalaVersion: String): Seq[String] =
   else
     Seq("-Ymacro-annotations")
 
+val hearthV = "0.4.5"
+
 val scalaTest  = Def.setting("org.scalatest" %%% "scalatest" % "3.2.20")
 val scalaCheck = Def.setting("org.scalacheck" %%% "scalacheck" % "1.19.0")
 
@@ -118,8 +120,8 @@ val slick           = "com.typesafe.slick"  %% "slick"           % "3.6.1"
 val optionalSlick   = optional(slick)
 val playJson        = Def.setting("org.playframework" %%% "play-json" % "3.0.6")
 val slickPg         = "com.github.tminglei" %% "slick-pg"        % "0.23.1"
-val doobie          = "org.tpolecat"        %% "doobie-core"     % "1.0.0-RC12"
-val doobiePg        = "org.tpolecat"        %% "doobie-postgres" % "1.0.0-RC12"
+val doobie          = "org.typelevel"       %% "doobie-core"     % "1.0.0-RC14"
+val doobiePg        = "org.typelevel"       %% "doobie-postgres" % "1.0.0-RC14"
 val sprayJson       = "io.spray"            %% "spray-json"      % "1.3.6"
 val circeV          = "0.14.17"
 val circe           = Def.setting("io.circe" %%% "circe-core" % circeV)
@@ -143,21 +145,6 @@ def enumeratumInExamples      = {
 }
 val optionalEnumeratum = Def.setting("com.beachape" %%% "enumeratum" % enumeratumVersion % "provided")
 val enumeratumInTest   = Def.setting("com.beachape" %%% "enumeratum" % enumeratumVersion % "test")
-
-val akkaVersion        = "2.6.20"
-val akkaHttpVersion    = "10.2.10"
-val akkaStream         = "com.typesafe.akka" %% "akka-stream"         % akkaVersion
-val akkaStreamTestkit  = "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion
-val akkaHttp           = "com.typesafe.akka" %% "akka-http"           % akkaHttpVersion
-val akkaHttpTestkit    = "com.typesafe.akka" %% "akka-http-testkit"   % akkaHttpVersion
-def akkaHttpInExamples = {
-  val akkaHttpSprayJson = "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion
-  Seq(
-    akkaStream.cross(CrossVersion.for3Use2_13),
-    akkaHttp.cross(CrossVersion.for3Use2_13),
-    akkaHttpSprayJson.cross(CrossVersion.for3Use2_13)
-  )
-}
 
 val pekkoVersion       = "1.7.1"
 val pekkoHttpVersion   = "1.4.2"
@@ -184,12 +171,12 @@ val pureConfig              = "com.github.pureconfig" %% "pureconfig-core"      
 val pureConfigGeneric       = "com.github.pureconfig" %% "pureconfig-generic"        % pureConfigVersion
 val pureConfigGenericScala3 = "com.github.pureconfig" %% "pureconfig-generic-scala3" % pureConfigVersion
 
-val scalaJavaTime = Def.setting("io.github.cquiroz" %%% "scala-java-time" % "2.7.0")
+val scalaJavaTime = Def.setting("io.github.cquiroz" %%% "scala-java-time" % "2.11.0")
 
 lazy val commonSettings = baseSettings ++ Seq(
   scalacOptions ++=
     (if (scalaVersion.value.startsWith("3"))
-       Seq("-language:implicitConversions", "-Ykind-projector", "-Xignore-scala2-macros")
+       Seq("-language:implicitConversions", "-Xkind-projector", "-Xignore-scala2-macros")
      else Seq("-language:implicitConversions", "-language:experimental.macros")),
 //  (scalacOptions in Test) ++= Seq("-Ymacro-debug-lite" /*, "-Xlog-implicits"*/ ),
   libraryDependencies += scalaTest.value % "test"
@@ -213,7 +200,15 @@ lazy val doobieSettings = commonSettings ++ Seq(
 )
 
 lazy val coreSettings = commonMacroSettings ++ Seq(
-  libraryDependencies += (scalaCheck.value % "test")
+  libraryDependencies += "com.kubuszok" %%% "hearth" % hearthV,
+  libraryDependencies ++= (if (scalaVersion.value.startsWith("3"))
+                             Seq(compilerPlugin("com.kubuszok" % "hearth-cross-quotes_3" % hearthV))
+                           else Nil),
+  // harmless on hearth's path-dependent Method/Type ADTs
+  scalacOptions ++= (if (scalaVersion.value.startsWith("3")) Nil
+                     else Seq("-Wconf:msg=The outer reference in this type test cannot be checked at run time:s")),
+  libraryDependencies += (scalaCheck.value % "test"),
+  libraryDependencies += (scalaTest.value  % "test")
 )
 
 lazy val enumSettings = commonMacroSettings ++ Seq(
@@ -247,14 +242,6 @@ lazy val circeSettings = commonSettings ++ Seq(
 ) ++ Seq(
   libraryDependencies ++= (if (scalaVersion.value.startsWith("3")) Nil
                            else Seq(circeAutoExtras.value))
-)
-
-lazy val akkaHttpSettings = commonSettings ++ Seq(
-  libraryDependencies += (akkaHttp).cross(CrossVersion.for3Use2_13),
-  libraryDependencies += (akkaStreamTestkit % "test").cross(CrossVersion.for3Use2_13),
-  libraryDependencies += (akkaHttpTestkit   % "test").cross(CrossVersion.for3Use2_13),
-  libraryDependencies += optionalEnumeratum.value,
-  scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
 lazy val pekkoHttpSettings = commonSettings ++ Seq(
@@ -367,7 +354,7 @@ lazy val doobieSupport = project
 
 lazy val sprayJsonSupport = project
   .in(file("spray-json"))
-  .dependsOn(enumeratumSupport.jvm, instances.jvm % "test -> test")
+  .dependsOn(enumeratumSupport.jvm, instances.jvm % "test -> test", testkit.jvm % "test -> compile")
   .settings(sprayJsonSettings *)
   .settings(publishSettings *)
   .settings(
@@ -381,7 +368,7 @@ lazy val playJsonSupport = crossProject(JSPlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("play-json"))
-  .dependsOn(core, enumSupport, enumeratumSupport % "test -> test", instances % "test -> test")
+  .dependsOn(core, enumSupport, enumeratumSupport % "test -> test", instances % "test -> test", testkit % "test -> compile")
   .settings(playJsonSettings *)
   .settings(publishSettings *)
   .settings(
@@ -395,7 +382,7 @@ lazy val circeSupport = crossProject(JSPlatform, NativePlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("circe"))
-  .dependsOn(core, enumSupport, enumeratumSupport % "test -> test", instances % "test -> test")
+  .dependsOn(core, enumSupport, enumeratumSupport % "test -> test", instances % "test -> test", testkit % "test -> compile")
   .settings(circeSettings *)
   .settings(crossBuildSettings *)
   .settings(publishSettings *)
@@ -403,19 +390,6 @@ lazy val circeSupport = crossProject(JSPlatform, NativePlatform, JVMPlatform)
     name        := "circe",
     description := "Automatic generation of circe formats for case-classes",
     moduleName  := "kebs-circe"
-  )
-
-lazy val akkaHttpSupport = project
-  .in(file("akka-http"))
-  .dependsOn(core.jvm, enumeratumSupport.jvm, instances.jvm % "test -> test", tagged.jvm % "test -> test", taggedMeta.jvm % "test -> test")
-  .settings(akkaHttpSettings *)
-  .settings(publishSettings *)
-  .settings(disableScala(List("3")))
-  .settings(
-    name               := "akka-http",
-    description        := "Automatic generation of akka-http deserializers for 1-element case classes",
-    moduleName         := "kebs-akka-http",
-    crossScalaVersions := supportedScalaVersions
   )
 
 lazy val pekkoHttpSupport = project
@@ -651,6 +625,21 @@ lazy val docs = project
     )
   )
 
+lazy val testkit = crossProject(JSPlatform, NativePlatform, JVMPlatform)
+  .withoutSuffixFor(JVMPlatform)
+  .crossType(CrossType.Pure)
+  .in(file("testkit"))
+  .dependsOn(core)
+  .settings(commonSettings *)
+  .settings(noPublishSettings *)
+  .settings(
+    name               := "testkit",
+    description        := "Shared test models and contract suites (not published)",
+    moduleName         := "kebs-testkit",
+    crossScalaVersions := supportedScalaVersions,
+    libraryDependencies += enumeratum.value
+  )
+
 lazy val kebs = project
   .in(file("."))
   .aggregate(
@@ -663,6 +652,9 @@ lazy val kebs = project
     core.jvm,
     core.js,
     core.native,
+    testkit.jvm,
+    testkit.js,
+    testkit.native,
     baklavaSupport,
     slickSupport,
     doobieSupport,
@@ -674,7 +666,6 @@ lazy val kebs = project
     circeSupport.native,
     jsonschemaSupport,
     scalacheckSupport,
-    akkaHttpSupport,
     pekkoHttpSupport,
     http4sSupport.jvm,
     http4sSupport.js,
