@@ -17,9 +17,9 @@ ThisBuild / publishTo          := {
   else localStaging.value
 }
 
-ThisBuild / tlBaseVersion                       := "2.2"
+ThisBuild / tlBaseVersion                       := "2.3"
 ThisBuild / tlCiHeaderCheck                     := false
-ThisBuild / tlMimaPreviousVersions              := Set("2.1.6")
+ThisBuild / tlMimaPreviousVersions              := Set("2.2.2")
 ThisBuild / githubWorkflowJavaVersions          := Seq(JavaSpec.temurin("11"), JavaSpec.temurin("17"))
 ThisBuild / githubWorkflowPublishTargetBranches := Seq(RefPredicate.StartsWith(Ref.Tag("v")), RefPredicate.Equals(Ref.Branch("master")))
 
