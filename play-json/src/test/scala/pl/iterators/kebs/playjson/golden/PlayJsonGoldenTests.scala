@@ -59,4 +59,10 @@ class PlayJsonGoldenTests extends AnyFunSuite with Matchers {
     implicit val eventFormat: OFormat[Event] = Json.format[Event]
     golden(Event(Id("e"), Instant.parse("2026-01-02T03:04:05Z")), """{"id":"e","at":"2026-01-02T03:04:05Z"}""")
   }
+
+  test("private-constructor value class (flat)") {
+    import Flat._
+    implicit val contactFormat: OFormat[Contact] = Json.format[Contact]
+    golden(Contact(Email.from("a@b.pl"), "n"), """{"email":"a@b.pl","name":"n"}""")
+  }
 }

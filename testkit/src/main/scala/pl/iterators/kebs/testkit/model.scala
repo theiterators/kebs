@@ -15,6 +15,13 @@ object model {
   final case class Naming(someField: Int, anotherFieldName: String, field1Name: Int, httpURL: String)
   final case class Event(id: Id, at: Instant)
 
+  /** The usual validated value class: private constructor, smart constructor in the companion. */
+  final case class Email private (value: String)
+  object Email {
+    def from(value: String): Email = new Email(value.toLowerCase)
+  }
+  final case class Contact(email: Email, name: String)
+
   final case class Wide(
       f1: Int,
       f2: Int,
