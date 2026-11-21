@@ -354,7 +354,7 @@ lazy val doobieSupport = project
 
 lazy val sprayJsonSupport = project
   .in(file("spray-json"))
-  .dependsOn(enumeratumSupport.jvm, instances.jvm % "test -> test")
+  .dependsOn(enumeratumSupport.jvm, instances.jvm % "test -> test", testkit.jvm % "test -> compile")
   .settings(sprayJsonSettings *)
   .settings(publishSettings *)
   .settings(
