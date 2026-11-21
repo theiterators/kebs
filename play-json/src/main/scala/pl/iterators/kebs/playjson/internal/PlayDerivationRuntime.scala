@@ -104,10 +104,16 @@ object PlayDerivationRuntime {
         }
       case (None, obj: JsObject) =>
         obj.value
-          .collectFirst { case (name, value) if byName.contains(name) => readCase(byName(name), value).repath(JsPath \ name) }
+          .collectFirst { case (name, value) if byName.contains(name) => underCase(name, readCase(byName(name), value)) }
           .getOrElse(unknown(obj.keys.mkString(", ")))
       case _ => JsError("error.expected.jsobject")
     }
+  }
+
+  // errors point into the wrapper member; a success keeps the root's empty path
+  private def underCase[T](name: String, result: JsResult[T]): JsResult[T] = result match {
+    case error: JsError => error.repath(JsPath \ name)
+    case success        => success
   }
 
   def sumWrites[T](config: JsonConfig, caseNames: List[String])(writeCase: (T, (Int, JsValue) => JsObject) => JsObject): OWrites[T] =
