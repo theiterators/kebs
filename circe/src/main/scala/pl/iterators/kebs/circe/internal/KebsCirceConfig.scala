@@ -9,8 +9,8 @@ object KebsCirceConfig {
     if (config.noneHandling == NoneHandling.Omit)
       throw new IllegalArgumentException("NoneHandling.Omit is not supported by kebs-circe yet")
     Configuration(
-      transformMemberNames = config.fieldNaming.transform,
-      transformConstructorNames = config.constructorNaming.transform,
+      transformMemberNames = config.fieldNaming(_),
+      transformConstructorNames = config.constructorNaming(_),
       useDefaults = config.useDefaults,
       discriminator = config.discriminator,
       unwrapValueClasses = false

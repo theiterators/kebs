@@ -9,7 +9,8 @@ import pl.iterators.kebs.core.naming.Naming
 import scala.util.Try
 
 trait KebsCirce extends KebsCirceAutoCompat {
-  implicit def kebsJsonConfig: JsonConfig = JsonConfig.default
+  // read through the protocol, not implicitly: another protocol imported in the same scope would make it ambiguous
+  def kebsJsonConfig: JsonConfig = JsonConfig.default
 
   implicit def flatDecoder[T, A](implicit rep: ValueClassLike[T, A], decoder: Decoder[A]): Decoder[T] =
     decoder.emap(obj => Try(rep.apply(obj)).toEither.left.map(_.getMessage))
@@ -22,10 +23,10 @@ trait KebsCirce extends KebsCirceAutoCompat {
     decoder.emap(obj => Try(rep.decode(obj)).toEither.left.map(_.getMessage))
 
   trait KebsCirceSnakified extends KebsCirce {
-    override implicit def kebsJsonConfig: JsonConfig = JsonConfig.default.withFieldNaming(Naming.snakeCase)
+    override def kebsJsonConfig: JsonConfig = JsonConfig.default.withFieldNaming(Naming.snakeCase)
   }
 
   trait KebsCirceCapitalized extends KebsCirce {
-    override implicit def kebsJsonConfig: JsonConfig = JsonConfig.default.withFieldNaming(Naming.pascalCase)
+    override def kebsJsonConfig: JsonConfig = JsonConfig.default.withFieldNaming(Naming.pascalCase)
   }
 }
