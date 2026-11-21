@@ -31,4 +31,12 @@ class NamingTests extends AnyFunSuite with Matchers {
     (Naming.snakeCase andThen Naming.uppercase)("InProgress") shouldBe "IN_PROGRESS"
     Naming.custom(_.reverse)("abc") shouldBe "cba"
   }
+
+  test("a name is transformed once per naming") {
+    var calls  = 0
+    val naming = Naming.custom { name => calls += 1; name.reverse }
+    naming("abc") shouldBe "cba"
+    naming("abc") shouldBe "cba"
+    calls shouldBe 1
+  }
 }

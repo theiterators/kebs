@@ -12,6 +12,11 @@ private[macros] trait CaseClass1ToValueClassCompat {
       m: Mirror.ProductOf[T],
       teq: m.MirroredElemTypes =:= F1 *: EmptyTuple.type
   ): ValueClassLike[T, F1] = ${ ValueClassLikeMacros.materialize[T, F1]('m) }
+
+  // Scala 3 synthesises no Mirror for AnyVal case classes; transparent, so that a non-matching T skips this candidate and
+  // the expansion's type fixes F1
+  transparent inline implicit def repFromValueClass[T <: AnyVal, F1]: ValueClassLike[T, F1] =
+    ${ ValueClassLikeMacros.materializeValueClass[T, F1] }
 }
 
 final private[macros] class ValueClassLikeMacros(q: Quotes) extends hearth.MacroCommonsScala3(using q), ValueClassLikeMacrosImpl
@@ -26,4 +31,7 @@ private[macros] object ValueClassLikeMacros {
       )
     )
   }
+
+  def materializeValueClass[T <: AnyVal: Type, F1: Type](using q: Quotes): Expr[ValueClassLike[T, F1]] =
+    new ValueClassLikeMacros(q).deriveValueClassLike[T].value.asInstanceOf[Expr[ValueClassLike[T, F1]]]
 }
