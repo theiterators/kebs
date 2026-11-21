@@ -6,7 +6,8 @@ import scala.deriving.Mirror
 import scala.quoted.*
 
 private[macros] trait CaseClass1ToValueClassCompat {
-  // selected via the Mirror, so the macro must not abort - it falls back to the Mirror instead
+  // selected via the Mirror, so the macro must not abort: a private/protected constructor or field is not accessible at
+  // the call site, but the Mirror's fromProduct (generated in the companion) is
   inline implicit def repFromCaseClass[T <: Product, F1](using
       m: Mirror.ProductOf[T],
       teq: m.MirroredElemTypes =:= F1 *: EmptyTuple.type
