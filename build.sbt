@@ -582,7 +582,7 @@ lazy val enumSupport = crossProject(JSPlatform, NativePlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("enum"))
-  .dependsOn(core)
+  .dependsOn(core, testkit % "test -> compile")
   .settings(enumSettings *)
   .settings(publishSettings *)
   .settings(

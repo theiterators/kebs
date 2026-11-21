@@ -3,6 +3,10 @@ package pl.iterators.kebs.core.macros.internal
 private[kebs] trait EnumCasesMacrosImpl { this: hearth.MacroCommons =>
 
   def caseObjectsOf[E: Type]: Option[Expr[List[E]]] =
+    try caseObjectsOrNone[E]
+    catch { case scala.util.control.NonFatal(_) => None }
+
+  private def caseObjectsOrNone[E: Type]: Option[Expr[List[E]]] =
     // hearth 0.4.5 does not see through an alias of an alias
     singletonCasesOf(UntypedType.dealias(UntypedType.fromTyped[E]).asTyped[E]).filter(_.nonEmpty).map { cases =>
       cases.foldRight(Expr.quote(List.empty[E])) { (head, tail) =>

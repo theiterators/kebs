@@ -3,6 +3,7 @@ package pl.iterators.kebs.enumeratum
 import enumeratum.EnumEntry
 import enumeratum.values.ValueEnumEntry
 import pl.iterators.kebs.core.enums.{EnumLike, ValueEnumLike, ValueEnumLikeEntry}
+import pl.iterators.kebs.core.macros.internal.MirrorCases
 import pl.iterators.kebs.enumeratum.internal.EnumeratumMacrosImpl
 
 import scala.deriving.Mirror
@@ -24,12 +25,12 @@ final private[enumeratum] class EnumeratumMacros(q: Quotes) extends hearth.Macro
 private[enumeratum] object EnumeratumMacros {
   def enumLike[E <: EnumEntry: Type](using q: Quotes): Expr[EnumLike[E]] = {
     val macros = new EnumeratumMacros(q)
-    macros.deriveEnumLike[E](macros.enumeratumEntries[E](macros.caseObjectsOf[E]))
+    macros.deriveEnumLike[E](macros.enumeratumEntries[E](MirrorCases.of[E]))
   }
 
   def valueEnumLike[V: Type, E <: ValueEnumEntry[V] & ValueEnumLikeEntry[V]: Type](using q: Quotes): Expr[ValueEnumLike[V, E]] = {
     val macros  = new EnumeratumMacros(q)
-    val entries = macros.enumeratumEntries[E](macros.caseObjectsOf[E])
+    val entries = macros.enumeratumEntries[E](MirrorCases.of[E])
     '{ ValueEnumLike[V, E]($entries) }
   }
 }

@@ -64,6 +64,12 @@ object model {
 
   final case class Paint(color: Color, level: Level)
 
+  object Priority extends Enumeration {
+    val Zeta: Value  = Value(3)
+    val Alpha: Value = Value(1)
+    val Mid: Value   = Value(2)
+  }
+
   sealed trait Shape
   final case class Circle(r: Double, label: String) extends Shape
   case object Empty                                 extends Shape

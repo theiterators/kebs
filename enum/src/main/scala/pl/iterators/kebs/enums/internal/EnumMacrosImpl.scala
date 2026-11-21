@@ -12,6 +12,6 @@ private[kebs] trait EnumMacrosImpl extends EnumCasesMacrosImpl { this: hearth.Ma
     )
 
   // names are toString, as in kebs 2
-  def deriveEnumLike[E: Type]: Expr[EnumLike[E]] =
-    Expr.quote(EnumLike[E](Expr.splice(enumCases[E]), (e: E) => e.toString))
+  def deriveEnumLike[E: Type](cases: Expr[List[E]]): Expr[EnumLike[E]] =
+    Expr.quote(EnumLike[E](Expr.splice(cases), (e: E) => e.toString))
 }

@@ -19,6 +19,12 @@ class EnumSelectionTests extends AnyFunSuite with Matchers with KebsEnum {
     implicitly[PickEnumLike[Plain]].chosen shouldBe "fallback"
   }
 
+  test("abstract Enumeration#Value falls back silently") {
+    def pick[E <: Enumeration#Value]: PickEnumLike[E] = implicitly[PickEnumLike[E]]
+    pick[Planet.Value].chosen shouldBe "fallback"
+    implicitly[PickEnumLike[Enumeration#Value]].chosen shouldBe "fallback"
+  }
+
   test("Enumeration values get an EnumLike") {
     implicitly[PickEnumLike[Planet.Value]].chosen shouldBe "enum"
   }

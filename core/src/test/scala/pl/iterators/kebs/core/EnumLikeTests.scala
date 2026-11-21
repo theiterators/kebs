@@ -31,6 +31,10 @@ class EnumLikeTests extends AnyFunSuite with Matchers {
     enumLike.withNameInsensitiveOption("dark") shouldBe Some(Dark)
   }
 
+  test("case-insensitive lookup does not depend on the locale (equalsIgnoreCase semantics)") {
+    EnumLike[String](List("İx"), identity).withNameInsensitiveOption("ix") shouldBe Some("İx")
+  }
+
   test("uppercase-only lookup") {
     enumLike.withNameUppercaseOnlyOption("DARKRED") shouldBe Some(DarkRed)
     enumLike.withNameUppercaseOnlyOption("DarkRed") shouldBe None
