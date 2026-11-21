@@ -10,6 +10,8 @@ import scala.reflect.macros.whitebox
 private[sprayjson] trait KebsSprayJsonAutoCompat { self: KebsSprayJson =>
   implicit def jsonFormatN[T]: RootJsonFormat[T] = macro KebsSprayJsonMacros.jsonFormatN[T]
 
+  implicit def jsonFormatSealed[T]: RootJsonFormat[T] = macro KebsSprayJsonMacros.jsonFormatSealed[T]
+
   @deprecated("jsonFormatN handles recursive types", "3.0.0")
   final def jsonFormatRec[T]: RootJsonFormat[T] = macro KebsSprayJsonMacros.jsonFormatN[T]
 }
@@ -52,7 +54,21 @@ final private[sprayjson] class KebsSprayJsonMacros(val c: whitebox.Context) exte
     val symbol = T.typeSymbol
     if (!(symbol.isClass && symbol.asClass.isCaseClass)) c.abort(c.enclosingPosition, s"$T is not a case class")
     if (flatPreferred(T)) c.abort(c.enclosingPosition, "Flat format preferred")
-    // re-typed, so that the owners of the local formats are fixed before lambdalift sees the recursive references
-    c.Expr[RootJsonFormat[T]](c.untypecheck(deriveRootFormat[T](c.Expr[JsonConfig](q"${c.prefix}.kebsJsonConfig")).tree))
+    derive[T](stepAside = false)
   }
+
+  def jsonFormatSealed[T: c.WeakTypeTag]: c.Expr[RootJsonFormat[T]] = {
+    val T      = weakTypeOf[T]
+    val symbol = T.typeSymbol
+    if (!(symbol.isClass && symbol.asClass.isSealed && !symbol.asClass.isCaseClass))
+      c.abort(c.enclosingPosition, s"$T is not a sealed hierarchy")
+    // steps aside when a format exists: kebs' value enum formats are neither more nor less specific than this one
+    derive[T](stepAside = true)
+  }
+
+  // re-typed, so that the owners of the local formats are fixed before lambdalift sees the recursive references
+  private def derive[T: c.WeakTypeTag](stepAside: Boolean): c.Expr[RootJsonFormat[T]] =
+    c.Expr[RootJsonFormat[T]](
+      c.untypecheck(deriveRootFormat[T](c.Expr[JsonConfig](q"${c.prefix}.kebsJsonConfig"), stepAside).tree)
+    )
 }

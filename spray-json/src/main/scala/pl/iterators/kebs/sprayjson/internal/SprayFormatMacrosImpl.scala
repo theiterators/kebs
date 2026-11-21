@@ -10,6 +10,7 @@ import pl.iterators.kebs.core.macros.ValueClassLike
 import pl.iterators.kebs.sprayjson.KebsSprayJson
 import spray.json.{JsValue, JsonFormat, RootJsonFormat}
 
+import scala.annotation.nowarn
 import scala.collection.mutable
 
 private[sprayjson] trait SprayFormatMacrosImpl { this: MacroCommons & StdExtensions =>
@@ -35,16 +36,18 @@ private[sprayjson] trait SprayFormatMacrosImpl { this: MacroCommons & StdExtensi
   private def protocolMethods(names: Set[String]): Seq[UntypedMethod] =
     Type.of[KebsSprayJson].unsortedMethods.filter(method => names(method.name)).map(_.asUntyped)
 
-  private lazy val derivationEntryPoints = protocolMethods(Set("jsonFormatN", "jsonFormatRec"))
+  private lazy val derivationEntryPoints = protocolMethods(Set("jsonFormatN", "jsonFormatRec", "jsonFormatSealed"))
   // kebs' own generic formats do not count as an existing root instance: a root request derives an object (kebs 2)
   private lazy val ignoredAtRoot =
-    protocolMethods(Set("jsonFormatN", "jsonFormatRec", "jsonFlatFormat", "jsonConversionFormat2"))
+    protocolMethods(Set("jsonFormatN", "jsonFormatRec", "jsonFormatSealed", "jsonFlatFormat", "jsonConversionFormat2"))
 
-  def deriveRootFormat[T: Type](config: Expr[JsonConfig]): Expr[RootJsonFormat[T]] = {
+  // stepAside: fail when a format exists, for an entry point whose failure only skips it (Scala 3 transparent inline)
+  def deriveRootFormat[T: Type](config: Expr[JsonConfig], stepAside: Boolean = false): Expr[RootJsonFormat[T]] = {
     loadExtensions()
     implicit val JsonFormatT: Type[JsonFormat[T]] = Type.of[JsonFormat[T]]
     JsonFormatT.summonExprIgnoring(ignoredAtRoot*).toEither match {
       case Right(found) if !isEnclosingDefinition(found.asUntyped) =>
+        if (stepAside) Environment.reportErrorAndAbort(s"${Type[T].prettyPrint} already has a JsonFormat")
         Expr.quote(SprayDerivationRuntime.asRoot(Expr.splice(found)))
       case _ => new Derivation(config).root[T]
     }
@@ -72,7 +75,9 @@ private[sprayjson] trait SprayFormatMacrosImpl { this: MacroCommons & StdExtensi
     def root[T: Type]: Expr[RootJsonFormat[T]] = {
       implicit val RootT: Type[RootJsonFormat[T]] = Type.of[RootJsonFormat[T]]
       val format                                  = derived[T].getOrElse(
-        Environment.reportErrorAndAbort(s"Cannot derive a RootJsonFormat for ${Type[T].prettyPrint}: not a case class")
+        Environment.reportErrorAndAbort(
+          s"Cannot derive a RootJsonFormat for ${Type[T].prettyPrint}: not a case class or a sealed hierarchy"
+        )
       )
       cache.toValDefs.use(_ => format)
     }
@@ -98,6 +103,66 @@ private[sprayjson] trait SprayFormatMacrosImpl { this: MacroCommons & StdExtensi
         .singletonOf[F]
         .map(value => () => Expr.quote(SprayDerivationRuntime.singleton[F](Expr.splice(value))))
         .orElse(CaseClass.parse[F].toOption.map(caseClass => () => product[F](caseClass)))
+        .orElse(leavesOf[F].map(leaves => () => sum[F](leaves)))
+
+    // nested sealed hierarchies are flattened to their leaves (as kindlings/circe do)
+    private def leavesOf[F: Type]: Option[List[(String, ??)]] =
+      if (!Type.isSealed[F] || Type.isCaseClass[F]) None
+      else
+        Type
+          .directChildrenList[F]
+          .map(_.flatMap { case (name, child) =>
+            import child.Underlying as C
+            if (Expr.singletonOf[C].isEmpty && !Type.isCaseClass[C] && Type.isSealed[C])
+              leavesOf[C].getOrElse(Nil).map { case (leafName, leaf) =>
+                import leaf.Underlying as L
+                leafName -> Type[L].as_??
+              }
+            else List(name -> Type[C].as_??)
+          })
+          .filter(_.nonEmpty)
+          .map(_.distinctBy(_._2.Underlying.plainPrint))
+
+    private def sum[F: Type](leaves: List[(String, ??)]): Expr[RootJsonFormat[F]] = {
+      implicit val StringType: Type[String]           = Type.of[String]
+      implicit val ListStringType: Type[List[String]] = Type.of[List[String]]
+      val caseNames                                   = Expr(leaves.map(_._1))
+      Expr.quote {
+        SprayDerivationRuntime.sum[F](Expr.splice(config), Expr.splice(caseNames))(
+          (obj: F, wrap: (Int, JsValue) => JsValue) => Expr.splice(writeCase[F](leaves, Expr.quote(obj), Expr.quote(wrap))),
+          (index: Int, json: JsValue) => Expr.splice(readCase[F](leaves, Expr.quote(index), Expr.quote(json)))
+        )
+      }
+    }
+
+    // C is the concrete leaf type in the expansion; only this macro's own source sees it abstract
+    @nowarn("msg=is unchecked since it is eliminated by erasure")
+    private def writeCase[F: Type](
+        leaves: List[(String, ??)],
+        obj: Expr[F],
+        wrap: Expr[(Int, JsValue) => JsValue]
+    ): Expr[JsValue] =
+      leaves.zipWithIndex.foldRight(Expr.quote(SprayDerivationRuntime.unreachableCase[JsValue](Expr.splice(obj)))) {
+        case (((_, leaf), index), otherwise) =>
+          import leaf.Underlying as C
+          val i = Expr(index)
+          Expr.quote {
+            if (Expr.splice(obj).isInstanceOf[C])
+              Expr.splice(wrap).apply(Expr.splice(i), Expr.splice(format[C]).write(Expr.splice(obj).asInstanceOf[C]))
+            else Expr.splice(otherwise)
+          }
+      }
+
+    private def readCase[F: Type](leaves: List[(String, ??)], index: Expr[Int], json: Expr[JsValue]): Expr[F] =
+      leaves.zipWithIndex.foldRight(Expr.quote(SprayDerivationRuntime.unreachableCase[F](Expr.splice(index)))) {
+        case (((_, leaf), i), otherwise) =>
+          import leaf.Underlying as C
+          val ii = Expr(i)
+          Expr.quote {
+            if (Expr.splice(index) == Expr.splice(ii)) Expr.splice(format[C]).read(Expr.splice(json)).asInstanceOf[F]
+            else Expr.splice(otherwise)
+          }
+      }
 
     private def shared[F: Type](k: String)(format: => Expr[JsonFormat[F]]): Expr[JsonFormat[F]] = {
       implicit val JsonFormatF: Type[JsonFormat[F]] = Type.of[JsonFormat[F]]

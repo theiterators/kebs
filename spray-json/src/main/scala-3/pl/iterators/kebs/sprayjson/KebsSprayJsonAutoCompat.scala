@@ -11,6 +11,10 @@ import scala.quoted.*
 private[sprayjson] trait KebsSprayJsonAutoCompat { self: KebsSprayJson =>
   inline implicit def jsonFormatN[T](using m: Mirror.ProductOf[T]): RootJsonFormat[T] = KebsSprayJsonMacros.derive[T](kebsJsonConfig)
 
+  // transparent and stepping aside when a format exists: a sealed enum also has kebs' enum format, which must win
+  transparent inline implicit def jsonFormatSealed[T](using m: Mirror.SumOf[T]): RootJsonFormat[T] =
+    KebsSprayJsonMacros.deriveSealed[T](kebsJsonConfig)
+
   @deprecated("jsonFormatN handles recursive types", "3.0.0")
   inline final def jsonFormatRec[T](using m: Mirror.ProductOf[T]): RootJsonFormat[T] = KebsSprayJsonMacros.derive[T](kebsJsonConfig)
 }
@@ -33,6 +37,11 @@ final private[sprayjson] class KebsSprayJsonMacros(q: Quotes) extends hearth.Mac
 private[sprayjson] object KebsSprayJsonMacros {
   inline def derive[T](inline config: JsonConfig): RootJsonFormat[T] = ${ deriveImpl[T]('config) }
 
+  transparent inline def deriveSealed[T](inline config: JsonConfig): RootJsonFormat[T] = ${ deriveSealedImpl[T]('config) }
+
   def deriveImpl[T: Type](config: Expr[JsonConfig])(using q: Quotes): Expr[RootJsonFormat[T]] =
     new KebsSprayJsonMacros(q).deriveRootFormat[T](config)
+
+  def deriveSealedImpl[T: Type](config: Expr[JsonConfig])(using q: Quotes): Expr[RootJsonFormat[T]] =
+    new KebsSprayJsonMacros(q).deriveRootFormat[T](config, stepAside = true)
 }

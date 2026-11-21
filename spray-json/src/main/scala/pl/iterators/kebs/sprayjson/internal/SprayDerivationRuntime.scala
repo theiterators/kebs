@@ -33,6 +33,45 @@ object SprayDerivationRuntime {
     }
   }
 
+  def sum[T](config: JsonConfig, caseNames: List[String])(
+      writeCase: (T, (Int, JsValue) => JsValue) => JsValue,
+      readCase: (Int, JsValue) => T
+  ): RootJsonFormat[T] = new RootJsonFormat[T] {
+    private lazy val names    = caseNames.map(config.constructorNaming(_)).toArray
+    private lazy val byName   = names.zipWithIndex.reverse.toMap
+    private val discriminator = config.discriminator
+
+    private val wrap: (Int, JsValue) => JsValue = discriminator match {
+      case Some(field) =>
+        (index, json) =>
+          json match {
+            case JsObject(members) => JsObject(members + (field -> JsString(names(index))))
+            case _ => serializationError(s"${names(index)} is not written as a JSON object, so it cannot carry the '$field' discriminator")
+          }
+      case None => (index, json) => JsObject(names(index) -> json)
+    }
+
+    def write(obj: T): JsValue = writeCase(obj, wrap)
+
+    def read(json: JsValue): T = (discriminator, json) match {
+      case (Some(field), JsObject(members)) =>
+        members.get(field) match {
+          case Some(JsString(name)) => byName.get(name).fold(unknown(name))(readCase(_, json))
+          case _                    => deserializationError(s"Object is missing required member '$field'", fieldNames = field :: Nil)
+        }
+      case (None, JsObject(members)) =>
+        members
+          .collectFirst { case (name, value) if byName.contains(name) => readCase(byName(name), value) }
+          .getOrElse(unknown(members.keys.mkString(", ")))
+      case _ => deserializationError("Object expected")
+    }
+
+    private def unknown(found: String): Nothing =
+      deserializationError(s"Unknown case '$found', expected one of: ${names.mkString(", ")}")
+  }
+
+  def unreachableCase[T](unexpected: Any): T = throw new IllegalStateException(s"Not a case of the sealed hierarchy: $unexpected")
+
   def entry[A](fields: Fields, index: Int, value: A, writer: JsonWriter[A], rest: List[JsField]): List[JsField] =
     (fields.names(index), writer.write(value)) :: rest
 
