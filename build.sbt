@@ -30,7 +30,7 @@ lazy val baseSettings = Seq(
   homepage             := Some(url("https://github.com/theiterators/kebs")),
   scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature", "-encoding", "utf8") ++ (if (scalaVersion.value.startsWith("3"))
                                                                                              Seq("-Xmax-inlines", "64", "-Yretain-trees")
-                                                                                           else Seq.empty)
+                                                                                           else Seq("-Xsource:3", "-Wconf:cat=scala3-migration:s"))
 )
 
 lazy val commonMacroSettings = baseSettings ++ Seq(
@@ -109,6 +109,8 @@ def paradiseFlag(scalaVersion: String): Seq[String] =
     Seq.empty
   else
     Seq("-Ymacro-annotations")
+
+val hearthV = "0.4.5"
 
 val scalaTest  = Def.setting("org.scalatest" %%% "scalatest" % "3.2.20")
 val scalaCheck = Def.setting("org.scalacheck" %%% "scalacheck" % "1.19.0")
@@ -198,7 +200,15 @@ lazy val doobieSettings = commonSettings ++ Seq(
 )
 
 lazy val coreSettings = commonMacroSettings ++ Seq(
-  libraryDependencies += (scalaCheck.value % "test")
+  libraryDependencies += "com.kubuszok" %%% "hearth" % hearthV,
+  libraryDependencies ++= (if (scalaVersion.value.startsWith("3"))
+                             Seq(compilerPlugin("com.kubuszok" % "hearth-cross-quotes_3" % hearthV))
+                           else Nil),
+  // hearth's path-dependent Method/Type ADTs trigger this harmless Scala 2 warning in macro code
+  scalacOptions ++= (if (scalaVersion.value.startsWith("3")) Nil
+                     else Seq("-Wconf:msg=The outer reference in this type test cannot be checked at run time:s")),
+  libraryDependencies += (scalaCheck.value % "test"),
+  libraryDependencies += (scalaTest.value  % "test")
 )
 
 lazy val enumSettings = commonMacroSettings ++ Seq(
