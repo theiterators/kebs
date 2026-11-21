@@ -1,7 +1,7 @@
 import sbt.librarymanagement.ConflictWarning
 
 val scala_2_13             = "2.13.18"
-val scala_3                = "3.3.9"
+val scala_3                = "3.9.0"
 val mainScalaVersion       = scala_3
 val supportedScalaVersions = Seq(scala_2_13, scala_3)
 
@@ -17,10 +17,10 @@ ThisBuild / publishTo          := {
   else localStaging.value
 }
 
-ThisBuild / tlBaseVersion                       := "2.3"
+ThisBuild / tlBaseVersion                       := "3.0"
 ThisBuild / tlCiHeaderCheck                     := false
-ThisBuild / tlMimaPreviousVersions              := Set("2.2.2")
-ThisBuild / githubWorkflowJavaVersions          := Seq(JavaSpec.temurin("11"), JavaSpec.temurin("17"))
+ThisBuild / tlMimaPreviousVersions              := Set.empty
+ThisBuild / githubWorkflowJavaVersions          := Seq(JavaSpec.temurin("17"), JavaSpec.temurin("21"))
 ThisBuild / githubWorkflowPublishTargetBranches := Seq(RefPredicate.StartsWith(Ref.Tag("v")), RefPredicate.Equals(Ref.Branch("master")))
 
 lazy val baseSettings = Seq(
@@ -118,8 +118,8 @@ val slick           = "com.typesafe.slick"  %% "slick"           % "3.6.1"
 val optionalSlick   = optional(slick)
 val playJson        = Def.setting("org.playframework" %%% "play-json" % "3.0.6")
 val slickPg         = "com.github.tminglei" %% "slick-pg"        % "0.23.1"
-val doobie          = "org.tpolecat"        %% "doobie-core"     % "1.0.0-RC12"
-val doobiePg        = "org.tpolecat"        %% "doobie-postgres" % "1.0.0-RC12"
+val doobie          = "org.typelevel"       %% "doobie-core"     % "1.0.0-RC14"
+val doobiePg        = "org.typelevel"       %% "doobie-postgres" % "1.0.0-RC14"
 val sprayJson       = "io.spray"            %% "spray-json"      % "1.3.6"
 val circeV          = "0.14.17"
 val circe           = Def.setting("io.circe" %%% "circe-core" % circeV)
@@ -184,12 +184,12 @@ val pureConfig              = "com.github.pureconfig" %% "pureconfig-core"      
 val pureConfigGeneric       = "com.github.pureconfig" %% "pureconfig-generic"        % pureConfigVersion
 val pureConfigGenericScala3 = "com.github.pureconfig" %% "pureconfig-generic-scala3" % pureConfigVersion
 
-val scalaJavaTime = Def.setting("io.github.cquiroz" %%% "scala-java-time" % "2.7.0")
+val scalaJavaTime = Def.setting("io.github.cquiroz" %%% "scala-java-time" % "2.11.0")
 
 lazy val commonSettings = baseSettings ++ Seq(
   scalacOptions ++=
     (if (scalaVersion.value.startsWith("3"))
-       Seq("-language:implicitConversions", "-Ykind-projector", "-Xignore-scala2-macros")
+       Seq("-language:implicitConversions", "-Xkind-projector", "-Xignore-scala2-macros")
      else Seq("-language:implicitConversions", "-language:experimental.macros")),
 //  (scalacOptions in Test) ++= Seq("-Ymacro-debug-lite" /*, "-Xlog-implicits"*/ ),
   libraryDependencies += scalaTest.value % "test"

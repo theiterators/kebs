@@ -1,6 +1,6 @@
 package pl.iterators.kebs.doobie.enums
 
-import doobie.Meta
+import org.typelevel.doobie.Meta
 import pl.iterators.kebs.core.enums.{EnumLike, ValueEnumLike, ValueEnumLikeEntry}
 
 import scala.reflect.ClassTag
