@@ -8,6 +8,9 @@ final case class EnumNaming(naming: Naming, caseInsensitive: Boolean = true) {
 
   def lookup[E](named: EnumLike[E], name: String): Option[E] =
     if (caseInsensitive) named.withNameInsensitiveOption(name) else named.withNameOption(name)
+
+  def lookupOrThrow[E](named: EnumLike[E], name: String): E =
+    lookup(named, name).getOrElse(throw new NoSuchElementException(s"$name should be one of ${named.names.mkString(", ")}"))
 }
 
 object EnumNaming {

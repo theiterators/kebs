@@ -3,6 +3,7 @@ package pl.iterators.kebs.slick.enums
 import com.github.tminglei.slickpg.ExPostgresProfile
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import pl.iterators.kebs.core.enums.EnumNaming
 import pl.iterators.kebs.enumeratum.KebsEnumeratum
 import pl.iterators.kebs.slick.KebsSlickSupport
 import pl.iterators.kebs.testkit.model.Color
@@ -47,5 +48,18 @@ class SlickEnumNamesTests extends AnyFunSuite with Matchers with KebsEnumeratum 
     val column = mapped[Color, String](LowercaseDriver)(implicitly[BaseColumnType[Color]])
     column.map(Color.DarkBlue) shouldBe "darkblue"
     column.comap("darkblue") shouldBe Color.DarkBlue
+  }
+
+  test("an EnumNaming in scope renames stored names") {
+    import DefaultDriver.api._
+    implicit val enumNaming: EnumNaming = EnumNaming.screamingSnakeCase
+    val column                          = mapped[Color, String](DefaultDriver)(implicitly[BaseColumnType[Color]])
+    column.map(Color.DarkBlue) shouldBe "DARK_BLUE"
+    column.comap("dark_blue") shouldBe Color.DarkBlue
+  }
+
+  test("names are read case-insensitively") {
+    import DefaultDriver.api._
+    mapped[Color, String](DefaultDriver)(implicitly[BaseColumnType[Color]]).comap("darkblue") shouldBe Color.DarkBlue
   }
 }

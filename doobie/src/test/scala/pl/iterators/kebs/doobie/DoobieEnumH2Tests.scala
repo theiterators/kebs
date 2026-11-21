@@ -7,6 +7,7 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import org.typelevel.doobie._
 import org.typelevel.doobie.implicits._
+import pl.iterators.kebs.core.enums.EnumNaming
 import pl.iterators.kebs.enumeratum.{KebsEnumeratum, KebsValueEnumeratum}
 import pl.iterators.kebs.testkit.model.{Color, Level}
 
@@ -40,6 +41,18 @@ class DoobieEnumH2Tests extends AnyFunSuite with Matchers with KebsEnumeratum wi
     import pl.iterators.kebs.doobie.enums.lowercase._
     stored("lower")(sql"insert into t values (${Color.DarkBlue: Color})".update.run) shouldBe "darkblue"
     read[Color]("lower-read", "darkblue") shouldBe Color.DarkBlue
+  }
+
+  test("an EnumNaming in scope renames stored names") {
+    import pl.iterators.kebs.doobie.enums._
+    implicit val enumNaming: EnumNaming = EnumNaming.screamingSnakeCase
+    stored("snake")(sql"insert into t values (${Color.DarkBlue: Color})".update.run) shouldBe "DARK_BLUE"
+    read[Color]("snake-read", "dark_blue") shouldBe Color.DarkBlue
+  }
+
+  test("names are read case-insensitively") {
+    import pl.iterators.kebs.doobie.enums._
+    read[Color]("lenient-read", "darkblue") shouldBe Color.DarkBlue
   }
 
   test("value enums store their values") {
