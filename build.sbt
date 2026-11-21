@@ -368,7 +368,7 @@ lazy val playJsonSupport = crossProject(JSPlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
   .crossType(CrossType.Pure)
   .in(file("play-json"))
-  .dependsOn(core, enumSupport, enumeratumSupport % "test -> test", instances % "test -> test")
+  .dependsOn(core, enumSupport, enumeratumSupport % "test -> test", instances % "test -> test", testkit % "test -> compile")
   .settings(playJsonSettings *)
   .settings(publishSettings *)
   .settings(
