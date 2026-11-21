@@ -229,7 +229,7 @@ lazy val enumeratumSettings = commonMacroSettings ++ hearthMacroSettings ++ Seq(
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
-lazy val sprayJsonSettings = commonSettings ++ Seq(
+lazy val sprayJsonSettings = commonSettings ++ hearthMacroSettings ++ Seq(
   libraryDependencies += sprayJson,
   libraryDependencies += optionalEnumeratum.value
 )

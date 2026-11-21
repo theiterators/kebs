@@ -53,6 +53,12 @@ class SprayGoldenTests extends AnyFunSuite with Matchers {
     golden(Person(Id("x"), "Ann", 30, None), """{"id":{"value":"x"},"name":"Ann","age":30}""")
   }
 
+  test("member order, as printed (spray sorts members)") {
+    import Flat._
+    implicitly[JsonFormat[Person]].write(Person(Id("x"), "Ann", 30, Some("A"))).compactPrint shouldBe
+    """{"age":30,"id":"x","name":"Ann","nickname":"A"}"""
+  }
+
   test("person flat") {
     import Flat._
     golden(Person(Id("x"), "Ann", 30, Some("A")), """{"id":"x","name":"Ann","age":30,"nickname":"A"}""")
