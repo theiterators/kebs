@@ -21,6 +21,8 @@ Instances are derived automatically for:
 - Tagged types (`String @@ MyTag`)
 - Opaque types (Scala 3)
 
+Values are built with the companion `apply`, so one that validates or normalizes is honoured.
+
 To enable derivation, mix in `CaseClass1ToValueClass` (or import from its companion object):
 
 ```scala
@@ -62,7 +64,7 @@ trait EnumLike[T] {
 
 Instances are provided for Scala 3 `enum` types (via `kebs-enum`), Scala 2 `scala.Enumeration` (via `kebs-enum`), and Enumeratum enums (via `kebs-enumeratum`).
 
-An entry's name comes from `getName`: `entryName` for Enumeratum enums (including custom `entryName` overrides and casing mixins such as `EnumEntry.Uppercase`), and `toString` for Scala 3 `enum`s and `scala.Enumeration`. All integration modules serialize and look up enums by this name. `values` keeps declaration order.
+An entry's name comes from `getName`: `entryName` for Enumeratum enums (including custom `entryName` overrides and casing mixins such as `EnumEntry.Uppercase`), and `toString` for Scala 3 `enum`s and `scala.Enumeration`. All integration modules serialize and look up enums by this name, changed by an implicit `EnumNaming` if there is one (see [naming styles](enums.md#naming-styles)). `values` keeps declaration order.
 
 ## ValueEnumLikeEntry[V] / ValueEnumLike[V, E]
 
@@ -109,6 +111,10 @@ The optional `format` string is used in error messages when `decode` fails (thro
 Unlike `ValueClassLike`, `InstanceConverter` is for types that are not simple wrappers — they have their own structure and parsing can fail.
 
 The `kebs-instances` module provides pre-built converters for `java.time` types, `UUID`, `URI`, `Currency`, `Locale`, etc.
+
+## JsonConfig
+
+Field and constructor naming, `None` handling, discriminator and default values of the JSON modules. See [JSON derivation](json.md#configuration).
 
 ## Stdlib typeclass derivation
 

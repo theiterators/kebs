@@ -31,11 +31,11 @@ import pl.iterators.kebs.sprayjson._
 ```
 
 This gives you:
-- **Flat format** for 1-element case classes (`case class ThingId(uuid: UUID)` serializes as just the UUID, not `{"uuid": "..."}`)
-- **Automatic format** for multi-field case classes (no need to call `jsonFormatN`)
+- **Flat format** for 1-element case classes, with `CaseClass1ToValueClass` mixed in (`case class ThingId(uuid: UUID)` serializes as just the UUID, not `{"uuid": "..."}`)
+- **Automatic format** for case classes (generic, recursive, of any size) and sealed hierarchies
 - **Case object** format (serializes as `{}`)
-- **Parametrized (generic) case classes**
-- **Support for case classes with > 22 fields**
+
+What exactly is derived, the configuration and the annotations are the same in all JSON modules: see [JSON derivation](json.md).
 
 ## Snakified / capitalized field names
 
@@ -54,8 +54,6 @@ Capitalized variant:
 import pl.iterators.kebs.sprayjson.KebsSprayJsonCapitalized
 // or: import pl.iterators.kebs.sprayjson.capitalized._
 ```
-
-Snakified/capitalized names are computed at compile time.
 
 ## NullOptions support
 
@@ -108,18 +106,15 @@ This covers `Instant`, `LocalDate`, `ZonedDateTime`, `Duration`, `UUID`, `Curren
 
 For alternative encodings (e.g. `Instant` as epoch millis instead of ISO string), see the [instances documentation](instances.md).
 
-## Recursive formats
+Other naming styles: an implicit [`EnumNaming`](enums.md#naming-styles).
 
-```scala
-case class Thing(thingId: String, parent: Option[Thing])
-implicit val thingFormat: RootJsonFormat[Thing] = jsonFormatRec[Thing]
-```
+## Explicit formats
 
-## Overriding flat format
-
-If you want a 1-field case class serialized as an object (not flat), redefine the implicit:
+Formats are implicit, but can also be made explicitly. `jsonFormatN` and `jsonFormatSealed` always derive, with the configuration of their protocol, also when the type has a format. For example, to serialize a 1-field case class as an object (not flat):
 
 ```scala
 case class Chapter(name: String)
 implicit val chapterRootFormat: RootJsonFormat[Chapter] = jsonFormatN[Chapter]
 ```
+
+`jsonFormatRec` is a deprecated alias of `jsonFormatN`: recursive types need nothing extra.

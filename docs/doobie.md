@@ -5,6 +5,8 @@ title: Doobie
 
 # kebs-doobie
 
+For doobie 1.0.0-RC14 (organization `org.typelevel`, package `org.typelevel.doobie`).
+
 Automatic `Meta` / `Get` / `Put` instances for Doobie.
 
 ## Setup
@@ -26,7 +28,7 @@ This provides Doobie `Meta` instances for:
 - `ValueClassLike` instances (value classes, tagged types, opaque types)
 - `InstanceConverter` instances (e.g. `UUID`, `java.time` types via `kebs-instances`)
 - Enumeratum enums (Scala 2 & 3)
-- Native enums (Scala 3)
+- Native enums (Scala 3) and `scala.Enumeration`
 
 ### Array and collection support
 
@@ -44,6 +46,8 @@ The default `import pl.iterators.kebs.doobie.enums._` stores enums by their entr
 import pl.iterators.kebs.doobie.enums.uppercase._  // stores as UPPERCASE
 import pl.iterators.kebs.doobie.enums.lowercase._  // stores as lowercase
 ```
+
+Other naming styles: an implicit [`EnumNaming`](enums.md#naming-styles).
 
 ### Value enums
 

@@ -10,7 +10,7 @@ Enum support modules providing `EnumLike` / `ValueEnumLike` instances.
 ## Setup
 
 ```scala
-// Scala 3 native enums + Scala 2 scala.Enumeration
+// Scala 3 native enums + scala.Enumeration
 libraryDependencies += "pl.iterators" %% "kebs-enum" % kebsVersion
 
 // Enumeratum (Scala 2 & 3)
@@ -20,17 +20,37 @@ libraryDependencies += "pl.iterators" %% "kebs-enumeratum" % kebsVersion
 ## Usage
 
 ```scala
-// Scala 3 native enums
+// Scala 3 native enums and scala.Enumeration (the latter on Scala 2 too);
+// KebsValueEnum on Scala 2: sealed hierarchies of case objects with a value
 import pl.iterators.kebs.enums.{KebsEnum, KebsValueEnum}
-
-// Scala 2 scala.Enumeration
-import pl.iterators.kebs.enums.KebsEnum
 
 // Enumeratum
 import pl.iterators.kebs.enumeratum.{KebsEnumeratum, KebsValueEnumeratum}
 ```
 
-**Note:** `KebsValueEnum` is Scala 3 only. On Scala 2 with Enumeratum, use `KebsValueEnumeratum`.
+The entries of an Enumeratum enum are those of its `values`.
+
+## Naming styles
+
+Every module that writes enums by name (circe, spray-json, play-json, jsoniter, doobie, slick, pekko-http, http4s, http4s-stir, baklava, pureconfig) takes an implicit `EnumNaming`:
+
+```scala
+import pl.iterators.kebs.core.enums.EnumNaming
+
+implicit val enumNaming: EnumNaming = EnumNaming.screamingSnakeCase // DarkBlue <-> "DARK_BLUE"
+```
+
+There are `default` (names as they are), `uppercase`, `lowercase`, `snakeCase`, `screamingSnakeCase` and `kebabCase`. For another style, give a `Naming`:
+
+```scala
+import pl.iterators.kebs.core.naming.Naming
+
+implicit val enumNaming: EnumNaming = EnumNaming(Naming.custom(_.reverse), caseInsensitive = false)
+```
+
+Reading is case-insensitive unless `caseInsensitive = false`; an exact match always wins. Have one `EnumNaming` per scope, or shadow it under the same name.
+
+The `uppercase` and `lowercase` presets of the modules keep their naming: they do not read an implicit `EnumNaming`.
 
 ## Value enums
 

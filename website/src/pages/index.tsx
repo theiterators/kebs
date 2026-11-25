@@ -28,7 +28,7 @@ implicit val userIdDec: Decoder[UserId] =
 const afterCode = `case class UserId(value: String) extends AnyVal
 case class Email(value: String) extends AnyVal
 
-// That's it. Slick, Circe, Akka HTTP, Doobie,
+// That's it. Slick, Circe, Pekko HTTP, Doobie,
 // http4s, Play JSON, etc. all just work.`;
 
 function HomepageHeader() {

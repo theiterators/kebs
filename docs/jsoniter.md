@@ -82,13 +82,15 @@ Case objects and enum values are derived only as cases of their sealed hierarchy
 
 ## Configuration
 
+The settings and annotations are those of all JSON modules, see [JSON derivation](json.md):
+
 ```scala
 import pl.iterators.kebs.core.json.{JsonConfig, NoneHandling}
 import pl.iterators.kebs.core.naming.Naming
 
 object ThingProtocol extends KebsJsoniter {
   override def kebsJsonConfig: JsonConfig =
-    JsonConfig.default
+    super.kebsJsonConfig
       .withFieldNaming(Naming.kebabCase)
       .withConstructorNaming(Naming.snakeCase)
       .withNoneHandling(NoneHandling.Omit)
