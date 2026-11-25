@@ -22,7 +22,7 @@ import pl.iterators.kebs.scalacheck._
 Generates `Arbitrary` instances for:
 - Value classes and single-field case classes
 - Opaque types (Scala 3)
-- Enumeratum enums (Scala 2)
+- Enums and value enums, from their values, when their support is in scope (`KebsEnum`, `KebsEnumeratum`, … — see [enums](enums.md))
 - Common Java types: `Instant`, `ZonedDateTime`, `LocalDate`, `LocalDateTime`, `LocalTime`, `Duration`, `URI`, `URL`
 - `String` (using `Gen.alphaNumStr`)
 

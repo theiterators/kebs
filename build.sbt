@@ -542,7 +542,13 @@ lazy val jsonschemaSupport = project
 
 lazy val scalacheckSupport = project
   .in(file("scalacheck"))
-  .dependsOn(core.jvm, enumSupport.jvm, opaque.jvm % "test -> test")
+  .dependsOn(
+    core.jvm,
+    enumSupport.jvm,
+    enumeratumSupport.jvm % "test -> compile",
+    opaque.jvm            % "test -> test",
+    testkit.jvm           % "test -> compile"
+  )
   .settings(scalacheckSettings *)
   .settings(publishSettings *)
   .settings(

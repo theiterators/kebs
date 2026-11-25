@@ -1,6 +1,7 @@
 package pl.iterators.kebs.scalacheck
 
 import org.scalacheck.{Arbitrary, Gen}
+import pl.iterators.kebs.core.enums.{EnumLike, ValueEnumLike, ValueEnumLikeEntry}
 import pl.iterators.kebs.core.macros.ValueClassLike
 
 import java.net.{URI, URL}
@@ -14,6 +15,11 @@ trait KebsArbitrarySupport extends ScalacheckInstancesSupport {
       arbitrary: Arbitrary[A]
   ): Arbitrary[T] =
     Arbitrary(arbitrary.arbitrary.map(rep.apply(_)))
+
+  implicit def enumArbitrary[E](implicit e: EnumLike[E]): Arbitrary[E] = Arbitrary(Gen.oneOf(e.values))
+
+  implicit def valueEnumArbitrary[V, E <: ValueEnumLikeEntry[V]](implicit e: ValueEnumLike[V, E]): Arbitrary[E] =
+    Arbitrary(Gen.oneOf(e.values))
 
   implicit val arbUnit: Arbitrary[Unit] = Arbitrary(Gen.const(()))
 
