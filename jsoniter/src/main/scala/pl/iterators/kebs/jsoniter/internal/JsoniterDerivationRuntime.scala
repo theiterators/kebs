@@ -70,20 +70,14 @@ object JsoniterDerivationRuntime {
     def missing(in: JsonReader, name: String, useDefaults: Boolean): Any = default
   }
 
-  // names that are written often
-  final class Keys(val names: Array[String]) {
+  // of fields or cases; excluded: which are not read
+  final class Keys(val names: Array[String], excluded: Int => Boolean) {
     private val isPlain: Array[Boolean] = names.map(_.forall(JsonWriter.isNonEscapedAscii))
-
-    def write(out: JsonWriter, index: Int): Unit =
-      if (isPlain(index)) out.writeNonEscapedAsciiKey(names(index)) else out.writeKey(names(index))
-  }
-
-  final class Fields(val names: Array[String], val fields: Array[Field], val writeNull: Boolean, val useDefaults: Boolean) {
-    private val keys: Keys        = new Keys(names)
-    private val mask: Int         = Integer.highestOneBit(names.length * 4 + 1) * 2 - 1
-    private val table: Array[Int] = {
+    private val isRead: Array[Boolean]  = names.indices.map(!excluded(_)).toArray
+    private val mask: Int               = Integer.highestOneBit(names.length * 4 + 1) * 2 - 1
+    private val table: Array[Int]       = {
       val slots = Array.fill(mask + 1)(-1)
-      names.indices.filterNot(fields(_).isTransient).foreach { index =>
+      names.indices.filter(isRead(_)).foreach { index =>
         val chars = names(index).toCharArray
         var slot  = JsonReader.toHashCode(chars, chars.length) & mask
         while (slots(slot) >= 0) slot = (slot + 1) & mask
@@ -92,15 +86,23 @@ object JsoniterDerivationRuntime {
       slots
     }
 
+    // of the key or string that was just read; expected: the one to try first
     def indexOf(in: JsonReader, length: Int, expected: Int): Int =
-      if (expected < names.length && !fields(expected).isTransient && in.isCharBufEqualsTo(length, names(expected))) expected
+      if (expected < names.length && isRead(expected) && in.isCharBufEqualsTo(length, names(expected))) expected
       else {
         var slot = in.charBufToHashCode(length) & mask
         while (table(slot) >= 0 && !in.isCharBufEqualsTo(length, names(table(slot)))) slot = (slot + 1) & mask
         table(slot)
       }
 
-    def isField(name: String): Boolean = names.indices.exists(index => names(index) == name && !fields(index).isTransient)
+    def contains(name: String): Boolean = names.indices.exists(index => names(index) == name && isRead(index))
+
+    def write(out: JsonWriter, index: Int): Unit =
+      if (isPlain(index)) out.writeNonEscapedAsciiKey(names(index)) else out.writeKey(names(index))
+  }
+
+  final class Fields(names: Array[String], val fields: Array[Field], val writeNull: Boolean, val useDefaults: Boolean) {
+    val keys: Keys = new Keys(names, fields(_).isTransient)
 
     def writeKey(out: JsonWriter, index: Int): Unit = keys.write(out, index)
   }
@@ -159,12 +161,13 @@ object JsoniterDerivationRuntime {
       )
     }
 
-    def isField(name: String): Boolean            = fields.isField(name)
+    def isField(name: String): Boolean            = fields.keys.contains(name)
     def encodeFields(x: T, out: JsonWriter): Unit = writeFields(fields, out, x)
 
     def decodeValue(in: JsonReader, default: T): T = {
       val current = fields
-      val size    = current.names.length
+      val keys    = current.keys
+      val size    = keys.names.length
       val values  = new Array[Any](size)
       var index   = 0
       while (index < size) {
@@ -178,7 +181,7 @@ object JsoniterDerivationRuntime {
         var more     = true
         while (more) {
           val length = in.readKeyAsCharBuf()
-          index = current.indexOf(in, length, expected)
+          index = keys.indexOf(in, length, expected)
           if (index < 0) in.skip()
           else if (isMissing(values(index))) {
             values(index) = current.fields(index).read(in)
@@ -190,7 +193,7 @@ object JsoniterDerivationRuntime {
       }
       index = 0
       while (index < size) {
-        if (isMissing(values(index))) values(index) = current.fields(index).missing(in, current.names(index), current.useDefaults)
+        if (isMissing(values(index))) values(index) = current.fields(index).missing(in, keys.names(index), current.useDefaults)
         index += 1
       }
       construct(values)
@@ -211,54 +214,76 @@ object JsoniterDerivationRuntime {
     }
   }
 
+  final private class Cases(val discriminator: Option[String], names: Array[String]) {
+    val keys: Keys = new Keys(names, _ => false)
+
+    def unknown(in: JsonReader, name: String): Nothing =
+      in.decodeError(s"unknown case '$name', expected one of: ${names.mkString(", ")}")
+  }
+
   def sum[T](config: => JsonConfig, caseNames: List[String], tests: List[Any => Boolean], codecs: LocalCodecs): JsonValueCodec[T] =
     new JsonValueCodec[T] {
-      private val isCase: Array[Any => Boolean]      = tests.toArray
-      private lazy val keys: Keys                    = new Keys(caseNames.map(config.constructorNaming(_)).toArray)
-      private lazy val byName: Map[String, Int]      = names.zipWithIndex.reverse.toMap
-      private lazy val discriminator: Option[String] = config.discriminator
+      private val isCase: Array[Any => Boolean] = tests.toArray
+      private lazy val cases: Cases             = {
+        val current = config
+        new Cases(current.discriminator, caseNames.map(current.constructorNaming(_)).toArray)
+      }
 
-      private def names: Array[String]                 = keys.names
       private def codec(index: Int): JsonValueCodec[T] = codecs.get[JsonValueCodec[T]](index)
 
       def encodeValue(x: T, out: JsonWriter): Unit = {
-        var index = 0
+        val current = cases
+        var index   = 0
         while (index < isCase.length && !isCase(index)(x)) index += 1
         if (index == isCase.length) throw new IllegalStateException(s"Not a case of the sealed hierarchy: $x")
-        discriminator match {
+        current.discriminator match {
           case None =>
             out.writeObjectStart()
-            keys.write(out, index)
+            current.keys.write(out, index)
             codec(index).encodeValue(x, out)
             out.writeObjectEnd()
-          case Some(field) => encodeDiscriminated(x, out, codec(index), field, names(index))
+          case Some(field) => encodeDiscriminated(x, out, codec(index), field, current.keys.names(index))
         }
       }
 
-      def decodeValue(in: JsonReader, default: T): T = discriminator match {
-        case None =>
-          if (!in.isNextToken('{')) in.decodeError(s"expected an object with one of: ${names.mkString(", ")}")
-          if (in.isNextToken('}')) unknown(in, "")
-          in.rollbackToken()
-          val name  = in.readKeyAsString()
-          val value = readWith(codec(byName.getOrElse(name, unknown(in, name))), in)
-          if (!in.isNextToken('}')) in.decodeError("expected '}': one case per object")
-          value
-        case Some(field) =>
-          in.setMark()
-          if (!in.isNextToken('{')) in.decodeError("expected '{'")
-          if (in.isNextToken('}')) in.requiredFieldError(field)
-          in.rollbackToken()
-          if (!in.skipToKey(field)) in.requiredFieldError(field)
-          val name = in.readString(null)
-          if (name eq null) in.decodeError("unexpected null")
-          val index = byName.getOrElse(name, unknown(in, name))
-          in.rollbackToMark()
-          readWith(codec(index), in)
+      def decodeValue(in: JsonReader, default: T): T = {
+        val current = cases
+        current.discriminator match {
+          case None        => readWrapped(in, current)
+          case Some(field) => readDiscriminated(in, current, field)
+        }
       }
 
-      private def unknown(in: JsonReader, name: String): Nothing =
-        in.decodeError(s"unknown case '$name', expected one of: ${names.mkString(", ")}")
+      // marked, so that the name of an unknown case can be read again for the error
+      private def readWrapped(in: JsonReader, current: Cases): T = {
+        if (!in.isNextToken('{')) in.decodeError(s"expected an object with one of: ${current.keys.names.mkString(", ")}")
+        if (in.isNextToken('}')) current.unknown(in, "")
+        in.rollbackToken()
+        in.setMark()
+        val index = current.keys.indexOf(in, in.readKeyAsCharBuf(), 0)
+        if (index < 0) {
+          in.rollbackToMark()
+          current.unknown(in, in.readKeyAsString())
+        }
+        in.resetMark()
+        val value = readWith(codec(index), in)
+        if (!in.isNextToken('}')) in.decodeError("expected '}': one case per object")
+        value
+      }
+
+      private def readDiscriminated(in: JsonReader, current: Cases, field: String): T = {
+        in.setMark()
+        if (!in.isNextToken('{')) in.decodeError("expected '{'")
+        if (in.isNextToken('}')) in.requiredFieldError(field)
+        in.rollbackToken()
+        if (!in.skipToKey(field)) in.requiredFieldError(field)
+        val name = in.readString(null)
+        if (name eq null) in.decodeError("unexpected null")
+        val index = current.keys.names.indexOf(name)
+        if (index < 0) current.unknown(in, name)
+        in.rollbackToMark()
+        readWith(codec(index), in)
+      }
 
       def nullValue: T = null.asInstanceOf[T]
     }
