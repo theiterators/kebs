@@ -179,7 +179,9 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
 
     private val derivable = mutable.Map.empty[String, Boolean]
 
-    final class Codecs(indices: Map[String, Int], val local: Expr[LocalCodecs]) {
+    final class Codecs(indices: Map[String, Int], made: Set[String], val local: Expr[LocalCodecs]) {
+      // whether there is no instance of the type
+      def isMade[F: Type]: Boolean       = made(Type[F].plainPrint)
       def indexOf[F: Type]: Int          = indices(Type[F].plainPrint)
       def apply[F: Type]: Expr[Codec[F]] = codecAt[Codec[F]](local, indexOf[F])(using codecType[F])
     }
@@ -196,20 +198,30 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
 
     private def withCodecs[T: Type](parts: List[??])(build: Codecs => Expr[Codec[T]]): Expr[Codec[T]] = {
       val distinct = parts.distinctBy(_.Underlying.plainPrint)
+      val missing  = mutable.Set.empty[String]
       val creators = distinct.map { part =>
         import part.Underlying as F
         implicit val CodecF: Type[Codec[F]] = codecType[F]
-        creator[Codec[F]](codecOf[F])
+        val instance                        = found(instanceAtLevelOf[F])
+        if (instance.isEmpty) missing += Type[F].plainPrint
+        creator[Codec[F]](instance.orElse(inlineCodec[F]).getOrElse(rejectMissing[F]))
       }
       val indices = distinct.map(_.Underlying.plainPrint).zipWithIndex.toMap
-      withLocalCodecs[Codec[T]](creators)(local => build(new Codecs(indices, local)))(using codecType[T])
+      withLocalCodecs[Codec[T]](creators)(local => build(new Codecs(indices, missing.toSet, local)))(using codecType[T])
     }
 
-    private def codecOf[F: Type]: Expr[Codec[F]] = {
-      implicit val CodecF: Type[Codec[F]] = codecType[F]
-      found(instanceAtLevelOf[F])
-        .orElse(if (isInline[F]) composite[F].map(made(_).apply()) else None)
-        .getOrElse(rejectMissing[F])
+    private def inlineCodec[F: Type]: Option[Expr[Codec[F]]] =
+      if (isInline[F]) composite[F].map(composite => unlessInProgress[F, Expr[Codec[F]]]("")(made(composite).apply())) else None
+
+    private var inProgress = Set.empty[String]
+
+    // a type that is converted to itself would be followed endlessly
+    final protected def unlessInProgress[F: Type, A](purpose: String)(body: => A): A = {
+      val name = purpose + Type[F].plainPrint
+      if (inProgress(name)) Environment.reportErrorAndAbort(s"${Type[F].prettyPrint} is converted to itself")
+      inProgress += name
+      try body
+      finally inProgress -= name
     }
 
     final def isCollection[A: Type]: Boolean = elementOf[A].isDefined

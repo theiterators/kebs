@@ -29,26 +29,38 @@ object JsoniterDerivationRuntime {
 
   private object Missing
 
+  sealed abstract class PartCodec {
+    def get: JsonValueCodec[Any]
+  }
+
+  def local(codecs: LocalCodecs, index: Int): PartCodec = new PartCodec {
+    def get: JsonValueCodec[Any] = codecs.get[JsonValueCodec[Any]](index)
+  }
+
+  def standard[A](codec: JsonValueCodec[A]): PartCodec = new PartCodec {
+    val get: JsonValueCodec[Any] = codec.asInstanceOf[JsonValueCodec[Any]]
+  }
+
   sealed abstract class Field {
     def isTransient: Boolean = false
     def read(in: JsonReader): Any
     def missing(in: JsonReader, name: String, useDefaults: Boolean): Any
   }
 
-  def required(codecs: LocalCodecs, index: Int): Field = new Field {
-    def read(in: JsonReader): Any                                        = readWith(codecs.get[JsonValueCodec[Any]](index), in)
+  def required(codec: PartCodec): Field = new Field {
+    def read(in: JsonReader): Any                                        = readWith(codec.get, in)
     def missing(in: JsonReader, name: String, useDefaults: Boolean): Any = in.requiredFieldError(name)
   }
 
-  def requiredOr(codecs: LocalCodecs, index: Int, default: => Any): Field = new Field {
-    def read(in: JsonReader): Any                                        = readWith(codecs.get[JsonValueCodec[Any]](index), in)
+  def requiredOr(codec: PartCodec, default: => Any): Field = new Field {
+    def read(in: JsonReader): Any                                        = readWith(codec.get, in)
     def missing(in: JsonReader, name: String, useDefaults: Boolean): Any = if (useDefaults) default else in.requiredFieldError(name)
   }
 
-  def optional(codecs: LocalCodecs, index: Int): Field = optionalOr(codecs, index, None)
+  def optional(codec: PartCodec): Field = optionalOr(codec, None)
 
-  def optionalOr(codecs: LocalCodecs, index: Int, default: => Any): Field = new Field {
-    def read(in: JsonReader): Any                                        = readOption(codecs.get[JsonValueCodec[Any]](index), in)
+  def optionalOr(codec: PartCodec, default: => Any): Field = new Field {
+    def read(in: JsonReader): Any                                        = readOption(codec.get, in)
     def missing(in: JsonReader, name: String, useDefaults: Boolean): Any = if (useDefaults) default else None
   }
 
@@ -58,10 +70,18 @@ object JsoniterDerivationRuntime {
     def missing(in: JsonReader, name: String, useDefaults: Boolean): Any = default
   }
 
-  final class Fields(val names: Array[String], val fields: Array[Field], val writeNull: Boolean, val useDefaults: Boolean) {
+  // names that are written often
+  final class Keys(val names: Array[String]) {
     private val isPlain: Array[Boolean] = names.map(_.forall(JsonWriter.isNonEscapedAscii))
-    private val mask: Int               = Integer.highestOneBit(names.length * 4 + 1) * 2 - 1
-    private val table: Array[Int]       = {
+
+    def write(out: JsonWriter, index: Int): Unit =
+      if (isPlain(index)) out.writeNonEscapedAsciiKey(names(index)) else out.writeKey(names(index))
+  }
+
+  final class Fields(val names: Array[String], val fields: Array[Field], val writeNull: Boolean, val useDefaults: Boolean) {
+    private val keys: Keys        = new Keys(names)
+    private val mask: Int         = Integer.highestOneBit(names.length * 4 + 1) * 2 - 1
+    private val table: Array[Int] = {
       val slots = Array.fill(mask + 1)(-1)
       names.indices.filterNot(fields(_).isTransient).foreach { index =>
         val chars = names(index).toCharArray
@@ -82,8 +102,32 @@ object JsoniterDerivationRuntime {
 
     def isField(name: String): Boolean = names.indices.exists(index => names(index) == name && !fields(index).isTransient)
 
-    def writeKey(out: JsonWriter, index: Int): Unit =
-      if (isPlain(index)) out.writeNonEscapedAsciiKey(names(index)) else out.writeKey(names(index))
+    def writeKey(out: JsonWriter, index: Int): Unit = keys.write(out, index)
+  }
+
+  def writeInt(fields: Fields, out: JsonWriter, index: Int, value: Int): Unit = {
+    fields.writeKey(out, index)
+    out.writeVal(value)
+  }
+
+  def writeLong(fields: Fields, out: JsonWriter, index: Int, value: Long): Unit = {
+    fields.writeKey(out, index)
+    out.writeVal(value)
+  }
+
+  def writeDouble(fields: Fields, out: JsonWriter, index: Int, value: Double): Unit = {
+    fields.writeKey(out, index)
+    out.writeVal(value)
+  }
+
+  def writeBoolean(fields: Fields, out: JsonWriter, index: Int, value: Boolean): Unit = {
+    fields.writeKey(out, index)
+    out.writeVal(value)
+  }
+
+  def writeString(fields: Fields, out: JsonWriter, index: Int, value: String): Unit = {
+    fields.writeKey(out, index)
+    out.writeVal(value)
   }
 
   def write[A](fields: Fields, out: JsonWriter, index: Int, value: A, codec: JsonValueCodec[A]): Unit = {
@@ -119,27 +163,40 @@ object JsoniterDerivationRuntime {
     def encodeFields(x: T, out: JsonWriter): Unit = writeFields(fields, out, x)
 
     def decodeValue(in: JsonReader, default: T): T = {
-      val current  = fields
-      val size     = current.names.length
-      val values   = Array.fill[Any](size)(Missing)
-      var expected = 0
-      readObject(in) {
-        val length = in.readKeyAsCharBuf()
-        val index  = current.indexOf(in, length, expected)
-        if (index < 0) in.skip()
-        else if (values(index) != Missing) in.duplicatedKeyError(length)
-        else {
-          values(index) = current.fields(index).read(in)
-          expected = index + 1
-        }
-      }
-      var index = 0
+      val current = fields
+      val size    = current.names.length
+      val values  = new Array[Any](size)
+      var index   = 0
       while (index < size) {
-        if (values(index) == Missing) values(index) = current.fields(index).missing(in, current.names(index), current.useDefaults)
+        values(index) = Missing
+        index += 1
+      }
+      if (!in.isNextToken('{')) in.decodeError("expected '{'")
+      if (!in.isNextToken('}')) {
+        in.rollbackToken()
+        var expected = 0
+        var more     = true
+        while (more) {
+          val length = in.readKeyAsCharBuf()
+          index = current.indexOf(in, length, expected)
+          if (index < 0) in.skip()
+          else if (isMissing(values(index))) {
+            values(index) = current.fields(index).read(in)
+            expected = index + 1
+          } else in.duplicatedKeyError(length)
+          more = in.isNextToken(',')
+        }
+        if (!in.isCurrentToken('}')) in.objectEndOrCommaError()
+      }
+      index = 0
+      while (index < size) {
+        if (isMissing(values(index))) values(index) = current.fields(index).missing(in, current.names(index), current.useDefaults)
         index += 1
       }
       construct(values)
     }
+
+    private def isMissing(value: Any): Boolean = value.asInstanceOf[AnyRef] eq Missing
   }
 
   def singleton[T](value: T): JsonValueCodec[T] = new ObjectCodec[T] {
@@ -157,10 +214,11 @@ object JsoniterDerivationRuntime {
   def sum[T](config: => JsonConfig, caseNames: List[String], tests: List[Any => Boolean], codecs: LocalCodecs): JsonValueCodec[T] =
     new JsonValueCodec[T] {
       private val isCase: Array[Any => Boolean]      = tests.toArray
-      private lazy val names: Array[String]          = caseNames.map(config.constructorNaming(_)).toArray
+      private lazy val keys: Keys                    = new Keys(caseNames.map(config.constructorNaming(_)).toArray)
       private lazy val byName: Map[String, Int]      = names.zipWithIndex.reverse.toMap
       private lazy val discriminator: Option[String] = config.discriminator
 
+      private def names: Array[String]                 = keys.names
       private def codec(index: Int): JsonValueCodec[T] = codecs.get[JsonValueCodec[T]](index)
 
       def encodeValue(x: T, out: JsonWriter): Unit = {
@@ -170,7 +228,7 @@ object JsoniterDerivationRuntime {
         discriminator match {
           case None =>
             out.writeObjectStart()
-            out.writeKey(names(index))
+            keys.write(out, index)
             codec(index).encodeValue(x, out)
             out.writeObjectEnd()
           case Some(field) => encodeDiscriminated(x, out, codec(index), field, names(index))

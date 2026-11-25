@@ -126,20 +126,24 @@ private[jsoniter] trait JsoniterMacrosImpl extends JsonDerivationMacrosImpl { th
   private lazy val MapOf      = Type.Ctor2.of[scala.collection.Map]
 
   final private class JsoniterDerivation(config: Expr[JsonConfig]) extends JsonDerivation[JsonValueCodec]("JsonValueCodec") {
-    protected def codecType[A: Type]: Type[JsonValueCodec[A]]           = Type.of[JsonValueCodec[A]]
-    protected def entryPoints: Seq[UntypedMethod]                       = derivationEntryPoints
-    protected def libraryContainers: Seq[UntypedMethod]                 = Nil
+    protected def codecType[A: Type]: Type[JsonValueCodec[A]] = Type.of[JsonValueCodec[A]]
+    protected def entryPoints: Seq[UntypedMethod]             = derivationEntryPoints
+    protected def libraryContainers: Seq[UntypedMethod]       = Nil
+
     private val composites: mutable.Map[String, Option[Composite[Any]]] = mutable.Map.empty
+    private val wrappers: mutable.Map[String, Option[Composite[Any]]]   = mutable.Map.empty
 
     override protected def composite[F: Type]: Option[Composite[F]] =
-      composites
-        .getOrElseUpdate(
-          Type[F].plainPrint,
-          (if (isBottom[F]) None else wrapper[F].orElse(standard[F])).asInstanceOf[Option[Composite[Any]]]
-        )
-        .asInstanceOf[Option[Composite[F]]]
+      if (isBottom[F]) None else once(composites)(wrapper[F].orElse(standard[F]))
 
-    private def wrapper[F: Type]: Option[Composite[F]] =
+    private def wrapper[F: Type]: Option[Composite[F]] = once(wrappers)(findWrapper[F])
+
+    private def once[F: Type](answers: mutable.Map[String, Option[Composite[Any]]])(
+        answer: => Option[Composite[F]]
+    ): Option[Composite[F]] =
+      answers.getOrElseUpdate(Type[F].plainPrint, answer.asInstanceOf[Option[Composite[Any]]]).asInstanceOf[Option[Composite[F]]]
+
+    private def findWrapper[F: Type]: Option[Composite[F]] =
       converterOf[F]
         .map { converter =>
           val base: ?? = converter.base
@@ -204,7 +208,7 @@ private[jsoniter] trait JsoniterMacrosImpl extends JsonDerivationMacrosImpl { th
     private def composed[F: Type, X: Type](build: Codecs => Expr[JsonValueCodec[F]]): Composite[F] =
       new Composite[F](List(Type[X].as_??), build)
 
-    private def keyCodec[K: Type]: Option[Expr[JsonKeyCodec[K]]] = {
+    private def keyCodec[K: Type]: Option[Expr[JsonKeyCodec[K]]] = unlessInProgress[K, Option[Expr[JsonKeyCodec[K]]]]("key ") {
       implicit val KeyCodec: Type[JsonKeyCodec[K]] = Type.of[JsonKeyCodec[K]]
       summonInstance[JsonKeyCodec[K]](Nil)
         .orElse(converterOf[K].flatMap { converter =>
@@ -301,21 +305,30 @@ private[jsoniter] trait JsoniterMacrosImpl extends JsonDerivationMacrosImpl { th
         product.optionItem(field) match {
           case Some(item) =>
             import item.Underlying as X
-            val index = Expr(codecs.indexOf[X])
+            val part = partCodec[X](codecs)
             default match {
-              case Some(value) =>
-                Expr.quote(JsoniterDerivationRuntime.optionalOr(Expr.splice(codecs.local), Expr.splice(index), Expr.splice(value)))
-              case None => Expr.quote(JsoniterDerivationRuntime.optional(Expr.splice(codecs.local), Expr.splice(index)))
+              case Some(value) => Expr.quote(JsoniterDerivationRuntime.optionalOr(Expr.splice(part), Expr.splice(value)))
+              case None        => Expr.quote(JsoniterDerivationRuntime.optional(Expr.splice(part)))
             }
           case None =>
-            val index = Expr(codecs.indexOf[A])
+            val part = partCodec[A](codecs)
             default match {
-              case Some(value) =>
-                Expr.quote(JsoniterDerivationRuntime.requiredOr(Expr.splice(codecs.local), Expr.splice(index), Expr.splice(value)))
-              case None => Expr.quote(JsoniterDerivationRuntime.required(Expr.splice(codecs.local), Expr.splice(index)))
+              case Some(value) => Expr.quote(JsoniterDerivationRuntime.requiredOr(Expr.splice(part), Expr.splice(value)))
+              case None        => Expr.quote(JsoniterDerivationRuntime.required(Expr.splice(part)))
             }
         }
     }
+
+    // neither an instance nor another representation
+    private def isPlain[A: Type](codecs: Codecs): Boolean = codecs.isMade[A] && wrapper[A].isEmpty
+
+    private def partCodec[A: Type](codecs: Codecs): Expr[JsoniterDerivationRuntime.PartCodec] =
+      (if (isPlain[A](codecs)) standardCodec[A] else None) match {
+        case Some(codec) => Expr.quote(JsoniterDerivationRuntime.standard[A](Expr.splice(codec)))
+        case None        =>
+          val index = Expr(codecs.indexOf[A])
+          Expr.quote(JsoniterDerivationRuntime.local(Expr.splice(codecs.local), Expr.splice(index)))
+      }
 
     private def writeFields[T: Type](
         product: ProductShape[T],
@@ -342,15 +355,17 @@ private[jsoniter] trait JsoniterMacrosImpl extends JsonDerivationMacrosImpl { th
               )
             }
           case None =>
-            Expr.quote {
-              JsoniterDerivationRuntime.write[A](
-                Expr.splice(fields),
-                Expr.splice(out),
-                Expr.splice(index),
-                Expr.splice(value),
-                Expr.splice(codecs[A])
-              )
-            }
+            (if (isPlain[A](codecs)) writeUnboxed[A](fields, out, index, value) else None).getOrElse(
+              Expr.quote {
+                JsoniterDerivationRuntime.write[A](
+                  Expr.splice(fields),
+                  Expr.splice(out),
+                  Expr.splice(index),
+                  Expr.splice(value),
+                  Expr.splice(codecs[A])
+                )
+              }
+            )
         }
       }) { (first, second) =>
         Expr.quote {
@@ -358,6 +373,38 @@ private[jsoniter] trait JsoniterMacrosImpl extends JsonDerivationMacrosImpl { th
           Expr.splice(second)
         }
       }.getOrElse(Expr.quote(()))
+
+    private def writeUnboxed[A: Type](
+        fields: Expr[JsoniterDerivationRuntime.Fields],
+        out: Expr[JsonWriter],
+        index: Expr[Int],
+        value: Expr[A]
+    ): Option[Expr[Unit]] = Type.fqcn[A] match {
+      case "scala.Int" if Type[A] =:= Type.of[Int] =>
+        val int = value.asInstanceOf[Expr[Int]]
+        Some(Expr.quote(JsoniterDerivationRuntime.writeInt(Expr.splice(fields), Expr.splice(out), Expr.splice(index), Expr.splice(int))))
+      case "scala.Long" if Type[A] =:= Type.of[Long] =>
+        val long = value.asInstanceOf[Expr[Long]]
+        Some(Expr.quote(JsoniterDerivationRuntime.writeLong(Expr.splice(fields), Expr.splice(out), Expr.splice(index), Expr.splice(long))))
+      case "scala.Double" if Type[A] =:= Type.of[Double] =>
+        val double = value.asInstanceOf[Expr[Double]]
+        Some(
+          Expr.quote(JsoniterDerivationRuntime.writeDouble(Expr.splice(fields), Expr.splice(out), Expr.splice(index), Expr.splice(double)))
+        )
+      case "scala.Boolean" if Type[A] =:= Type.of[Boolean] =>
+        val boolean = value.asInstanceOf[Expr[Boolean]]
+        Some(
+          Expr.quote(
+            JsoniterDerivationRuntime.writeBoolean(Expr.splice(fields), Expr.splice(out), Expr.splice(index), Expr.splice(boolean))
+          )
+        )
+      case "java.lang.String" if Type[A] =:= Type.of[String] =>
+        val string = value.asInstanceOf[Expr[String]]
+        Some(
+          Expr.quote(JsoniterDerivationRuntime.writeString(Expr.splice(fields), Expr.splice(out), Expr.splice(index), Expr.splice(string)))
+        )
+      case _ => None
+    }
 
     protected def sumCodec[T: Type](leaves: List[(String, ??)]): Codecs => Expr[JsonValueCodec[T]] = {
       implicit val StringType: Type[String]           = Type.of[String]

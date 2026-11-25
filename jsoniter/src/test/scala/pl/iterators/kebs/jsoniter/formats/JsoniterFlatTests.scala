@@ -1,6 +1,7 @@
 package pl.iterators.kebs.jsoniter.formats
 
 import com.github.plokhotnyuk.jsoniter_scala.core._
+import pl.iterators.kebs.core.instances.InstanceConverter
 import pl.iterators.kebs.core.macros.{CaseClass1ToValueClass, ValueClassLike}
 import pl.iterators.kebs.instances.TimeInstances
 import pl.iterators.kebs.instances.time.mixins.InstantEpochMilliLong
@@ -22,6 +23,7 @@ object JsoniterFlatTestDomain {
   final case class FlatNode(edges: Map[String, FlatNode])
   final case class ByKey(ids: Map[Id, Int], wrapped: Map[Wrapped, Int])
   final case class Schedule(at: Map[Instant, Int])
+  final case class Numbers(a: Int, b: List[Int], c: Map[Int, Int], d: Option[Int], e: String)
 
   trait NameTag
   type Name = String @@ NameTag
@@ -36,6 +38,14 @@ class JsoniterFlatTests extends JsoniterTestBase {
   object Flat    extends KebsJsoniter with CaseClass1ToValueClass
   object Time    extends KebsJsoniter with TimeInstances
   object Milli   extends KebsJsoniter with InstantEpochMilliLong
+  object Self    extends KebsJsoniter {
+    implicit val trimmed: InstanceConverter[String, String] = InstanceConverter[String, String](_.trim, _.trim)
+    implicit val shown: InstanceConverter[Int, Long]        = InstanceConverter[Int, Long](_.toLong, _.toInt)
+    implicit val read: InstanceConverter[Long, Int]         = InstanceConverter[Long, Int](_.toInt, _.toLong)
+  }
+  object Hex extends KebsJsoniter {
+    implicit val hex: InstanceConverter[Int, String] = InstanceConverter[Int, String](_.toHexString, Integer.parseInt(_, 16))
+  }
 
   test("a value class is written as its field") {
     import Flat._
@@ -111,6 +121,20 @@ class JsoniterFlatTests extends JsoniterTestBase {
       import Default._
       roundTrip(Event(Id("x"), at), """{"id":{"value":"x"},"at":"2026-01-02T03:04:05Z"}""")
     }
+  }
+
+  test("an InstanceConverter of a type that has a codec without one") {
+    import Hex._
+    roundTrip(Numbers(255, List(16), Map(32 -> 33), Some(1), "n"), """{"a":"ff","b":["10"],"c":{"20":"21"},"d":"1","e":"n"}""")
+    roundTrip(255, "\"ff\"")
+  }
+
+  test("a type that is converted to itself is reported") {
+    import Self._
+    "deriveCodec[List[String]]" shouldNot compile
+    "deriveCodec[Map[String, Boolean]]" shouldNot compile
+    "deriveCodec[Tags]" shouldNot compile
+    roundTrip(List(true), "[true]")(deriveCodec[List[Boolean]])
   }
 
   test("explicit derivation of a value class") {
