@@ -5,8 +5,8 @@ import pl.iterators.kebs.core.macros.namingconventions.{CapitalizeVariant, Snaki
 import java.util.concurrent.ConcurrentHashMap
 
 final case class Naming(transform: String => String) {
-  // derived codecs rename on every encode/decode; names are field and case names, so the set is small (the cap guards
-  // against a naming applied to arbitrary runtime strings)
+  // enum codecs rename on every encode; names are entry and field names, so the set is small (the cap guards against a
+  // naming applied to arbitrary runtime strings)
   private[this] val memo = new ConcurrentHashMap[String, String]
 
   def apply(name: String): String = {
