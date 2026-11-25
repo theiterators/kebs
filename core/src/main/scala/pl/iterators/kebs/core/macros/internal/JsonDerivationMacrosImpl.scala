@@ -65,6 +65,14 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
     name.startsWith("scala.") || name.startsWith("java.") || name.startsWith("(")
   }
 
+  // pekko-http marshals its own sealed types (Done, entities); with a codec of one, it would be sent as JSON instead
+  protected def derivesPekkoHierarchies: Boolean = false
+
+  private def isPekkoHierarchy[T: Type]: Boolean =
+    Type.isSealed[T] && !Type.isCaseClass[T] && Set("org.apache.pekko.", "akka.").exists(Type.fqcn[T].startsWith)
+
+  def isLeftToItsLibrary[T: Type]: Boolean = isStandardLibrary[T] || (isPekkoHierarchy[T] && !derivesPekkoHierarchies)
+
   private def search[A: Type](ignored: Seq[UntypedMethod]): SummoningResult[A] =
     JsonDerivationState.searching(expansionOwner)(withFreshSearch(Type[A].summonExprIgnoring(ignored*)))
 
@@ -184,7 +192,7 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
     final def hides[A: Type]: Boolean = isHidden[Codec[A]](using codecType[A])
 
     protected def rejectMissing[F: Type]: Nothing = Environment.reportErrorAndAbort(
-      s"No ${codecType[F].prettyPrint} in scope, and kebs derives one only for case classes and sealed hierarchies outside the standard library"
+      s"No ${codecType[F].prettyPrint} in scope, and kebs derives one only for case classes and sealed hierarchies outside the standard library and pekko"
     )
 
     final def recorded[A: Type]: Expr[Codec[A]] = entryPoint {
@@ -315,7 +323,7 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
       }
 
     private def ownDerivation[F: Type]: Option[() => Expr[Codec[F]]] =
-      if (isStandardLibrary[F] && !derivesFromStandardLibrary(Type.fqcn[F])) None
+      if (isLeftToItsLibrary[F] && !derivesFromStandardLibrary(Type.fqcn[F])) None
       else
         Expr
           .singletonOf[F]

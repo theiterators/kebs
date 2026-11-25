@@ -26,7 +26,7 @@ private[sprayjson] trait SprayFormatMacrosImpl extends JsonDerivationMacrosImpl 
   def formatRole[T: Type](stepsAsideForExisting: Boolean): EntryPointRole =
     entryPointRole[T]("JsonFormat", stepsAsideForExisting)(existing[T].isDefined)
 
-  def isDerived[T: Type](config: Expr[JsonConfig]): Boolean = !isStandardLibrary[T] || new SprayDerivation(config).isDerivable[T]
+  def isDerived[T: Type](config: Expr[JsonConfig]): Boolean = !isLeftToItsLibrary[T] || new SprayDerivation(config).isDerivable[T]
 
   def existingFormat[T: Type]: Expr[RootJsonFormat[T]] =
     asRoot(existing[T].getOrElse(Environment.reportErrorAndAbort(s"No JsonFormat of ${Type[T].prettyPrint}")))
