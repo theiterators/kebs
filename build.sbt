@@ -672,7 +672,7 @@ lazy val enumeratumSupport = crossProject(JSPlatform, NativePlatform, JVMPlatfor
 
 lazy val pureConfigSupport = project
   .in(file("pureconfig"))
-  .dependsOn(core.jvm)
+  .dependsOn(core.jvm, enumeratumSupport.jvm % "test -> compile", instances.jvm % "test -> compile", testkit.jvm % "test -> compile")
   .settings(pureConfigSettings *)
   .settings(publishSettings *)
   .settings(
