@@ -16,6 +16,11 @@ object JsoniterAaCompanion {
       JsoniterNestedInstancesTestDomain.named("OUTER", deriveCodec[(Inner, Int)])((Outer.apply _).tupled, (o: Outer) => (o.inner, o.n))
   }
 
+  final case class Named(someField: Int, otherField: Int)
+  object Named { implicit val codec = pl.iterators.kebs.jsoniter.snakified.deriveCodec[Named] }
+  final case class NamedHolder(named: JsoniterZzCompanion.Named, n: Int)
+  def writtenNamed: String = writeToString(NamedHolder(JsoniterZzCompanion.Named(1, 2), 3))
+
   final case class Holder(outer: JsoniterZzCompanion.Outer, n: Int)
   def written: String = writeToString(Holder(JsoniterZzCompanion.Outer(JsoniterZzCompanion.Inner(1, 2), 3), 4))
   def read: Holder    = readFromString[Holder](written)

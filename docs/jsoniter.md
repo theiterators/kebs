@@ -45,6 +45,17 @@ There is an implicit codec of:
 
 A codec of your own (in a companion object, or in scope) always wins, for fields and elements too.
 
+An implicit codec is created where it is used. Keep the ones you use often as values:
+
+```scala
+object Thing {
+  implicit val codec: JsonValueCodec[Thing] = ThingProtocol.deriveCodec[Thing]
+}
+```
+
+`deriveCodec` takes the configuration of its protocol, but value classes and converters are looked up in scope, so import the protocol that has
+them.
+
 There is no implicit codec of a `String`, a number, an `Option` or a tuple on its own, so that other libraries keep handling them in their own
 way. Derive these explicitly:
 
@@ -64,7 +75,10 @@ The JSON is that of [kebs-circe](circe.md):
 Reading is stricter than with jsoniter-scala's own macro: a missing collection, a `null` that is not an `Option`'s, and a duplicate key are
 errors. Unknown keys are skipped. Maps may have any number of entries.
 
-`Either` is not supported.
+Case objects and enum values are derived only as cases of their sealed hierarchy, so `writeToString(Color.Red)` needs a type:
+`writeToString[Color](Color.Red)`.
+
+`Either` and `BitSet` are not supported.
 
 ## Configuration
 
@@ -130,8 +144,9 @@ Strings, `Done`, entities, form data, status codes and empty options are still s
 
 ## Next to jsoniter-scala's macro
 
-A codec made by `JsonCodecMaker` is used like any other of your own. Where `JsonCodecMaker` itself runs with a kebs protocol in scope, define
-the kebs codecs it should use as values. On Scala 2 it needs them; on Scala 3 it would create them anew on each use.
+A codec made by `JsonCodecMaker` is used like any other of your own. Where `JsonCodecMaker` itself runs with a kebs protocol in scope, it uses
+kebs' codecs of the nested types, with kebs' configuration. Define them as values: Scala 2 needs that, and Scala 3 would create them anew on each
+use.
 
 ```scala
 implicit val thing: JsonValueCodec[Thing]   = deriveCodec[Thing]

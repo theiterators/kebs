@@ -2,6 +2,7 @@ package pl.iterators.kebs.jsoniter.internal
 
 import com.github.plokhotnyuk.jsoniter_scala.core.{JsonCodec, JsonReader, JsonWriter}
 
+import java.math.MathContext
 import java.time._
 import java.util.UUID
 
@@ -43,10 +44,16 @@ object JsoniterCodecs {
   val double: JsonCodec[Double]   = primitive[Double](0.0)(_.readDouble(), _.writeVal(_))(_.readKeyAsDouble(), _.writeKey(_))
   val char: JsonCodec[Char]       = primitive[Char]('\u0000')(_.readChar(), _.writeVal(_))(_.readKeyAsChar(), _.writeKey(_))
 
-  val string: JsonCodec[String]         = reference[String](_.readString(null), _.writeVal(_))(_.readKeyAsString(), _.writeKey(_))
-  val bigInt: JsonCodec[BigInt]         = reference[BigInt](_.readBigInt(null), _.writeVal(_))(_.readKeyAsBigInt(), _.writeKey(_))
-  val bigDecimal: JsonCodec[BigDecimal] =
-    reference[BigDecimal](_.readBigDecimal(null), _.writeVal(_))(_.readKeyAsBigDecimal(), _.writeKey(_))
+  val string: JsonCodec[String] = reference[String](_.readString(null), _.writeVal(_))(_.readKeyAsString(), _.writeKey(_))
+  val bigInt: JsonCodec[BigInt] = reference[BigInt](_.readBigInt(null), _.writeVal(_))(_.readKeyAsBigInt(), _.writeKey(_))
+  // jsoniter rounds to 34 digits unless it is told not to; its limits stay
+  val bigDecimal: JsonCodec[BigDecimal] = reference[BigDecimal](
+    _.readBigDecimal(null, MathContext.UNLIMITED, JsonReader.bigDecimalScaleLimit, JsonReader.bigDecimalDigitsLimit),
+    _.writeVal(_)
+  )(
+    _.readKeyAsBigDecimal(MathContext.UNLIMITED, JsonReader.bigDecimalScaleLimit, JsonReader.bigDecimalDigitsLimit),
+    _.writeKey(_)
+  )
   val uuid: JsonCodec[UUID] = reference[UUID](_.readUUID(null), _.writeVal(_))(_.readKeyAsUUID(), _.writeKey(_))
 
   val duration: JsonCodec[Duration]   = reference[Duration](_.readDuration(null), _.writeVal(_))(_.readKeyAsDuration(), _.writeKey(_))

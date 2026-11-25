@@ -28,6 +28,16 @@ object JsoniterUsageTestDomain {
   final case class Tag[A](v: Int)
   final case class HasTag(tag: Tag[java.io.InputStream], n: Int)
 
+  class Suite {
+    object Domain {
+      final case class Plain(a: Int, b: Int = 3)
+      sealed trait Sum
+      final case class Case(a: Int, b: Plain) extends Sum
+      case object Object                      extends Sum
+    }
+    val codec: JsonValueCodec[Domain.Sum] = implicitly[JsonValueCodec[Domain.Sum]]
+  }
+
   type Name       = String
   type Names      = List[Name]
   type Maybe[A]   = Option[A]
@@ -113,5 +123,12 @@ class JsoniterUsageTests extends JsoniterTestBase {
     final case class Local(a: Int, b: List[String])
     roundTrip(Local(1, List("x")), """{"a":1,"b":["x"]}""")
     roundTrip(List(Local(1, Nil)), """[{"a":1,"b":[]}]""")
+  }
+
+  test("classes and objects in an object inside a class") {
+    val suite = new Suite
+    import suite.Domain._
+    roundTrip[Sum](Case(1, Plain(2, 3)), """{"Case":{"a":1,"b":{"a":2,"b":3}}}""")(suite.codec)
+    roundTrip[Sum](Object, """{"Object":{}}""")(suite.codec)
   }
 }

@@ -28,7 +28,10 @@ private[kebs] trait JsonDerivationMacrosScala3 extends JsonDerivationMacrosImpl 
         found.tree.tpe.widen.baseType(symbol).typeArgs.lift(1).map { base =>
           new Wrapping(found.tree.asInstanceOf[UntypedExpr], base.dealias.asInstanceOf[UntypedType].as_??)
         }
-      case _ => None
+      case ambiguous: AmbiguousImplicits =>
+        Environment.reportErrorAndAbort(s"Ambiguous instances of ${wanted.show}: ${ambiguous.explanation}")
+      case diverging: DivergingImplicit => Environment.reportErrorAndAbort(s"Diverging search for ${wanted.show}")
+      case _                            => None
     }
   }
 

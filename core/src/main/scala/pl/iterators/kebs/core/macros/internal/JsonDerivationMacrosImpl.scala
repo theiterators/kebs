@@ -143,7 +143,9 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
   // rootIsImplicit: whether nested uses of the root's type go through its own local instance, the first one
   final class Needed(val instances: List[LocalInstance], val rootIsImplicit: Boolean)
 
-  final class LookUp(val exists: Boolean, val isDerivable: Boolean, val requests: List[(String, ??)], val usesHidden: Boolean)
+  final class LookUp(val exists: Boolean, derivable: => Boolean, val requests: List[(String, ??)], val usesHidden: Boolean) {
+    def isDerivable: Boolean = derivable
+  }
 
   trait Discoverable {
     def typeClass: String
@@ -173,6 +175,10 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
     // has no instance of
     final protected class Composite[F](val parts: List[??], val build: Codecs => Expr[Codec[F]])
     protected def composite[F: Type]: Option[Composite[F]] = None
+    // whether an Option is written as something else
+    protected def isConverted[F: Type]: Boolean = false
+    // at their own types, not only as cases of a sealed hierarchy
+    protected def derivesObjects: Boolean = true
 
     protected def singletonCodec[T: Type](value: Expr[T]): Expr[Codec[T]]
     // functions, so that everything else is made outside the code that uses the codecs, which is made of nested quotes
@@ -202,7 +208,7 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
     // made at each use, and local only where a user's instance needs one
     final def isInline[F: Type]: Boolean = isStandardLibrary[F] && composite[F].isDefined
 
-    private def withCodecs[T: Type](parts: List[??])(build: Codecs => Expr[Codec[T]]): Expr[Codec[T]] = {
+    private def withCodecs[T: Type](parts: List[??], areCases: Boolean = false)(build: Codecs => Expr[Codec[T]]): Expr[Codec[T]] = {
       val distinct = parts.distinctBy(_.Underlying.plainPrint)
       val missing  = mutable.Set.empty[String]
       val creators = distinct.map { part =>
@@ -210,7 +216,8 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
         implicit val CodecF: Type[Codec[F]] = codecType[F]
         val instance                        = found(instanceAtLevelOf[F])
         if (instance.isEmpty) missing += Type[F].plainPrint
-        creator[Codec[F]](instance.orElse(inlineCodec[F]).getOrElse(rejectMissing[F]))
+        val ofObject = if (areCases) objectCodec[F] else None
+        creator[Codec[F]](instance.orElse(ofObject.map(_.apply())).orElse(inlineCodec[F]).getOrElse(rejectMissing[F]))
       }
       val indices = distinct.map(_.Underlying.plainPrint).zipWithIndex.toMap
       withLocalCodecs[Codec[T]](creators)(local => build(new Codecs(indices, missing.toSet, local)))(using codecType[T])
@@ -284,13 +291,14 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
       implicit val CodecA: Type[Codec[A]] = codecType[A]
       val (result, requests)              = JsonDerivationState.discovering(instanceOf[A])
       val requested                       = requestedBy(result, requests)
-      val derivable                       = isDerivable[A]
+      lazy val derivable                  = isDerivable[A]
       val exists                          = result match {
         case SummoningResult.Found(_) => true
         case _                        => derivable && found(result).isDefined
       }
-      if (derivable && !isCollection[A] && composite[A].isEmpty) {
-        if (!exists || requested.exists { case (of, tpe) => of == typeClass && tpe.Underlying =:= Type[A] }) rejectFlat[A]()
+      val needsItself = requested.exists { case (of, tpe) => of == typeClass && tpe.Underlying =:= Type[A] }
+      if ((!exists || needsItself) && derivable && !isCollection[A] && composite[A].isEmpty) {
+        rejectFlat[A]()
         if (!exists && requests.yielded) rejectUnusable[A]()
       }
       val usesHidden = result match {
@@ -368,15 +376,17 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
 
     private def ownDerivation[F: Type]: Option[() => Expr[Codec[F]]] =
       if (isLeftToItsLibrary[F] && !derivesFromStandardLibrary(Type.fqcn[F])) None
+      else if (!derivesObjects && Expr.singletonOf[F].isDefined) None
       else
-        Expr
-          .singletonOf[F]
-          .map(value => () => singletonCodec[F](withPath[F, F](value)))
+        objectCodec[F]
           .orElse(CaseClass.parse[F].toOption.map { caseClass => () =>
             val product = new ProductShape[F](caseClass)
             withCodecs[F](partsOf(product))(productCodec[F](product))
           })
-          .orElse(leavesOf[F].map(leaves => () => withCodecs[F](leaves.map(_._2))(sumCodec[F](leaves))))
+          .orElse(leavesOf[F].map(leaves => () => withCodecs[F](leaves.map(_._2), areCases = true)(sumCodec[F](leaves))))
+
+    private def objectCodec[F: Type]: Option[() => Expr[Codec[F]]] =
+      Expr.singletonOf[F].map(value => () => singletonCodec[F](withPath[F, F](value)))
 
     // nested sealed hierarchies are flattened to their leaves
     private def leavesOf[F: Type]: Option[List[(String, ??)]] =
@@ -415,7 +425,7 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
           case IsOption(isOption) =>
             import isOption.Underlying as Item
             implicit val CodecA: Type[Codec[A]] = codecType[A]
-            if (Type[A] =:= Type.of[Option[Item]] && summonInstance[Codec[A]](entryPoints ++ libraryOptions).isEmpty)
+            if (Type[A] =:= Type.of[Option[Item]] && summonInstance[Codec[A]](entryPoints ++ libraryOptions).isEmpty && !isConverted[A])
               Some(field.index -> Type[Item].as_??)
             else None
           case _ => None
@@ -514,15 +524,15 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
 
     private def visit(derivation: Discoverable, tpe: ??, requested: Boolean = false): Unit = {
       import tpe.Underlying as A
-      val isInline = derivation.isInline[A]
-      val isWanted = requested && isInline
+      val isWanted = requested && isStandardLibrary[A]
       if ((isWanted || mayNeedInstance[A]) && seen.add((derivation.typeClass, Type[A].plainPrint, isWanted))) {
         if (nesting[A] > MaxNesting)
           Environment.reportErrorAndAbort(s"$root refers to ever larger types (${Type[A].plainPrint.take(80)}...)")
         if (hidden.exists(_.Underlying =:= Type[A])) derive[A](derivation)
         else {
-          val lookUp = derivation.lookUp[A]
-          if (!lookUp.exists && (lookUp.isDerivable || isWanted)) derive[A](derivation)
+          val lookUp        = derivation.lookUp[A]
+          lazy val isInline = derivation.isInline[A]
+          if (!lookUp.exists && (lookUp.isDerivable || isWanted && isInline)) derive[A](derivation)
           else {
             lookUp.requests.foreach(visit)
             if (lookUp.usesHidden) for (tpe <- hidden) {

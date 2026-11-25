@@ -24,11 +24,14 @@ final private[jsoniter] class KebsJsoniterMacros(q: Quotes)
 
   def needed[T: Type](config: Expr[JsonConfig], preferExisting: Boolean): LocalInstances.Needed =
     untyped(neededCodecs[T](config, preferExisting))
+  def neededBeside[T: Type](config: Expr[JsonConfig]): LocalInstances.Needed = untyped(neededBesideExisting[T](config))
 }
 
 private[jsoniter] object KebsJsoniterMacros {
   transparent inline def auto[T](inline config: JsonConfig): JsonValueCodec[T] = ${ autoImpl[T]('config) }
   inline def derived[T](inline config: JsonConfig): JsonValueCodec[T]          = ${ derivedImpl[T]('config) }
+  inline def usingExisting[T](inline config: JsonConfig): JsonValueCodec[T]    = ${ usingExistingImpl[T]('config) }
+  inline def existing[T]: JsonValueCodec[T]                                    = ${ existingImpl[T] }
   inline def explicitly[T](inline config: JsonConfig): JsonValueCodec[T]       = ${ explicitlyImpl[T]('config) }
   inline def level[T](inline config: JsonConfig): JsonValueCodec[T]            = ${ levelImpl[T]('config) }
 
@@ -40,30 +43,43 @@ private[jsoniter] object KebsJsoniterMacros {
       m.entryRole[T](config) match {
         case EntryPointRole.Record => m.recordedCodec[T](config)
         // not transparent, so expanded after typing: here the search for this very codec is still open
-        case EntryPointRole.Derive => '{ KebsJsoniterMacros.derived[T]($config) }
-        case _                     => quotes.reflect.report.errorAndAbort(s"${Type.show[T]} is not derived here")
+        case EntryPointRole.Derive      => '{ KebsJsoniterMacros.derived[T]($config) }
+        case EntryPointRole.UseExisting => '{ KebsJsoniterMacros.usingExisting[T]($config) }
+        case _                          => quotes.reflect.report.errorAndAbort(s"${Type.show[T]} is not derived here")
       }
     }
   }
 
   def derivedImpl[T: Type](config: Expr[JsonConfig])(using q: Quotes): Expr[JsonValueCodec[T]] = {
     val m = macros
-    m.auto(block[T](config, m.needed[T](config, preferExisting = false)))
+    m.auto(block[T](config, m.needed[T](config, preferExisting = false))(None))
+  }
+
+  def usingExistingImpl[T: Type](config: Expr[JsonConfig])(using q: Quotes): Expr[JsonValueCodec[T]] = {
+    val m = macros
+    m.auto(block[T](config, m.neededBeside[T](config))(Some('{ KebsJsoniterMacros.existing[T] })))
+  }
+
+  def existingImpl[T: Type](using q: Quotes): Expr[JsonValueCodec[T]] = {
+    val m = macros
+    m.explicitly(m.existingCodec[T])
   }
 
   // recursive uses go through the implicit being defined (implicit val codec = deriveCodec[T]), if there is one
   def explicitlyImpl[T: Type](config: Expr[JsonConfig])(using q: Quotes): Expr[JsonValueCodec[T]] = {
     val m = macros
-    m.explicitly(block[T](config, m.needed[T](config, preferExisting = true)))
+    m.explicitly(block[T](config, m.needed[T](config, preferExisting = true))(None))
   }
 
-  private def block[T: Type](config: Expr[JsonConfig], needed: LocalInstances.Needed)(using Quotes): Expr[JsonValueCodec[T]] =
+  private def block[T: Type](config: Expr[JsonConfig], needed: LocalInstances.Needed)(
+      result: Option[Expr[JsonValueCodec[T]]]
+  )(using Quotes): Expr[JsonValueCodec[T]] =
     LocalInstances.block[JsonValueCodec[T]](config, needed)(
       new LocalInstances.Define {
         def apply[X: Type](instance: LocalInstances.Untyped, config: Expr[JsonConfig])(using Quotes): LocalInstances.Definition[?] =
           new LocalInstances.Definition('{ KebsJsoniterMacros.level[X]($config) })
       }
-    )(None)
+    )(result)
 
   def levelImpl[T: Type](config: Expr[JsonConfig])(using q: Quotes): Expr[JsonValueCodec[T]] = macros.codecLevel[T](config)
 }

@@ -35,6 +35,10 @@ class JsoniterStandardTypesTests extends JsoniterTestBase {
     roundTrip("żółć \"x\"", "\"żółć \\\"x\\\"\"")(deriveCodec[String])
     roundTrip(BigInt("12345678901234567890"), "12345678901234567890")(deriveCodec[BigInt])
     roundTrip(BigDecimal("1.23"), "1.23")(deriveCodec[BigDecimal])
+    val precise = "1234567890123456789012345678901234567890.123"
+    roundTrip(BigDecimal(precise, java.math.MathContext.UNLIMITED), precise)(deriveCodec[BigDecimal])
+    rejected[BigDecimal]("1" * 400, "")(deriveCodec[BigDecimal])
+    rejected[BigDecimal]("1e1000000", "")(deriveCodec[BigDecimal])
     roundTrip(uuid, s"\"$uuid\"")(deriveCodec[UUID])
   }
 
@@ -129,6 +133,7 @@ class JsoniterStandardTypesTests extends JsoniterTestBase {
 
   test("what is not supported") {
     "deriveCodec[Either[Int, String]]" shouldNot compile
+    "deriveCodec[scala.collection.immutable.BitSet]" shouldNot compile
     "deriveCodec[java.lang.Thread]" shouldNot compile
     "deriveCodec[Any]" shouldNot compile
     "deriveCodec[Map[java.lang.Thread, Int]]" shouldNot compile

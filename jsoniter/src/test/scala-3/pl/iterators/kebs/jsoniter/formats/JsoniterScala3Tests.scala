@@ -1,6 +1,8 @@
 package pl.iterators.kebs.jsoniter.formats
 
 import com.github.plokhotnyuk.jsoniter_scala.core.*
+import pl.iterators.kebs.instances.TimeInstances
+import pl.iterators.kebs.instances.time.mixins.InstantEpochMilliLong
 import pl.iterators.kebs.jsoniter.KebsJsoniter
 import pl.iterators.kebs.opaque.Opaque
 import pl.iterators.kebs.testkit.nested.*
@@ -37,6 +39,13 @@ class JsoniterScala3Tests extends JsoniterTestBase {
 
   test("an ambiguous type argument is reported, not derived around") {
     "implicitly[JsonValueCodec[JsoniterAmbiguityTestDomain.HasPair]]" shouldNot typeCheck
+  }
+
+  test("ambiguous converters are reported, not ignored") {
+    object Ambiguous extends KebsJsoniter with TimeInstances with InstantEpochMilliLong
+    "Ambiguous.deriveCodec[Int]" should compile
+    "{ import Ambiguous.*; Ambiguous.deriveCodec[java.time.Instant] }" shouldNot typeCheck
+    "{ import Ambiguous.*; Ambiguous.deriveCodec[pl.iterators.kebs.testkit.model.Event] }" shouldNot typeCheck
   }
 }
 

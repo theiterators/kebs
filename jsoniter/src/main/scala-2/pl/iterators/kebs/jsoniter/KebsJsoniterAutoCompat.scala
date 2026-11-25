@@ -26,10 +26,13 @@ final private[jsoniter] class KebsJsoniterMacros(val c: whitebox.Context)
     entryRole[T](config) match {
       case EntryPointRole.Record                            => recordedCodec[T](config)
       case EntryPointRole.Derive if !isInsideJsonCodecMaker =>
-        block[T](ownSearches = 1, neededCodecs[T](config, preferExisting = false), rootName = None)
-      case EntryPointRole.Derive if !isOfferedStandardType[T] =>
-        c.Expr[JsonValueCodec[T]](q"_root_.pl.iterators.kebs.jsoniter.internal.JsoniterLocalCodecs.insideJsonCodecMaker[${weakTypeOf[T]}]")
-      case _ => c.abort(c.enclosingPosition, s"${weakTypeOf[T]} is not derived here")
+        block[T](ownSearches = 1, neededCodecs[T](config, preferExisting = false), rootName = None)(None)
+      case EntryPointRole.UseExisting if !isInsideJsonCodecMaker =>
+        val existing = q"_root_.pl.iterators.kebs.jsoniter.internal.JsoniterLocalCodecs.existing[${weakTypeOf[T]}]"
+        block[T](ownSearches = 1, neededBesideExisting[T](config), rootName = None)(Some(existing))
+      case EntryPointRole.UseExisting                         => insideJsonCodecMaker[T]
+      case EntryPointRole.Derive if !isOfferedStandardType[T] => insideJsonCodecMaker[T]
+      case _                                                  => c.abort(c.enclosingPosition, s"${weakTypeOf[T]} is not derived here")
     }
   }
 
@@ -37,21 +40,27 @@ final private[jsoniter] class KebsJsoniterMacros(val c: whitebox.Context)
   private def isInsideJsonCodecMaker: Boolean =
     c.enclosingMacros.exists(_.macroApplication.symbol.fullName.startsWith("com.github.plokhotnyuk.jsoniter_scala.macros."))
 
+  private def insideJsonCodecMaker[T: c.WeakTypeTag]: c.Expr[JsonValueCodec[T]] =
+    c.Expr[JsonValueCodec[T]](q"_root_.pl.iterators.kebs.jsoniter.internal.JsoniterLocalCodecs.insideJsonCodecMaker[${weakTypeOf[T]}]")
+
   def explicitly[T: c.WeakTypeTag]: c.Expr[JsonValueCodec[T]] = explicitEntry {
     val enclosing = enclosingImplicit(weakTypeOf[JsonValueCodec[T]])
     val needed    = neededCodecs[T](config, preferExisting = enclosing.isEmpty, hidesExisting = enclosing.nonEmpty)
-    block[T](ownSearches = 0, needed, enclosing)
+    block[T](ownSearches = 0, needed, enclosing)(None)
   }
 
-  private def block[T: c.WeakTypeTag](ownSearches: Int, needed: => Needed, rootName: Option[TermName]): c.Expr[JsonValueCodec[T]] =
+  private def block[T: c.WeakTypeTag](ownSearches: Int, needed: => Needed, rootName: Option[TermName])(
+      result: Option[Tree]
+  ): c.Expr[JsonValueCodec[T]] =
     c.Expr[JsonValueCodec[T]](unlessInsideSearch(ownSearches, weakTypeOf[JsonValueCodec[T]]) {
       localInstances(config.tree, needed, rootName) { (_, config, tpe) =>
         (
           tq"_root_.com.github.plokhotnyuk.jsoniter_scala.core.JsonValueCodec[$tpe]",
           q"_root_.pl.iterators.kebs.jsoniter.internal.JsoniterLocalCodecs.level[$tpe]($config)"
         )
-      }(None)
+      }(result)
     })
 
   def level[T: c.WeakTypeTag](config: c.Expr[JsonConfig]): c.Expr[JsonValueCodec[T]] = retyped(codecLevel[T](config))
+  def existing[T: c.WeakTypeTag]: c.Expr[JsonValueCodec[T]]                          = explicitEntry(retyped(existingCodec[T]))
 }

@@ -23,6 +23,13 @@ object JsoniterFlatTestDomain {
   final case class FlatNode(edges: Map[String, FlatNode])
   final case class ByKey(ids: Map[Id, Int], wrapped: Map[Wrapped, Int])
   final case class Schedule(at: Map[Instant, Int])
+  final case class Dashed(a: Option[Int], b: List[Option[Int]])
+  final case class Owned(a: Int, b: Int)
+  object Owned {
+    implicit val codec: JsonValueCodec[Owned] =
+      JsoniterNestedInstancesTestDomain.asString(text => Owned(text.take(1).toInt, text.drop(1).toInt), o => s"${o.a}${o.b}")
+  }
+  final case class HasOwned(owned: Owned, all: List[Owned])
   final case class Numbers(a: Int, b: List[Int], c: Map[Int, Int], d: Option[Int], e: String)
 
   trait NameTag
@@ -42,6 +49,14 @@ class JsoniterFlatTests extends JsoniterTestBase {
     implicit val trimmed: InstanceConverter[String, String] = InstanceConverter[String, String](_.trim, _.trim)
     implicit val shown: InstanceConverter[Int, Long]        = InstanceConverter[Int, Long](_.toLong, _.toInt)
     implicit val read: InstanceConverter[Long, Int]         = InstanceConverter[Long, Int](_.toInt, _.toLong)
+  }
+  object Dashes extends KebsJsoniter {
+    implicit val dashes: InstanceConverter[Option[Int], String] =
+      InstanceConverter[Option[Int], String](_.fold("-")(_.toString), text => if (text == "-") None else Some(text.toInt))
+  }
+  object Twice extends KebsJsoniter {
+    implicit val first: InstanceConverter[Owned, String]  = InstanceConverter[Owned, String](_.a.toString, text => Owned(text.toInt, 0))
+    implicit val second: InstanceConverter[Owned, String] = InstanceConverter[Owned, String](_.b.toString, text => Owned(0, text.toInt))
   }
   object Hex extends KebsJsoniter {
     implicit val hex: InstanceConverter[Int, String] = InstanceConverter[Int, String](_.toHexString, Integer.parseInt(_, 16))
@@ -143,5 +158,25 @@ class JsoniterFlatTests extends JsoniterTestBase {
     import Flat._
     roundTrip(Id("x"), "\"x\"")(deriveCodec[Id])
     roundTrip(Option(Id("x")), "\"x\"")(deriveCodec[Option[Id]])
+  }
+
+  test("an InstanceConverter of an Option") {
+    import Dashes._
+    roundTrip(Dashed(None, List(Some(1), None)), """{"a":"-","b":["1","-"]}""")
+  }
+
+  test("a type's own codec, whatever converters there are") {
+    import Twice._
+    roundTrip(Owned(1, 2), "\"12\"")
+    roundTrip(HasOwned(Owned(1, 2), List(Owned(3, 4))), """{"owned":"12","all":["34"]}""")
+  }
+
+  test("case classes of the standard library are not value classes") {
+    import Flat._
+    "implicitly[JsonValueCodec[Some[String]]]" shouldNot compile
+    "implicitly[JsonValueCodec[Right[Int, String]]]" shouldNot compile
+    "implicitly[JsonValueCodec[Tuple1[String]]]" shouldNot compile
+    "implicitly[JsonValueCodec[scala.util.Success[Int]]]" shouldNot compile
+    "deriveCodec[List[Some[String]]]" shouldNot compile
   }
 }

@@ -15,7 +15,13 @@ import scala.util.control.NonFatal
 // called by code generated in JsoniterMacrosImpl. Codecs of parts are looked up when they are used: they may refer back.
 object JsoniterDerivationRuntime {
 
-  abstract class ObjectCodec[T] extends JsonValueCodec[T] {
+  // ignores the default it is given
+  abstract class OwnCodec[A] extends JsonValueCodec[A] {
+    // the value of a field that is missing, if it may be
+    def whenMissing: Option[A] = None
+  }
+
+  abstract class ObjectCodec[T] extends OwnCodec[T] {
     def encodeFields(x: T, out: JsonWriter): Unit
     def isField(name: String): Boolean
 
@@ -49,12 +55,17 @@ object JsoniterDerivationRuntime {
 
   def required(codec: PartCodec): Field = new Field {
     def read(in: JsonReader): Any                                        = readWith(codec.get, in)
-    def missing(in: JsonReader, name: String, useDefaults: Boolean): Any = in.requiredFieldError(name)
+    def missing(in: JsonReader, name: String, useDefaults: Boolean): Any = whenMissing(codec, in, name)
   }
 
   def requiredOr(codec: PartCodec, default: => Any): Field = new Field {
     def read(in: JsonReader): Any                                        = readWith(codec.get, in)
-    def missing(in: JsonReader, name: String, useDefaults: Boolean): Any = if (useDefaults) default else in.requiredFieldError(name)
+    def missing(in: JsonReader, name: String, useDefaults: Boolean): Any = if (useDefaults) default else whenMissing(codec, in, name)
+  }
+
+  private def whenMissing(codec: PartCodec, in: JsonReader, name: String): Any = codec.get match {
+    case own: OwnCodec[Any] => own.whenMissing.getOrElse(in.requiredFieldError(name))
+    case _                  => in.requiredFieldError(name)
   }
 
   def optional(codec: PartCodec): Field = optionalOr(codec, None)
@@ -132,13 +143,17 @@ object JsoniterDerivationRuntime {
     out.writeVal(value)
   }
 
-  def write[A](fields: Fields, out: JsonWriter, index: Int, value: A, codec: JsonValueCodec[A]): Unit = {
-    fields.writeKey(out, index)
-    codec.encodeValue(value, out)
-  }
+  // an Option may have an instance that is kebs' codec of Options
+  def write[A](fields: Fields, out: JsonWriter, index: Int, value: A, codec: JsonValueCodec[A]): Unit =
+    if (fields.writeNull || (value.asInstanceOf[AnyRef] ne None) || !codec.isInstanceOf[OptionCodec[?]]) {
+      fields.writeKey(out, index)
+      codec.encodeValue(value, out)
+    }
 
   def writeOption[A](fields: Fields, out: JsonWriter, index: Int, value: Option[A], codec: JsonValueCodec[A]): Unit = value match {
-    case Some(a)                  => write(fields, out, index, a, codec)
+    case Some(a) =>
+      fields.writeKey(out, index)
+      codec.encodeValue(a, out)
     case None if fields.writeNull =>
       fields.writeKey(out, index)
       out.writeNull()
@@ -222,7 +237,7 @@ object JsoniterDerivationRuntime {
   }
 
   def sum[T](config: => JsonConfig, caseNames: List[String], tests: List[Any => Boolean], codecs: LocalCodecs): JsonValueCodec[T] =
-    new JsonValueCodec[T] {
+    new OwnCodec[T] {
       private val isCase: Array[Any => Boolean] = tests.toArray
       private lazy val cases: Cases             = {
         val current = config
@@ -330,11 +345,17 @@ object JsoniterDerivationRuntime {
   def valueClassKey[T, A](base: JsonKeyCodec[A], rep: ValueClassLike[T, A]): JsonKeyCodec[T]   = wrappedKey(base, rep.apply, rep.unapply)
   def convertedKey[T, A](base: JsonKeyCodec[A], rep: InstanceConverter[T, A]): JsonKeyCodec[T] = wrappedKey(base, rep.decode, rep.encode)
 
-  private def wrapped[T, A](codecs: LocalCodecs, wrap: A => T, unwrap: T => A): JsonValueCodec[T] = new JsonValueCodec[T] {
+  private def wrapped[T, A](codecs: LocalCodecs, wrap: A => T, unwrap: T => A): JsonValueCodec[T] = new OwnCodec[T] {
     private def codec: JsonValueCodec[A] = codecs.get[JsonValueCodec[A]](0)
 
     def decodeValue(in: JsonReader, default: T): T = wrapping(in, readWith(codec, in), wrap)
     def encodeValue(x: T, out: JsonWriter): Unit   = codec.encodeValue(unwrap(x), out)
+
+    override def whenMissing: Option[T] = codec match {
+      case own: OwnCodec[A] => own.whenMissing.flatMap(a => Try(wrap(a)).toOption)
+      case _                => None
+    }
+
     // for other codecs, which may keep it unboxed: null is not a value of an AnyVal class, and the empty value may be rejected
     lazy val nullValue: T = {
       val empty = codec.nullValue
@@ -351,16 +372,19 @@ object JsoniterDerivationRuntime {
     try wrap(value)
     catch { case NonFatal(error) => in.decodeError(String.valueOf(error.getMessage)) }
 
-  def option[A](codecs: LocalCodecs): JsonValueCodec[Option[A]] = new JsonValueCodec[Option[A]] {
+  final class OptionCodec[A](codecs: LocalCodecs) extends OwnCodec[Option[A]] {
     def decodeValue(in: JsonReader, default: Option[A]): Option[A] = readOption(codecs.get[JsonValueCodec[A]](0), in)
     def encodeValue(x: Option[A], out: JsonWriter): Unit           = x match {
       case Some(a) => codecs.get[JsonValueCodec[A]](0).encodeValue(a, out)
       case None    => out.writeNull()
     }
-    def nullValue: Option[A] = None
+    def nullValue: Option[A]                    = None
+    override def whenMissing: Option[Option[A]] = Some(None)
   }
 
-  def iterable[A, C](codecs: LocalCodecs, factory: Factory[A, C]): JsonValueCodec[C] = new JsonValueCodec[C] {
+  def option[A](codecs: LocalCodecs): JsonValueCodec[Option[A]] = new OptionCodec[A](codecs)
+
+  def iterable[A, C](codecs: LocalCodecs, factory: Factory[A, C]): JsonValueCodec[C] = new OwnCodec[C] {
     def decodeValue(in: JsonReader, default: C): C = {
       val codec   = codecs.get[JsonValueCodec[A]](0)
       val builder = factory.newBuilder
@@ -373,10 +397,11 @@ object JsoniterDerivationRuntime {
       x.asInstanceOf[Iterable[A]].foreach(codec.encodeValue(_, out))
       out.writeArrayEnd()
     }
-    def nullValue: C = null.asInstanceOf[C]
+    // what codecs that are not kebs' read a missing one as
+    def nullValue: C = factory.newBuilder.result()
   }
 
-  def array[A](codecs: LocalCodecs, tag: ClassTag[A]): JsonValueCodec[Array[A]] = new JsonValueCodec[Array[A]] {
+  def array[A](codecs: LocalCodecs, tag: ClassTag[A]): JsonValueCodec[Array[A]] = new OwnCodec[Array[A]] {
     implicit private val elementTag: ClassTag[A] = tag
 
     def decodeValue(in: JsonReader, default: Array[A]): Array[A] = {
@@ -391,10 +416,10 @@ object JsoniterDerivationRuntime {
       x.foreach(codec.encodeValue(_, out))
       out.writeArrayEnd()
     }
-    def nullValue: Array[A] = null
+    def nullValue: Array[A] = Array.empty[A]
   }
 
-  def map[K, V, M](codecs: LocalCodecs, keys: JsonKeyCodec[K], factory: Factory[(K, V), M]): JsonValueCodec[M] = new JsonValueCodec[M] {
+  def map[K, V, M](codecs: LocalCodecs, keys: JsonKeyCodec[K], factory: Factory[(K, V), M]): JsonValueCodec[M] = new OwnCodec[M] {
     def decodeValue(in: JsonReader, default: M): M = {
       val codec   = codecs.get[JsonValueCodec[V]](0)
       val builder = factory.newBuilder
@@ -413,11 +438,11 @@ object JsoniterDerivationRuntime {
       }
       out.writeObjectEnd()
     }
-    def nullValue: M = null.asInstanceOf[M]
+    def nullValue: M = factory.newBuilder.result()
   }
 
   // indices: of the elements' codecs
-  def tuple[T](codecs: LocalCodecs, indices: List[Int])(construct: Array[Any] => T): JsonValueCodec[T] = new JsonValueCodec[T] {
+  def tuple[T](codecs: LocalCodecs, indices: List[Int])(construct: Array[Any] => T): JsonValueCodec[T] = new OwnCodec[T] {
     private val size                               = indices.size
     def decodeValue(in: JsonReader, default: T): T = {
       val values = new Array[Any](size)
@@ -440,7 +465,8 @@ object JsoniterDerivationRuntime {
     def nullValue: T = null.asInstanceOf[T]
   }
 
-  private def readWith[A](codec: JsonValueCodec[A], in: JsonReader): A = codec.decodeValue(in, codec.nullValue)
+  private def readWith[A](codec: JsonValueCodec[A], in: JsonReader): A =
+    codec.decodeValue(in, if (codec.isInstanceOf[OwnCodec[?]]) null.asInstanceOf[A] else codec.nullValue)
 
   private def readOption[A](codec: JsonValueCodec[A], in: JsonReader): Option[A] =
     if (in.isNextToken('n')) in.readNullOrError(None, "expected value or null")

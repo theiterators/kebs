@@ -10,6 +10,7 @@ import scala.language.experimental.macros
 // called by the code the entry points generate
 object JsoniterLocalCodecs {
   def level[T](config: JsonConfig): JsonValueCodec[T] = macro KebsJsoniterMacros.level[T]
+  def existing[T]: JsonValueCodec[T] = macro KebsJsoniterMacros.existing[T]
 
   @compileTimeOnly(
     "JsonCodecMaker needs kebs' codecs of the types it finds as values: implicit val codec: JsonValueCodec[X] = deriveCodec[X]"

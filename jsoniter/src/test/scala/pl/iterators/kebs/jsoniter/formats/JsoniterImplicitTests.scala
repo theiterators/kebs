@@ -62,6 +62,9 @@ class JsoniterImplicitTests extends JsoniterTestBase {
     "def f[A]: JsonValueCodec[A] = implicitly[JsonValueCodec[A]]" shouldNot compile
     "def f[A]: JsonValueCodec[List[A]] = implicitly[JsonValueCodec[List[A]]]" shouldNot compile
     "writeToString(Alone)" shouldNot compile
+    "writeToString(List(Alone))" shouldNot compile
+    "writeToString(Map(1 -> Alone))" shouldNot compile
+    "writeToString(Gen(Alone, 1))" shouldNot compile
     "implicitly[JsonValueCodec[Item]]" should compile
     "implicitly[JsonValueCodec[List[String]]]" should compile
   }
@@ -69,6 +72,7 @@ class JsoniterImplicitTests extends JsoniterTestBase {
   test("an enum's value at its own type") {
     import Enums._
     "writeToString(Color.DarkBlue)" shouldNot compile
+    "writeToString(List(Color.DarkBlue))" shouldNot compile
     writeToString[Color](Color.DarkBlue) shouldBe "\"DarkBlue\""
   }
 

@@ -257,4 +257,20 @@ class JsoniterNestedInstancesTests extends JsoniterTestBase {
     implicit lazy val codec: JsonValueCodec[RecList] = deriveCodec[RecList]
     roundTrip(List(RecList(1, List(RecList(2, Nil)))), """[{"v":1,"kids":[{"v":2,"kids":[]}]}]""")
   }
+
+  test("a user's generic codecs of standard types, at the root") {
+    import Imported._, PageCodecs._
+    roundTrip(Box(List(1)), """{"DATA":[1]}""")
+    roundTrip(Box(List("a")), """{"DATA":["a"]}""")
+    roundTrip(Box(List((1, item))), """{"DATA":[[1,{"name":"i","n":1}]]}""")
+    roundTrip(Box(List(Option(item), None)), """{"DATA":[{"name":"i","n":1},null]}""")
+    roundTrip(Box(List(Box(List(1)))), """{"DATA":[{"DATA":[1]}]}""")
+    roundTrip(Box(List(List(1))), """{"DATA":[[1]]}""")
+    roundTrip(Box(List(item)), """{"DATA":[{"name":"i","n":1}]}""")
+    roundTrip(Page(List(1)), """{"DATA":[1]}""")
+    roundTrip(Page(List(Page(List("a")))), """{"DATA":[{"DATA":["a"]}]}""")
+    roundTrip(Listed(List(1)), """{"LISTED":[1]}""")
+    roundTrip(Maybe(Option(1), 2), """{"MAYBE":[1,2]}""")
+    roundTrip(List(Box(List(1))), """[{"DATA":[1]}]""")
+  }
 }

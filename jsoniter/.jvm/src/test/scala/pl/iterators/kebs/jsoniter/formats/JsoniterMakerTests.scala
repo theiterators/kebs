@@ -7,6 +7,8 @@ import pl.iterators.kebs.jsoniter.KebsJsoniter
 import pl.iterators.kebs.testkit.model.Id
 import pl.iterators.kebs.testkit.nested.Item
 
+import scala.collection.mutable
+
 object JsoniterMakerTestDomain {
   object Protocol extends KebsJsoniter
   object Flat     extends KebsJsoniter with CaseClass1ToValueClass
@@ -20,6 +22,7 @@ object JsoniterMakerTestDomain {
   final case class Holder(item: Item, ids: List[Id], n: Int)
   final case class Wrapped(value: Int) extends AnyVal
   final case class HasWrapped(wrapped: Wrapped, n: Int)
+  final case class Collections(list: List[Int], set: Set[Item], map: Map[String, Int], array: Array[Long], buffer: mutable.Buffer[Int])
   final case class Plain(a: List[Int], b: Map[String, String], c: Option[Vector[Long]])
 }
 
@@ -59,5 +62,21 @@ class JsoniterMakerTests extends JsoniterTestBase {
     import Protocol._
     val codec: JsonValueCodec[Plain] = JsonCodecMaker.make
     roundTrip(Plain(List(1), Map("a" -> "b"), Some(Vector(2L))), """{"a":[1],"b":{"a":"b"},"c":[2]}""")(codec)
+  }
+
+  test("jsoniter's macro reads the collections it leaves out, with kebs' codecs of them") {
+    import Protocol._
+    implicit val list: JsonValueCodec[List[Int]]             = deriveCodec[List[Int]]
+    implicit val set: JsonValueCodec[Set[Item]]              = deriveCodec[Set[Item]]
+    implicit val map: JsonValueCodec[Map[String, Int]]       = deriveCodec[Map[String, Int]]
+    implicit val array: JsonValueCodec[Array[Long]]          = deriveCodec[Array[Long]]
+    implicit val buffer: JsonValueCodec[mutable.Buffer[Int]] = deriveCodec[mutable.Buffer[Int]]
+    val codec: JsonValueCodec[Collections]                   = JsonCodecMaker.make
+    val empty                                                = Collections(Nil, Set.empty, Map.empty, Array.empty, mutable.Buffer.empty)
+    val read                                                 = readFromString(writeToString(empty)(codec))(codec)
+    read.copy(array = empty.array) shouldBe empty
+    read.array.length shouldBe 0
+    read.buffer += 1
+    readFromString("{}")(codec).buffer shouldBe empty.buffer
   }
 }

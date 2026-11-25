@@ -19,27 +19,50 @@ private[jsoniter] trait JsoniterMacrosImpl extends JsonDerivationMacrosImpl { th
   private lazy val derivationEntryPoints = methodsNamed(Set("kebsAutoJsonValueCodec"))(using Type.of[KebsJsoniter])
 
   def entryRole[T: Type](config: Expr[JsonConfig]): EntryPointRole =
-    if (isBottom[T] || !JsonDerivationState.isDiscovering && !isOffered[T]) EntryPointRole.StepAside
+    if (isBottom[T] || isOfPekko[T]) EntryPointRole.StepAside
     else {
-      implicit val CodecT: Type[JsonValueCodec[T]] = Type.of[JsonValueCodec[T]]
-      val derivation                               = new JsoniterDerivation(config)
-      if (!derivation.isDerivable[T] && !derivation.isInline[T]) EntryPointRole.StepAside
-      else
-        entryPointRole[T]("JsonValueCodec", stepsAsideForExisting = true) {
-          summonInstance[JsonValueCodec[T]](derivationEntryPoints).isDefined
-        }
+      val derivation = new JsoniterDerivation(config)
+      def isMade     = derivation.isDerivable[T] || derivation.isInline[T]
+      // an existing instance first: another search may be ambiguous
+      entryPointRole[T]("JsonValueCodec", stepsAsideForExisting = false)(existing[T].isDefined) match {
+        case EntryPointRole.Record if isMade                                => EntryPointRole.Record
+        case EntryPointRole.Derive if isOffered[T] && isMade                => EntryPointRole.Derive
+        case EntryPointRole.UseExisting if needsWhatIsNotOffered[T](config) => EntryPointRole.UseExisting
+        case _                                                              => EntryPointRole.StepAside
+      }
     }
+
+  private def existing[T: Type]: Option[Expr[JsonValueCodec[T]]] = {
+    implicit val CodecT: Type[JsonValueCodec[T]] = Type.of[JsonValueCodec[T]]
+    summonInstance[JsonValueCodec[T]](derivationEntryPoints)
+  }
+
+  def existingCodec[T: Type]: Expr[JsonValueCodec[T]] =
+    existing[T].getOrElse(Environment.reportErrorAndAbort(s"No JsonValueCodec of ${Type[T].prettyPrint}"))
+
+  // a user's generic codec may need one of a String or an Option, which the compiler's search would not find
+  private def needsWhatIsNotOffered[T: Type](config: Expr[JsonConfig]): Boolean =
+    neededBesideExisting[T](config).instances.exists { instance =>
+      import instance.tpe.Underlying as X
+      !isOffered[X]
+    }
+
+  def neededBesideExisting[T: Type](config: Expr[JsonConfig]): Needed =
+    new JsoniterDerivation(config).neededBeside[T](derivationEntryPoints)
 
   private def isBottom[T: Type]: Boolean = Type[T] =:= Type.of[Nothing] || Type[T] =:= Type.of[Null]
 
   // not what other libraries send in their own way (strings, options, pekko's types), nor a case object: its own type is rarely
   // meant, and is written differently
-  private def isOffered[T: Type]: Boolean = {
-    val name = Type.fqcn[T]
-    if (name.startsWith("org.apache.pekko.") || name.startsWith("akka.")) false
-    else if (isStandardLibrary[T]) isOfferedStandardType[T] || valueClassOf[T].isDefined || converterOf[T].isDefined
+  private def isOffered[T: Type]: Boolean =
+    if (isStandardLibrary[T]) isOfferedStandardType[T] || ownValueClassOf[T].isDefined || converterOf[T].isDefined
     else Expr.singletonOf[T].isEmpty
-  }
+
+  private def isOfPekko[T: Type]: Boolean = Set("org.apache.pekko.", "akka.").exists(Type.fqcn[T].startsWith)
+
+  // Some, Left and Right have one field too, but are not written as it
+  private def ownValueClassOf[T: Type]: Option[Wrapping] =
+    if (isStandardLibrary[T] && Type.isCaseClass[T]) None else valueClassOf[T]
 
   protected def isOfferedStandardType[T: Type]: Boolean = Type[T] match {
     case ArrayOf(item) =>
@@ -133,6 +156,8 @@ private[jsoniter] trait JsoniterMacrosImpl extends JsonDerivationMacrosImpl { th
     private val composites: mutable.Map[String, Option[Composite[Any]]] = mutable.Map.empty
     private val wrappers: mutable.Map[String, Option[Composite[Any]]]   = mutable.Map.empty
 
+    override protected def derivesObjects: Boolean                  = false
+    override protected def isConverted[F: Type]: Boolean            = wrapper[F].isDefined
     override protected def composite[F: Type]: Option[Composite[F]] =
       if (isBottom[F]) None else once(composites)(wrapper[F].orElse(standard[F]))
 
@@ -151,7 +176,7 @@ private[jsoniter] trait JsoniterMacrosImpl extends JsonDerivationMacrosImpl { th
           val instance = converter.instance.asTyped[InstanceConverter[F, B]](using Type.of[InstanceConverter[F, B]])
           composed[F, B](codecs => Expr.quote(JsoniterDerivationRuntime.converted[F, B](Expr.splice(codecs.local), Expr.splice(instance))))
         }
-        .orElse(valueClassOf[F].map { valueClass =>
+        .orElse(ownValueClassOf[F].map { valueClass =>
           val base: ?? = valueClass.base
           import base.Underlying as B
           val instance = valueClass.instance.asTyped[ValueClassLike[F, B]](using Type.of[ValueClassLike[F, B]])
@@ -196,7 +221,9 @@ private[jsoniter] trait JsoniterMacrosImpl extends JsonDerivationMacrosImpl { th
         } yield composed[F, V](codecs =>
           Expr.quote(JsoniterDerivationRuntime.map[K, V, F](Expr.splice(codecs.local), Expr.splice(keys), Expr.splice(factory)))
         )
-      case IterableOf(item) =>
+      // its values are limited only by the memory
+      case IterableOf(_) if Type[F] <:< Type.of[scala.collection.BitSet] => None
+      case IterableOf(item)                                              =>
         import item.Underlying as X
         implicit val FactoryF: Type[Factory[X, F]] = Type.of[Factory[X, F]]
         summonInstance[Factory[X, F]](Nil).map { factory =>
@@ -217,7 +244,7 @@ private[jsoniter] trait JsoniterMacrosImpl extends JsonDerivationMacrosImpl { th
           val instance = converter.instance.asTyped[InstanceConverter[K, B]](using Type.of[InstanceConverter[K, B]])
           keyCodec[B].map(key => Expr.quote(JsoniterDerivationRuntime.convertedKey[K, B](Expr.splice(key), Expr.splice(instance))))
         })
-        .orElse(valueClassOf[K].flatMap { valueClass =>
+        .orElse(ownValueClassOf[K].flatMap { valueClass =>
           val base: ?? = valueClass.base
           import base.Underlying as B
           val instance = valueClass.instance.asTyped[ValueClassLike[K, B]](using Type.of[ValueClassLike[K, B]])
