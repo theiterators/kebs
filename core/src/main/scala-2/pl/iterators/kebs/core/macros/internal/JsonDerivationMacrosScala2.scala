@@ -1,5 +1,8 @@
 package pl.iterators.kebs.core.macros.internal
 
+import pl.iterators.kebs.core.instances.InstanceConverter
+import pl.iterators.kebs.core.macros.ValueClassLike
+
 import scala.util.control.NonFatal
 
 private[kebs] trait JsonDerivationMacrosScala2 extends JsonDerivationMacrosImpl { this: hearth.MacroCommonsScala2 =>
@@ -49,6 +52,19 @@ private[kebs] trait JsonDerivationMacrosScala2 extends JsonDerivationMacrosImpl 
   private def resultType(owner: Symbol): Option[c.Type] =
     try Some(owner.typeSignature.finalResultType)
     catch { case NonFatal(_) => None }
+
+  override protected def valueClassOf[A: Type]: Option[Wrapping] = wrapping[A](typeOf[ValueClassLike[Any, Any]])
+  override protected def converterOf[A: Type]: Option[Wrapping]  = wrapping[A](typeOf[InstanceConverter[Any, Any]])
+
+  private def wrapping[A: Type](typeClass: c.Type): Option[Wrapping] = {
+    val wanted   = appliedType(typeClass.typeConstructor, Type[A].tpe.asInstanceOf[c.Type], WildcardType)
+    val instance = JsonDerivationState.searching(expansionOwner)(withFreshSearch(c.inferImplicitValue(wanted, silent = true)))
+    if (instance.isEmpty) None
+    else {
+      val found = instance.tpe.baseType(typeClass.typeSymbol)
+      found.typeArgs.lift(1).map(base => new Wrapping(instance, base.dealias.asInstanceOf[UntypedType].as_??))
+    }
+  }
 
   override protected def placeholderKeys[A](expr: Expr[A]): Set[String] = expr.tree.collect {
     case Apply(TypeApply(fun, _), List(Literal(Constant(key: String)))) if fun.symbol.fullName == placeholderName => key

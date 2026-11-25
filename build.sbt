@@ -432,6 +432,8 @@ lazy val jsoniterSupport = crossProject(JSPlatform, NativePlatform, JVMPlatform)
     enumSupport,
     enumeratumSupport % "test -> test",
     instances         % "test -> test",
+    opaque            % "test -> test",
+    tagged            % "test -> compile",
     testkit           % "test -> compile",
     circeSupport      % "test -> compile"
   )

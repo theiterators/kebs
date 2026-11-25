@@ -42,6 +42,12 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
   protected def mentionsHidden[A](expr: Expr[A]): Boolean = false
   protected def isHidden[A: Type]: Boolean                = false
 
+  // an instance of a type class of two types, found by the first one: a ValueClassLike or an InstanceConverter, and the type it converts to
+  final protected class Wrapping(val instance: UntypedExpr, val base: ??)
+
+  protected def valueClassOf[A: Type]: Option[Wrapping]
+  protected def converterOf[A: Type]: Option[Wrapping]
+
   // the types of the instances that the methods made in an expression
   protected def madeBy[A](methods: Seq[UntypedMethod], expr: Expr[A]): List[??] = Nil
 
@@ -477,7 +483,7 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
     def instances: List[LocalInstance] = locals.toList
 
     def derive[A: Type](derivation: Discoverable): Unit = {
-      seen += ((derivation.typeClass, Type[A].plainPrint, false))
+      seen ++= List(true, false).map((derivation.typeClass, Type[A].plainPrint, _))
       locals += new LocalInstance(derivation.typeClass, Type[A].as_??, derivation.isCollection[A])
       derivation.parts[A].foreach(visit(derivation, _))
     }

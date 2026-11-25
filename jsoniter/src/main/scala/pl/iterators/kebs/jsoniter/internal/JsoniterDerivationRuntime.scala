@@ -1,12 +1,16 @@
 package pl.iterators.kebs.jsoniter.internal
 
 import com.github.plokhotnyuk.jsoniter_scala.core.{JsonKeyCodec, JsonReader, JsonValueCodec, JsonWriter}
+import pl.iterators.kebs.core.instances.InstanceConverter
 import pl.iterators.kebs.core.json.{JsonConfig, NoneHandling}
+import pl.iterators.kebs.core.macros.ValueClassLike
 import pl.iterators.kebs.core.macros.internal.LocalCodecs
 
 import scala.collection.Factory
 import scala.collection.mutable.ArrayBuilder
 import scala.reflect.ClassTag
+import scala.util.Try
+import scala.util.control.NonFatal
 
 // called by code generated in JsoniterMacrosImpl. Codecs of parts are looked up when they are used: they may refer back.
 object JsoniterDerivationRuntime {
@@ -149,6 +153,32 @@ object JsoniterDerivationRuntime {
       value
     }
   }
+
+  def valueClass[T, A](codecs: LocalCodecs, rep: ValueClassLike[T, A]): JsonValueCodec[T]      = wrapped(codecs, rep.apply, rep.unapply)
+  def converted[T, A](codecs: LocalCodecs, rep: InstanceConverter[T, A]): JsonValueCodec[T]    = wrapped(codecs, rep.decode, rep.encode)
+  def valueClassKey[T, A](base: JsonKeyCodec[A], rep: ValueClassLike[T, A]): JsonKeyCodec[T]   = wrappedKey(base, rep.apply, rep.unapply)
+  def convertedKey[T, A](base: JsonKeyCodec[A], rep: InstanceConverter[T, A]): JsonKeyCodec[T] = wrappedKey(base, rep.decode, rep.encode)
+
+  private def wrapped[T, A](codecs: LocalCodecs, wrap: A => T, unwrap: T => A): JsonValueCodec[T] = new JsonValueCodec[T] {
+    private def codec: JsonValueCodec[A] = codecs.get[JsonValueCodec[A]](0)
+
+    def decodeValue(in: JsonReader, default: T): T = wrapping(in, readWith(codec, in), wrap)
+    def encodeValue(x: T, out: JsonWriter): Unit   = codec.encodeValue(unwrap(x), out)
+    // for other codecs, which may keep it unboxed: null is not a value of an AnyVal class, and the empty value may be rejected
+    lazy val nullValue: T = {
+      val empty = codec.nullValue
+      if (empty == null) null.asInstanceOf[T] else Try(wrap(empty)).getOrElse(null.asInstanceOf[T])
+    }
+  }
+
+  private def wrappedKey[T, A](base: JsonKeyCodec[A], wrap: A => T, unwrap: T => A): JsonKeyCodec[T] = new JsonKeyCodec[T] {
+    def decodeKey(in: JsonReader): T           = wrapping(in, base.decodeKey(in), wrap)
+    def encodeKey(x: T, out: JsonWriter): Unit = base.encodeKey(unwrap(x), out)
+  }
+
+  private def wrapping[T, A](in: JsonReader, value: A, wrap: A => T): T =
+    try wrap(value)
+    catch { case NonFatal(error) => in.decodeError(String.valueOf(error.getMessage)) }
 
   def option[A](codecs: LocalCodecs): JsonValueCodec[Option[A]] = new JsonValueCodec[Option[A]] {
     def decodeValue(in: JsonReader, default: Option[A]): Option[A] = readOption(codecs.get[JsonValueCodec[A]](0), in)

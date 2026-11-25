@@ -2,13 +2,15 @@ package pl.iterators.kebs.jsoniter
 
 import com.github.plokhotnyuk.jsoniter_scala.core.JsonValueCodec
 import pl.iterators.kebs.core.json.JsonConfig
-import pl.iterators.kebs.core.macros.internal.JsonDerivationMacrosScala2
+import pl.iterators.kebs.core.macros.internal.{EntryPointRole, JsonDerivationMacrosScala2}
 import pl.iterators.kebs.jsoniter.internal.JsoniterMacrosImpl
 
 import scala.language.experimental.macros
 import scala.reflect.macros.whitebox
 
 private[jsoniter] trait KebsJsoniterAutoCompat { self: KebsJsoniter =>
+  implicit def kebsAutoJsonValueCodec[T]: JsonValueCodec[T] = macro KebsJsoniterMacros.auto[T]
+
   def deriveCodec[T]: JsonValueCodec[T] = macro KebsJsoniterMacros.explicitly[T]
 }
 
@@ -19,6 +21,14 @@ final private[jsoniter] class KebsJsoniterMacros(val c: whitebox.Context)
   import c.universe.{Type => UType, _}
 
   private def config: Expr[JsonConfig] = c.Expr[JsonConfig](q"${c.prefix}.kebsJsonConfig")
+
+  def auto[T: c.WeakTypeTag]: c.Expr[JsonValueCodec[T]] = implicitEntry {
+    entryRole[T](config) match {
+      case EntryPointRole.Record => recordedCodec[T](config)
+      case EntryPointRole.Derive => block[T](ownSearches = 1, neededCodecs[T](config, preferExisting = false), rootName = None)
+      case _                     => c.abort(c.enclosingPosition, s"${weakTypeOf[T]} is not derived here")
+    }
+  }
 
   def explicitly[T: c.WeakTypeTag]: c.Expr[JsonValueCodec[T]] = explicitEntry {
     val enclosing = enclosingImplicit(weakTypeOf[JsonValueCodec[T]])

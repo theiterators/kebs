@@ -2,12 +2,15 @@ package pl.iterators.kebs.jsoniter
 
 import com.github.plokhotnyuk.jsoniter_scala.core.JsonValueCodec
 import pl.iterators.kebs.core.json.JsonConfig
-import pl.iterators.kebs.core.macros.internal.{FreshQuotes, JsonDerivationMacrosScala3, LocalInstances}
+import pl.iterators.kebs.core.macros.internal.{EntryPointRole, FreshQuotes, JsonDerivationMacrosScala3, LocalInstances}
 import pl.iterators.kebs.jsoniter.internal.JsoniterMacrosImpl
 
 import scala.quoted.*
 
 private[jsoniter] trait KebsJsoniterAutoCompat { self: KebsJsoniter =>
+  // transparent: where nothing is derived, the search goes on
+  transparent inline implicit def kebsAutoJsonValueCodec[T]: JsonValueCodec[T] = KebsJsoniterMacros.auto[T](kebsJsonConfig)
+
   inline def deriveCodec[T]: JsonValueCodec[T] = KebsJsoniterMacros.explicitly[T](kebsJsonConfig)
 }
 
@@ -16,6 +19,7 @@ final private[jsoniter] class KebsJsoniterMacros(q: Quotes)
       JsonDerivationMacrosScala3,
       JsoniterMacrosImpl {
 
+  def auto[A](body: => A): A       = implicitEntry(body)
   def explicitly[A](body: => A): A = explicitEntry(body)
 
   def needed[T: Type](config: Expr[JsonConfig], preferExisting: Boolean): LocalInstances.Needed =
@@ -23,10 +27,29 @@ final private[jsoniter] class KebsJsoniterMacros(q: Quotes)
 }
 
 private[jsoniter] object KebsJsoniterMacros {
-  inline def explicitly[T](inline config: JsonConfig): JsonValueCodec[T] = ${ explicitlyImpl[T]('config) }
-  inline def level[T](inline config: JsonConfig): JsonValueCodec[T]      = ${ levelImpl[T]('config) }
+  transparent inline def auto[T](inline config: JsonConfig): JsonValueCodec[T] = ${ autoImpl[T]('config) }
+  inline def derived[T](inline config: JsonConfig): JsonValueCodec[T]          = ${ derivedImpl[T]('config) }
+  inline def explicitly[T](inline config: JsonConfig): JsonValueCodec[T]       = ${ explicitlyImpl[T]('config) }
+  inline def level[T](inline config: JsonConfig): JsonValueCodec[T]            = ${ levelImpl[T]('config) }
 
   private def macros(using q: Quotes): KebsJsoniterMacros = new KebsJsoniterMacros(FreshQuotes(q))
+
+  def autoImpl[T: Type](config: Expr[JsonConfig])(using q: Quotes): Expr[JsonValueCodec[T]] = {
+    val m = macros
+    m.auto {
+      m.entryRole[T](config) match {
+        case EntryPointRole.Record => m.recordedCodec[T](config)
+        // not transparent, so expanded after typing: here the search for this very codec is still open
+        case EntryPointRole.Derive => '{ KebsJsoniterMacros.derived[T]($config) }
+        case _                     => quotes.reflect.report.errorAndAbort(s"${Type.show[T]} is not derived here")
+      }
+    }
+  }
+
+  def derivedImpl[T: Type](config: Expr[JsonConfig])(using q: Quotes): Expr[JsonValueCodec[T]] = {
+    val m = macros
+    m.auto(block[T](config, m.needed[T](config, preferExisting = false)))
+  }
 
   // recursive uses go through the implicit being defined (implicit val codec = deriveCodec[T]), if there is one
   def explicitlyImpl[T: Type](config: Expr[JsonConfig])(using q: Quotes): Expr[JsonValueCodec[T]] = {

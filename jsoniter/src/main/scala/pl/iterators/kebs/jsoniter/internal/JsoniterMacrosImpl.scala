@@ -3,8 +3,10 @@ package pl.iterators.kebs.jsoniter.internal
 import com.github.plokhotnyuk.jsoniter_scala.core.{JsonCodec, JsonKeyCodec, JsonValueCodec, JsonWriter}
 import hearth.MacroCommons
 import hearth.std.StdExtensions
+import pl.iterators.kebs.core.instances.InstanceConverter
 import pl.iterators.kebs.core.json.JsonConfig
-import pl.iterators.kebs.core.macros.internal.JsonDerivationMacrosImpl
+import pl.iterators.kebs.core.macros.ValueClassLike
+import pl.iterators.kebs.core.macros.internal.{EntryPointRole, JsonDerivationMacrosImpl, JsonDerivationState}
 import pl.iterators.kebs.jsoniter.KebsJsoniter
 
 import java.time._
@@ -15,6 +17,39 @@ import scala.reflect.ClassTag
 private[jsoniter] trait JsoniterMacrosImpl extends JsonDerivationMacrosImpl { this: MacroCommons & StdExtensions =>
 
   private lazy val derivationEntryPoints = methodsNamed(Set("kebsAutoJsonValueCodec"))(using Type.of[KebsJsoniter])
+
+  def entryRole[T: Type](config: Expr[JsonConfig]): EntryPointRole =
+    if (isBottom[T] || !JsonDerivationState.isDiscovering && !isOffered[T]) EntryPointRole.StepAside
+    else {
+      implicit val CodecT: Type[JsonValueCodec[T]] = Type.of[JsonValueCodec[T]]
+      val derivation                               = new JsoniterDerivation(config)
+      if (!derivation.isDerivable[T] && !derivation.isInline[T]) EntryPointRole.StepAside
+      else
+        entryPointRole[T]("JsonValueCodec", stepsAsideForExisting = true) {
+          summonInstance[JsonValueCodec[T]](derivationEntryPoints).isDefined
+        }
+    }
+
+  private def isBottom[T: Type]: Boolean = Type[T] =:= Type.of[Nothing] || Type[T] =:= Type.of[Null]
+
+  // not what other libraries send in their own way (strings, options, pekko's types), nor a case object: its own type is rarely
+  // meant, and is written differently
+  private def isOffered[T: Type]: Boolean = {
+    val name = Type.fqcn[T]
+    if (name.startsWith("org.apache.pekko.") || name.startsWith("akka.")) false
+    else if (isStandardLibrary[T]) isOfferedStandardType[T] || valueClassOf[T].isDefined || converterOf[T].isDefined
+    else Expr.singletonOf[T].isEmpty
+  }
+
+  private def isOfferedStandardType[T: Type]: Boolean = Type[T] match {
+    case ArrayOf(item) =>
+      import item.Underlying as X
+      !(Type[X] =:= Type.of[Byte]) && !(Type[X] =:= Type.of[Char])
+    case IterableOf(_) => true
+    case _             => false
+  }
+
+  def recordedCodec[T: Type](config: Expr[JsonConfig]): Expr[JsonValueCodec[T]] = new JsoniterDerivation(config).recorded[T]
 
   // an explicit derivation leaves nested uses of T to another instance of it, if there is one
   def neededCodecs[T: Type](config: Expr[JsonConfig], preferExisting: Boolean, hidesExisting: Boolean = false): Needed =
@@ -97,7 +132,29 @@ private[jsoniter] trait JsoniterMacrosImpl extends JsonDerivationMacrosImpl { th
     private val composites: mutable.Map[String, Option[Composite[Any]]] = mutable.Map.empty
 
     override protected def composite[F: Type]: Option[Composite[F]] =
-      composites.getOrElseUpdate(Type[F].plainPrint, standard[F].asInstanceOf[Option[Composite[Any]]]).asInstanceOf[Option[Composite[F]]]
+      composites
+        .getOrElseUpdate(
+          Type[F].plainPrint,
+          (if (isBottom[F]) None else wrapper[F].orElse(standard[F])).asInstanceOf[Option[Composite[Any]]]
+        )
+        .asInstanceOf[Option[Composite[F]]]
+
+    private def wrapper[F: Type]: Option[Composite[F]] =
+      converterOf[F]
+        .map { converter =>
+          val base: ?? = converter.base
+          import base.Underlying as B
+          val instance = converter.instance.asTyped[InstanceConverter[F, B]](using Type.of[InstanceConverter[F, B]])
+          composed[F, B](codecs => Expr.quote(JsoniterDerivationRuntime.converted[F, B](Expr.splice(codecs.local), Expr.splice(instance))))
+        }
+        .orElse(valueClassOf[F].map { valueClass =>
+          val base: ?? = valueClass.base
+          import base.Underlying as B
+          val instance = valueClass.instance.asTyped[ValueClassLike[F, B]](using Type.of[ValueClassLike[F, B]])
+          composed[F, B](codecs =>
+            Expr.quote(JsoniterDerivationRuntime.valueClass[F, B](Expr.splice(codecs.local), Expr.splice(instance)))
+          )
+        })
 
     private def standard[F: Type]: Option[Composite[F]] =
       standardCodec[F]
@@ -149,7 +206,20 @@ private[jsoniter] trait JsoniterMacrosImpl extends JsonDerivationMacrosImpl { th
 
     private def keyCodec[K: Type]: Option[Expr[JsonKeyCodec[K]]] = {
       implicit val KeyCodec: Type[JsonKeyCodec[K]] = Type.of[JsonKeyCodec[K]]
-      summonInstance[JsonKeyCodec[K]](Nil).orElse(standardCodec[K].map(_.asInstanceOf[Expr[JsonKeyCodec[K]]]))
+      summonInstance[JsonKeyCodec[K]](Nil)
+        .orElse(converterOf[K].flatMap { converter =>
+          val base: ?? = converter.base
+          import base.Underlying as B
+          val instance = converter.instance.asTyped[InstanceConverter[K, B]](using Type.of[InstanceConverter[K, B]])
+          keyCodec[B].map(key => Expr.quote(JsoniterDerivationRuntime.convertedKey[K, B](Expr.splice(key), Expr.splice(instance))))
+        })
+        .orElse(valueClassOf[K].flatMap { valueClass =>
+          val base: ?? = valueClass.base
+          import base.Underlying as B
+          val instance = valueClass.instance.asTyped[ValueClassLike[K, B]](using Type.of[ValueClassLike[K, B]])
+          keyCodec[B].map(key => Expr.quote(JsoniterDerivationRuntime.valueClassKey[K, B](Expr.splice(key), Expr.splice(instance))))
+        })
+        .orElse(standardCodec[K].map(_.asInstanceOf[Expr[JsonKeyCodec[K]]]))
     }
 
     private def tuple[F: Type]: Option[Composite[F]] = {
