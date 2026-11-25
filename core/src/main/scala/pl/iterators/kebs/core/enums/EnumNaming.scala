@@ -5,7 +5,8 @@ import pl.iterators.kebs.core.naming.Naming
 // the implicit default lives in a supertype's companion, so `import EnumNaming._` cannot make it ambiguous
 sealed abstract class EnumNamingDefaults
 object EnumNamingDefaults {
-  implicit val default: EnumNaming = EnumNaming(Naming.identity)
+  // a def: a val would make the two objects initialise each other
+  implicit def default: EnumNaming = EnumNaming.default
 }
 
 final case class EnumNaming(naming: Naming, caseInsensitive: Boolean = true) extends EnumNamingDefaults {
@@ -24,7 +25,7 @@ final case class EnumNaming(naming: Naming, caseInsensitive: Boolean = true) ext
 }
 
 object EnumNaming {
-  val default: EnumNaming            = EnumNamingDefaults.default
+  val default: EnumNaming            = EnumNaming(Naming.identity)
   val uppercase: EnumNaming          = EnumNaming(Naming.uppercase)
   val lowercase: EnumNaming          = EnumNaming(Naming.lowercase)
   val snakeCase: EnumNaming          = EnumNaming(Naming.snakeCase)
