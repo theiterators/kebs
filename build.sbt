@@ -126,8 +126,8 @@ val doobiePg        = "org.typelevel"       %% "doobie-postgres" % "1.0.0-RC14"
 val sprayJson       = "io.spray"            %% "spray-json"      % "1.3.6"
 val circeV          = "0.14.17"
 val circe           = Def.setting("io.circe" %%% "circe-core" % circeV)
-val kindlingsV      = "0.4.0"
-val kindlingsCirce  = Def.setting("com.kubuszok" %%% "kindlings-circe-derivation" % kindlingsV)
+val circeAuto       = Def.setting("io.circe" %%% "circe-generic" % circeV)
+val circeAutoExtras = Def.setting("io.circe" %%% "circe-generic-extras" % "0.14.4")
 val circeParser     = Def.setting("io.circe" %%% "circe-parser" % circeV)
 
 val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.11"
@@ -211,7 +211,13 @@ lazy val hearthMacroSettings = Seq(
                      else Seq("-Wconf:msg=The outer reference in this type test cannot be checked at run time:s"))
 )
 
-lazy val coreSettings = commonMacroSettings ++ hearthMacroSettings ++ Seq(
+// users may turn these on, and generated code has to pass
+lazy val generatedCodeTestSettings = Seq(
+  Test / scalacOptions ++= (if (scalaVersion.value.startsWith("3")) Seq("-Xcheck-macros")
+                            else Seq("-Xlint:implicit-recursion", "-Wconf:msg=Implicit resolves to enclosing:e"))
+)
+
+lazy val coreSettings = commonMacroSettings ++ hearthMacroSettings ++ generatedCodeTestSettings ++ Seq(
   libraryDependencies += (scalaCheck.value % "test"),
   libraryDependencies += (scalaTest.value  % "test")
 )
@@ -229,7 +235,7 @@ lazy val enumeratumSettings = commonMacroSettings ++ hearthMacroSettings ++ Seq(
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
-lazy val sprayJsonSettings = commonSettings ++ hearthMacroSettings ++ Seq(
+lazy val sprayJsonSettings = commonSettings ++ hearthMacroSettings ++ generatedCodeTestSettings ++ Seq(
   libraryDependencies += sprayJson,
   libraryDependencies += optionalEnumeratum.value
 )
@@ -241,9 +247,12 @@ lazy val playJsonSettings = commonSettings ++ hearthMacroSettings ++ Seq(
 
 lazy val circeSettings = commonSettings ++ Seq(
   libraryDependencies += circe.value,
-  libraryDependencies += kindlingsCirce.value,
+  libraryDependencies += circeAuto.value,
   libraryDependencies += optionalEnumeratum.value,
   libraryDependencies += (circeParser.value % "test")
+) ++ Seq(
+  libraryDependencies ++= (if (scalaVersion.value.startsWith("3")) Nil
+                           else Seq(circeAutoExtras.value))
 )
 
 lazy val pekkoHttpSettings = commonSettings ++ Seq(

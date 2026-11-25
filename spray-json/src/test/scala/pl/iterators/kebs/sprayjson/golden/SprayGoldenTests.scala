@@ -12,6 +12,10 @@ import spray.json._
 
 import java.time.Instant
 
+object SprayGoldenTestDomain {
+  final case class LibraryCases(some: Some[Int], right: Right[Int, String], left: Left[String, Int])
+}
+
 // kebs 2.x wire format (verified against v2.3.0); a deliberate change goes to the migration guide, not into these expectations
 class SprayGoldenTests extends AnyFunSuite with Matchers {
   private def golden[A](value: A, expected: String)(implicit format: JsonFormat[A]): Unit = {
@@ -97,6 +101,16 @@ class SprayGoldenTests extends AnyFunSuite with Matchers {
   test("instance converter") {
     import FlatTime._
     golden(Event(Id("e"), Instant.parse("2026-01-02T03:04:05Z")), """{"id":"e","at":"2026-01-02T03:04:05Z"}""")
+  }
+
+  test("cases of the standard library's sums") {
+    import Default._
+    import SprayGoldenTestDomain._
+    golden(
+      LibraryCases(Some(5), Right("r"), Left("l")),
+      """{"some":{"value":5},"right":{"value":"r"},"left":{"value":"l"}}"""
+    )
+    implicitly[JsonFormat[List[Some[Int]]]].write(List(Some(5))).compactPrint shouldBe """[{"value":5}]"""
   }
 
   test("wide (>22 fields)") {

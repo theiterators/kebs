@@ -1,8 +1,11 @@
 package pl.iterators.kebs.sprayjson
 
+import pl.iterators.kebs.core.instances.InstanceConverter
 import pl.iterators.kebs.core.json.JsonConfig
+import pl.iterators.kebs.core.macros.ValueClassLike
+import pl.iterators.kebs.core.macros.internal.{EntryPointRole, JsonDerivationMacrosScala2}
 import pl.iterators.kebs.sprayjson.internal.SprayFormatMacrosImpl
-import spray.json.RootJsonFormat
+import spray.json.{JsonFormat, JsonReader, JsonWriter, RootJsonFormat, RootJsonReader, RootJsonWriter}
 
 import scala.language.experimental.macros
 import scala.reflect.macros.whitebox
@@ -18,66 +21,95 @@ private[sprayjson] trait KebsSprayJsonAutoCompat { self: KebsSprayJson =>
   final def jsonFormatRec[T]: RootJsonFormat[T] = macro KebsSprayJsonMacros.explicitProduct[T]
 }
 
-final private[sprayjson] class KebsSprayJsonMacros(val c: whitebox.Context) extends hearth.MacroCommonsScala2 with SprayFormatMacrosImpl {
+final private[sprayjson] class KebsSprayJsonMacros(val c: whitebox.Context)
+    extends hearth.MacroCommonsScala2
+    with JsonDerivationMacrosScala2
+    with SprayFormatMacrosImpl {
   import c.universe.{Type => UType, _}
 
-  private def isLookingFor(tpe: UType): Boolean = c.enclosingImplicits.headOption.exists(_.pt.typeSymbol == tpe.typeSymbol)
+  private def isLookingFor(typeClasses: UType*): Boolean =
+    c.enclosingImplicits.headOption.exists(search => typeClasses.exists(_.typeSymbol == search.pt.typeSymbol))
 
-  // the product entry is more specific than jsonFlatFormat, so it steps aside when a JsonFormat/Reader/Writer of a value
-  // class is wanted (kebs 2's rule); a RootJsonFormat request derives an object
+  private def rootWanted: Boolean =
+    isLookingFor(typeOf[RootJsonFormat[Any]], typeOf[RootJsonReader[Any]], typeOf[RootJsonWriter[Any]])
+
+  // the product entry is more specific than jsonFlatFormat and jsonConversionFormat2, so it steps aside when a
+  // JsonFormat/Reader/Writer of their types is wanted; a RootJsonFormat request derives an object
   private def flatPreferred(T: UType): Boolean =
-    (isLookingFor(typeOf[spray.json.JsonFormat[Any]]) || isLookingFor(typeOf[spray.json.JsonReader[Any]]) ||
-      isLookingFor(typeOf[spray.json.JsonWriter[Any]])) && (T.decls.collect {
-      case m: MethodSymbol if m.isCaseAccessor => m
-    }.toList match {
+    isLookingFor(typeOf[JsonFormat[Any]], typeOf[JsonReader[Any]], typeOf[JsonWriter[Any]]) &&
+      (isImplicit(appliedType(typeOf[InstanceConverter[Any, Any]].typeConstructor, T, WildcardType)) || isValueClass(T))
+
+  private def isValueClass(T: UType): Boolean =
+    T.decls.collect { case m: MethodSymbol if m.isCaseAccessor => m }.toList match {
       case single :: Nil =>
-        val valueClassLike = appliedType(
-          typeOf[pl.iterators.kebs.core.macros.ValueClassLike[Any, Any]].typeConstructor,
-          T,
-          single.typeSignatureIn(T).finalResultType
-        )
-        c.inferImplicitValue(valueClassLike, silent = true) != EmptyTree
+        isImplicit(appliedType(typeOf[ValueClassLike[Any, Any]].typeConstructor, T, single.typeSignatureIn(T).finalResultType))
       case _ => false
-    })
+    }
+
+  private def isImplicit(tpe: UType): Boolean = c.inferImplicitValue(tpe, silent = true) != EmptyTree
+
+  private def abort(reason: String): Nothing = c.abort(c.enclosingPosition, reason)
 
   private def isCaseClass(T: UType): Boolean = T.typeSymbol.isClass && T.typeSymbol.asClass.isCaseClass
   private def isSealed(T: UType): Boolean    = T.typeSymbol.isClass && T.typeSymbol.asClass.isSealed && !isCaseClass(T)
 
-  // spray formats the standard library itself; a type already being derived further up is the enclosing derivation's
-  private def skipForImplicitSearch[T: c.WeakTypeTag](): Unit =
-    if (isStandardLibrary[T] || isBeingDerived[T]) c.abort(c.enclosingPosition, s"${weakTypeOf[T]} is not derived here")
+  private def config: Expr[JsonConfig] = c.Expr[JsonConfig](q"${c.prefix}.kebsJsonConfig")
 
-  def autoProduct[T: c.WeakTypeTag]: c.Expr[RootJsonFormat[T]] = {
+  def autoProduct[T: c.WeakTypeTag]: c.Expr[RootJsonFormat[T]] = implicitEntry {
     val T = weakTypeOf[T]
-    if (!isCaseClass(T)) c.abort(c.enclosingPosition, s"$T is not a case class")
-    skipForImplicitSearch[T]()
-    if (flatPreferred(T)) c.abort(c.enclosingPosition, "Flat format preferred")
-    derive[T](consultExisting = true, stepAside = false)
+    if (!isCaseClass(T)) abort(s"$T is not a case class")
+    // spray formats the standard library itself
+    if (!isDerived[T](config)) abort(s"$T is not derived here")
+    if (flatPreferred(T)) abort("Flat format preferred")
+    auto[T](stepsAsideForExisting = !rootWanted)
   }
 
-  // steps aside when a format exists: kebs' value enum formats are neither more nor less specific than this one
-  def autoSealed[T: c.WeakTypeTag]: c.Expr[RootJsonFormat[T]] = {
+  // always steps aside when a format exists: kebs' value enum formats are neither more nor less specific than this one
+  def autoSealed[T: c.WeakTypeTag]: c.Expr[RootJsonFormat[T]] = implicitEntry {
     val T = weakTypeOf[T]
-    if (!isSealed(T)) c.abort(c.enclosingPosition, s"$T is not a sealed hierarchy")
-    skipForImplicitSearch[T]()
-    derive[T](consultExisting = true, stepAside = true)
+    if (!isSealed(T)) abort(s"$T is not a sealed hierarchy")
+    if (!isDerived[T](config)) abort(s"$T is not derived here")
+    auto[T](stepsAsideForExisting = true)
   }
+
+  private def auto[T: c.WeakTypeTag](stepsAsideForExisting: Boolean): c.Expr[RootJsonFormat[T]] =
+    formatRole[T](stepsAsideForExisting) match {
+      case EntryPointRole.StepAside => abort(s"${weakTypeOf[T]} is not derived here")
+      case EntryPointRole.Record    => recordedFormat[T](config)
+      case EntryPointRole.Derive    =>
+        block[T](ownSearches = 1, neededFormats[T](config, preferExisting = false), rootName = None)(None)
+      case EntryPointRole.UseExisting =>
+        val existing = q"$localFormats.existing[${weakTypeOf[T]}]"
+        block[T](ownSearches = 1, neededBesideExisting[T](config), rootName = None)(Some(existing))
+    }
 
   def explicitProduct[T: c.WeakTypeTag]: c.Expr[RootJsonFormat[T]] = {
-    if (!isCaseClass(weakTypeOf[T])) c.abort(c.enclosingPosition, s"${weakTypeOf[T]} is not a case class")
-    derive[T](consultExisting = false, stepAside = false)
+    if (!isCaseClass(weakTypeOf[T])) abort(s"${weakTypeOf[T]} is not a case class")
+    explicitly[T]
   }
 
   def explicitSealed[T: c.WeakTypeTag]: c.Expr[RootJsonFormat[T]] = {
-    if (!isSealed(weakTypeOf[T])) c.abort(c.enclosingPosition, s"${weakTypeOf[T]} is not a sealed hierarchy")
-    derive[T](consultExisting = false, stepAside = false)
+    if (!isSealed(weakTypeOf[T])) abort(s"${weakTypeOf[T]} is not a sealed hierarchy")
+    explicitly[T]
   }
 
-  // re-typed, so that the owners of the local formats are fixed before lambdalift sees the recursive references
-  private def derive[T: c.WeakTypeTag](consultExisting: Boolean, stepAside: Boolean): c.Expr[RootJsonFormat[T]] =
-    c.Expr[RootJsonFormat[T]](
-      c.untypecheck(
-        deriveRootFormat[T](c.Expr[JsonConfig](q"${c.prefix}.kebsJsonConfig"), consultExisting, stepAside).tree
-      )
-    )
+  private def explicitly[T: c.WeakTypeTag]: c.Expr[RootJsonFormat[T]] = explicitEntry {
+    val enclosing = enclosingImplicit(weakTypeOf[JsonFormat[T]])
+    val needed    = neededFormats[T](config, preferExisting = enclosing.isEmpty, hidesExisting = enclosing.nonEmpty)
+    block[T](ownSearches = 0, needed, enclosing)(None)
+  }
+
+  private def localFormats: Tree = q"_root_.pl.iterators.kebs.sprayjson.internal.SprayLocalFormats"
+
+  private def block[T: c.WeakTypeTag](ownSearches: Int, needed: => Needed, rootName: Option[TermName])(
+      result: Option[Tree]
+  ): c.Expr[RootJsonFormat[T]] =
+    c.Expr[RootJsonFormat[T]](unlessInsideSearch(ownSearches, weakTypeOf[RootJsonFormat[T]]) {
+      localInstances(config.tree, needed, rootName) { (_, config, tpe) =>
+        (tq"_root_.spray.json.RootJsonFormat[$tpe]", q"$localFormats.level[$tpe]($config)")
+      }(result)
+    })
+
+  def level[T: c.WeakTypeTag](config: c.Expr[JsonConfig]): c.Expr[RootJsonFormat[T]] = retyped(formatLevel[T](config))
+  def existing[T: c.WeakTypeTag]: c.Expr[RootJsonFormat[T]]                          = explicitEntry(retyped(existingFormat[T]))
 }

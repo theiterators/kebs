@@ -52,9 +52,9 @@ class SprayRecursionTests extends AnyFunSuite with Matchers {
     roundTrip(Tree2(1, Children2(List(Tree2(2, Children2(Nil))))), """{"value":1,"children":[{"value":2,"children":[]}]}""")
   }
 
-  test("recursion through a tuple or an Either is reported, not derived as an object") {
-    "implicitly[RootJsonFormat[TNode]]" shouldNot typeCheck
-    "implicitly[RootJsonFormat[RecE]]" shouldNot typeCheck
+  test("recursion through a tuple or an Either") {
+    roundTrip(TNode("a", List("k" -> TNode("b", Nil))), """{"name":"a","children":[["k",{"name":"b","children":[]}]]}""")
+    roundTrip(RecE("a", Right(List(RecE("b", Left("end"))))), """{"name":"a","next":[{"name":"b","next":"end"}]}""")
   }
 
   test("a single-field case class wrapping a derived one is flat") {

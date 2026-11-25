@@ -1,15 +1,114 @@
 package pl.iterators.kebs.core.macros.internal
 
+import pl.iterators.kebs.core.json.JsonConfig
+
 import scala.deriving.Mirror
 import scala.quoted.*
 
 private[kebs] trait JsonDerivationMacrosScala3 extends JsonDerivationMacrosImpl { this: hearth.MacroCommonsScala3 =>
 
   override protected def constructViaMirror[F: Type](arguments: List[Expr_??]): Option[Expr[F]] = {
-    given Quotes = quotes
-    scala.quoted.Expr.summon[Mirror.ProductOf[F]].map { mirror =>
-      val values = Varargs(arguments.map(_.value.asInstanceOf[scala.quoted.Expr[Any]]))
-      '{ $mirror.fromProduct(Tuple.fromArray(Array[Any]($values*))).asInstanceOf[F] }
+    withQuotes {
+      scala.quoted.Expr.summon[Mirror.ProductOf[F]].map { mirror =>
+        val values = Varargs(arguments.map(_.value.asInstanceOf[scala.quoted.Expr[Any]]))
+        '{ $mirror.fromProduct(Tuple.fromArray(Array[Any]($values*))).asInstanceOf[F] }
+      }
     }
+  }
+
+  override protected def placeholderKeys[A](expr: Expr[A]): Set[String] = {
+    import quotes.reflect.*
+    val placeholder = Symbol.requiredMethod("pl.iterators.kebs.core.macros.internal.JsonPlaceholder.apply")
+    val collect     = new TreeAccumulator[Set[String]] {
+      def foldTree(keys: Set[String], tree: Tree)(owner: Symbol): Set[String] = tree match {
+        case Apply(TypeApply(fun, _), List(key)) if fun.symbol == placeholder => keys ++ key.asExprOf[String].value
+        case _                                                                => foldOverTree(keys, tree)(owner)
+      }
+    }
+    collect.foldTree(Set.empty, expr.asTerm)(Symbol.spliceOwner)
+  }
+
+  // an inferred type argument of a method that accepts a supertype is only visible here
+  override protected def madeBy[A](methods: Seq[UntypedMethod], expr: Expr[A]): List[??] =
+    if (methods.isEmpty) Nil
+    else {
+      import quotes.reflect.*
+      val symbols = methods.map(_.symbol).toSet
+      val collect = new TreeAccumulator[List[UntypedType]] {
+        def foldTree(types: List[UntypedType], tree: Tree)(owner: Symbol): List[UntypedType] = tree match {
+          case call @ Apply(_, _) if symbols(call.symbol) =>
+            foldOverTree(call.tpe.widen.dealias.typeArgs.headOption.toList.map(_.asInstanceOf[UntypedType]) ++ types, tree)(owner)
+          case _ => foldOverTree(types, tree)(owner)
+        }
+      }
+      collect.foldTree(Nil, expr.asTerm)(Symbol.spliceOwner).distinct.map(_.as_??)
+    }
+
+  override protected def expansionOwner: AnyRef = quotes.reflect.Symbol.spliceOwner.asInstanceOf[AnyRef]
+
+  override protected def isExpandedInside(owner: AnyRef): Boolean =
+    Iterator.iterate(quotes.reflect.Symbol.spliceOwner)(_.maybeOwner).takeWhile(!_.isNoSymbol).contains(owner)
+
+  // for LocalInstances, whose Quotes have another path
+  protected def untyped(needed: Needed): LocalInstances.Needed = {
+    import quotes.reflect.*
+    LocalInstances.Needed(
+      needed.instances.map { instance =>
+        import instance.tpe.Underlying as X
+        LocalInstances.Untyped(instance.typeClass, TypeRepr.of(using summon[Type[X]]), instance.isCollection)
+      },
+      needed.rootIsImplicit
+    )
+  }
+}
+
+private[kebs] object LocalInstances {
+  final class Untyped(val typeClass: String, val typeRepr: Any, val isCollection: Boolean)
+
+  final class Needed(val instances: List[Untyped], val rootIsImplicit: Boolean)
+
+  final class Definition[C](val codec: Expr[C])(using val tpe: Type[C]) {
+    def creator(using Quotes): Expr[() => Any] = '{ () => $codec }
+  }
+
+  trait Define {
+    def apply[X: Type](instance: Untyped, config: Expr[JsonConfig])(using Quotes): Definition[?]
+  }
+
+  // { lazy val config; lazy val codecs = LocalCodecs(() => level, ...); implicit def codec: Codec[X] = codecs.get(0); ... ; result }
+  // Not lazy vals: they are parameters of the closures that use them, of which there may be more than a method can have.
+  def block[R: Type](config: Expr[JsonConfig], needed: Needed)(define: Define)(result: Option[Expr[R]])(using Quotes): Expr[R] = {
+    import quotes.reflect.*
+    val owner        = Symbol.spliceOwner
+    val configSymbol = Symbol.newVal(owner, "kebsConfig", TypeRepr.of[JsonConfig], Flags.Lazy, Symbol.noSymbol)
+    val codecsSymbol = Symbol.newVal(owner, "kebsCodecs", TypeRepr.of[LocalCodecs], Flags.Lazy, Symbol.noSymbol)
+    val configValue  = ValDef(configSymbol, Some(config.asTerm.changeOwner(configSymbol)))
+    val definitions  = needed.instances.map { instance =>
+      instance.typeRepr.asInstanceOf[TypeRepr].asType match {
+        case '[x] => define[x](instance, Ref(configSymbol).asExprOf[JsonConfig])
+      }
+    }
+    val instances = definitions.zipWithIndex.map { (definition, index) =>
+      instanceAt(owner, definition, index, isImplicit = index > 0 || needed.rootIsImplicit, Ref(codecsSymbol).asExprOf[LocalCodecs])
+    }
+    val creators    = Expr.ofList(definitions.map(_.creator))
+    val codecsValue = ValDef(codecsSymbol, Some('{ LocalCodecs($creators) }.asTerm.changeOwner(codecsSymbol)))
+    Block(configValue :: codecsValue :: instances, result.fold[Term](Ref(instances.head.symbol))(_.asTerm)).asExprOf[R]
+  }
+
+  private def instanceAt[C](using
+      Quotes
+  )(
+      owner: quotes.reflect.Symbol,
+      definition: Definition[C],
+      index: Int,
+      isImplicit: Boolean,
+      codecs: Expr[LocalCodecs]
+  ): quotes.reflect.DefDef = {
+    import quotes.reflect.*
+    given Type[C] = definition.tpe
+    val flags     = if (isImplicit) Flags.Implicit else Flags.EmptyFlags
+    val symbol    = Symbol.newMethod(owner, s"kebsCodec$$$index", ByNameType(TypeRepr.of[C]), flags, Symbol.noSymbol)
+    DefDef(symbol, _ => Some('{ $codecs.get[C](${ Expr(index) }) }.asTerm.changeOwner(symbol)))
   }
 }
