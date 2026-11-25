@@ -41,7 +41,7 @@ private[jsoniter] trait JsoniterMacrosImpl extends JsonDerivationMacrosImpl { th
     else Expr.singletonOf[T].isEmpty
   }
 
-  private def isOfferedStandardType[T: Type]: Boolean = Type[T] match {
+  protected def isOfferedStandardType[T: Type]: Boolean = Type[T] match {
     case ArrayOf(item) =>
       import item.Underlying as X
       !(Type[X] =:= Type.of[Byte]) && !(Type[X] =:= Type.of[Char])

@@ -24,11 +24,18 @@ final private[jsoniter] class KebsJsoniterMacros(val c: whitebox.Context)
 
   def auto[T: c.WeakTypeTag]: c.Expr[JsonValueCodec[T]] = implicitEntry {
     entryRole[T](config) match {
-      case EntryPointRole.Record => recordedCodec[T](config)
-      case EntryPointRole.Derive => block[T](ownSearches = 1, neededCodecs[T](config, preferExisting = false), rootName = None)
-      case _                     => c.abort(c.enclosingPosition, s"${weakTypeOf[T]} is not derived here")
+      case EntryPointRole.Record                            => recordedCodec[T](config)
+      case EntryPointRole.Derive if !isInsideJsonCodecMaker =>
+        block[T](ownSearches = 1, neededCodecs[T](config, preferExisting = false), rootName = None)
+      case EntryPointRole.Derive if !isOfferedStandardType[T] =>
+        c.Expr[JsonValueCodec[T]](q"_root_.pl.iterators.kebs.jsoniter.internal.JsoniterLocalCodecs.insideJsonCodecMaker[${weakTypeOf[T]}]")
+      case _ => c.abort(c.enclosingPosition, s"${weakTypeOf[T]} is not derived here")
     }
   }
+
+  // it uses what it finds several times, and the codec would be a class each time
+  private def isInsideJsonCodecMaker: Boolean =
+    c.enclosingMacros.exists(_.macroApplication.symbol.fullName.startsWith("com.github.plokhotnyuk.jsoniter_scala.macros."))
 
   def explicitly[T: c.WeakTypeTag]: c.Expr[JsonValueCodec[T]] = explicitEntry {
     val enclosing = enclosingImplicit(weakTypeOf[JsonValueCodec[T]])
