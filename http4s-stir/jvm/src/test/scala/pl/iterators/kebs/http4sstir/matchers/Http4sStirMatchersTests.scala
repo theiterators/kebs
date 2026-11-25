@@ -1,6 +1,7 @@
 package pl.iterators.kebs.http4sstir.matchers
 
-import pl.iterators.stir.server.Directives
+import org.http4s.Status
+import pl.iterators.stir.server.{Directives, Route}
 import pl.iterators.stir.testkit.{RouteTestTimeout, ScalatestRouteTest}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.funsuite.AnyFunSuite
@@ -16,6 +17,10 @@ import pl.iterators.kebs.http4sstir.domain.Domain._
 import scala.concurrent.duration._
 import java.net.URI
 import java.time.{DayOfWeek, Instant, ZonedDateTime}
+
+object Http4sStirMatchersTests {
+  final case class Positive(value: Int) { require(value > 0, "not positive") }
+}
 
 class Http4sStirMatchersTests
     extends AnyFunSuite
@@ -132,6 +137,47 @@ class Http4sStirMatchersTests
     }
     Get("/test/ce7a7cf1-8c00-49a9-a963-9fd119dd0642") ~> testRoute ~> check {
       responseAs[String] shouldEqual "ce7a7cf1-8c00-49a9-a963-9fd119dd0642"
+    }
+  }
+
+  test("A value that is not one of the enum does not match") {
+    val testRoute = path("test" / Segment.asEnum[Greeting])(greeting => complete(greeting.toString)) ~
+      path("test" / Segment)(other => complete(s"other $other"))
+    Get("/test/nope") ~> testRoute ~> check {
+      responseAs[String] shouldEqual "other nope"
+    }
+    Get("/test/nope") ~> Route.seal(path("test" / Segment.asEnum[Greeting])(greeting => complete(greeting.toString))) ~> check {
+      status shouldEqual Status.NotFound
+    }
+  }
+
+  test("A value that is not one of the value enum does not match") {
+    val testRoute = path("test" / IntNumber.asValueEnum[LibraryItem])(item => complete(item.toString)) ~
+      path("test" / Segment)(other => complete(s"other $other"))
+    Get("/test/9") ~> testRoute ~> check {
+      responseAs[String] shouldEqual "other 9"
+    }
+  }
+
+  test("A value that a value class rejects does not match") {
+    val testRoute = path("test" / IntNumber.as[Http4sStirMatchersTests.Positive])(positive => complete(positive.toString)) ~
+      path("test" / Segment)(other => complete(s"other $other"))
+    Get("/test/1") ~> testRoute ~> check {
+      responseAs[String] shouldEqual "Positive(1)"
+    }
+    Get("/test/0") ~> testRoute ~> check {
+      responseAs[String] shouldEqual "other 0"
+    }
+  }
+
+  test("A value that an InstanceConverter rejects does not match") {
+    val testRoute = path("test" / IntNumber.to[DayOfWeek])(day => complete(day.toString)) ~
+      path("test" / Segment)(other => complete(s"other $other"))
+    Get("/test/1") ~> testRoute ~> check {
+      responseAs[String] shouldEqual "MONDAY"
+    }
+    Get("/test/8") ~> testRoute ~> check {
+      responseAs[String] shouldEqual "other 8"
     }
   }
 }
