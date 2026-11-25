@@ -23,6 +23,51 @@ ThisBuild / tlMimaPreviousVersions              := Set.empty
 ThisBuild / githubWorkflowJavaVersions          := Seq(JavaSpec.temurin("17"), JavaSpec.temurin("21"))
 ThisBuild / githubWorkflowPublishTargetBranches := Seq(RefPredicate.StartsWith(Ref.Tag("v")), RefPredicate.Equals(Ref.Branch("master")))
 
+// coverage needs sbt-scoverage, which only this job loads, so that published classes are never instrumented:
+// sbt --addPluginSbtFile=project/coverage/plugins.sbt "++3" testCoverage
+// Macros are measured while the tests compile, so start from a clean build.
+val coveredModules = List(
+  "core",
+  "instances",
+  "enumSupport",
+  "enumeratumSupport",
+  "opaque",
+  "tagged",
+  "slickSupport",
+  "doobieSupport",
+  "sprayJsonSupport",
+  "playJsonSupport",
+  "circeSupport",
+  "jsoniterSupport",
+  "pekkoHttpSupport",
+  "http4sSupport",
+  "http4sStirSupport",
+  "scalacheckSupport",
+  "pureConfigSupport",
+  "baklavaSupport"
+)
+addCommandAlias(
+  "testCoverage",
+  (List("coverage", """set opaque.jvm / coverageEnabled := (opaque.jvm / scalaVersion).value.startsWith("3")""") ++
+    coveredModules.map(_ + "/test") ++ coveredModules.map(_ + "/coverageReport")).mkString(";", ";", "")
+)
+
+ThisBuild / githubWorkflowAddedJobs += WorkflowJob(
+  id = "coverage",
+  name = "Coverage",
+  steps = githubWorkflowJobSetup.value.toList ++ List(
+    WorkflowStep.Run(
+      List(
+        "sbt --addPluginSbtFile=project/coverage/plugins.sbt '++ ${{ matrix.scala }}' testCoverage",
+        "sh project/coverage/summary.sh >> $GITHUB_STEP_SUMMARY"
+      ),
+      name = Some("Measure coverage")
+    )
+  ),
+  scalas = List("2.13", "3"),
+  javas = List(JavaSpec.temurin("17"))
+)
+
 lazy val baseSettings = Seq(
   organization         := "pl.iterators",
   organizationName     := "Iterators",
