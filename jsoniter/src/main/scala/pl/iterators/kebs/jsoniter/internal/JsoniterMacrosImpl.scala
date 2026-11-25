@@ -359,7 +359,15 @@ private[jsoniter] trait JsoniterMacrosImpl extends JsonDerivationMacrosImpl { th
         }
       }.getOrElse(Expr.quote(()))
 
-    protected def sumCodec[T: Type](leaves: List[(String, ??)]): Codecs => Expr[JsonValueCodec[T]] =
-      Environment.reportErrorAndAbort(s"${Type[T].prettyPrint} is a sealed hierarchy")
+    protected def sumCodec[T: Type](leaves: List[(String, ??)]): Codecs => Expr[JsonValueCodec[T]] = {
+      implicit val StringType: Type[String]           = Type.of[String]
+      implicit val ListStringType: Type[List[String]] = Type.of[List[String]]
+      val caseNames                                   = Expr(leaves.map(_._1))
+      val tests                                       = caseTests(leaves)
+      codecs =>
+        Expr.quote {
+          JsoniterDerivationRuntime.sum[T](Expr.splice(config), Expr.splice(caseNames), Expr.splice(tests), Expr.splice(codecs.local))
+        }
+    }
   }
 }

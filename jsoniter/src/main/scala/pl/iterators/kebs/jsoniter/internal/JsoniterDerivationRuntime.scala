@@ -1,6 +1,6 @@
 package pl.iterators.kebs.jsoniter.internal
 
-import com.github.plokhotnyuk.jsoniter_scala.core.{JsonKeyCodec, JsonReader, JsonValueCodec, JsonWriter}
+import com.github.plokhotnyuk.jsoniter_scala.core._
 import pl.iterators.kebs.core.instances.InstanceConverter
 import pl.iterators.kebs.core.json.{JsonConfig, NoneHandling}
 import pl.iterators.kebs.core.macros.ValueClassLike
@@ -153,6 +153,94 @@ object JsoniterDerivationRuntime {
       value
     }
   }
+
+  def sum[T](config: => JsonConfig, caseNames: List[String], tests: List[Any => Boolean], codecs: LocalCodecs): JsonValueCodec[T] =
+    new JsonValueCodec[T] {
+      private val isCase: Array[Any => Boolean]      = tests.toArray
+      private lazy val names: Array[String]          = caseNames.map(config.constructorNaming(_)).toArray
+      private lazy val byName: Map[String, Int]      = names.zipWithIndex.reverse.toMap
+      private lazy val discriminator: Option[String] = config.discriminator
+
+      private def codec(index: Int): JsonValueCodec[T] = codecs.get[JsonValueCodec[T]](index)
+
+      def encodeValue(x: T, out: JsonWriter): Unit = {
+        var index = 0
+        while (index < isCase.length && !isCase(index)(x)) index += 1
+        if (index == isCase.length) throw new IllegalStateException(s"Not a case of the sealed hierarchy: $x")
+        discriminator match {
+          case None =>
+            out.writeObjectStart()
+            out.writeKey(names(index))
+            codec(index).encodeValue(x, out)
+            out.writeObjectEnd()
+          case Some(field) => encodeDiscriminated(x, out, codec(index), field, names(index))
+        }
+      }
+
+      def decodeValue(in: JsonReader, default: T): T = discriminator match {
+        case None =>
+          if (!in.isNextToken('{')) in.decodeError(s"expected an object with one of: ${names.mkString(", ")}")
+          if (in.isNextToken('}')) unknown(in, "")
+          in.rollbackToken()
+          val name  = in.readKeyAsString()
+          val value = readWith(codec(byName.getOrElse(name, unknown(in, name))), in)
+          if (!in.isNextToken('}')) in.decodeError("expected '}': one case per object")
+          value
+        case Some(field) =>
+          in.setMark()
+          if (!in.isNextToken('{')) in.decodeError("expected '{'")
+          if (in.isNextToken('}')) in.requiredFieldError(field)
+          in.rollbackToken()
+          if (!in.skipToKey(field)) in.requiredFieldError(field)
+          val name = in.readString(null)
+          if (name eq null) in.decodeError("unexpected null")
+          val index = byName.getOrElse(name, unknown(in, name))
+          in.rollbackToMark()
+          readWith(codec(index), in)
+      }
+
+      private def unknown(in: JsonReader, name: String): Nothing =
+        in.decodeError(s"unknown case '$name', expected one of: ${names.mkString(", ")}")
+
+      def nullValue: T = null.asInstanceOf[T]
+    }
+
+  private def encodeDiscriminated[T](x: T, out: JsonWriter, codec: JsonValueCodec[T], field: String, name: String): Unit = {
+    def reject(reason: String): Nothing = out.encodeError(s"$name $reason, so it cannot carry the '$field' discriminator")
+    codec match {
+      case codec: ObjectCodec[T] =>
+        if (codec.isField(field)) reject(s"has a field '$field' of its own")
+        out.writeObjectStart()
+        out.writeKey(field)
+        out.writeVal(name)
+        codec.encodeFields(x, out)
+        out.writeObjectEnd()
+      case _ =>
+        // not kebs' codec: its object is written again, with the discriminator
+        val written = writeToArrayReentrant(x)(codec)
+        if (written.isEmpty || written(0) != '{') reject("is not written as a JSON object")
+        if (readFromArrayReentrant(written)(hasField(field))) reject(s"has a field '$field' of its own")
+        val start = writeToArrayReentrant(Map(field -> name))(discriminatorObject).dropRight(1)
+        val rest  = written.drop(1)
+        out.writeRawVal(if (rest.length == 1) start ++ rest else (start :+ ','.toByte) ++ rest)
+    }
+  }
+
+  private def hasField(field: String): JsonValueCodec[Boolean] = new JsonValueCodec[Boolean] {
+    def decodeValue(in: JsonReader, default: Boolean): Boolean = {
+      var found = false
+      readObject(in) {
+        found |= in.readKeyAsString() == field
+        in.skip()
+      }
+      found
+    }
+    def encodeValue(x: Boolean, out: JsonWriter): Unit = out.writeVal(x)
+    def nullValue: Boolean                             = false
+  }
+
+  private val discriminatorObject: JsonValueCodec[Map[String, String]] =
+    map[String, String, Map[String, String]](LocalCodecs(List(() => JsoniterCodecs.string)), JsoniterCodecs.string, Map)
 
   def valueClass[T, A](codecs: LocalCodecs, rep: ValueClassLike[T, A]): JsonValueCodec[T]      = wrapped(codecs, rep.apply, rep.unapply)
   def converted[T, A](codecs: LocalCodecs, rep: InstanceConverter[T, A]): JsonValueCodec[T]    = wrapped(codecs, rep.decode, rep.encode)
