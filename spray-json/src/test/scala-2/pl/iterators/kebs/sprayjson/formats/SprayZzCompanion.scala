@@ -1,5 +1,7 @@
 package pl.iterators.kebs.sprayjson.formats
 
+import pl.iterators.kebs.core.json.JsonConfig
+import pl.iterators.kebs.core.naming.Naming
 import pl.iterators.kebs.sprayjson.KebsSprayJson
 import spray.json._
 
@@ -14,6 +16,16 @@ object SprayZzCompanion {
   object Outer {
     implicit val format = jsonFormat2(Outer.apply)
   }
+
+  object Snake extends DefaultJsonProtocol with KebsSprayJson {
+    override def kebsJsonConfig: JsonConfig = super.kebsJsonConfig.withFieldNaming(Naming.snakeCase)
+  }
+  final case class Named(someField: Int, otherField: Int)
+  object Named {
+    implicit val format = Snake.jsonFormatN[Named]
+  }
+  final case class NamedHolder(named: SprayAaCompanion.Named, n: Int)
+  def writtenNamed: String = NamedHolder(SprayAaCompanion.Named(1, 2), 3).toJson.compactPrint
 
   final case class Holder(outer: SprayAaCompanion.Outer, n: Int)
   def written: String = Holder(SprayAaCompanion.Outer(SprayAaCompanion.Inner(1, 2), 3), 4).toJson.compactPrint
