@@ -1,13 +1,17 @@
 package pl.iterators.kebs.circe
 
-import io.circe.generic.AutoDerivation
 import io.circe.{Decoder, Encoder}
 import pl.iterators.kebs.core.instances.InstanceConverter
+import pl.iterators.kebs.core.json.JsonConfig
 import pl.iterators.kebs.core.macros.ValueClassLike
+import pl.iterators.kebs.core.naming.Naming
 
 import scala.util.Try
 
-trait KebsCirce extends AutoDerivation {
+trait KebsCirce extends KebsCirceAutoCompat {
+  // read through the protocol, not implicitly: another protocol imported in the same scope would make it ambiguous
+  def kebsJsonConfig: JsonConfig = JsonConfig.default
+
   implicit def flatDecoder[T, A](implicit rep: ValueClassLike[T, A], decoder: Decoder[A]): Decoder[T] =
     decoder.emap(obj => Try(rep.apply(obj)).toEither.left.map(_.getMessage))
   implicit def flatEncoder[T, A](implicit rep: ValueClassLike[T, A], encoder: Encoder[A]): Encoder[T] =
@@ -15,17 +19,14 @@ trait KebsCirce extends AutoDerivation {
 
   implicit def instanceConverterEncoder[T, A](implicit rep: InstanceConverter[T, A], encoder: Encoder[A]): Encoder[T] =
     encoder.contramap(rep.encode)
-
   implicit def instanceConverterDecoder[T, A](implicit rep: InstanceConverter[T, A], decoder: Decoder[A]): Decoder[T] =
     decoder.emap(obj => Try(rep.decode(obj)).toEither.left.map(_.getMessage))
 
   trait KebsCirceSnakified extends KebsCirce {
-    implicit def genericSnakifiedDecoder[T <: Product]: Decoder[T] = macro KebsCirceMacros.SnakifyVariant.materializeDecoder[T]
-    implicit def genericSnakifiedEncoder[T <: Product]: Encoder[T] = macro KebsCirceMacros.SnakifyVariant.materializeEncoder[T]
+    override def kebsJsonConfig: JsonConfig = JsonConfig.default.withFieldNaming(Naming.snakeCase)
   }
 
   trait KebsCirceCapitalized extends KebsCirce {
-    implicit def genericCapitalizedDecoder[T <: Product]: Decoder[T] = macro KebsCirceMacros.CapitalizedCamelCase.materializeDecoder[T]
-    implicit def genericCapitalizedEncoder[T <: Product]: Encoder[T] = macro KebsCirceMacros.CapitalizedCamelCase.materializeEncoder[T]
+    override def kebsJsonConfig: JsonConfig = JsonConfig.default.withFieldNaming(Naming.pascalCase)
   }
 }
