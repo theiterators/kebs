@@ -29,6 +29,9 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
 
   protected def withFreshSearch[A](search: => A): A = search
 
+  // code that uses the companion of F, or the object F
+  protected def withPath[F: Type, A](code: Expr[A]): Expr[A] = code
+
   protected def expansionOwner: AnyRef
   protected def isExpandedInside(owner: AnyRef): Boolean
 
@@ -113,7 +116,7 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
   private lazy val FieldNameType: Type[fieldName]           = Type.of[fieldName]
   private lazy val TransientFieldType: Type[transientField] = Type.of[transientField]
 
-  final class JsonField(val param: Parameter, val index: Int) {
+  final class JsonField(val param: Parameter, val index: Int, owner: ??) {
     val name: String            = param.name
     val tpe: ??                 = param.tpe
     val transient: Boolean      = param.hasAnnotationOfType[transientField](using TransientFieldType)
@@ -123,7 +126,10 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
         case _                         => Environment.reportErrorAndAbort(s"@fieldName on ${param.name} needs a literal String argument")
       }
     }
-    def default[A: Type]: Option[Expr[A]] = defaultOf[A](param)
+    def default[A: Type]: Option[Expr[A]] = {
+      import owner.Underlying as T
+      defaultOf[A](param).map(withPath[T, A](_))
+    }
   }
 
   final class LocalInstance(val typeClass: String, val tpe: ??, val isCollection: Boolean)
@@ -327,7 +333,7 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
       else
         Expr
           .singletonOf[F]
-          .map(value => () => singletonCodec[F](value))
+          .map(value => () => singletonCodec[F](withPath[F, F](value)))
           .orElse(CaseClass.parse[F].toOption.map { caseClass => () =>
             val product = new ProductShape[F](caseClass)
             withCodecs[F](partsOf(product))(productCodec[F](product))
@@ -354,7 +360,9 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
 
     final class ProductShape[T: Type](val caseClass: CaseClass[T]) {
       private val productType: Type[T] = Type[T]
-      val fields: List[JsonField]      = parameters(caseClass).zipWithIndex.map { case (param, index) => new JsonField(param, index) }
+      val fields: List[JsonField]      = parameters(caseClass).zipWithIndex.map { case (param, index) =>
+        new JsonField(param, index, Type[T].as_??)
+      }
       fields.find(field => field.transient && !field.param.hasDefault).foreach { field =>
         Environment.reportErrorAndAbort(s"@transientField ${field.name} of ${Type[T].prettyPrint} needs a default value")
       }
@@ -387,8 +395,8 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
       // companion apply first (validating/normalising applys are honoured), then the constructor, an overload of apply that
       // only accepts the arguments, and the Mirror
       def construct(arguments: List[Expr_??]): Expr[T] = {
-        val byName = fields.map(_.name).zip(arguments).toMap
-        viaCompanionApply[T](byName, exactly = true)
+        val byName      = fields.map(_.name).zip(arguments).toMap
+        val constructed = viaCompanionApply[T](byName, exactly = true)
           .orElse(caseClass.construct[MIO](param => MIO.pure(byName(param.name))).unsafe.runSync._2 match {
             case Right(Some(constructed)) => Some(constructed)
             case _                        => None
@@ -396,6 +404,7 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
           .orElse(viaCompanionApply[T](byName, exactly = false))
           .orElse(constructViaMirror[T](arguments))
           .getOrElse(Environment.reportErrorAndAbort(s"${Type[T].prettyPrint} has no accessible constructor or apply"))
+        withPath[T, T](constructed)
       }
     }
   }
