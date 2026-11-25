@@ -25,9 +25,10 @@ private[macros] object ValueClassLikeMacros {
   def materialize[T <: Product: Type, F1: Type](m: Expr[Mirror.ProductOf[T]])(using q: Quotes): Expr[ValueClassLike[T, F1]] = {
     val macros = new ValueClassLikeMacros(q)
     macros.deriveValueClassLikeWithFallback[T, F1](
+      // used inside another quote
       new macros.ProductFallback[T, F1](
-        f => '{ $m.fromProduct(Tuple1($f)) },
-        t => '{ $t.productElement(0).asInstanceOf[F1] }
+        f => macros.withQuotes('{ $m.fromProduct(Tuple1($f)) }),
+        t => macros.withQuotes('{ $t.productElement(0).asInstanceOf[F1] })
       )
     )
   }
