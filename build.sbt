@@ -240,7 +240,8 @@ lazy val sprayJsonSettings = commonSettings ++ hearthMacroSettings ++ generatedC
   libraryDependencies += optionalEnumeratum.value
 )
 
-lazy val playJsonSettings = commonSettings ++ hearthMacroSettings ++ Seq(
+lazy val playJsonSettings = commonSettings ++ hearthMacroSettings ++ generatedCodeTestSettings ++ Seq(
+  Test / scalacOptions -= "-Xcheck-macros", // play's Json.format does not pass
   libraryDependencies += playJson.value,
   libraryDependencies += (enumeratumInTest.value)
 )

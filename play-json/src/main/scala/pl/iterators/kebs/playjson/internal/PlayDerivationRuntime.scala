@@ -1,16 +1,26 @@
 package pl.iterators.kebs.playjson.internal
 
 import pl.iterators.kebs.core.json.{JsonConfig, NoneHandling}
-import pl.iterators.kebs.core.macros.ValueClassLike
+import pl.iterators.kebs.core.macros.internal.LocalCodecs
 import play.api.libs.json._
-
-import scala.collection.Factory
-import scala.collection.mutable
-import scala.util.Try
 
 // called by code generated in PlayJsonMacrosImpl; field reading is play's own JsPath API, so errors are play's
 object PlayDerivationRuntime {
   final class Fields(val names: Array[String], val writeNull: Boolean, val useDefaults: Boolean)
+
+  final class Members(fields: Fields) {
+    private val members = List.newBuilder[(String, JsValue)]
+
+    def result(): List[(String, JsValue)] = members.result()
+
+    def add[A](index: Int, value: A, writes: Writes[A]): Unit = members += ((fields.names(index), writes.writes(value)))
+
+    def option[A](index: Int, value: Option[A], writes: Writes[A]): Unit = value match {
+      case Some(a)                  => members += ((fields.names(index), writes.writes(a)))
+      case None if fields.writeNull => members += ((fields.names(index), JsNull))
+      case None                     => ()
+    }
+  }
 
   private def fields(config: JsonConfig, scalaNames: List[String], renamed: List[Option[String]]): Fields =
     new Fields(
@@ -19,22 +29,27 @@ object PlayDerivationRuntime {
       config.useDefaults
     )
 
-  def productReads[T](config: JsonConfig, scalaNames: List[String], renamed: List[Option[String]])(
-      readFields: (Fields, JsValue) => JsResult[T]
+  def productReads[T](config: => JsonConfig, scalaNames: List[String], renamed: List[Option[String]])(
+      readFields: (Fields, JsValue) => List[JsResult[Any]],
+      construct: Array[Any] => T
   ): Reads[T] = new Reads[T] {
     private lazy val names = fields(config, scalaNames, renamed)
     // as Json.reads: field paths of a non-object would all be "missing", and all-Option products would read garbage
     def reads(json: JsValue): JsResult[T] = json match {
-      case obj: JsObject => readFields(names, obj)
+      case obj: JsObject => combine(readFields(names, obj), construct)
       case _             => JsError("error.expected.jsobject")
     }
   }
 
-  def productWrites[T](config: JsonConfig, scalaNames: List[String], renamed: List[Option[String]])(
-      writeFields: (Fields, T) => List[(String, JsValue)]
+  def productWrites[T](config: => JsonConfig, scalaNames: List[String], renamed: List[Option[String]])(
+      writeFields: (Members, T) => Unit
   ): OWrites[T] = new OWrites[T] {
     private lazy val names       = fields(config, scalaNames, renamed)
-    def writes(obj: T): JsObject = JsObject(writeFields(names, obj))
+    def writes(obj: T): JsObject = {
+      val members = new Members(names)
+      writeFields(members, obj)
+      JsObject(members.result())
+    }
   }
 
   def field[A](json: JsValue, fields: Fields, index: Int, reads: Reads[A]): JsResult[A] = {
@@ -59,32 +74,14 @@ object PlayDerivationRuntime {
       (JsPath \ fields.names(index)).readNullableWithDefault[A](default).reads(json)
     } else optionField(json, fields, index, reads)
 
-  def prepend(head: JsResult[Any], rest: List[JsResult[Any]]): List[JsResult[Any]] = head :: rest
-
   // every field's errors are reported, as Json.reads does
-  def combine[T](results: List[JsResult[Any]], build: Array[Any] => T): JsResult[T] =
+  private def combine[T](results: List[JsResult[Any]], build: Array[Any] => T): JsResult[T] =
     results.collect { case error: JsError => error } match {
       case Nil    => JsSuccess(build(results.map(_.asInstanceOf[JsSuccess[Any]].value).toArray))
       case errors => errors.reduce((left: JsError, right: JsError) => JsError.merge(left, right))
     }
 
   def value[A](values: Array[Any], index: Int): A = values(index).asInstanceOf[A]
-
-  def entry[A](fields: Fields, index: Int, value: A, writes: Writes[A], rest: List[(String, JsValue)]): List[(String, JsValue)] =
-    (fields.names(index), writes.writes(value)) :: rest
-
-  def optionEntry[A](
-      fields: Fields,
-      index: Int,
-      value: Option[A],
-      writes: Writes[A],
-      rest: List[(String, JsValue)]
-  ): List[(String, JsValue)] =
-    value match {
-      case Some(a)                  => (fields.names(index), writes.writes(a)) :: rest
-      case None if fields.writeNull => (fields.names(index), JsNull) :: rest
-      case None                     => rest
-    }
 
   def singletonReads[T](value: T): Reads[T] = {
     case JsObject(_) => JsSuccess(value)
@@ -93,14 +90,18 @@ object PlayDerivationRuntime {
 
   def singletonWrites[T]: OWrites[T] = OWrites[T](_ => JsObject.empty)
 
-  def sumReads[T](config: JsonConfig, caseNames: List[String])(readCase: (Int, JsValue) => JsResult[T]): Reads[T] = new Reads[T] {
+  def sumReads[T](config: => JsonConfig, caseNames: List[String], codecs: LocalCodecs): Reads[T] = new Reads[T] {
     private lazy val names  = caseNames.map(config.constructorNaming(_)).toArray
     private lazy val byName = names.zipWithIndex.reverse.toMap
+
+    private lazy val discriminator = config.discriminator
+
+    private def readCase(index: Int, json: JsValue): JsResult[T] = codecs.get[Reads[T]](index).reads(json)
 
     private def unknown(found: String): JsError =
       JsError(s"Unknown case '$found', expected one of: ${names.mkString(", ")}")
 
-    def reads(json: JsValue): JsResult[T] = (config.discriminator, json) match {
+    def reads(json: JsValue): JsResult[T] = (discriminator, json) match {
       case (Some(field), obj: JsObject) =>
         obj.value.get(field) match {
           case Some(JsString(name)) => byName.get(name).fold[JsResult[T]](unknown(name))(readCase(_, json))
@@ -120,14 +121,18 @@ object PlayDerivationRuntime {
     case success        => success
   }
 
-  def sumWrites[T](config: JsonConfig, caseNames: List[String])(writeCase: (T, (Int, JsValue) => JsObject) => JsObject): OWrites[T] =
+  def sumWrites[T](config: => JsonConfig, caseNames: List[String], tests: List[Any => Boolean], codecs: LocalCodecs): OWrites[T] =
     new OWrites[T] {
       private lazy val names = caseNames.map(config.constructorNaming(_)).toArray
 
-      private val wrap: (Int, JsValue) => JsObject = config.discriminator match {
+      private lazy val wrap: (Int, JsValue) => JsObject = config.discriminator match {
         case Some(field) =>
           (index, json) =>
             json match {
+              case obj: JsObject if obj.value.get(field).exists(_ != JsString(names(index))) =>
+                throw new IllegalArgumentException(
+                  s"${names(index)} has a field '$field' of its own, so it cannot carry the '$field' discriminator"
+                )
               case obj: JsObject => obj + (field -> JsString(names(index)))
               case _             =>
                 throw new IllegalArgumentException(
@@ -137,58 +142,15 @@ object PlayDerivationRuntime {
         case None => (index, json) => JsObject(Seq(names(index) -> json))
       }
 
-      def writes(obj: T): JsObject = writeCase(obj, wrap)
+      def writes(obj: T): JsObject = {
+        val index = tests.indexWhere(_(obj))
+        if (index < 0) throw new IllegalStateException(s"Not a case of the sealed hierarchy: $obj")
+        wrap(index, codecs.get[Writes[T]](index).writes(obj))
+      }
     }
 
-  def unreachableCase[T](unexpected: Any): T = throw new IllegalStateException(s"Not a case of the sealed hierarchy: $unexpected")
-
-  def optionReads[A](inner: Reads[A]): Reads[Option[A]] = {
-    case JsNull => JsSuccess(None)
-    case other  => inner.reads(other).map(Some(_))
-  }
-
-  def optionWrites[A](inner: Writes[A]): Writes[Option[A]] = Writes[Option[A]](_.fold[JsValue](JsNull)(inner.writes))
-
-  def collectionReads[A, R, C](inner: Reads[A], factory: Factory[A, R])(build: mutable.Builder[A, R] => C): Reads[C] = {
-    case JsArray(elements) =>
-      val results = elements.iterator.zipWithIndex.map { case (element, index) => inner.reads(element).repath(JsPath(index)) }.toList
-      results.collect { case error: JsError => error } match {
-        case Nil =>
-          val builder = factory.newBuilder
-          results.foreach(result => builder += result.asInstanceOf[JsSuccess[A]].value)
-          JsSuccess(build(builder))
-        case errors => errors.reduce((left: JsError, right: JsError) => JsError.merge(left, right))
-      }
-    case _ => JsError("error.expected.jsarray")
-  }
-
-  def collectionWrites[A, C](inner: Writes[A], iterate: C => Iterable[A]): Writes[C] =
-    Writes[C](collection => JsArray(iterate(collection).iterator.map(inner.writes).toVector))
-
-  def stringMapReads[V, P, R, C](inner: Reads[V], factory: Factory[P, R])(
-      pair: (String, V) => P,
-      build: mutable.Builder[P, R] => C
-  ): Reads[C] = {
-    case obj: JsObject =>
-      val results = obj.value.iterator.map { case (key, value) => inner.reads(value).repath(JsPath \ key).map(pair(key, _)) }.toList
-      results.collect { case error: JsError => error } match {
-        case Nil =>
-          val builder = factory.newBuilder
-          results.foreach(result => builder += result.asInstanceOf[JsSuccess[P]].value)
-          JsSuccess(build(builder))
-        case errors => errors.reduce((left: JsError, right: JsError) => JsError.merge(left, right))
-      }
-    case _ => JsError("error.expected.jsobject")
-  }
-
-  def stringMapWrites[V, P, C](inner: Writes[V], iterate: C => Iterable[P])(key: P => String, value: P => V): OWrites[C] =
-    OWrites[C](collection => JsObject(iterate(collection).iterator.map(p => key(p) -> inner.writes(value(p))).toSeq))
-
-  // as KebsPlayJson.flatReads: a throwing (validating) apply becomes a JsError
-  def flatReads[T, A](rep: ValueClassLike[T, A], inner: Reads[A]): Reads[T] =
-    inner.flatMapResult(value => Try(rep.apply(value)).fold(error => JsError(error.getMessage), JsSuccess(_)))
-
-  def flatWrites[T, A](rep: ValueClassLike[T, A], inner: Writes[A]): Writes[T] = inner.contramap(rep.unapply)
+  def collectionWrites[F, A](element: Writes[A]): Writes[F] =
+    Writes[F](collection => JsArray(collection.asInstanceOf[Iterable[A]].iterator.map(element.writes).toVector))
 
   def asOWrites[T](writes: Writes[T]): OWrites[T] = writes match {
     case owrites: OWrites[T @unchecked] => owrites

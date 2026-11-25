@@ -3,66 +3,60 @@ package pl.iterators.kebs.playjson.internal
 import hearth.MacroCommons
 import hearth.std.StdExtensions
 import pl.iterators.kebs.core.json.JsonConfig
-import pl.iterators.kebs.core.macros.ValueClassLike
-import pl.iterators.kebs.core.macros.internal.JsonDerivationMacrosImpl
+import pl.iterators.kebs.core.macros.internal.{EntryPointRole, JsonDerivationMacrosImpl}
 import pl.iterators.kebs.playjson.KebsPlayJson
 import play.api.libs.json._
 
 import scala.annotation.nowarn
-import scala.collection.Factory
-import scala.collection.mutable
 
 private[playjson] trait PlayJsonMacrosImpl extends JsonDerivationMacrosImpl { this: MacroCommons & StdExtensions =>
 
-  private def methodsOf[A](tpe: Type[A], names: Set[String]): Seq[UntypedMethod] =
-    tpe.unsortedMethods.filter(method => names(method.name)).map(_.asUntyped)
+  private lazy val readsEntryPoints  = methodsNamed(Set("kebsAutoReads", "kebsAutoReadsSealed"))(using Type.of[KebsPlayJson])
+  private lazy val writesEntryPoints = methodsNamed(Set("kebsAutoWrites", "kebsAutoWritesSealed"))(using Type.of[KebsPlayJson])
 
-  private lazy val readsEntryPoints  = methodsOf(Type.of[KebsPlayJson], Set("kebsAutoReads", "kebsAutoReadsSealed"))
-  private lazy val writesEntryPoints = methodsOf(Type.of[KebsPlayJson], Set("kebsAutoWrites", "kebsAutoWritesSealed"))
+  private lazy val readsContainers =
+    methodsNamed(Set("ArrayReads", "charMapReads", "mapReads"))(using Type.of[DefaultReads]) ++
+      methodsNamed(Set("keyMapReads", "traversableReads"))(using Type.of[LowPriorityDefaultReads])
 
-  private lazy val readsIgnoredForFields = readsEntryPoints ++
-    methodsOf(Type.of[DefaultReads], Set("ArrayReads", "charMapReads", "mapReads")) ++
-    methodsOf(Type.of[LowPriorityDefaultReads], Set("keyMapReads", "traversableReads"))
+  private lazy val iterableWrites =
+    methodsNamed(Set("iterableWrites", "iterableWrites2", "traversableWrites"))(using Type.of[LowPriorityWrites])
 
-  private lazy val writesIgnoredForFields = writesEntryPoints ++
-    methodsOf(Type.of[DefaultWrites], Set("arrayWrites", "genericMapWrites", "keyMapWrites", "mapWrites", "OptionWrites", "someWrites")) ++
-    methodsOf(Type.of[LowPriorityWrites], Set("iterableWrites", "iterableWrites2", "traversableWrites"))
+  private lazy val writesContainers = iterableWrites ++
+    methodsNamed(Set("arrayWrites", "genericMapWrites", "keyMapWrites", "mapWrites", "OptionWrites", "someWrites"))(using
+      Type.of[DefaultWrites]
+    )
 
-  // implicit entry points consult existing instances first; explicit derive* calls always derive.
-  // stepAside: fail when an instance exists, for an entry point whose failure only skips it
-  def deriveReadsRoot[T: Type](config: Expr[JsonConfig], consultExisting: Boolean, stepAside: Boolean): Expr[Reads[T]] = {
-    loadExtensions()
+  private def existingInstance[T: Type]: Option[Expr[Reads[T]]] = {
     implicit val ReadsT: Type[Reads[T]] = Type.of[Reads[T]]
-    (if (consultExisting) summonInstance[Reads[T]](readsEntryPoints) else None) match {
-      case Some(found) =>
-        if (stepAside) Environment.reportErrorAndAbort(s"${Type[T].prettyPrint} already has a Reads")
-        found
-      case None => new ReadsDerivation(config).root[T]
-    }
+    summonInstance[Reads[T]](readsEntryPoints)
   }
 
-  def deriveWritesRoot[T: Type](config: Expr[JsonConfig], consultExisting: Boolean, stepAside: Boolean): Expr[Writes[T]] = {
-    loadExtensions()
+  def readsRole[T: Type](stepsAsideForExisting: Boolean): EntryPointRole =
+    entryPointRole[T]("Reads", stepsAsideForExisting)(existingInstance[T].isDefined)
+
+  def writesRole[T: Type]: EntryPointRole = {
     implicit val WritesT: Type[Writes[T]] = Type.of[Writes[T]]
-    (if (consultExisting) summonInstance[Writes[T]](writesEntryPoints) else None) match {
-      case Some(found) =>
-        if (stepAside) Environment.reportErrorAndAbort(s"${Type[T].prettyPrint} already has a Writes")
-        found
-      case None => new WritesDerivation(config).root[T]
-    }
+    entryPointRole[T]("Writes", stepsAsideForExisting = true)(summonInstance[Writes[T]](writesEntryPoints).isDefined)
   }
 
-  // derived products and sums write objects; OWrites lets play's OFormat.oFormatFromReadsAndOWrites serve OFormat requests
-  def deriveOWrites[T: Type](config: Expr[JsonConfig], consultExisting: Boolean, stepAside: Boolean): Expr[OWrites[T]] = {
-    val writes = deriveWritesRoot[T](config, consultExisting, stepAside)
+  def existingReads[T: Type]: Expr[Reads[T]] =
+    existingInstance[T].getOrElse(Environment.reportErrorAndAbort(s"No Reads of ${Type[T].prettyPrint}"))
+
+  // an explicit derivation leaves nested uses of T to another instance of it, if there is one
+  def neededReads[T: Type](config: Expr[JsonConfig], preferExisting: Boolean, hidesExisting: Boolean = false): Needed =
+    new ReadsDerivation(config).needed[T](preferExisting, hidesExisting)
+  def neededReadsBesideExisting[T: Type](config: Expr[JsonConfig]): Needed = new ReadsDerivation(config).neededBeside[T](readsEntryPoints)
+  def recordedReads[T: Type](config: Expr[JsonConfig]): Expr[Reads[T]]     = new ReadsDerivation(config).recorded[T]
+  def readsLevel[T: Type](config: Expr[JsonConfig]): Expr[Reads[T]]        = new ReadsDerivation(config).oneLevel[T]
+
+  def neededWrites[T: Type](config: Expr[JsonConfig], preferExisting: Boolean, hidesExisting: Boolean = false): Needed =
+    new WritesDerivation(config).needed[T](preferExisting, hidesExisting)
+  def recordedWrites[T: Type](config: Expr[JsonConfig]): Expr[OWrites[T]]       = asOWrites(new WritesDerivation(config).recorded[T])
+  def writesLevel[T: Type](config: Expr[JsonConfig]): Expr[OWrites[T]]          = asOWrites(collectionWritesLevel[T](config))
+  def collectionWritesLevel[T: Type](config: Expr[JsonConfig]): Expr[Writes[T]] = new WritesDerivation(config).oneLevel[T]
+
+  private def asOWrites[T: Type](writes: Expr[Writes[T]]): Expr[OWrites[T]] =
     Expr.quote(PlayDerivationRuntime.asOWrites(Expr.splice(writes)))
-  }
-
-  def deriveOFormat[T: Type](config: Expr[JsonConfig]): Expr[OFormat[T]] = {
-    val reads  = deriveReadsRoot[T](config, consultExisting = false, stepAside = false)
-    val writes = deriveOWrites[T](config, consultExisting = false, stepAside = false)
-    Expr.quote(OFormat[T](Expr.splice(reads), Expr.splice(writes)))
-  }
 
   private def names(fields: List[JsonField]): (Expr[List[String]], Expr[List[Option[String]]]) = {
     implicit val StringType: Type[String]                   = Type.of[String]
@@ -78,69 +72,35 @@ private[playjson] trait PlayJsonMacrosImpl extends JsonDerivationMacrosImpl { th
     Expr(leaves.map(_._1))
   }
 
-  final private class ReadsDerivation(config: Expr[JsonConfig]) extends JsonDerivation[Reads] {
-    protected def codecType[A: Type]: Type[Reads[A]]   = Type.of[Reads[A]]
-    protected def ignoredForFields: Seq[UntypedMethod] = readsIgnoredForFields
-    protected def entryPoints: Seq[UntypedMethod]      = readsEntryPoints
-
-    protected def optionCodec[A: Type](inner: Expr[Reads[A]]): Expr[Reads[Option[A]]] =
-      Expr.quote(PlayDerivationRuntime.optionReads[A](Expr.splice(inner)))
-
-    @nowarn("msg=never used")
-    protected def collectionCodec[Item: Type, R: Type, C: Type](
-        inner: Expr[Reads[Item]],
-        iterate: Expr[C] => Expr[Iterable[Item]],
-        factory: Expr[Factory[Item, R]],
-        build: Expr[mutable.Builder[Item, R]] => Expr[C]
-    ): Expr[Reads[C]] = Expr.quote {
-      PlayDerivationRuntime.collectionReads[Item, R, C](Expr.splice(inner), Expr.splice(factory))((builder: mutable.Builder[Item, R]) =>
-        Expr.splice(build(Expr.quote(builder)))
-      )
-    }
-
-    @nowarn("msg=never used")
-    protected def stringMapCodec[V: Type, P: Type, R: Type, C: Type](
-        inner: Expr[Reads[V]],
-        iterate: Expr[C] => Expr[Iterable[P]],
-        factory: Expr[Factory[P, R]],
-        key: Expr[P] => Expr[String],
-        value: Expr[P] => Expr[V],
-        pair: (Expr[String], Expr[V]) => Expr[P],
-        build: Expr[mutable.Builder[P, R]] => Expr[C]
-    ): Expr[Reads[C]] = Expr.quote {
-      PlayDerivationRuntime.stringMapReads[V, P, R, C](Expr.splice(inner), Expr.splice(factory))(
-        (k: String, v: V) => Expr.splice(pair(Expr.quote(k), Expr.quote(v))),
-        (builder: mutable.Builder[P, R]) => Expr.splice(build(Expr.quote(builder)))
-      )
-    }
-
-    protected def flatCodec[T: Type, A: Type](rep: Expr[ValueClassLike[T, A]], inner: Expr[Reads[A]]): Expr[Reads[T]] =
-      Expr.quote(PlayDerivationRuntime.flatReads[T, A](Expr.splice(rep), Expr.splice(inner)))
+  final private class ReadsDerivation(config: Expr[JsonConfig]) extends JsonDerivation[Reads]("Reads") {
+    override protected def siblings: List[Discoverable] = List(new WritesDerivation(config))
+    protected def codecType[A: Type]: Type[Reads[A]]    = Type.of[Reads[A]]
+    protected def entryPoints: Seq[UntypedMethod]       = readsEntryPoints
+    protected def libraryContainers: Seq[UntypedMethod] = readsContainers
 
     protected def singletonCodec[T: Type](value: Expr[T]): Expr[Reads[T]] =
       Expr.quote(PlayDerivationRuntime.singletonReads[T](Expr.splice(value)))
 
-    protected def productCodec[T: Type](product: ProductShape[T]): Expr[Reads[T]] = {
+    protected def productCodec[T: Type](product: ProductShape[T]): Codecs => Expr[Reads[T]] = {
       val (scalaNames, renamed) = names(product.fields)
-      Expr.quote {
-        PlayDerivationRuntime.productReads[T](Expr.splice(config), Expr.splice(scalaNames), Expr.splice(renamed))(
-          (names: PlayDerivationRuntime.Fields, json: JsValue) => Expr.splice(readFields(product, Expr.quote(names), Expr.quote(json)))
-        )
-      }
+      codecs =>
+        Expr.quote {
+          PlayDerivationRuntime.productReads[T](Expr.splice(config), Expr.splice(scalaNames), Expr.splice(renamed))(
+            (names: PlayDerivationRuntime.Fields, json: JsValue) =>
+              Expr.splice(readFields(product, codecs, Expr.quote(names), Expr.quote(json))),
+            (values: Array[Any]) => Expr.splice(construct(product, Expr.quote(values)))
+          )
+        }
     }
 
     private def readFields[T: Type](
         product: ProductShape[T],
+        codecs: Codecs,
         names: Expr[PlayDerivationRuntime.Fields],
         json: Expr[JsValue]
-    ): Expr[JsResult[T]] = {
-      // a helper rather than `::`: Scala 3 desugars it to a local val, which then owned the codecs created here
-      val results = product.fields.foldRight(Expr.quote(List.empty[JsResult[Any]])) { (field, rest) =>
-        Expr.quote(PlayDerivationRuntime.prepend(Expr.splice(fieldResult(product, field, names, json)), Expr.splice(rest)))
-      }
-      Expr.quote {
-        PlayDerivationRuntime.combine[T](Expr.splice(results), (values: Array[Any]) => Expr.splice(construct(product, Expr.quote(values))))
-      }
+    ): Expr[List[JsResult[Any]]] = {
+      implicit val ResultType: Type[JsResult[Any]] = Type.of[JsResult[Any]]
+      listOf(product.fields.map(field => fieldResult(product, codecs, field, names, json)))
     }
 
     private def construct[T: Type](product: ProductShape[T], values: Expr[Array[Any]]): Expr[T] =
@@ -155,6 +115,7 @@ private[playjson] trait PlayJsonMacrosImpl extends JsonDerivationMacrosImpl { th
 
     private def fieldResult[T: Type](
         product: ProductShape[T],
+        codecs: Codecs,
         field: JsonField,
         names: Expr[PlayDerivationRuntime.Fields],
         json: Expr[JsValue]
@@ -175,13 +136,13 @@ private[playjson] trait PlayJsonMacrosImpl extends JsonDerivationMacrosImpl { th
                     Expr.splice(json),
                     Expr.splice(names),
                     Expr.splice(index),
-                    Expr.splice(codec[X]),
+                    Expr.splice(codecs[X]),
                     Expr.splice(orElse.asInstanceOf[Expr[Option[X]]])
                   )
                 )
               case None =>
                 Expr.quote(
-                  PlayDerivationRuntime.optionField[X](Expr.splice(json), Expr.splice(names), Expr.splice(index), Expr.splice(codec[X]))
+                  PlayDerivationRuntime.optionField[X](Expr.splice(json), Expr.splice(names), Expr.splice(index), Expr.splice(codecs[X]))
                 )
             }
           case None =>
@@ -192,101 +153,64 @@ private[playjson] trait PlayJsonMacrosImpl extends JsonDerivationMacrosImpl { th
                     Expr.splice(json),
                     Expr.splice(names),
                     Expr.splice(index),
-                    Expr.splice(codec[A]),
+                    Expr.splice(codecs[A]),
                     Expr.splice(orElse)
                   )
                 )
               case None =>
                 Expr.quote(
-                  PlayDerivationRuntime.field[A](Expr.splice(json), Expr.splice(names), Expr.splice(index), Expr.splice(codec[A]))
+                  PlayDerivationRuntime.field[A](Expr.splice(json), Expr.splice(names), Expr.splice(index), Expr.splice(codecs[A]))
                 )
             }
         }
     }
 
-    protected def sumCodec[T: Type](leaves: List[(String, ??)]): Expr[Reads[T]] = {
+    protected def sumCodec[T: Type](leaves: List[(String, ??)]): Codecs => Expr[Reads[T]] = {
       val names = caseNames(leaves)
-      Expr.quote {
-        PlayDerivationRuntime.sumReads[T](Expr.splice(config), Expr.splice(names))((index: Int, json: JsValue) =>
-          Expr.splice(readCase[T](leaves, Expr.quote(index), Expr.quote(json)))
-        )
-      }
+      codecs => Expr.quote(PlayDerivationRuntime.sumReads[T](Expr.splice(config), Expr.splice(names), Expr.splice(codecs.local)))
     }
-
-    private def readCase[T: Type](leaves: List[(String, ??)], index: Expr[Int], json: Expr[JsValue]): Expr[JsResult[T]] =
-      leaves.zipWithIndex.foldRight(Expr.quote(PlayDerivationRuntime.unreachableCase[JsResult[T]](Expr.splice(index)))) {
-        case (((_, leaf), i), otherwise) =>
-          import leaf.Underlying as C
-          val ii = Expr(i)
-          Expr.quote {
-            if (Expr.splice(index) == Expr.splice(ii)) Expr.splice(codec[C]).reads(Expr.splice(json)).asInstanceOf[JsResult[T]]
-            else Expr.splice(otherwise)
-          }
-      }
   }
 
-  final private class WritesDerivation(config: Expr[JsonConfig]) extends JsonDerivation[Writes] {
-    protected def codecType[A: Type]: Type[Writes[A]]  = Type.of[Writes[A]]
-    protected def ignoredForFields: Seq[UntypedMethod] = writesIgnoredForFields
-    protected def entryPoints: Seq[UntypedMethod]      = writesEntryPoints
+  final private class WritesDerivation(config: Expr[JsonConfig]) extends JsonDerivation[Writes]("Writes") {
+    override protected def siblings: List[Discoverable]           = List(new ReadsDerivation(config))
+    protected def codecType[A: Type]: Type[Writes[A]]             = Type.of[Writes[A]]
+    protected def entryPoints: Seq[UntypedMethod]                 = writesEntryPoints
+    protected def libraryContainers: Seq[UntypedMethod]           = writesContainers
+    override protected def libraryCollections: Seq[UntypedMethod] = iterableWrites
 
-    protected def optionCodec[A: Type](inner: Expr[Writes[A]]): Expr[Writes[Option[A]]] =
-      Expr.quote(PlayDerivationRuntime.optionWrites[A](Expr.splice(inner)))
-
-    @nowarn("msg=never used")
-    protected def collectionCodec[Item: Type, R: Type, C: Type](
-        inner: Expr[Writes[Item]],
-        iterate: Expr[C] => Expr[Iterable[Item]],
-        factory: Expr[Factory[Item, R]],
-        build: Expr[mutable.Builder[Item, R]] => Expr[C]
-    ): Expr[Writes[C]] = Expr.quote {
-      PlayDerivationRuntime.collectionWrites[Item, C](
-        Expr.splice(inner),
-        (collection: C) => Expr.splice(iterate(Expr.quote(collection)))
-      )
+    // iterableWrites2 accepts the Writes of any supertype of the elements, which on Scala 3 can be a local one
+    override protected def elementOf[F: Type]: Option[??] = Type.typeArguments[F] match {
+      case List(element) if isStandardLibrary[F] || !Type.isCaseClass[F] =>
+        import element.Underlying as X
+        if (Type[F] <:< Type.of[Iterable[X]]) Some(element) else None
+      case _ => None
     }
 
-    @nowarn("msg=never used")
-    protected def stringMapCodec[V: Type, P: Type, R: Type, C: Type](
-        inner: Expr[Writes[V]],
-        iterate: Expr[C] => Expr[Iterable[P]],
-        factory: Expr[Factory[P, R]],
-        key: Expr[P] => Expr[String],
-        value: Expr[P] => Expr[V],
-        pair: (Expr[String], Expr[V]) => Expr[P],
-        build: Expr[mutable.Builder[P, R]] => Expr[C]
-    ): Expr[Writes[C]] = Expr.quote {
-      PlayDerivationRuntime.stringMapWrites[V, P, C](
-        Expr.splice(inner),
-        (collection: C) => Expr.splice(iterate(Expr.quote(collection)))
-      )(
-        (p: P) => Expr.splice(key(Expr.quote(p))),
-        (p: P) => Expr.splice(value(Expr.quote(p)))
-      )
-    }
-
-    protected def flatCodec[T: Type, A: Type](rep: Expr[ValueClassLike[T, A]], inner: Expr[Writes[A]]): Expr[Writes[T]] =
-      Expr.quote(PlayDerivationRuntime.flatWrites[T, A](Expr.splice(rep), Expr.splice(inner)))
+    override protected def collectionCodec[F: Type, X: Type](codecs: Codecs): Expr[Writes[F]] =
+      Expr.quote(PlayDerivationRuntime.collectionWrites[F, X](Expr.splice(codecs[X])))
 
     @nowarn("msg=never used")
     protected def singletonCodec[T: Type](value: Expr[T]): Expr[Writes[T]] =
       Expr.quote(PlayDerivationRuntime.singletonWrites[T])
 
-    protected def productCodec[T: Type](product: ProductShape[T]): Expr[Writes[T]] = {
+    protected def productCodec[T: Type](product: ProductShape[T]): Codecs => Expr[Writes[T]] = {
       val (scalaNames, renamed) = names(product.fields)
-      Expr.quote {
-        PlayDerivationRuntime.productWrites[T](Expr.splice(config), Expr.splice(scalaNames), Expr.splice(renamed))(
-          (names: PlayDerivationRuntime.Fields, obj: T) => Expr.splice(writeFields(product, Expr.quote(names), Expr.quote(obj)))
-        )
-      }
+      codecs =>
+        Expr.quote {
+          PlayDerivationRuntime.productWrites[T](Expr.splice(config), Expr.splice(scalaNames), Expr.splice(renamed))(
+            (members: PlayDerivationRuntime.Members, obj: T) =>
+              Expr.splice(writeFields(product, codecs, Expr.quote(members), Expr.quote(obj)))
+          )
+        }
     }
 
     private def writeFields[T: Type](
         product: ProductShape[T],
-        names: Expr[PlayDerivationRuntime.Fields],
+        codecs: Codecs,
+        members: Expr[PlayDerivationRuntime.Members],
         obj: Expr[T]
-    ): Expr[List[(String, JsValue)]] =
-      product.fields.filterNot(_.transient).foldRight(Expr.quote(List.empty[(String, JsValue)])) { (field, rest) =>
+    ): Expr[Unit] =
+      combined(product.fields.filterNot(_.transient).map { field =>
         val fieldType: ?? = field.tpe
         import fieldType.Underlying as A
         val index = Expr(field.index)
@@ -294,44 +218,27 @@ private[playjson] trait PlayJsonMacrosImpl extends JsonDerivationMacrosImpl { th
         product.optionItem(field) match {
           case Some(item) =>
             import item.Underlying as X
-            Expr.quote(
-              PlayDerivationRuntime.optionEntry[X](
-                Expr.splice(names),
-                Expr.splice(index),
-                Expr.splice(value.asInstanceOf[Expr[Option[X]]]),
-                Expr.splice(codec[X]),
-                Expr.splice(rest)
-              )
-            )
-          case None =>
-            Expr.quote(
-              PlayDerivationRuntime
-                .entry[A](Expr.splice(names), Expr.splice(index), Expr.splice(value), Expr.splice(codec[A]), Expr.splice(rest))
-            )
+            Expr.quote {
+              Expr
+                .splice(members)
+                .option[X](Expr.splice(index), Expr.splice(value.asInstanceOf[Expr[Option[X]]]), Expr.splice(codecs[X]))
+            }
+          case None => Expr.quote(Expr.splice(members).add[A](Expr.splice(index), Expr.splice(value), Expr.splice(codecs[A])))
         }
-      }
+      }) { (first, second) =>
+        Expr.quote {
+          Expr.splice(first)
+          Expr.splice(second)
+        }
+      }.getOrElse(Expr.quote(()))
 
-    protected def sumCodec[T: Type](leaves: List[(String, ??)]): Expr[Writes[T]] = {
+    protected def sumCodec[T: Type](leaves: List[(String, ??)]): Codecs => Expr[Writes[T]] = {
       val names = caseNames(leaves)
-      Expr.quote {
-        PlayDerivationRuntime.sumWrites[T](Expr.splice(config), Expr.splice(names))((obj: T, wrap: (Int, JsValue) => JsObject) =>
-          Expr.splice(writeCase[T](leaves, Expr.quote(obj), Expr.quote(wrap)))
-        )
-      }
+      val tests = caseTests(leaves)
+      codecs =>
+        Expr.quote {
+          PlayDerivationRuntime.sumWrites[T](Expr.splice(config), Expr.splice(names), Expr.splice(tests), Expr.splice(codecs.local))
+        }
     }
-
-    // C is the concrete leaf type in the expansion; only this macro's own source sees it abstract
-    @nowarn("msg=is unchecked since it is eliminated by erasure")
-    private def writeCase[T: Type](leaves: List[(String, ??)], obj: Expr[T], wrap: Expr[(Int, JsValue) => JsObject]): Expr[JsObject] =
-      leaves.zipWithIndex.foldRight(Expr.quote(PlayDerivationRuntime.unreachableCase[JsObject](Expr.splice(obj)))) {
-        case (((_, leaf), index), otherwise) =>
-          import leaf.Underlying as C
-          val i = Expr(index)
-          Expr.quote {
-            if (Expr.splice(obj).isInstanceOf[C])
-              Expr.splice(wrap).apply(Expr.splice(i), Expr.splice(codec[C]).writes(Expr.splice(obj).asInstanceOf[C]))
-            else Expr.splice(otherwise)
-          }
-      }
   }
 }
