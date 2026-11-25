@@ -135,6 +135,10 @@ val circe         = Def.setting("io.circe" %%% "circe-core" % circeV)
 val circeAuto     = Def.setting("io.circe" %%% "circe-generic" % circeV)
 val circeParser   = Def.setting("io.circe" %%% "circe-parser" % circeV)
 
+val jsoniterV      = "2.43.0"
+val jsoniter       = Def.setting("com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-core" % jsoniterV)
+val jsoniterMacros = Def.setting("com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-macros" % jsoniterV)
+
 val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.11"
 
 val scalacheck = "org.scalacheck" %% "scalacheck" % "1.19.0"
@@ -412,6 +416,35 @@ lazy val circeSupport = crossProject(JSPlatform, NativePlatform, JVMPlatform)
     libraryDependencies += pekkoStream    % "test",
     libraryDependencies += pekkoHttp      % "test",
     libraryDependencies += pekkoHttpCirce % "test"
+  )
+
+lazy val jsoniterSettings = commonSettings ++ hearthMacroSettings ++ generatedCodeTestSettings ++ Seq(
+  libraryDependencies += jsoniter.value,
+  libraryDependencies += optionalEnumeratum.value,
+  libraryDependencies += (circeParser.value % "test")
+)
+lazy val jsoniterSupport = crossProject(JSPlatform, NativePlatform, JVMPlatform)
+  .withoutSuffixFor(JVMPlatform)
+  .crossType(CrossType.Pure)
+  .in(file("jsoniter"))
+  .dependsOn(
+    core,
+    enumSupport,
+    enumeratumSupport % "test -> test",
+    instances         % "test -> test",
+    testkit           % "test -> compile",
+    circeSupport      % "test -> compile"
+  )
+  .settings(jsoniterSettings *)
+  .settings(crossBuildSettings *)
+  .settings(publishSettings *)
+  .settings(
+    name        := "jsoniter",
+    description := "Automatic generation of jsoniter-scala codecs for case classes, sealed hierarchies, value classes and enums",
+    moduleName  := "kebs-jsoniter"
+  )
+  .jvmSettings(
+    libraryDependencies += jsoniterMacros.value % "test"
   )
 
 lazy val pekkoHttpSupport = project
@@ -696,6 +729,9 @@ lazy val kebs = project
     circeSupport.jvm,
     circeSupport.js,
     circeSupport.native,
+    jsoniterSupport.jvm,
+    jsoniterSupport.js,
+    jsoniterSupport.native,
     jsonschemaSupport,
     scalacheckSupport,
     pekkoHttpSupport,
