@@ -12,6 +12,16 @@ object PlayUsageTestDomain {
   object Protocol extends KebsPlayJson
   import Protocol._
 
+  class Suite {
+    object Domain {
+      final case class Plain(a: Int, b: Int)
+      sealed trait Sum
+      final case class Case(a: Int, b: Plain) extends Sum
+      case object Object                      extends Sum
+    }
+    val format: Format[Domain.Sum] = deriveFormat[Domain.Sum]
+  }
+
   // instances derived in the arguments of a super constructor
   abstract class Repository[A](val name: String)(implicit val reads: Reads[A], val writes: Writes[A])
   object HasListRepository        extends Repository[HasList]("hasList")
@@ -153,5 +163,13 @@ class PlayUsageTests extends AnyFunSuite with Matchers {
       written(rose) shouldBe json
       Json.parse(json).as[Rose[Item]] shouldBe rose
     }
+  }
+
+  test("classes and objects in an object inside a class") {
+    val suite = new Suite
+    import suite.Domain._
+    suite.format.writes(Case(1, Plain(2, 3))).toString shouldBe """{"Case":{"a":1,"b":{"a":2,"b":3}}}"""
+    suite.format.reads(Json.parse("""{"Case":{"a":1,"b":{"a":2,"b":3}}}""")).get shouldBe Case(1, Plain(2, 3))
+    suite.format.reads(Json.parse("""{"Object":{}}""")).get shouldBe Object
   }
 }
