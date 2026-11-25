@@ -43,7 +43,7 @@ There is an implicit codec of:
 - types with an `InstanceConverter` (see [instances](instances.md))
 - collections, arrays and maps
 
-A codec of your own (in a companion object, or in scope) always wins, for fields and elements too.
+A codec of your own (in scope, or in a companion object) wins, for fields and elements too. Only the codec of an enum, which is in scope, wins over one in its companion.
 
 An implicit codec is created where it is used. Keep the ones you use often as values:
 
@@ -69,7 +69,7 @@ The JSON is that of [kebs-circe](circe.md):
 
 - `None` is written as `null`; a missing key or a `null` is read as `None`.
 - Tuples are arrays.
-- The cases of a sealed hierarchy are wrapped: `{"Circle":{"r":1.0}}`, `{"Empty":{}}`.
+- The cases of a sealed hierarchy are wrapped: `{"Rect":{"w":1.0,"h":2.0}}`, `{"Empty":{}}`.
 - `java.time` types and `UUID` are written as jsoniter-scala writes them, unless there is an `InstanceConverter`.
 
 Reading is stricter than with jsoniter-scala's own macro: a missing collection, a `null` that is not an `Option`'s, and a duplicate key are
@@ -117,11 +117,11 @@ final case class User(@fieldName("user_name") name: String, @transientField cach
 ## Enum support
 
 ```scala
-import pl.iterators.kebs.enumeratum.KebsEnumeratum
+import pl.iterators.kebs.enumeratum.{KebsEnumeratum, KebsValueEnumeratum}
 import pl.iterators.kebs.jsoniter.KebsJsoniter
 import pl.iterators.kebs.jsoniter.enums.{KebsJsoniterEnums, KebsJsoniterValueEnums}
 
-object ThingProtocol extends KebsJsoniter with KebsEnumeratum with KebsJsoniterEnums with KebsJsoniterValueEnums
+object ThingProtocol extends KebsJsoniter with KebsEnumeratum with KebsValueEnumeratum with KebsJsoniterEnums with KebsJsoniterValueEnums
 ```
 
 `KebsJsoniterEnumsUppercase` and `KebsJsoniterEnumsLowercase` change the case of the names.

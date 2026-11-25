@@ -67,6 +67,8 @@ enum ColorRGB(val value: Int) extends ValueEnumLikeEntry[Int] {
 }
 
 // Enumeratum — supports Int, Long, Short, Byte, and String value types
+import enumeratum.values._
+
 sealed abstract class LibraryItem(val value: Int) extends IntEnumEntry with ValueEnumLikeEntry[Int]
 object LibraryItem extends IntEnum[LibraryItem] {
   case object Book extends LibraryItem(1)

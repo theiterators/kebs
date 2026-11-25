@@ -21,11 +21,14 @@ Provides automatic `FromStringUnmarshaller` for value classes, enums, and instan
 import pl.iterators.kebs.pekkohttp.unmarshallers.KebsPekkoHttpUnmarshallers
 import pl.iterators.kebs.enumeratum.{KebsEnumeratum, KebsValueEnumeratum}
 import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
-import pl.iterators.kebs.instances.net.URIString
-import pl.iterators.kebs.instances.time.mixins.InstantEpochMilliLong
+import pl.iterators.kebs.instances.time.YearMonthString
 
-// For Scala 3 native enums, use instead:
+// For Scala 3 enums and scala.Enumeration, use instead:
 // import pl.iterators.kebs.enums.{KebsEnum, KebsValueEnum}
+
+object Unmarshallers extends KebsPekkoHttpUnmarshallers
+    with CaseClass1ToValueClass with KebsEnumeratum with KebsValueEnumeratum with YearMonthString
+import Unmarshallers._
 
 case class Offset(value: Int) extends AnyVal
 case class Limit(value: Int) extends AnyVal

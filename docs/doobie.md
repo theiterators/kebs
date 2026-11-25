@@ -20,7 +20,8 @@ libraryDependencies += "pl.iterators" %% "kebs-doobie" % kebsVersion
 ```scala
 import pl.iterators.kebs.doobie._
 import pl.iterators.kebs.doobie.enums._
-import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
+import pl.iterators.kebs.core.macros.CaseClass1ToValueClass._
+import pl.iterators.kebs.enumeratum._ // or pl.iterators.kebs.enums._ for Scala 3 enums and scala.Enumeration
 import pl.iterators.kebs.instances.KebsInstances._
 ```
 
@@ -51,7 +52,7 @@ Other naming styles: an implicit [`EnumNaming`](enums.md#naming-styles).
 
 ### Value enums
 
-Value enums (entries with a typed `.value`) are supported via `KebsDoobieValueEnums`, which is included in the `enums` package object. No extra import needed beyond `import pl.iterators.kebs.doobie.enums._`.
+Value enums (entries with a typed `.value`) are supported via `KebsDoobieValueEnums`, which is included in the `enums` package object.
 
 ### Mixin style
 

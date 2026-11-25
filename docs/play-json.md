@@ -52,6 +52,8 @@ object Thing {
 }
 ```
 
+They take the configuration of their protocol, but look value classes and converters up in scope, so import the protocol that has them: without `import ThingProtocol._` in the example above, the `id` is written as `{"value":"x"}`.
+
 They also tell why a type cannot be derived. Through an implicit search, play's own "No Json serializer found" hides the reason.
 
 ## Snakified / capitalized field names
@@ -64,10 +66,14 @@ import pl.iterators.kebs.playjson.capitalized._
 ## Enum support
 
 ```scala
+import pl.iterators.kebs.enumeratum.{KebsEnumeratum, KebsValueEnumeratum}
 import pl.iterators.kebs.playjson.KebsPlayJson
 import pl.iterators.kebs.playjson.enums.{KebsPlayJsonEnums, KebsPlayJsonValueEnums}
 
-object ThingProtocol extends KebsPlayJson with KebsPlayJsonEnums with KebsPlayJsonValueEnums
+object ThingProtocol extends KebsPlayJson
+    with KebsEnumeratum with KebsValueEnumeratum with KebsPlayJsonEnums with KebsPlayJsonValueEnums
 ```
+
+`KebsEnum` and `KebsValueEnum` take the place of `KebsEnumeratum` and `KebsValueEnumeratum` for Scala 3 enums and `scala.Enumeration`.
 
 Naming styles: an implicit [`EnumNaming`](enums.md#naming-styles), or the presets in `enums.uppercase` and `enums.lowercase`.

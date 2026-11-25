@@ -18,6 +18,7 @@ kebs-circe does not depend on circe-generic. Add it yourself if you use `semiaut
 ## Basic usage
 
 ```scala
+import io.circe.syntax._
 import pl.iterators.kebs.circe.KebsCirce
 import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
 
@@ -63,11 +64,13 @@ import pl.iterators.kebs.circe.KebsCirceCapitalized
 ```scala
 import pl.iterators.kebs.circe.KebsCirce
 import pl.iterators.kebs.circe.enums.{KebsCirceEnums, KebsCirceValueEnums}
+import pl.iterators.kebs.enumeratum.{KebsEnumeratum, KebsValueEnumeratum}
 
-object ThingProtocol extends KebsCirce with KebsCirceEnums with KebsCirceValueEnums
+object ThingProtocol extends KebsCirce
+    with KebsEnumeratum with KebsValueEnumeratum with KebsCirceEnums with KebsCirceValueEnums
 ```
 
-Or via the enums package object:
+`KebsEnum` and `KebsValueEnum` take the place of `KebsEnumeratum` and `KebsValueEnumeratum` for Scala 3 enums and `scala.Enumeration`. Or via the enums package object, which needs them too:
 
 ```scala
 import pl.iterators.kebs.circe.enums._            // names as they are + value enums

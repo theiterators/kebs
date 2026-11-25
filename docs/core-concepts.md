@@ -21,7 +21,7 @@ Instances are derived automatically for:
 - Tagged types (`String @@ MyTag`)
 - Opaque types (Scala 3)
 
-Values are built with the companion `apply`, so one that validates or normalizes is honoured.
+Values are built with the companion `apply`, so one that validates or normalizes is honoured (on Scala 3, a private one is not called).
 
 To enable derivation, mix in `CaseClass1ToValueClass` (or import from its companion object):
 
@@ -62,9 +62,9 @@ trait EnumLike[T] {
 }
 ```
 
-Instances are provided for Scala 3 `enum` types (via `kebs-enum`), Scala 2 `scala.Enumeration` (via `kebs-enum`), and Enumeratum enums (via `kebs-enumeratum`).
+Instances are provided for Scala 3 `enum` types and `scala.Enumeration` (via `kebs-enum`), and Enumeratum enums (via `kebs-enumeratum`).
 
-An entry's name comes from `getName`: `entryName` for Enumeratum enums (including custom `entryName` overrides and casing mixins such as `EnumEntry.Uppercase`), and `toString` for Scala 3 `enum`s and `scala.Enumeration`. All integration modules serialize and look up enums by this name, changed by an implicit `EnumNaming` if there is one (see [naming styles](enums.md#naming-styles)). `values` keeps declaration order.
+An entry's name comes from `getName`: `entryName` for Enumeratum enums (including custom `entryName` overrides and casing mixins such as `EnumEntry.Uppercase`), and `toString` for Scala 3 `enum`s and `scala.Enumeration`. All integration modules serialize and look up enums by this name, changed by an implicit `EnumNaming` if there is one (see [naming styles](enums.md#naming-styles)). `values` keeps the order of declaration, of the ids for `scala.Enumeration`, and of the companion's `values` for Enumeratum.
 
 ## ValueEnumLikeEntry[V] / ValueEnumLike[V, E]
 

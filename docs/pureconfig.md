@@ -17,7 +17,7 @@ libraryDependencies += "pl.iterators" %% "kebs-pureconfig" % kebsVersion
 
 ```scala
 import pl.iterators.kebs.pureconfig._
-import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
+import pl.iterators.kebs.core.macros.CaseClass1ToValueClass._
 ```
 
 Or as a mixin:

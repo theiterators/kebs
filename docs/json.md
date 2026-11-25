@@ -5,15 +5,15 @@ title: JSON derivation
 
 # JSON derivation
 
-[kebs-circe](circe.md), [kebs-spray-json](spray-json.md), [kebs-play-json](play-json.md) and [kebs-jsoniter](jsoniter.md) share one derivation. It works the same on Scala 2.13 and 3, and the four modules write the same JSON, up to the conventions of each library (listed below).
+[kebs-circe](circe.md), [kebs-spray-json](spray-json.md), [kebs-play-json](play-json.md) and [kebs-jsoniter](jsoniter.md) share one derivation. It works the same on Scala 2.13 and 3, and the four modules write the same JSON, up to the conventions of each library (listed [below](#differences-between-the-modules)).
 
 ## What is derived
 
 - **Case classes**, generic ones, recursive ones and those with more than 22 fields included.
 - **Sealed hierarchies**, as an object with the name of the case: `{"Rect":{"w":1.0,"h":2.0}}`, `{"Empty":{}}`. Nested hierarchies are flattened to their leaves.
-- **Value classes** (single-field case classes), as the wrapped value, when `CaseClass1ToValueClass` is mixed in; [opaque](opaque.md) and [tagged](tagged.md) types too.
+- **Value classes** (single-field case classes), as the wrapped value, when `CaseClass1ToValueClass` is mixed in; [opaque](opaque.md) and [tagged](tagged.md) types too. That includes a single-field case of a sealed hierarchy: `{"Dot":2.0}`. With a discriminator, writing such a case fails.
 - **Types with an `InstanceConverter`**, as the converted value (see [instances](instances.md)).
-- **Enums and value enums**, as their name or value, when the module's enum traits are mixed in (see [enums](enums.md)).
+- **Enums and value enums**, as their name or value, when both the module's enum traits and the support of the enum (`KebsEnum` / `KebsValueEnum`, `KebsEnumeratum` / `KebsValueEnumeratum`, see [enums](enums.md)) are mixed in. Without that support an enum is a sealed hierarchy: `{"Red":{}}`.
 
 Recursive types need nothing extra:
 
@@ -21,9 +21,9 @@ Recursive types need nothing extra:
 case class Node(value: Int, children: List[Node])
 ```
 
-## Your own instances always win
+## Your own instances
 
-An instance that exists is used instead of a derived one: one in scope, one in a companion object, one of the library, or a generic one of your own over derived types.
+An instance that exists is used instead of a derived one. One in scope (imported, mixed in or defined by you) always wins, also a generic one of your own over derived types. One in a companion object, or of the library, wins over a derived object. In circe, spray-json and play-json it does not win over the protocol's codec of a value class, of a type with an `InstanceConverter` or of an enum (in jsoniter: of an enum); put it in scope to use it there.
 
 ```scala
 case class Page[A](items: List[A], next: Option[String])
@@ -38,6 +38,7 @@ object Page {
 Override `kebsJsonConfig` in the protocol object:
 
 ```scala
+import pl.iterators.kebs.circe.KebsCirce
 import pl.iterators.kebs.core.json.{JsonConfig, NoneHandling}
 import pl.iterators.kebs.core.naming.Naming
 
@@ -85,4 +86,6 @@ A `@transientField` is neither written nor read, and needs a default value.
 | `None` by default | `null` | left out | left out | `null` |
 | order of members | declaration | by name | declaration | declaration |
 | a discriminator is written | last | by name | last | first |
+| `Either` | `{"Right":{"value":1}}` | the bare value | not supported | not supported |
+| a case object at its own type | `{}` | `{}` | not derived | not derived |
 | explicit derivation | | `jsonFormatN`, `jsonFormatSealed` | `deriveReads`, `deriveWrites`, `deriveFormat` | `deriveCodec` |
