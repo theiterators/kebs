@@ -10,6 +10,36 @@ private[kebs] trait JsonDerivationMacrosScala2 extends JsonDerivationMacrosImpl 
 
   override protected def withFreshSearch[A](search: => A): A = FreshSearch(c)(search)
 
+  // hearth refers to them by their symbols, which is not enough inside classes
+  override protected def withPath[F: Type, A](code: Expr[A]): Expr[A] = {
+    val (prefix, module) = Type[F].tpe.asInstanceOf[c.Type].dealias match {
+      case TypeRef(pre, symbol, _) if symbol.isModuleClass => (pre, symbol.asClass.module)
+      case TypeRef(pre, symbol, _)                         => (pre, symbol.companion)
+      case SingleType(pre, symbol)                         => (pre, symbol)
+      case _                                               => (NoPrefix, NoSymbol)
+    }
+    if (prefix == NoPrefix || module == NoSymbol || module.isStatic) code
+    else {
+      def path     = c.internal.gen.mkAttributedRef(fromOutside(prefix), module)
+      val withPath = new Transformer {
+        override def transform(tree: Tree): Tree = tree match {
+          case Ident(_) if tree.symbol == module     => path
+          case Select(_, _) if tree.symbol == module => path
+          case _                                     => super.transform(tree)
+        }
+      }
+      c.Expr[Any](withPath.transform(code.tree)).asInstanceOf[Expr[A]]
+    }
+  }
+
+  // a case of a sealed hierarchy is known as a member of the object it is in: Domain.this.Case
+  private def fromOutside(prefix: c.Type): c.Type = prefix match {
+    case ThisType(owner) if owner.isModuleClass && !owner.isStatic =>
+      val outer = if (owner.owner.isClass) fromOutside(c.internal.thisType(owner.owner)) else NoPrefix
+      c.internal.singleType(outer, owner.asClass.module)
+    case _ => prefix
+  }
+
   // Without a fresh search, an outer one can make a search diverge, and an instance would be missed without a word. Failing
   // here would be taken for the lack of an instance too, so the search goes on with something that does not compile.
   protected def unlessInsideSearch(ownSearches: Int, result: c.Type)(derived: => Tree): Tree = {
@@ -33,8 +63,8 @@ private[kebs] trait JsonDerivationMacrosScala2 extends JsonDerivationMacrosImpl 
   protected def enclosingImplicit(codec: c.Type): Option[TermName] = {
     hidden = enclosingOwners
       .takeWhile(!_.isClass)
-      .filter(_.isTerm)
-      .map(owner => if (owner.asTerm.getter != NoSymbol) owner.asTerm.getter else owner)
+      .filter(owner => owner.isTerm && isTyped(owner))
+      .map(owner => if (owner.owner.isClass && owner.asTerm.getter != NoSymbol) owner.asTerm.getter else owner)
       .find(owner => owner.isImplicit && isOf(owner, codec))
     hidden.map(owner => TermName(owner.name.toString.trim))
   }
@@ -48,7 +78,9 @@ private[kebs] trait JsonDerivationMacrosScala2 extends JsonDerivationMacrosImpl 
 
   override protected def isHidden[A: Type]: Boolean = hidden.exists(isOf(_, Type[A].tpe.asInstanceOf[c.Type]))
 
-  // an inferred result type is not known yet
+  // Asking for a type that is still being inferred is an error the compiler remembers: it would not find the implicit any more.
+  private def isTyped(owner: Symbol): Boolean = owner.asInstanceOf[scala.reflect.internal.Symbols#Symbol].hasCompleteInfo
+
   private def resultType(owner: Symbol): Option[c.Type] =
     try Some(owner.typeSignature.finalResultType)
     catch { case NonFatal(_) => None }

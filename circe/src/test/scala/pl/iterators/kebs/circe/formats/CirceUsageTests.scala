@@ -22,6 +22,17 @@ object CirceUsageTestDomain {
     def this(json: Json) = this(json.as[HasList].fold(throw _, _.n))
   }
 
+  class Suite {
+    object Domain {
+      final case class Plain(a: Int, b: Int = 3)
+      sealed trait Sum
+      final case class Case(a: Int, b: Plain) extends Sum
+      case object Object                      extends Sum
+    }
+    val encoder: Encoder[Domain.Sum] = Encoder[Domain.Sum]
+    val decoder: Decoder[Domain.Sum] = Decoder[Domain.Sum]
+  }
+
   sealed trait Special
   case object `my-case`                     extends Special
   final case class `other+case`(`f-f`: Int) extends Special
@@ -105,5 +116,13 @@ class CirceUsageTests extends AnyFunSuite with Matchers {
   test("a type argument that a derived type does not use may be ambiguous") {
     import Protocol._
     Encoder[HasTag].apply(HasTag(Tag(1), 2)).noSpaces shouldBe """{"tag":{"v":1},"n":2}"""
+  }
+
+  test("classes and objects in an object inside a class") {
+    val suite = new Suite
+    import suite.Domain._
+    suite.encoder(Case(1, Plain(2, 3))).noSpaces shouldBe """{"Case":{"a":1,"b":{"a":2,"b":3}}}"""
+    suite.decoder.decodeJson(suite.encoder(Case(1, Plain(2, 3)))) shouldBe Right(Case(1, Plain(2, 3)))
+    suite.decoder.decodeJson(Json.obj("Object" -> Json.obj())) shouldBe Right(Object)
   }
 }

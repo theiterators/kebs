@@ -32,6 +32,27 @@ object SprayUsageTestDomain {
   final case class Hidden private (a: Int, b: Int = 3)
   object Hidden { def of(a: Int, b: Int): Hidden = new Hidden(a, b) }
 
+  class Suite {
+    object Domain {
+      final case class Plain(a: Int, b: Int)
+      final case class WithDefault(a: Int, b: String = "b")
+      object WithDefault { def apply(a: Int): WithDefault = new WithDefault(a) }
+      sealed trait Sum
+      final case class Case(a: Int, b: Plain) extends Sum
+      case object Object                      extends Sum
+    }
+    import Domain._
+    val plain: RootJsonFormat[Plain]             = implicitly[RootJsonFormat[Plain]]
+    val withDefault: RootJsonFormat[WithDefault] = implicitly[RootJsonFormat[WithDefault]]
+    val sum: RootJsonFormat[Sum]                 = jsonFormatSealed[Sum]
+  }
+  trait SuiteTrait {
+    object Domain { final case class Plain(a: Int, b: Int) }
+    def plain: RootJsonFormat[Domain.Plain] = implicitly[RootJsonFormat[Domain.Plain]]
+  }
+  val suite: Suite                                    = new Suite
+  def fromOutside: RootJsonFormat[suite.Domain.Plain] = implicitly[RootJsonFormat[suite.Domain.Plain]]
+
   final case class Money(amount: Int, currency: String)
   final case class HasMoney(money: Money, n: Int)
   object MoneyProtocol extends DefaultJsonProtocol with KebsSprayJson {
@@ -129,5 +150,20 @@ class SprayUsageTests extends AnyFunSuite with Matchers {
     import TypeProtocol._
     the[SerializationException] thrownBy implicitly[RootJsonFormat[Typed]].write(Named("n")) should have message
     "Named has a field 'type' of its own, so it cannot carry the 'type' discriminator"
+  }
+
+  test("classes and objects in an object inside a class or trait") {
+    import suite.Domain._
+    def roundTrip[A](value: A, json: String)(format: RootJsonFormat[A]) = {
+      format.write(value).compactPrint shouldBe json
+      format.read(json.parseJson) shouldBe value
+    }
+    roundTrip(Plain(1, 2), """{"a":1,"b":2}""")(suite.plain)
+    roundTrip(Plain(1, 2), """{"a":1,"b":2}""")(fromOutside)
+    roundTrip(WithDefault(1, "x"), """{"a":1,"b":"x"}""")(suite.withDefault)
+    roundTrip[Sum](Case(1, Plain(2, 3)), """{"Case":{"a":1,"b":{"a":2,"b":3}}}""")(suite.sum)
+    roundTrip[Sum](Object, """{"Object":{}}""")(suite.sum)
+    val inTrait = new SuiteTrait {}
+    roundTrip(inTrait.Domain.Plain(1, 2), """{"a":1,"b":2}""")(inTrait.plain)
   }
 }
