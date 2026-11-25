@@ -21,6 +21,9 @@ final private[circe] class KebsCirceMacros(val c: whitebox.Context)
     with CirceMacrosImpl {
   import c.universe.{Type => UType, _}
 
+  // kebs 2 derived them on Scala 2
+  override protected def derivesPekkoHierarchies: Boolean = true
+
   private def config: Expr[JsonConfig] = c.Expr[JsonConfig](q"${c.prefix}.kebsJsonConfig")
 
   private def requireDerivable(A: UType): Unit = {

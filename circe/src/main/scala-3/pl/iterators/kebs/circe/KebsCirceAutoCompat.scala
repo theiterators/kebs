@@ -11,11 +11,18 @@ import scala.quoted.*
 
 // Exported: circe's low-priority hook, so instances in a type's companion win over derivation
 private[circe] trait KebsCirceAutoCompat { this: KebsCirce =>
-  inline implicit def kebsAutoEncoder[A](using m: Mirror.Of[A]): Exported[Encoder.AsObject[A]] =
+  inline implicit def kebsAutoEncoder[A](using m: Mirror.ProductOf[A]): Exported[Encoder.AsObject[A]] =
     Exported(KebsCirceMacros.autoEncoder[A](kebsJsonConfig))
 
-  inline implicit def kebsAutoDecoder[A](using m: Mirror.Of[A]): Exported[Decoder[A]] =
+  inline implicit def kebsAutoDecoder[A](using m: Mirror.ProductOf[A]): Exported[Decoder[A]] =
     Exported(KebsCirceMacros.autoDecoder[A](kebsJsonConfig))
+
+  // transparent: where nothing is derived, the search goes on
+  transparent inline implicit def kebsAutoEncoderSealed[A](using m: Mirror.SumOf[A]): Exported[Encoder.AsObject[A]] =
+    KebsCirceMacros.autoSealedEncoder[A](kebsJsonConfig)
+
+  transparent inline implicit def kebsAutoDecoderSealed[A](using m: Mirror.SumOf[A]): Exported[Decoder[A]] =
+    KebsCirceMacros.autoSealedDecoder[A](kebsJsonConfig)
 }
 
 final private[circe] class KebsCirceMacros(q: Quotes)
@@ -35,7 +42,17 @@ private[circe] object KebsCirceMacros {
   inline def oneEncoder[A](inline config: JsonConfig): Encoder.AsObject[A]  = ${ oneEncoderImpl[A]('config) }
   inline def oneDecoder[A](inline config: JsonConfig): Decoder[A]           = ${ oneDecoderImpl[A]('config) }
 
+  transparent inline def autoSealedEncoder[A](inline config: JsonConfig): Exported[Encoder.AsObject[A]] =
+    ${ autoSealedEncoderImpl[A]('config) }
+  transparent inline def autoSealedDecoder[A](inline config: JsonConfig): Exported[Decoder[A]] = ${ autoSealedDecoderImpl[A]('config) }
+
   private def macros(using q: Quotes): KebsCirceMacros = new KebsCirceMacros(FreshQuotes(q))
+
+  def autoSealedEncoderImpl[A: Type](config: Expr[JsonConfig])(using q: Quotes): Expr[Exported[Encoder.AsObject[A]]] =
+    if (macros.isDerived[A]) '{ Exported(KebsCirceMacros.autoEncoder[A]($config)) } else stepAside[A]
+
+  def autoSealedDecoderImpl[A: Type](config: Expr[JsonConfig])(using q: Quotes): Expr[Exported[Decoder[A]]] =
+    if (macros.isDerived[A]) '{ Exported(KebsCirceMacros.autoDecoder[A]($config)) } else stepAside[A]
 
   def autoEncoderImpl[A: Type](config: Expr[JsonConfig])(using q: Quotes): Expr[Encoder.AsObject[A]] = {
     val m = macros

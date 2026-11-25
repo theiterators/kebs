@@ -38,6 +38,8 @@ private[circe] trait CirceMacrosImpl extends JsonDerivationMacrosImpl { this: Ma
   // circe has no instances of Either; kebs 2 derived it
   private val derivedStandardLibrary = Set("scala.util.Either", "scala.util.Left", "scala.util.Right")
 
+  def isDerived[T: Type]: Boolean = !isLeftToItsLibrary[T] || derivedStandardLibrary(Type.fqcn[T])
+
   private def names(fields: List[JsonField]): (Expr[List[String]], Expr[List[Option[String]]]) = {
     implicit val StringType: Type[String]                   = Type.of[String]
     implicit val OptionStringType: Type[Option[String]]     = Type.of[Option[String]]

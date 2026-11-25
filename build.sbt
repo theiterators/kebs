@@ -155,11 +155,12 @@ val enumeratumInTest   = Def.setting("com.beachape" %%% "enumeratum" % enumeratu
 val pekkoVersion       = "1.7.1"
 val pekkoHttpVersion   = "1.4.2"
 val pekkoHttpJsonV     = "2.0.0"
-val pekkoStream        = "org.apache.pekko" %% "pekko-stream"         % pekkoVersion
-val pekkoStreamTestkit = "org.apache.pekko" %% "pekko-stream-testkit" % pekkoVersion
-val pekkoHttp          = "org.apache.pekko" %% "pekko-http"           % pekkoHttpVersion
-val pekkoHttpTestkit   = "org.apache.pekko" %% "pekko-http-testkit"   % pekkoHttpVersion
-val pekkoHttpSprayJson = "org.apache.pekko" %% "pekko-http-spray-json" % pekkoHttpVersion
+val pekkoStream        = "org.apache.pekko"     %% "pekko-stream"          % pekkoVersion
+val pekkoStreamTestkit = "org.apache.pekko"     %% "pekko-stream-testkit"  % pekkoVersion
+val pekkoHttp          = "org.apache.pekko"     %% "pekko-http"            % pekkoHttpVersion
+val pekkoHttpTestkit   = "org.apache.pekko"     %% "pekko-http-testkit"    % pekkoHttpVersion
+val pekkoHttpSprayJson = "org.apache.pekko"     %% "pekko-http-spray-json" % pekkoHttpVersion
+val pekkoHttpCirce     = "com.github.pjfanning" %% "pekko-http-circe"      % pekkoHttpJsonV
 
 def pekkoHttpInExamples = {
   Seq(pekkoStream, pekkoHttp, pekkoHttpSprayJson)
@@ -406,6 +407,11 @@ lazy val circeSupport = crossProject(JSPlatform, NativePlatform, JVMPlatform)
     name        := "circe",
     description := "Automatic generation of circe formats for case-classes",
     moduleName  := "kebs-circe"
+  )
+  .jvmSettings(
+    libraryDependencies += pekkoStream    % "test",
+    libraryDependencies += pekkoHttp      % "test",
+    libraryDependencies += pekkoHttpCirce % "test"
   )
 
 lazy val pekkoHttpSupport = project
