@@ -58,7 +58,7 @@ class JsoniterFormatTests extends JsoniterTestBase {
   test("a companion's apply is used") {
     implicit val codec: JsonValueCodec[Percent] = deriveCodec[Percent]
     readFromString[Percent]("""{"value":1,"label":"a"}""").label shouldBe "A"
-    an[IllegalArgumentException] should be thrownBy readFromString[Percent]("""{"value":101,"label":"a"}""")
+    (the[JsonReaderException] thrownBy readFromString[Percent]("""{"value":101,"label":"a"}""")).getMessage should include("more than all")
   }
 
   test("field names that are not identifiers") {
