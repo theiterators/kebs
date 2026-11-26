@@ -9,16 +9,14 @@ import play.api.libs.json._
 
 class PlayValidationTests extends AnyFunSuite with Matchers {
   object Protocol extends KebsPlayJson with CaseClass1ToValueClass
-  // a hand-written instance loses to CaseClass1ToValueClass in lexical scope
-  object Plain extends KebsPlayJson
 
   private def failure[T: Reads](json: String): String = Json.parse(json).validate[T] match {
     case JsError(errors) => errors.flatMap(_._2).flatMap(_.messages).mkString(", ")
     case ok              => fail(s"expected an error, got $ok")
   }
 
-  test("a value class's own from decides") {
-    import Plain._
+  test("a value class's own from decides, also next to CaseClass1ToValueClass") {
+    import Protocol._
     Json.parse("\"abc\"").as[Code] shouldBe Code("abc")
     failure[Code]("\"abcd\"") should include("not three letters")
   }

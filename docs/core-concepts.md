@@ -23,7 +23,7 @@ Instances are derived automatically for:
 
 Values are built with the companion `apply`, so one that validates or normalizes is honoured (on Scala 3, a private one is not called).
 
-Modules read values through `from`: a value that `apply` rejects with an exception is the module's own error (a decoding failure, a 404 for a path segment, a 400 for a parameter, doobie's `InvalidValue`), with the exception's message. Derived instances build `from` that way. To validate without exceptions, define the instance in the companion; it is found without `CaseClass1ToValueClass`:
+Modules read values through `from`: a value that `apply` rejects with an exception is the module's own error (a decoding failure, a 404 for a path segment, a 400 for a parameter, doobie's `InvalidValue`), with the exception's message. Derived instances build `from` that way. To validate without exceptions, define the instance in the companion; it wins over a derived one:
 
 ```scala
 final case class Code(value: String)
@@ -35,7 +35,18 @@ object Code {
 
 kebs-slick and the `support` typeclasses have no way to report an error: they use `apply`.
 
-To enable derivation, mix in `CaseClass1ToValueClass` (or import from its companion object):
+To have the instance derived, mark the type:
+
+```scala
+import pl.iterators.kebs.core.macros.ValueClass
+
+final case class Email(value: String) derives ValueClass // Scala 3
+
+final case class Email(value: String) // Scala 2 and 3
+object Email { implicit val valueClass: ValueClass[Email] = ValueClass.derived }
+```
+
+Only a type with exactly one field can be marked. To treat every single-field case class as its field, mix in `CaseClass1ToValueClass` instead, or import its companion's members:
 
 ```scala
 import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
@@ -46,6 +57,8 @@ class MyService extends CaseClass1ToValueClass { ... }
 // or as an import
 import pl.iterators.kebs.core.macros.CaseClass1ToValueClass._
 ```
+
+The derivation lives in `ValueClassLike`'s companion, so an instance in the type's own companion always wins over it.
 
 Integration modules use `ValueClassLike` to bridge wrapper types to their underlying representations — e.g. a `BaseColumnType[VC]` is derived from `BaseColumnType[F1]` + `ValueClassLike[VC, F1]`.
 

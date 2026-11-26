@@ -11,13 +11,11 @@ import pl.iterators.kebs.testkit.validation._
 
 class CirceValidationTests extends AnyFunSuite with Matchers {
   object Protocol extends KebsCirce with CaseClass1ToValueClass
-  // a hand-written instance loses to CaseClass1ToValueClass in lexical scope
-  object Plain extends KebsCirce
 
   private def failure[T: Decoder](json: String) = decode[T](json).left.map(_.getMessage)
 
-  test("a value class's own from decides") {
-    import Plain._
+  test("a value class's own from decides, also next to CaseClass1ToValueClass") {
+    import Protocol._
     decode[Code]("\"abc\"") shouldBe Right(Code("abc"))
     failure[Code]("\"abcd\"").left.toOption.get should include("not three letters")
   }

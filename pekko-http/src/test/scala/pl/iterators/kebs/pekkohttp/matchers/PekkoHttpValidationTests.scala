@@ -6,7 +6,7 @@ import pl.iterators.kebs.pekkohttp.unmarshallers.KebsPekkoHttpUnmarshallers
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.core.macros.ValueClassLike
+import pl.iterators.kebs.core.macros.{CaseClass1ToValueClass, ValueClassLike}
 
 object PekkoHttpValidationTestsDomain {
   final case class Code(value: String)
@@ -16,14 +16,15 @@ object PekkoHttpValidationTestsDomain {
   }
 }
 
-// without CaseClass1ToValueClass, which would win over Code's own instance
+// Code's own instance wins over CaseClass1ToValueClass
 class PekkoHttpValidationTests
     extends AnyFunSuite
     with Matchers
     with Directives
     with ScalatestRouteTest
     with ScalaFutures
-    with KebsPekkoHttpUnmarshallers {
+    with KebsPekkoHttpUnmarshallers
+    with CaseClass1ToValueClass {
   import PekkoHttpValidationTestsDomain._
 
   test("a value class's own from decides in paths") {

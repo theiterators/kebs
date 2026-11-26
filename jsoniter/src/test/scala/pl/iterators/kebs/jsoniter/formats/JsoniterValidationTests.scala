@@ -6,11 +6,9 @@ import pl.iterators.kebs.testkit.validation._
 
 class JsoniterValidationTests extends JsoniterTestBase {
   object Protocol extends KebsJsoniter with CaseClass1ToValueClass
-  // a hand-written instance loses to CaseClass1ToValueClass in lexical scope
-  object Plain extends KebsJsoniter
 
-  test("a value class's own from decides") {
-    import Plain._
+  test("a value class's own from decides, also next to CaseClass1ToValueClass") {
+    import Protocol._
     roundTrip(Code("abc"), "\"abc\"")(deriveCodec[Code])
     rejected[Code]("\"abcd\"", "not three letters")(deriveCodec[Code])
     rejected[Map[Code, Int]]("""{"abcd":1}""", "not three letters")(deriveCodec[Map[Code, Int]])
