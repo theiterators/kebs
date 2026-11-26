@@ -9,12 +9,15 @@ import scala.language.experimental.macros
 import scala.reflect.macros.whitebox
 
 // a parent of KebsPlayJson, so that its flat and InstanceConverter instances win by owner
-private[playjson] trait KebsPlayJsonAutoCompat { self: KebsPlayJson =>
+private[playjson] trait KebsPlayJsonAutoCompat { self: KebsPlayJsonSemiauto =>
   implicit def kebsAutoReads[T]: Reads[T] = macro KebsPlayJsonMacros.autoReads[T]
   implicit def kebsAutoReadsSealed[T]: Reads[T] = macro KebsPlayJsonMacros.autoReadsSealed[T]
   implicit def kebsAutoWrites[T]: OWrites[T] = macro KebsPlayJsonMacros.autoWrites[T]
   implicit def kebsAutoWritesSealed[T]: OWrites[T] = macro KebsPlayJsonMacros.autoWritesSealed[T]
+}
 
+// always derive the type itself, with the protocol's configuration
+private[playjson] trait KebsPlayJsonDeriveCompat { self: KebsPlayJsonSemiauto =>
   def deriveReads[T]: Reads[T] = macro KebsPlayJsonMacros.explicitReads[T]
   def deriveWrites[T]: OWrites[T] = macro KebsPlayJsonMacros.explicitWrites[T]
   def deriveFormat[T]: OFormat[T] = macro KebsPlayJsonMacros.explicitFormat[T]

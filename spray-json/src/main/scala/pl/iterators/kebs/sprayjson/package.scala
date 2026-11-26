@@ -5,4 +5,5 @@ import spray.json.DefaultJsonProtocol
 package object sprayjson extends KebsSprayJson with DefaultJsonProtocol {
   object snakified   extends KebsSprayJsonSnakified with DefaultJsonProtocol
   object capitalized extends KebsSprayJsonCapitalized with DefaultJsonProtocol
+  object semiauto    extends KebsSprayJsonSemiauto with DefaultJsonProtocol
 }

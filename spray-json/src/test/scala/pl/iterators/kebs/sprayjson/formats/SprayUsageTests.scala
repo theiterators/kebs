@@ -17,7 +17,7 @@ object SprayUsageTestDomain {
   // a format derived in the arguments of a super constructor
   abstract class Repository[A](val name: String)(implicit val format: JsonFormat[A])
   import Protocol._
-  object RecListRepository        extends Repository[RecList]("recList")(jsonFormatN[RecList])
+  object RecListRepository        extends Repository[RecList]("recList")(deriveFormat[RecList])
   object HasListRepository        extends Repository[HasList]("hasList")
   class AdtRepository(val n: Int) extends Repository[HasAdt]("hasAdt") {
     def this(json: String) = this(json.parseJson.convertTo[HasList].n)
@@ -44,7 +44,7 @@ object SprayUsageTestDomain {
     import Domain._
     val plain: RootJsonFormat[Plain]             = implicitly[RootJsonFormat[Plain]]
     val withDefault: RootJsonFormat[WithDefault] = implicitly[RootJsonFormat[WithDefault]]
-    val sum: RootJsonFormat[Sum]                 = jsonFormatSealed[Sum]
+    val sum: RootJsonFormat[Sum]                 = deriveFormat[Sum]
   }
   trait SuiteTrait {
     object Domain { final case class Plain(a: Int, b: Int) }
@@ -66,7 +66,7 @@ object SprayUsageTestDomain {
   }
 
   object EarlyProtocol extends DefaultJsonProtocol with KebsSprayJson {
-    val early: RootJsonFormat[HasList]      = jsonFormatN[HasList]
+    val early: RootJsonFormat[HasList]      = deriveFormat[HasList]
     override val kebsJsonConfig: JsonConfig = JsonConfig.default
   }
 
@@ -99,7 +99,7 @@ class SprayUsageTests extends AnyFunSuite with Matchers {
 
   test("an Option that is only known as a type parameter") {
     import Protocol._
-    def genericFormat[A: JsonFormat]: RootJsonFormat[Generic[A]] = jsonFormatN[Generic[A]]
+    def genericFormat[A: JsonFormat]: RootJsonFormat[Generic[A]] = deriveFormat[Generic[A]]
     val format                                                   = genericFormat[Option[Int]]
     format.write(Generic(None, 1)).compactPrint shouldBe """{"n":1}"""
     format.write(Generic(Some(2), 1)).compactPrint shouldBe """{"n":1,"x":2}"""
@@ -109,7 +109,7 @@ class SprayUsageTests extends AnyFunSuite with Matchers {
 
   test("an implicit def that derives a generic type") {
     import Protocol._
-    object Formats { implicit def generic[A: JsonFormat]: RootJsonFormat[Generic[A]] = jsonFormatN[Generic[A]] }
+    object Formats { implicit def generic[A: JsonFormat]: RootJsonFormat[Generic[A]] = deriveFormat[Generic[A]] }
     import Formats._
     implicitly[RootJsonFormat[Generic[Item]]].write(Generic(item, 1)).compactPrint shouldBe """{"n":1,"x":{"n":1,"name":"i"}}"""
   }

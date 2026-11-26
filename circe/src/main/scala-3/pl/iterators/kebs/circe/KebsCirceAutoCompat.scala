@@ -1,7 +1,7 @@
 package pl.iterators.kebs.circe
 
 import io.circe.`export`.Exported
-import io.circe.{Decoder, Encoder}
+import io.circe.{Codec, Decoder, Encoder}
 import pl.iterators.kebs.circe.internal.CirceMacrosImpl
 import pl.iterators.kebs.core.json.JsonConfig
 import pl.iterators.kebs.core.macros.internal.{EntryPointRole, FreshQuotes, JsonDerivationMacrosScala3, LocalInstances}
@@ -10,7 +10,7 @@ import scala.deriving.Mirror
 import scala.quoted.*
 
 // Exported: circe's low-priority hook, so instances in a type's companion win over derivation
-private[circe] trait KebsCirceAutoCompat { this: KebsCirce =>
+private[circe] trait KebsCirceAutoCompat { this: KebsCirceSemiauto =>
   inline implicit def kebsAutoEncoder[A](using m: Mirror.ProductOf[A]): Exported[Encoder.AsObject[A]] =
     Exported(KebsCirceMacros.autoEncoder[A](kebsJsonConfig))
 
@@ -25,22 +25,38 @@ private[circe] trait KebsCirceAutoCompat { this: KebsCirce =>
     KebsCirceMacros.autoSealedDecoder[A](kebsJsonConfig)
 }
 
+// always derive the type itself, with the protocol's configuration
+private[circe] trait KebsCirceDeriveCompat { this: KebsCirceSemiauto =>
+  inline def deriveEncoder[A]: Encoder.AsObject[A] = KebsCirceMacros.explicitEncoder[A](kebsJsonConfig)
+  inline def deriveDecoder[A]: Decoder[A]          = KebsCirceMacros.explicitDecoder[A](kebsJsonConfig)
+  inline def deriveCodec[A]: Codec.AsObject[A]     = Codec.AsObject.from(deriveDecoder[A], deriveEncoder[A])
+}
+
 final private[circe] class KebsCirceMacros(q: Quotes)
     extends hearth.MacroCommonsScala3(using q),
       JsonDerivationMacrosScala3,
       CirceMacrosImpl {
 
-  def auto[A](body: => A): A = implicitEntry(body)
+  def auto[A](body: => A): A       = implicitEntry(body)
+  def explicitly[A](body: => A): A = explicitEntry(body)
 
   def encodersNeeded[A: Type](config: Expr[JsonConfig]): LocalInstances.Needed = untyped(neededEncoders[A](config))
   def decodersNeeded[A: Type](config: Expr[JsonConfig]): LocalInstances.Needed = untyped(neededDecoders[A](config))
+
+  // recursive uses go through the implicit being defined, if there is one
+  def encodersNeededExplicitly[A: Type](config: Expr[JsonConfig]): LocalInstances.Needed =
+    untyped(neededEncoders[A](config, preferExisting = true, hidesExisting = false))
+  def decodersNeededExplicitly[A: Type](config: Expr[JsonConfig]): LocalInstances.Needed =
+    untyped(neededDecoders[A](config, preferExisting = true, hidesExisting = false))
 }
 
 private[circe] object KebsCirceMacros {
-  inline def autoEncoder[A](inline config: JsonConfig): Encoder.AsObject[A] = ${ autoEncoderImpl[A]('config) }
-  inline def autoDecoder[A](inline config: JsonConfig): Decoder[A]          = ${ autoDecoderImpl[A]('config) }
-  inline def oneEncoder[A](inline config: JsonConfig): Encoder.AsObject[A]  = ${ oneEncoderImpl[A]('config) }
-  inline def oneDecoder[A](inline config: JsonConfig): Decoder[A]           = ${ oneDecoderImpl[A]('config) }
+  inline def autoEncoder[A](inline config: JsonConfig): Encoder.AsObject[A]     = ${ autoEncoderImpl[A]('config) }
+  inline def autoDecoder[A](inline config: JsonConfig): Decoder[A]              = ${ autoDecoderImpl[A]('config) }
+  inline def oneEncoder[A](inline config: JsonConfig): Encoder.AsObject[A]      = ${ oneEncoderImpl[A]('config) }
+  inline def explicitEncoder[A](inline config: JsonConfig): Encoder.AsObject[A] = ${ explicitEncoderImpl[A]('config) }
+  inline def explicitDecoder[A](inline config: JsonConfig): Decoder[A]          = ${ explicitDecoderImpl[A]('config) }
+  inline def oneDecoder[A](inline config: JsonConfig): Decoder[A]               = ${ oneDecoderImpl[A]('config) }
 
   transparent inline def autoSealedEncoder[A](inline config: JsonConfig): Exported[Encoder.AsObject[A]] =
     ${ autoSealedEncoderImpl[A]('config) }
@@ -77,6 +93,22 @@ private[circe] object KebsCirceMacros {
           block[Decoder[A]](config, m.decodersNeeded[A](config))
         case _ => stepAside[A]
       }
+    }
+  }
+
+  def explicitEncoderImpl[A: Type](config: Expr[JsonConfig])(using q: Quotes): Expr[Encoder.AsObject[A]] = {
+    val m = macros
+    m.explicitly {
+      warnIfCirceConfiguration
+      block[Encoder.AsObject[A]](config, m.encodersNeededExplicitly[A](config))
+    }
+  }
+
+  def explicitDecoderImpl[A: Type](config: Expr[JsonConfig])(using q: Quotes): Expr[Decoder[A]] = {
+    val m = macros
+    m.explicitly {
+      warnIfCirceConfiguration
+      block[Decoder[A]](config, m.decodersNeededExplicitly[A](config))
     }
   }
 

@@ -10,14 +10,20 @@ import spray.json.{JsonFormat, JsonReader, JsonWriter, RootJsonFormat, RootJsonR
 import scala.language.experimental.macros
 import scala.reflect.macros.whitebox
 
-private[sprayjson] trait KebsSprayJsonAutoCompat { self: KebsSprayJson =>
+private[sprayjson] trait KebsSprayJsonAutoCompat { self: KebsSprayJsonSemiauto =>
   implicit def kebsAutoJsonFormat[T]: RootJsonFormat[T] = macro KebsSprayJsonMacros.autoProduct[T]
   implicit def kebsAutoJsonFormatSealed[T]: RootJsonFormat[T] = macro KebsSprayJsonMacros.autoSealed[T]
+}
 
+// always derives the type itself, with the protocol's configuration
+private[sprayjson] trait KebsSprayJsonDeriveCompat { self: KebsSprayJsonSemiauto =>
+  def deriveFormat[T]: RootJsonFormat[T] = macro KebsSprayJsonMacros.explicitAny[T]
+
+  @deprecated("use deriveFormat", "3.0.0")
   def jsonFormatN[T]: RootJsonFormat[T] = macro KebsSprayJsonMacros.explicitProduct[T]
+  @deprecated("use deriveFormat", "3.0.0")
   def jsonFormatSealed[T]: RootJsonFormat[T] = macro KebsSprayJsonMacros.explicitSealed[T]
-
-  @deprecated("jsonFormatN handles recursive types", "3.0.0")
+  @deprecated("use deriveFormat, which handles recursive types", "3.0.0")
   final def jsonFormatRec[T]: RootJsonFormat[T] = macro KebsSprayJsonMacros.explicitProduct[T]
 }
 
@@ -85,6 +91,12 @@ final private[sprayjson] class KebsSprayJsonMacros(val c: whitebox.Context)
 
   def explicitProduct[T: c.WeakTypeTag]: c.Expr[RootJsonFormat[T]] = {
     if (!isCaseClass(weakTypeOf[T])) abort(s"${weakTypeOf[T]} is not a case class")
+    explicitly[T]
+  }
+
+  def explicitAny[T: c.WeakTypeTag]: c.Expr[RootJsonFormat[T]] = {
+    val T = weakTypeOf[T]
+    if (!isCaseClass(T) && !isSealed(T)) abort(s"$T is not a case class or a sealed hierarchy")
     explicitly[T]
   }
 

@@ -5,21 +5,21 @@ import org.scalatest.matchers.should.Matchers
 import spray.json._
 
 object SprayCompanionTestDomain {
-  import SprayAaCompanion.Snake.jsonFormatN
+  import SprayAaCompanion.Snake.deriveFormat
   import SprayAaCompanion.Protocol.IntJsonFormat
 
   final case class Named(someField: Int, otherField: Int)
 
   def inMethod = {
-    val format: RootJsonFormat[Named] = jsonFormatN[Named]
+    val format: RootJsonFormat[Named] = deriveFormat[Named]
     format.write(Named(1, 2)).compactPrint
   }
   val inValue = {
-    implicit val format: RootJsonFormat[Named] = jsonFormatN[Named]
+    implicit val format: RootJsonFormat[Named] = deriveFormat[Named]
     Named(1, 2).toJson.compactPrint
   }
   lazy val inLazyValue = {
-    implicit val format = jsonFormatN[Named]
+    implicit val format = deriveFormat[Named]
     Named(1, 2).toJson.compactPrint
   }
 }

@@ -10,7 +10,7 @@ import scala.quoted.*
 import scala.util.NotGiven
 
 // a parent of KebsPlayJson, so that its flat and InstanceConverter instances win by owner
-private[playjson] trait KebsPlayJsonAutoCompat { self: KebsPlayJson =>
+private[playjson] trait KebsPlayJsonAutoCompat { self: KebsPlayJsonSemiauto =>
   // not a case object's own type: play's Reads/Writes are invariant, so kebs' enum instances do not apply there and
   // deriving `{}` would replace a compile error with wrong JSON
   inline implicit def kebsAutoReads[T](using m: Mirror.ProductOf[T], notCaseObject: NotGiven[T <:< Singleton]): Reads[T] =
@@ -26,7 +26,10 @@ private[playjson] trait KebsPlayJsonAutoCompat { self: KebsPlayJson =>
     KebsPlayJsonMacros.autoWrites[T](kebsJsonConfig)
   transparent inline implicit def kebsAutoWritesSealed[T](using m: Mirror.SumOf[T]): OWrites[T] =
     KebsPlayJsonMacros.autoWrites[T](kebsJsonConfig)
+}
 
+// always derive the type itself, with the protocol's configuration
+private[playjson] trait KebsPlayJsonDeriveCompat { self: KebsPlayJsonSemiauto =>
   inline def deriveReads[T]: Reads[T]    = KebsPlayJsonMacros.explicitReads[T](kebsJsonConfig)
   inline def deriveWrites[T]: OWrites[T] = KebsPlayJsonMacros.explicitWrites[T](kebsJsonConfig)
   inline def deriveFormat[T]: OFormat[T] =
