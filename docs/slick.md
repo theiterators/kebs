@@ -104,6 +104,6 @@ trait API extends super.API with KebsSlickSupport with KebsEnum with KebsValueEn
 
 ### Enum casing strategies
 
-By default, enums are stored using their entry name. For lowercase or uppercase storage, use the casing variant inner traits instead of the default enum implicits. These are available as inner traits within `KebsSlickSupport` (e.g. `KebsLowercaseEnumImplicits`, `KebsUppercaseEnumImplicits`).
+By default, enums are stored using their entry name. For lowercase or uppercase storage, use the casing variant inner traits instead of the default enum implicits. These are available as inner traits within `KebsSlickSupport` (e.g. `KebsLowercaseEnumImplicits`, `KebsUppercaseEnumImplicits`). Other naming styles: an implicit [`EnumNaming`](enums.md#naming-styles).
 
 Enum types also work as Postgres array column types (`List[MyEnum]`, `Seq[MyEnum]`) and as hstore map keys/values.

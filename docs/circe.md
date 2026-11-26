@@ -5,7 +5,7 @@ title: Circe
 
 # kebs-circe
 
-Automatic `Encoder` / `Decoder` derivation for Circe.
+Automatic `Encoder` / `Decoder` derivation for Circe, on JVM, Scala.js and Scala Native.
 
 ## Setup
 
@@ -13,12 +13,22 @@ Automatic `Encoder` / `Decoder` derivation for Circe.
 libraryDependencies += "pl.iterators" %% "kebs-circe" % kebsVersion
 ```
 
+kebs-circe does not depend on circe-generic. Add it yourself if you use `semiauto` or `@JsonCodec`.
+
 ## Basic usage
 
 ```scala
+import io.circe.syntax._
 import pl.iterators.kebs.circe.KebsCirce
+import pl.iterators.kebs.core.macros.CaseClass1ToValueClass
 
-object ThingProtocol extends KebsCirce
+object ThingProtocol extends KebsCirce with CaseClass1ToValueClass
+import ThingProtocol._
+
+case class ThingId(value: String)
+case class Thing(id: ThingId, tags: List[String], size: Option[Int])
+
+Thing(ThingId("x"), List("a"), None).asJson // {"id":"x","tags":["a"],"size":null}
 ```
 
 Or use the package object directly:
@@ -27,11 +37,9 @@ Or use the package object directly:
 import pl.iterators.kebs.circe._
 ```
 
-This derives encoders/decoders for:
-- 1-element case classes (flat format)
-- Multi-field case classes
-- Case classes with > 22 fields
-- Types with an `InstanceConverter` (e.g. `UUID`, `java.time` types — see [instances](instances.md))
+There are codecs of case classes, sealed hierarchies, value classes (with `CaseClass1ToValueClass`) and types with an `InstanceConverter`. What exactly is derived, the configuration and the annotations are the same in all JSON modules: see [JSON derivation](json.md).
+
+Import one protocol per scope: on Scala 2, two of them cancel each other's implicits.
 
 ## Snakified / capitalized field names
 
@@ -51,31 +59,26 @@ import pl.iterators.kebs.circe.KebsCirceCapitalized
 // or: import pl.iterators.kebs.circe.capitalized._
 ```
 
-In Scala 3, remember to import `given` instances:
-
-```scala
-object KebsProtocol extends KebsCirceSnakified
-import KebsProtocol.{given, *}
-```
-
-In Scala 3, you can also override `configuration: Configuration` for custom field-name transformations.
-
 ## Enum support
 
 ```scala
 import pl.iterators.kebs.circe.KebsCirce
 import pl.iterators.kebs.circe.enums.{KebsCirceEnums, KebsCirceValueEnums}
+import pl.iterators.kebs.enumeratum.{KebsEnumeratum, KebsValueEnumeratum}
 
-object ThingProtocol extends KebsCirce with KebsCirceEnums with KebsCirceValueEnums
+object ThingProtocol extends KebsCirce
+    with KebsEnumeratum with KebsValueEnumeratum with KebsCirceEnums with KebsCirceValueEnums
 ```
 
-Or via the enums package object:
+`KebsEnum` and `KebsValueEnum` take the place of `KebsEnumeratum` and `KebsValueEnumeratum` for Scala 3 enums and `scala.Enumeration`. Or via the enums package object, which needs them too:
 
 ```scala
-import pl.iterators.kebs.circe.enums._            // default casing + value enums
-import pl.iterators.kebs.circe.enums.uppercase._   // UPPERCASE + value enums
-import pl.iterators.kebs.circe.enums.lowercase._   // lowercase + value enums
+import pl.iterators.kebs.circe.enums._            // names as they are + value enums
+import pl.iterators.kebs.circe.enums.uppercase._  // UPPERCASE + value enums
+import pl.iterators.kebs.circe.enums.lowercase._  // lowercase + value enums
 ```
+
+Other naming styles: an implicit [`EnumNaming`](enums.md#naming-styles).
 
 ## Instance support (java.time, UUID, etc.)
 
@@ -98,11 +101,3 @@ object ThingProtocol extends KebsCirce with KebsInstances
 ```
 
 For alternative encodings (e.g. `Instant` as epoch millis), see the [instances documentation](instances.md).
-
-## Scala 3 note
-
-Recursive types require explicit `derives` due to a [circe issue](https://github.com/circe/circe/issues/1980):
-
-```scala
-case class R(a: Int, rs: Seq[R]) derives Decoder, Encoder.AsObject
-```

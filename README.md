@@ -8,7 +8,7 @@
 
 ![logo](https://raw.githubusercontent.com/theiterators/kebs/master/logo.png)
 
-A library maintained by [Iterators](https://www.iteratorshq.com). Supports Scala 2.13 and Scala 3.
+A library maintained by [Iterators](https://www.iteratorshq.com). Kebs 3 supports Scala 2.13 and Scala 3.9 or newer, on JDK 17 or newer. Kebs 2 is on the [`series/2.x`](https://github.com/theiterators/kebs/tree/series/2.x) branch.
 
 ### What is Kebs?
 
@@ -33,12 +33,12 @@ implicit val userIdEnc: Encoder[UserId] = Encoder[String].contramap(_.value)
 ### Quick start
 
 ```scala
-// build.sbt — pick the modules you need
+// build.sbt — pick the modules you need; the latest version is in the badge above
 libraryDependencies ++= Seq(
-  "pl.iterators" %% "kebs-slick"      % "2.3.0",
-  "pl.iterators" %% "kebs-circe"      % "2.3.0",
-  "pl.iterators" %% "kebs-pekko-http" % "2.3.0",
-  "pl.iterators" %% "kebs-instances"  % "2.3.0"
+  "pl.iterators" %% "kebs-slick"      % kebsVersion,
+  "pl.iterators" %% "kebs-circe"      % kebsVersion,
+  "pl.iterators" %% "kebs-pekko-http" % kebsVersion,
+  "pl.iterators" %% "kebs-instances"  % kebsVersion
 )
 ```
 
@@ -48,10 +48,10 @@ libraryDependencies ++= Seq(
 |---|---|
 | `kebs-slick` | Automatic Slick column type mappings, Postgres array & hstore support |
 | `kebs-doobie` | Doobie `Meta` / `Get` / `Put` instances |
-| `kebs-spray-json` | Spray `JsonFormat` derivation (flat, snakified, >22 fields) |
-| `kebs-play-json` | Play JSON `Format` instances |
-| `kebs-circe` | Circe `Encoder` / `Decoder` derivation (snakified/capitalized) |
-| `kebs-jsoniter` | jsoniter-scala `JsonValueCodec` derivation (snakified/capitalized, since 3.0) |
+| `kebs-spray-json` | Spray `JsonFormat` derivation |
+| `kebs-play-json` | Play JSON `Reads` / `OWrites` derivation |
+| `kebs-circe` | Circe `Encoder` / `Decoder` derivation |
+| `kebs-jsoniter` | jsoniter-scala `JsonValueCodec` derivation (since 3.0) |
 | `kebs-pekko-http` | Pekko HTTP unmarshallers + path matchers |
 | `kebs-http4s` | http4s path/query parameter codecs |
 | `kebs-http4s-stir` | http4s-stir directives + path matchers |
@@ -62,16 +62,13 @@ libraryDependencies ++= Seq(
 | `kebs-tagged` | Tagged types for Scala 2 |
 | `kebs-tagged-meta` | `@tagged` code generation (Scala 2 only) |
 | `kebs-opaque` | Opaque type support for Scala 3 |
-| `kebs-enum` | Scala 3 native enums + Scala 2 `Enumeration` |
+| `kebs-enum` | Scala 3 native enums + `scala.Enumeration` |
 | `kebs-enumeratum` | Enumeratum support (Scala 2 & 3) |
 | `kebs-instances` | Pre-built converters for `java.time`, `UUID`, `URI`, etc. |
 
-### Kebs 2.0 migration guide
+### Migrating from kebs 2
 
-* Mix in `CaseClass1ToValueClass` if you use value classes.
-* Extend value-enums with `ValueEnumLikeEntry[V]`.
-* Use `KebsEnumeratum` / `KebsValueEnumeratum` for Enumeratum, `KebsEnum` / `KebsValueEnum` for native enums.
-* See the [full documentation](https://theiterators.github.io/kebs/) for details.
+See the [migration guide](docs/migration-3.0.md). Some JSON changes, so read it before you upgrade a service that has stored JSON.
 
 ### IntelliJ support
 

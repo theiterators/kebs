@@ -31,11 +31,11 @@ import pl.iterators.kebs.sprayjson._
 ```
 
 This gives you:
-- **Flat format** for 1-element case classes (`case class ThingId(uuid: UUID)` serializes as just the UUID, not `{"uuid": "..."}`)
-- **Automatic format** for multi-field case classes (no need to call `jsonFormatN`)
+- **Flat format** for 1-element case classes, with `CaseClass1ToValueClass` mixed in (`case class ThingId(uuid: UUID)` serializes as just the UUID, not `{"uuid": "..."}`)
+- **Automatic format** for case classes (generic, recursive, of any size) and sealed hierarchies
 - **Case object** format (serializes as `{}`)
-- **Parametrized (generic) case classes**
-- **Support for case classes with > 22 fields**
+
+What exactly is derived, the configuration and the annotations are the same in all JSON modules: see [JSON derivation](json.md).
 
 ## Snakified / capitalized field names
 
@@ -55,24 +55,27 @@ import pl.iterators.kebs.sprayjson.KebsSprayJsonCapitalized
 // or: import pl.iterators.kebs.sprayjson.capitalized._
 ```
 
-Snakified/capitalized names are computed at compile time.
-
 ## NullOptions support
 
 Mix in spray-json's `NullOptions` to serialize `None` as `null` instead of omitting the field:
 
 ```scala
+import spray.json.NullOptions
+
 object ThingProtocol extends DefaultJsonProtocol with KebsSprayJson with NullOptions
 ```
 
 ## Enum support
 
 ```scala
+import pl.iterators.kebs.enumeratum.{KebsEnumeratum, KebsValueEnumeratum}
 import pl.iterators.kebs.sprayjson.{KebsSprayJson, KebsSprayJsonEnums, KebsSprayJsonValueEnums}
 
-object ThingProtocol extends DefaultJsonProtocol
-    with KebsSprayJson with KebsSprayJsonEnums with KebsSprayJsonValueEnums
+object ThingProtocol extends DefaultJsonProtocol with KebsSprayJson
+    with KebsEnumeratum with KebsValueEnumeratum with KebsSprayJsonEnums with KebsSprayJsonValueEnums
 ```
+
+`KebsEnum` and `KebsValueEnum` take the place of `KebsEnumeratum` and `KebsValueEnumeratum` for Scala 3 enums and `scala.Enumeration`.
 
 For uppercase/lowercase enum serialization:
 
@@ -80,10 +83,12 @@ For uppercase/lowercase enum serialization:
 import pl.iterators.kebs.sprayjson.enums.{KebsSprayJsonEnumsUppercase, KebsSprayJsonEnumsLowercase}
 
 object ThingProtocol extends DefaultJsonProtocol
-    with KebsSprayJson with KebsSprayJsonEnumsUppercase with KebsSprayJsonValueEnums
+    with KebsSprayJson with KebsEnumeratum with KebsSprayJsonEnumsUppercase with KebsSprayJsonValueEnums
 ```
 
-Or via the enums package object:
+Other naming styles: an implicit [`EnumNaming`](enums.md#naming-styles).
+
+Or via the enums package object, which needs the enum's support too:
 
 ```scala
 import pl.iterators.kebs.sprayjson.enums._            // default casing
@@ -108,18 +113,15 @@ This covers `Instant`, `LocalDate`, `ZonedDateTime`, `Duration`, `UUID`, `Curren
 
 For alternative encodings (e.g. `Instant` as epoch millis instead of ISO string), see the [instances documentation](instances.md).
 
-## Recursive formats
+## Explicit formats
 
-```scala
-case class Thing(thingId: String, parent: Option[Thing])
-implicit val thingFormat: RootJsonFormat[Thing] = jsonFormatRec[Thing]
-```
-
-## Overriding flat format
-
-If you want a 1-field case class serialized as an object (not flat), redefine the implicit:
+Formats are implicit, but can also be made explicitly. `jsonFormatN` and `jsonFormatSealed` always derive, with the configuration of their protocol, also when the type has a format. For example, to serialize a 1-field case class as an object (not flat):
 
 ```scala
 case class Chapter(name: String)
 implicit val chapterRootFormat: RootJsonFormat[Chapter] = jsonFormatN[Chapter]
 ```
+
+An explicit format takes the configuration of its protocol, but looks value classes and converters up in scope, so import the protocol that has them.
+
+`jsonFormatRec` is a deprecated alias of `jsonFormatN`: recursive types need nothing extra.

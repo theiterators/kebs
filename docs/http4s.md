@@ -13,7 +13,7 @@ Path and query parameter codecs for http4s and http4s-stir.
 // http4s
 libraryDependencies += "pl.iterators" %% "kebs-http4s" % kebsVersion
 
-// http4s-stir (Akka HTTP-style directives for http4s)
+// http4s-stir (Pekko HTTP-style directives for http4s)
 libraryDependencies += "pl.iterators" %% "kebs-http4s-stir" % kebsVersion
 ```
 
@@ -80,11 +80,11 @@ val routes = HttpRoutes.of[IO] {
 
 ### Scala 2
 
-On Scala 2, use `KebsEnumeratum` instead of `KebsEnum`, and tagged types (`@@`) instead of opaque types. See the [Scala 2 tests](https://github.com/theiterators/kebs/blob/master/http4s/jvm/src/test/scala-2/pl/iterators/kebs/http4s/Http4sDslTests.scala) for examples.
+On Scala 2, use `KebsEnumeratum` (or `KebsEnum` for `scala.Enumeration`), and tagged types (`@@`) instead of opaque types. See the [Scala 2 tests](https://github.com/theiterators/kebs/blob/master/http4s/jvm/src/test/scala-2/pl/iterators/kebs/http4s/Http4sDslTests.scala) for examples.
 
 ## kebs-http4s-stir
 
-http4s-stir provides Akka HTTP-style directives for http4s. Kebs integrates via two packages:
+http4s-stir provides Pekko HTTP-style directives for http4s. Kebs integrates via two packages:
 
 ### Unmarshallers
 

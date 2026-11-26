@@ -24,7 +24,7 @@ const FeatureList: FeatureItem[] = [
     description: (
       <>
         Value classes, opaque types, tagged types, and enums just work with Slick,
-        Doobie, Circe, Spray JSON, Play JSON, Akka HTTP, Pekko HTTP, http4s,
+        Doobie, Circe, Spray JSON, Play JSON, jsoniter-scala, Pekko HTTP, http4s,
         ScalaCheck, PureConfig, and more.
       </>
     ),
