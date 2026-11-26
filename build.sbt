@@ -134,7 +134,7 @@ val scalacheck = "org.scalacheck" %% "scalacheck" % "1.19.0"
 val scalacheckMagnolify = "com.spotify"         % "magnolify-scalacheck" % "0.9.8"
 val scalacheckDerived   = "io.github.martinhh" %% "scalacheck-derived"   % "0.11.0"
 
-val enumeratumVersion         = "1.9.8"
+val enumeratumVersion         = "1.9.9"
 val enumeratumPlayJsonVersion = "1.8.2"
 val enumeratum                = Def.setting("com.beachape" %%% "enumeratum" % enumeratumVersion)
 def enumeratumInExamples      = {
