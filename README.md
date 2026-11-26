@@ -8,7 +8,7 @@
 
 ![logo](https://raw.githubusercontent.com/theiterators/kebs/master/logo.png)
 
-A library maintained by [Iterators](https://www.iteratorshq.com). Kebs 3 supports Scala 2.13 and Scala 3.9 or newer, on JDK 17 or newer. Kebs 2 is on the [`series/2.x`](https://github.com/theiterators/kebs/tree/series/2.x) branch.
+A library maintained by [Iterators](https://www.iteratorshq.com). Kebs 3 supports Scala 2.13 and Scala 3.9 or newer, on JDK 17 or newer. Releases of 3.x are binary compatible with 3.0.0, checked by MiMa. That includes the code the macros generate in your classes: it calls kebs' own runtime, never [hearth](https://github.com/kubuszok/hearth), which is needed at compile time only. Kebs 2 is on the [`series/2.x`](https://github.com/theiterators/kebs/tree/series/2.x) branch.
 
 ### What is Kebs?
 

@@ -5,7 +5,7 @@ import pl.iterators.kebs.core.macros.ValueClassLike
 import pl.iterators.kebs.core.macros.internal.LocalCodecs
 import play.api.libs.json._
 
-// called by code generated in PlayJsonMacrosImpl; field reading is play's own JsPath API, so errors are play's
+// called by code generated in PlayJsonMacrosImpl, so its binary API is kept across 3.x; field reading is play's own JsPath API, so errors are play's
 object PlayDerivationRuntime {
   final class Fields(val names: Array[String], val writeNull: Boolean, val useDefaults: Boolean)
 
