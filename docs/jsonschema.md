@@ -7,6 +7,8 @@ title: JSON Schema
 
 JSON Schema generation via [scala-jsonschema](https://github.com/andyglow/scala-jsonschema).
 
+**Deprecated in kebs 3.0**, to be removed in a later release: scala-jsonschema is no longer maintained (its last release was in June 2023).
+
 ## Setup
 
 ```scala

@@ -4,6 +4,7 @@ import pl.iterators.kebs.core.macros.ValueClassLike
 
 import scala.annotation.unused
 
+@deprecated("kebs-jsonschema is deprecated: scala-jsonschema is no longer maintained", "3.0.0")
 trait KebsJsonSchema {
   import macros.KebsJsonSchemaMacros
   implicit val jswUnit: JsonSchemaWrapper[Unit] = JsonSchemaWrapper[Unit](null)

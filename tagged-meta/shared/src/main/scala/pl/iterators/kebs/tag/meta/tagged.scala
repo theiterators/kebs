@@ -10,6 +10,7 @@ import scala.reflect.macros.whitebox
     |org.scalamacros.paradise. Using sbt: addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full)
                  """.stripMargin('|')
 )
+@deprecated("kebs-tagged-meta is deprecated: use value classes, or opaque types on Scala 3", "3.0.0")
 class tagged extends StaticAnnotation {
   def macroTransform(annottees: Any*): Any = macro macroImpl.impl
 }

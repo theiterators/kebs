@@ -53,6 +53,7 @@ Kebs 2 remains for older versions, on the `series/2.x` branch.
 - **kebs-doobie** needs doobie 1.0.0-RC14, whose organization is `org.typelevel` and package `org.typelevel.doobie`.
 - **kebs-circe** no longer brings circe-generic and circe-generic-extras. Add them if you use `semiauto` or `@JsonCodec`.
 - **kebs-jsoniter** is [new](jsoniter.md).
+- **kebs-jsonschema and kebs-tagged-meta are deprecated**, to be removed in a later release. scala-jsonschema is no longer maintained; instead of `@tagged`, use value classes, or opaque types on Scala 3.
 
 ## Behaviour
 
