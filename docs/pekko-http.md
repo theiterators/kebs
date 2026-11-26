@@ -13,6 +13,8 @@ Automatic unmarshallers and path matchers for Pekko HTTP.
 libraryDependencies += "pl.iterators" %% "kebs-pekko-http" % kebsVersion
 ```
 
+It is built on pekko 2.0 and pekko-http 2.0.
+
 ## Unmarshallers
 
 Provides automatic `FromStringUnmarshaller` for value classes, enums, and instance types in `parameters`, `formFields`, and `entity` directives:

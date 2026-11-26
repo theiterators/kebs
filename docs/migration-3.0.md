@@ -11,7 +11,7 @@ Kebs 3 derives everything with one implementation for Scala 2.13 and 3. Most cod
 
 **circe, Scala 3: `derives` on recursive types.** Kebs 2 ignored such an instance and derived the type with the protocol's naming. Kebs 3 uses it, and it knows nothing of the protocol: with `snakified`, `foo_bar` becomes `fooBar`. The kebs 2 docs advised to add `derives` there. Remove it; kebs 3 derives recursive types without it.
 
-**circe, Scala 3: an implicit `io.circe.derivation.Configuration`** is not read any more. One that you define, in the protocol or nearer than it, compiles and is ignored, so its naming is lost. Move it to [`kebsJsonConfig`](json.md#configuration). With `withDefaults`, a `null` for a field that is not an `Option` took the default; it is now an error.
+**circe, Scala 3: an implicit `io.circe.derivation.Configuration`** is not read any more. Where kebs derives next to one, in the protocol or nearer than it, the compiler warns: move its settings to [`kebsJsonConfig`](json.md#configuration). If you keep it for circe's own `ConfiguredCodec`, silence the warning with `-Wconf:msg=kebs-circe ignores:s`. With `withDefaults`, a `null` for a field that is not an `Option` took the default; it is now an error.
 
 **Existing instances win over derived ones.** In kebs 2, derivation was in scope wherever a protocol was imported and won over them in these places: everywhere on Scala 3, and on Scala 2 in circe's `snakified` / `capitalized` protocols and in spray-json. JSON written by kebs 2 in these shapes is not read by kebs 3.
 
@@ -49,6 +49,7 @@ Kebs 2 remains for older versions, on the `series/2.x` branch.
 ## Modules
 
 - **kebs-akka-http is gone.** Use [kebs-pekko-http](pekko-http.md), or stay on kebs 2.
+- **kebs-pekko-http** is built on pekko 2.0 and pekko-http 2.0. For pekko 1, stay on kebs 2.
 - **kebs-doobie** needs doobie 1.0.0-RC14, whose organization is `org.typelevel` and package `org.typelevel.doobie`.
 - **kebs-circe** no longer brings circe-generic and circe-generic-extras. Add them if you use `semiauto` or `@JsonCodec`.
 - **kebs-jsoniter** is [new](jsoniter.md).
