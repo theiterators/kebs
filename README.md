@@ -57,10 +57,10 @@ libraryDependencies ++= Seq(
 | `kebs-http4s-stir` | http4s-stir directives + path matchers |
 | `kebs-scalacheck` | `Arbitrary` instance generation |
 | `kebs-pureconfig` | PureConfig `ConfigReader` / `ConfigWriter` |
-| `kebs-jsonschema` | JSON Schema generation (Scala 2 only) |
+| `kebs-jsonschema` | JSON Schema generation (Scala 2 only, deprecated) |
 | `kebs-baklava` | Baklava schema + parameter support |
 | `kebs-tagged` | Tagged types for Scala 2 |
-| `kebs-tagged-meta` | `@tagged` code generation (Scala 2 only) |
+| `kebs-tagged-meta` | `@tagged` code generation (Scala 2 only, deprecated) |
 | `kebs-opaque` | Opaque type support for Scala 3 |
 | `kebs-enum` | Scala 3 native enums + `scala.Enumeration` |
 | `kebs-enumeratum` | Enumeratum support (Scala 2 & 3) |

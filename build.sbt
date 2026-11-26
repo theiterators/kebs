@@ -177,7 +177,6 @@ val doobiePg      = "org.typelevel"       %% "doobie-postgres" % "1.0.0-RC14"
 val sprayJson     = "io.spray"            %% "spray-json"      % "1.3.6"
 val circeV        = "0.14.17"
 val circe         = Def.setting("io.circe" %%% "circe-core" % circeV)
-val circeAuto     = Def.setting("io.circe" %%% "circe-generic" % circeV)
 val circeParser   = Def.setting("io.circe" %%% "circe-parser" % circeV)
 
 val jsoniterV      = "2.43.0"
@@ -192,12 +191,7 @@ val scalacheckMagnolify = "com.spotify"         % "magnolify-scalacheck" % "0.9.
 val scalacheckDerived   = "io.github.martinhh" %% "scalacheck-derived"   % "0.11.0"
 
 val enumeratumVersion         = "1.9.9"
-val enumeratumPlayJsonVersion = "1.8.2"
 val enumeratum                = Def.setting("com.beachape" %%% "enumeratum" % enumeratumVersion)
-def enumeratumInExamples      = {
-  val playJsonSupport = "com.beachape" %% "enumeratum-play-json" % enumeratumPlayJsonVersion
-  Seq("com.beachape" %% "enumeratum" % enumeratumVersion, playJsonSupport)
-}
 val optionalEnumeratum = Def.setting("com.beachape" %%% "enumeratum" % enumeratumVersion % "provided")
 val enumeratumInTest   = Def.setting("com.beachape" %%% "enumeratum" % enumeratumVersion % "test")
 
@@ -211,10 +205,6 @@ val pekkoHttpTestkit   = "org.apache.pekko"     %% "pekko-http-testkit"        %
 val pekkoHttpSprayJson = "org.apache.pekko"     %% "pekko-http-spray-json"     % pekkoHttpVersion
 val pekkoHttpCirce     = "com.github.pjfanning" %% "pekko-http-circe"          % pekkoHttpJsonV
 val pekkoHttpJsoniter  = "com.github.pjfanning" %% "pekko-http-jsoniter-scala" % pekkoHttpJsonV
-
-def pekkoHttpInExamples = {
-  Seq(pekkoStream, pekkoHttp, pekkoHttpSprayJson)
-}
 
 val http4sVersion = "0.23.39"
 val http4s        = Def.setting("org.http4s" %%% "http4s-dsl" % http4sVersion)
@@ -271,6 +261,11 @@ lazy val hearthMacroSettings = Seq(
 lazy val generatedCodeTestSettings = Seq(
   Test / scalacOptions ++= (if (scalaVersion.value.startsWith("3")) Seq("-Xcheck-macros")
                             else Seq("-Xlint:implicit-recursion", "-Wconf:msg=Implicit resolves to enclosing:e"))
+)
+
+// for the deprecated modules' own tests and tests that use them
+lazy val deprecatedModulesTestSettings = Seq(
+  Test / scalacOptions += "-Wconf:msg=kebs-(tagged-meta|jsonschema) is deprecated:s"
 )
 
 lazy val coreSettings = commonMacroSettings ++ hearthMacroSettings ++ generatedCodeTestSettings ++ Seq(
@@ -332,7 +327,9 @@ lazy val http4sStirSettings = commonSettings ++ Seq(
 )
 
 lazy val jsonschemaSettings = commonSettings ++ Seq(
-  libraryDependencies ++= { if (scalaVersion.value.startsWith("3")) Nil else Seq(jsonschema) }
+  libraryDependencies ++= { if (scalaVersion.value.startsWith("3")) Nil else Seq(jsonschema) },
+  // the module is deprecated as a whole; the warnings are for its users
+  Compile / scalacOptions += "-Wconf:cat=deprecation:s"
 )
 
 lazy val scalacheckSettings = commonSettings ++ Seq(
@@ -349,15 +346,6 @@ lazy val taggedSettings = commonSettings ++ Seq(
 )
 
 lazy val opaqueSettings = commonSettings
-
-lazy val examplesSettings = commonSettings ++ Seq(
-  libraryDependencies += slickPg,
-  libraryDependencies += circeAuto.value,
-  libraryDependencies += circeParser.value,
-  libraryDependencies ++= enumeratumInExamples,
-  libraryDependencies ++= pekkoHttpInExamples,
-  scalacOptions ++= paradiseFlag(scalaVersion.value)
-)
 
 lazy val taggedMetaSettings = metaSettings ++ Seq(
   libraryDependencies += optional(sprayJson),
@@ -526,6 +514,7 @@ lazy val pekkoHttpSupport = project
     moduleName         := "kebs-pekko-http",
     crossScalaVersions := supportedScalaVersions
   )
+  .settings(deprecatedModulesTestSettings *)
 
 lazy val http4sSupport = crossProject(JSPlatform, NativePlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
@@ -551,6 +540,7 @@ lazy val http4sSupport = crossProject(JSPlatform, NativePlatform, JVMPlatform)
     moduleName         := "kebs-http4s",
     crossScalaVersions := supportedScalaVersions
   )
+  .settings(deprecatedModulesTestSettings *)
 
 lazy val http4sStirSupport = crossProject(JSPlatform, NativePlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
@@ -580,6 +570,7 @@ lazy val http4sStirSupport = crossProject(JSPlatform, NativePlatform, JVMPlatfor
     moduleName         := "kebs-http4s-stir",
     crossScalaVersions := supportedScalaVersions
   )
+  .settings(deprecatedModulesTestSettings *)
 
 lazy val jsonschemaSupport = project
   .in(file("jsonschema"))
@@ -593,6 +584,7 @@ lazy val jsonschemaSupport = project
     moduleName         := "kebs-jsonschema",
     crossScalaVersions := supportedScalaVersions
   )
+  .settings(deprecatedModulesTestSettings *)
 
 lazy val scalacheckSupport = project
   .in(file("scalacheck"))
@@ -666,26 +658,7 @@ lazy val taggedMeta = crossProject(JSPlatform, NativePlatform, JVMPlatform)
     moduleName         := "kebs-tagged-meta",
     crossScalaVersions := supportedScalaVersions
   )
-
-lazy val examples = project
-  .in(file("examples"))
-  .dependsOn(
-    baklavaSupport,
-    slickSupport,
-    sprayJsonSupport,
-    playJsonSupport.jvm,
-    pekkoHttpSupport,
-    taggedMeta.jvm,
-    circeSupport.jvm,
-    instances.jvm
-  )
-  .settings(examplesSettings *)
-  .settings(noPublishSettings *)
-  .settings(disableScala(List("3")))
-  .settings(
-    name       := "examples",
-    moduleName := "kebs-examples"
-  )
+  .settings(deprecatedModulesTestSettings *)
 
 lazy val instances = crossProject(JSPlatform, NativePlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)

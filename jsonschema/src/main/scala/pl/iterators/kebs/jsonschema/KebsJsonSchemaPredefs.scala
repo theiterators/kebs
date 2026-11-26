@@ -5,6 +5,7 @@ import json.schema.Predef
 import java.net.{URI, URL}
 import java.time.{YearMonth, ZonedDateTime}
 
+@deprecated("kebs-jsonschema is deprecated: scala-jsonschema is no longer maintained", "3.0.0")
 trait KebsJsonSchemaPredefs {
   implicit val predefZonedDateTime: Predef[ZonedDateTime] = Predef(json.Schema.`string`[ZonedDateTime])
 

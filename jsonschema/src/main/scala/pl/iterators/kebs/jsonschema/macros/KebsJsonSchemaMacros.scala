@@ -4,6 +4,7 @@ import scala.reflect.macros._
 import pl.iterators.kebs.core.macros.MacroUtils
 import pl.iterators.kebs.jsonschema.JsonSchemaWrapper
 
+@deprecated("kebs-jsonschema is deprecated: scala-jsonschema is no longer maintained", "3.0.0")
 class KebsJsonSchemaMacros(override val c: whitebox.Context) extends MacroUtils {
   import c.universe._
 

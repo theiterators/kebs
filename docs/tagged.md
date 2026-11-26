@@ -52,6 +52,8 @@ val doubled: Int @@ UserIdTag = userId.map(_ * 2)
 
 ## Code generation with @tagged
 
+**kebs-tagged-meta is deprecated in kebs 3.0**, to be removed in a later release. Use value classes, or [opaque types](opaque.md) on Scala 3.
+
 The `@tagged` annotation generates companion objects with constructors, validators, and `ValueClassLike` instances. It works on both objects and traits:
 
 ```scala
