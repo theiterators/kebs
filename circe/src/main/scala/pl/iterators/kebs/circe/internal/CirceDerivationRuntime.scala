@@ -9,7 +9,7 @@ import pl.iterators.kebs.core.macros.internal.LocalCodecs
 
 import scala.collection.mutable
 
-// called by code generated in CirceMacrosImpl; what is decoded, in which order and with which errors follows circe-generic
+// called by code generated in CirceMacrosImpl, so its binary API is kept across 3.x; what is decoded, in which order and with which errors follows circe-generic
 object CirceDerivationRuntime {
   final class Members(names: Array[String], omitNone: Boolean) {
     private val members = List.newBuilder[(String, Json)]

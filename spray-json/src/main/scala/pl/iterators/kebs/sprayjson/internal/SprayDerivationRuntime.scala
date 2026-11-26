@@ -6,7 +6,7 @@ import spray.json._
 
 import scala.util.control.NonFatal
 
-// called by code generated in SprayFormatMacrosImpl
+// called by code generated in SprayFormatMacrosImpl, so its binary API is kept across 3.x
 object SprayDerivationRuntime {
   final class Fields(val names: Array[String], val writeNull: Boolean, val useDefaults: Boolean)
 

@@ -14,4 +14,4 @@ A library maintained by [Iterators](https://www.iteratorshq.com).
 
 Kebs derives typeclass instances (JSON codecs, database column mappings, HTTP unmarshallers and so on) for your domain types, at compile time.
 
-Kebs 3 supports Scala 2.13 and Scala 3.9 or newer, on JDK 17 or newer. Coming from kebs 2? See the [migration guide](migration-3.0.md). Kebs 2 is on the `series/2.x` branch.
+Kebs 3 supports Scala 2.13 and Scala 3.9 or newer, on JDK 17 or newer. Releases of 3.x are binary compatible with 3.0.0, checked by MiMa. That includes the code the macros generate in your classes: it calls kebs' own runtime, never [hearth](https://github.com/kubuszok/hearth), which is needed at compile time only. Coming from kebs 2? See the [migration guide](migration-3.0.md). Kebs 2 is on the `series/2.x` branch.

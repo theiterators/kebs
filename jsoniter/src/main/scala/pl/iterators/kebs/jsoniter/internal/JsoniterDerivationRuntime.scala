@@ -12,7 +12,7 @@ import scala.reflect.ClassTag
 import scala.util.Try
 import scala.util.control.NonFatal
 
-// called by code generated in JsoniterMacrosImpl. Codecs of parts are looked up when they are used: they may refer back.
+// called by code generated in JsoniterMacrosImpl, so its binary API is kept across 3.x. Codecs of parts are looked up when they are used: they may refer back.
 object JsoniterDerivationRuntime {
 
   // ignores the default it is given

@@ -2,7 +2,8 @@ package pl.iterators.kebs.core.macros.internal
 
 import java.util.concurrent.atomic.AtomicReference
 
-// codecs created when they are first used, which may be while another one is created; called by generated code
+// codecs created when they are first used, which may be while another one is created; called by generated code,
+// so its binary API is kept across 3.x as the public one is
 final class LocalCodecs(creators: Array[() => Any]) {
   private val codecs = Array.fill(creators.length)(new AtomicReference[AnyRef])
 

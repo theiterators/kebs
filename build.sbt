@@ -19,7 +19,6 @@ ThisBuild / publishTo          := {
 
 ThisBuild / tlBaseVersion                       := "3.0"
 ThisBuild / tlCiHeaderCheck                     := false
-ThisBuild / tlMimaPreviousVersions              := Set.empty
 ThisBuild / githubWorkflowJavaVersions          := Seq(JavaSpec.temurin("17"), JavaSpec.temurin("21"))
 ThisBuild / githubWorkflowPublishTargetBranches := Seq(RefPredicate.StartsWith(Ref.Tag("v")), RefPredicate.Equals(Ref.Branch("master")))
 
