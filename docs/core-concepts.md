@@ -12,7 +12,7 @@ Kebs is built on four typeclasses. Each integration module (circe, slick, pekko-
 Represents an isomorphism between a wrapper type `VC` and its underlying type `F1`.
 
 ```scala
-final class ValueClassLike[VC, F1](val apply: F1 => VC, val unapply: VC => F1)
+final class ValueClassLike[VC, F1](val apply: F1 => VC, val unapply: VC => F1, val from: F1 => Either[String, VC])
 ```
 
 Instances are derived automatically for:
@@ -22,6 +22,18 @@ Instances are derived automatically for:
 - Opaque types (Scala 3)
 
 Values are built with the companion `apply`, so one that validates or normalizes is honoured (on Scala 3, a private one is not called).
+
+Modules read values through `from`: a value that `apply` rejects with an exception is the module's own error (a decoding failure, a 404 for a path segment, a 400 for a parameter, doobie's `InvalidValue`), with the exception's message. Derived instances build `from` that way. To validate without exceptions, define the instance in the companion; it is found without `CaseClass1ToValueClass`:
+
+```scala
+final case class Code(value: String)
+object Code {
+  implicit val valueClassLike: ValueClassLike[Code, String] =
+    new ValueClassLike[Code, String](Code(_), _.value, s => if (s.length == 3) Right(Code(s)) else Left("three letters expected"))
+}
+```
+
+kebs-slick and the `support` typeclasses have no way to report an error: they use `apply`.
 
 To enable derivation, mix in `CaseClass1ToValueClass` (or import from its companion object):
 
@@ -106,7 +118,7 @@ Factory method:
 InstanceConverter[UUID, String](_.toString, UUID.fromString, Some("xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"))
 ```
 
-The optional `format` string is used in error messages when `decode` fails (throws `DecodeErrorException`).
+The optional `format` string is used in error messages when `decode` fails (throws `DecodeErrorException`). Modules read through `decodeEither`, which returns that message; override it to validate without exceptions.
 
 Unlike `ValueClassLike`, `InstanceConverter` is for types that are not simple wrappers — they have their own structure and parsing can fail.
 

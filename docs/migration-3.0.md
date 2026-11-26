@@ -59,7 +59,8 @@ Kebs 2 remains for older versions, on the `series/2.x` branch.
 
 - **pekko-http, http4s-stir:** a path segment that cannot be converted (an unknown enum value, a rejected value class) does not match. It was a 500, it is now a 404 if no other route matches.
 - **pekko-http with spray-json, play-json, or circe on Scala 3:** your own sealed hierarchies now have an instance, so they are sent as JSON, also if their companion has a `Marshaller`.
-- **Scala 3:** value classes and derived case classes are built with the companion `apply`, so one that validates is honoured when reading, as on Scala 2. Its exception is a decoding error for a value class in circe and play-json; for other case classes it is thrown as it is.
+- **Scala 3:** value classes and derived case classes are built with the companion `apply`, so one that validates is honoured when reading, as on Scala 2.
+- **A value that a value class, a converter or a case class rejects with an exception** is the module's own error, with the exception's message: a decoding failure in all JSON modules (spray-json threw the exception itself, and the other JSON modules did for case classes), `InvalidValue` in doobie, a failure in pureconfig, a 404 or 400 in pekko-http and http4s, and scalacheck does not generate it. `ValueClassLike` and `InstanceConverter` have an `Either`-returning `from` / `decodeEither` for validating without exceptions (see [core concepts](core-concepts.md#valueclasslikevc-f1)).
 - **Enums are read case-insensitively** by doobie, slick, baklava's `ToHeader` and the `uppercase` / `lowercase` presets too. An exact match wins. Set an `EnumNaming` with `caseInsensitive = false` to turn this off (the presets do not read it).
 - **Enumeratum, Scala 3:** the entries are those of `values`, also when it leaves some out.
 - **spray-json, Scala 3:** a sealed hierarchy without an enum format is written as `{"Red":{}}`. It did not compile before.

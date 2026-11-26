@@ -5,17 +5,15 @@ import pl.iterators.kebs.core.instances.InstanceConverter
 import pl.iterators.kebs.core.macros.ValueClassLike
 import pl.iterators.kebs.core.enums._
 
-import scala.util.Try
-
 trait KebsPekkoHttpMatchers extends org.apache.pekko.http.scaladsl.server.PathMatchers {
   implicit class SegmentIsomorphism[U](segment: PathMatcher1[U]) {
-    def as[T](implicit rep: ValueClassLike[T, U]): PathMatcher1[T] = segment.flatMap(u => Try(rep.apply(u)).toOption)
+    def as[T](implicit rep: ValueClassLike[T, U]): PathMatcher1[T]                                = segment.flatMap(rep.from(_).toOption)
     def asValueEnum[T <: ValueEnumLikeEntry[U]](implicit e: ValueEnumLike[U, T]): PathMatcher1[T] = segment.flatMap(e.withValueOption)
   }
 
   implicit class SegmentConversion[Source](segment: PathMatcher1[Source]) {
     def to[Type](implicit ico: InstanceConverter[Type, Source]): PathMatcher1[Type] =
-      segment.flatMap(source => Try(ico.decode(source)).toOption)
+      segment.flatMap(ico.decodeEither(_).toOption)
   }
 
   implicit class SegmentEnumIsomorphism[U](segment: PathMatcher1[String]) {

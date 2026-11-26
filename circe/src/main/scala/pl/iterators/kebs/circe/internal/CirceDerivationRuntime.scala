@@ -4,6 +4,7 @@ import cats.data.{NonEmptyList, Validated}
 import io.circe.DecodingFailure.Reason.{CustomReason, WrongTypeExpectation}
 import io.circe._
 import pl.iterators.kebs.core.json.{JsonConfig, NoneHandling}
+import pl.iterators.kebs.core.macros.ValueClassLike
 import pl.iterators.kebs.core.macros.internal.LocalCodecs
 
 import scala.collection.mutable
@@ -81,6 +82,9 @@ object CirceDerivationRuntime {
     private lazy val decoders    = fieldDecoders.toArray
     private lazy val useDefaults = config.useDefaults
 
+    private def constructed(json: HCursor, values: Array[Any]): Decoder.Result[T] =
+      ValueClassLike.catching(construct)(values).left.map(DecodingFailure(_, json.history))
+
     def apply(json: HCursor): Decoder.Result[T] =
       if (decoders.isEmpty && !json.value.isObject) Left(notAnObject(json))
       else {
@@ -94,7 +98,7 @@ object CirceDerivationRuntime {
           }
           index += 1
         }
-        failure.toLeft(construct(values))
+        failure.toLeft(values).flatMap(constructed(json, _))
       }
 
     override def decodeAccumulating(json: HCursor): Decoder.AccumulatingResult[T] =
@@ -108,7 +112,7 @@ object CirceDerivationRuntime {
             case Validated.Invalid(errors) => failures ++= errors.toList
           }
         }
-        NonEmptyList.fromList(failures.toList).fold[Decoder.AccumulatingResult[T]](Validated.valid(construct(values)))(Validated.invalid)
+        NonEmptyList.fromList(failures.toList).fold(Validated.fromEither(constructed(json, values)).toValidatedNel)(Validated.invalid(_))
       }
   }
 

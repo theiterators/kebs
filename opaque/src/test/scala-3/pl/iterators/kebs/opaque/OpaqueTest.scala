@@ -49,6 +49,12 @@ class OpaqueTest extends AnyFunSuite with Matchers {
     ValidatedTestWrappedString.from(" foo ") should equal(Right(ValidatedTestWrappedString("foo")))
   }
 
+  test("ValueClassLike reads through validate") {
+    val vcLike = summon[ValueClassLike[ValidatedTestWrappedString, String]]
+    vcLike.from("") should equal(Left("Empty string"))
+    vcLike.from(" foo ").map(_.unwrap) should equal(Right("foo"))
+  }
+
   test("Extension") {
     ValidatedTestWrappedString("foo").myMap(_.toUpper) shouldEqual ValidatedTestWrappedString("FOO")
   }

@@ -73,4 +73,25 @@ class ValueClassLikeTests extends AnyFunSuite with Matchers with CaseClass1ToVal
     find[Wrapped, String].unapply(Wrapped("c")) shouldBe "c"
     an[IllegalArgumentException] should be thrownBy find[Validated, Int].apply(0)
   }
+
+  test("from turns apply's exception into its message") {
+    import CaseClass1ToValueClass._
+    implicitly[ValueClassLike[Positive, Int]].from(1) shouldBe Right(Positive(1))
+    implicitly[ValueClassLike[Positive, Int]].from(0) shouldBe Left("requirement failed: must be positive")
+    new ValueClassLike[Plain, String](_ => throw new IllegalStateException(), _.value).from("x") shouldBe Left(
+      "java.lang.IllegalStateException"
+    )
+  }
+
+  test("a hand-written from is kept") {
+    val vcl = new ValueClassLike[Plain, String](Plain(_), _.value, s => if (s.isEmpty) Left("empty") else Right(Plain(s)))
+    vcl.from("") shouldBe Left("empty")
+    vcl.apply("") shouldBe Plain("")
+  }
+
+  test("InstanceConverter's decodeEither turns decode's exception into its message") {
+    val converter = pl.iterators.kebs.core.instances.InstanceConverter[java.time.Duration, String](_.toString, java.time.Duration.parse(_))
+    converter.decodeEither("PT1S") shouldBe Right(java.time.Duration.ofSeconds(1))
+    converter.decodeEither("x").left.toOption.get should include("cannot be parsed from x")
+  }
 }

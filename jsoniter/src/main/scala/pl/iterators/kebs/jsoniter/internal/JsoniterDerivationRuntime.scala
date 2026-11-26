@@ -211,7 +211,7 @@ object JsoniterDerivationRuntime {
         if (isMissing(values(index))) values(index) = current.fields(index).missing(in, keys.names(index), current.useDefaults)
         index += 1
       }
-      construct(values)
+      wrapping(in, values, construct)
     }
 
     private def isMissing(value: Any): Boolean = value.asInstanceOf[AnyRef] eq Missing
@@ -340,10 +340,16 @@ object JsoniterDerivationRuntime {
   private val discriminatorObject: JsonValueCodec[Map[String, String]] =
     map[String, String, Map[String, String]](LocalCodecs(List(() => JsoniterCodecs.string)), JsoniterCodecs.string, Map)
 
-  def valueClass[T, A](codecs: LocalCodecs, rep: ValueClassLike[T, A]): JsonValueCodec[T]      = wrapped(codecs, rep.apply, rep.unapply)
-  def converted[T, A](codecs: LocalCodecs, rep: InstanceConverter[T, A]): JsonValueCodec[T]    = wrapped(codecs, rep.decode, rep.encode)
-  def valueClassKey[T, A](base: JsonKeyCodec[A], rep: ValueClassLike[T, A]): JsonKeyCodec[T]   = wrappedKey(base, rep.apply, rep.unapply)
-  def convertedKey[T, A](base: JsonKeyCodec[A], rep: InstanceConverter[T, A]): JsonKeyCodec[T] = wrappedKey(base, rep.decode, rep.encode)
+  def valueClass[T, A](codecs: LocalCodecs, rep: ValueClassLike[T, A]): JsonValueCodec[T] = wrapped(codecs, orThrow(rep.from), rep.unapply)
+  def converted[T, A](codecs: LocalCodecs, rep: InstanceConverter[T, A]): JsonValueCodec[T] =
+    wrapped(codecs, orThrow(rep.decodeEither), rep.encode)
+  def valueClassKey[T, A](base: JsonKeyCodec[A], rep: ValueClassLike[T, A]): JsonKeyCodec[T] =
+    wrappedKey(base, orThrow(rep.from), rep.unapply)
+  def convertedKey[T, A](base: JsonKeyCodec[A], rep: InstanceConverter[T, A]): JsonKeyCodec[T] =
+    wrappedKey(base, orThrow(rep.decodeEither), rep.encode)
+
+  // `wrapping` reports the exception's message as the decoding error
+  private def orThrow[A, T](from: A => Either[String, T]): A => T = a => from(a).fold(e => throw new IllegalArgumentException(e), identity)
 
   private def wrapped[T, A](codecs: LocalCodecs, wrap: A => T, unwrap: T => A): JsonValueCodec[T] = new OwnCodec[T] {
     private def codec: JsonValueCodec[A] = codecs.get[JsonValueCodec[A]](0)

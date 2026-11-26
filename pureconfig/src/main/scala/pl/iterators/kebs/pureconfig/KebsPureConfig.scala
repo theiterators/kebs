@@ -3,17 +3,17 @@ package pl.iterators.kebs.pureconfig
 import pl.iterators.kebs.core.enums.{EnumLike, EnumNaming, ValueEnumLike, ValueEnumLikeEntry}
 import pl.iterators.kebs.core.instances.InstanceConverter
 import pl.iterators.kebs.core.macros.ValueClassLike
-import pureconfig.error.CannotConvert
+import pureconfig.error.{CannotConvert, UserValidationFailed}
 import pureconfig.{ConfigReader, ConfigWriter}
 
 trait KebsPureConfig {
   implicit def valueClassLikeReader[T, P](implicit valueClassLike: ValueClassLike[T, P], reader: ConfigReader[P]): ConfigReader[T] =
-    reader.map(valueClassLike.apply)
+    reader.emap(valueClassLike.from(_).left.map(UserValidationFailed(_)))
   implicit def valueClassLikeWriter[T, P](implicit valueClassLike: ValueClassLike[T, P], writer: ConfigWriter[P]): ConfigWriter[T] =
     writer.contramap(valueClassLike.unapply)
 
   implicit def instanceConverterReader[T, V](implicit converter: InstanceConverter[T, V], reader: ConfigReader[V]): ConfigReader[T] =
-    reader.map(converter.decode)
+    reader.emap(converter.decodeEither(_).left.map(UserValidationFailed(_)))
   implicit def instanceConverterWriter[T, V](implicit converter: InstanceConverter[T, V], writer: ConfigWriter[V]): ConfigWriter[T] =
     writer.contramap(converter.encode)
 

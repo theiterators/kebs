@@ -4,6 +4,8 @@ import pl.iterators.kebs.core.json.{JsonConfig, NoneHandling}
 import pl.iterators.kebs.core.macros.internal.LocalCodecs
 import spray.json._
 
+import scala.util.control.NonFatal
+
 // called by code generated in SprayFormatMacrosImpl
 object SprayDerivationRuntime {
   final class Fields(val names: Array[String], val writeNull: Boolean, val useDefaults: Boolean)
@@ -45,7 +47,13 @@ object SprayDerivationRuntime {
       writeFields(members, obj)
       JsObject(members.result()*)
     }
-    def read(json: JsValue): T = readFields(fields, json)
+    // a constructor that rejects the fields is a DeserializationException too, as spray's readers throw
+    def read(json: JsValue): T =
+      try readFields(fields, json)
+      catch {
+        case e: DeserializationException => throw e
+        case NonFatal(e)                 => deserializationError(Option(e.getMessage).getOrElse(e.toString), e)
+      }
   }
 
   // spray's jsonFormat0

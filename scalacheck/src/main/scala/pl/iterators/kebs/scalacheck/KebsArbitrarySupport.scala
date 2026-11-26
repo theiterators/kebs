@@ -14,7 +14,7 @@ trait KebsArbitrarySupport extends ScalacheckInstancesSupport {
       rep: ValueClassLike[T, A],
       arbitrary: Arbitrary[A]
   ): Arbitrary[T] =
-    Arbitrary(arbitrary.arbitrary.map(rep.apply(_)))
+    Arbitrary(arbitrary.arbitrary.flatMap(rep.from(_).fold(_ => Gen.fail, Gen.const)))
 
   implicit def enumArbitrary[E](implicit e: EnumLike[E]): Arbitrary[E] = Arbitrary(Gen.oneOf(e.values))
 

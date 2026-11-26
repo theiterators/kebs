@@ -1,6 +1,7 @@
 package pl.iterators.kebs.playjson.internal
 
 import pl.iterators.kebs.core.json.{JsonConfig, NoneHandling}
+import pl.iterators.kebs.core.macros.ValueClassLike
 import pl.iterators.kebs.core.macros.internal.LocalCodecs
 import play.api.libs.json._
 
@@ -77,7 +78,7 @@ object PlayDerivationRuntime {
   // every field's errors are reported, as Json.reads does
   private def combine[T](results: List[JsResult[Any]], build: Array[Any] => T): JsResult[T] =
     results.collect { case error: JsError => error } match {
-      case Nil    => JsSuccess(build(results.map(_.asInstanceOf[JsSuccess[Any]].value).toArray))
+      case Nil => ValueClassLike.catching(build)(results.map(_.asInstanceOf[JsSuccess[Any]].value).toArray).fold(JsError(_), JsSuccess(_))
       case errors => errors.reduce((left: JsError, right: JsError) => JsError.merge(left, right))
     }
 
