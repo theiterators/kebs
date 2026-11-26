@@ -16,6 +16,25 @@ private[kebs] trait JsonDerivationMacrosScala3 extends JsonDerivationMacrosImpl 
     }
   }
 
+  override protected def valueClassOf[A: Type]: Option[Wrapping] = wrapping[A]("pl.iterators.kebs.core.macros.ValueClassLike")
+  override protected def converterOf[A: Type]: Option[Wrapping]  = wrapping[A]("pl.iterators.kebs.core.instances.InstanceConverter")
+
+  private def wrapping[A: Type](typeClass: String): Option[Wrapping] = {
+    import quotes.reflect.*
+    val symbol = Symbol.requiredClass(typeClass)
+    val wanted = symbol.typeRef.appliedTo(List(TypeRepr.of(using summon[Type[A]]), TypeBounds.empty))
+    JsonDerivationState.searching(expansionOwner)(Implicits.search(wanted)) match {
+      case found: ImplicitSearchSuccess =>
+        found.tree.tpe.widen.baseType(symbol).typeArgs.lift(1).map { base =>
+          new Wrapping(found.tree.asInstanceOf[UntypedExpr], base.dealias.asInstanceOf[UntypedType].as_??)
+        }
+      case ambiguous: AmbiguousImplicits =>
+        Environment.reportErrorAndAbort(s"Ambiguous instances of ${wanted.show}: ${ambiguous.explanation}")
+      case diverging: DivergingImplicit => Environment.reportErrorAndAbort(s"Diverging search for ${wanted.show}")
+      case _                            => None
+    }
+  }
+
   override protected def placeholderKeys[A](expr: Expr[A]): Set[String] = {
     import quotes.reflect.*
     val placeholder = Symbol.requiredMethod("pl.iterators.kebs.core.macros.internal.JsonPlaceholder.apply")
