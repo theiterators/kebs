@@ -411,7 +411,16 @@ lazy val circeSupport = crossProject(JSPlatform, NativePlatform, JVMPlatform)
   .jvmSettings(
     libraryDependencies += pekkoStream    % "test",
     libraryDependencies += pekkoHttp      % "test",
-    libraryDependencies += pekkoHttpCirce % "test"
+    libraryDependencies += pekkoHttpCirce % "test",
+    // a test compiles snippets to see kebs' warnings
+    libraryDependencies ++= (if (scalaVersion.value.startsWith("3"))
+                               Seq("org.scala-lang" %% "scala3-compiler" % scalaVersion.value % "test")
+                             else Nil),
+    Test / resourceGenerators += Def.task {
+      val file = (Test / resourceManaged).value / "kebs-test-classpath.txt"
+      IO.write(file, (Test / dependencyClasspath).value.files.mkString(java.io.File.pathSeparator))
+      Seq(file)
+    }
   )
 
 lazy val pekkoHttpSupport = project
