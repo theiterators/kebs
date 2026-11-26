@@ -2,12 +2,29 @@ package pl.iterators.kebs.core.naming
 
 import pl.iterators.kebs.core.macros.namingconventions.{CapitalizeVariant, SnakifyVariant}
 
+import java.util.concurrent.ConcurrentHashMap
+
 final case class Naming(transform: String => String) {
-  def apply(name: String): String   = transform(name)
+  // enum codecs rename on every encode; names are entry and field names, so the set is small (the cap guards against a
+  // naming applied to arbitrary runtime strings)
+  private[this] val memo = new ConcurrentHashMap[String, String]
+
+  def apply(name: String): String = {
+    val cached = memo.get(name)
+    if (cached ne null) cached
+    else {
+      val renamed = transform(name)
+      if (memo.size < Naming.MemoLimit) memo.put(name, renamed)
+      renamed
+    }
+  }
+
   def andThen(that: Naming): Naming = Naming(transform.andThen(that.transform))
 }
 
 object Naming {
+  private val MemoLimit = 4096
+
   val identity: Naming           = Naming(name => name)
   val snakeCase: Naming          = Naming(SnakifyVariant.snakify)
   val screamingSnakeCase: Naming = Naming(SnakifyVariant.snakify(_).toUpperCase)

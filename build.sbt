@@ -211,7 +211,13 @@ lazy val hearthMacroSettings = Seq(
                      else Seq("-Wconf:msg=The outer reference in this type test cannot be checked at run time:s"))
 )
 
-lazy val coreSettings = commonMacroSettings ++ hearthMacroSettings ++ Seq(
+// users may turn these on, and generated code has to pass
+lazy val generatedCodeTestSettings = Seq(
+  Test / scalacOptions ++= (if (scalaVersion.value.startsWith("3")) Seq("-Xcheck-macros")
+                            else Seq("-Xlint:implicit-recursion", "-Wconf:msg=Implicit resolves to enclosing:e"))
+)
+
+lazy val coreSettings = commonMacroSettings ++ hearthMacroSettings ++ generatedCodeTestSettings ++ Seq(
   libraryDependencies += (scalaCheck.value % "test"),
   libraryDependencies += (scalaTest.value  % "test")
 )

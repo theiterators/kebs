@@ -19,6 +19,14 @@ object ValueClassLikeTestDomain {
     def apply(value: String): Email = new Email(value.toLowerCase)
   }
   final case class Two(a: Int, b: Int)
+  final case class Wrapped(value: String) extends AnyVal
+  final case class Validated(value: Int)  extends AnyVal
+  object Validated {
+    def apply(value: Int): Validated = {
+      require(value > 0, "must be positive")
+      new Validated(value)
+    }
+  }
   final class NotCase(val value: Int)
 }
 
@@ -52,5 +60,17 @@ class ValueClassLikeTests extends AnyFunSuite with Matchers with CaseClass1ToVal
   test("no instance for a 2-field case class or a non-case class") {
     assertDoesNotCompile("implicitly[ValueClassLike[Two, Int]]")
     assertDoesNotCompile("implicitly[ValueClassLike[NotCase, Int]]")
+  }
+
+  test("AnyVal case class (Scala 3 synthesises no Mirror for it)") {
+    val rep = implicitly[ValueClassLike[Wrapped, String]]
+    rep.apply("a") shouldBe Wrapped("a")
+    rep.unapply(Wrapped("b")) shouldBe "b"
+  }
+
+  test("AnyVal case class: field type inferred, companion apply honoured") {
+    def find[T, A](implicit rep: ValueClassLike[T, A]): ValueClassLike[T, A] = rep
+    find[Wrapped, String].unapply(Wrapped("c")) shouldBe "c"
+    an[IllegalArgumentException] should be thrownBy find[Validated, Int].apply(0)
   }
 }
