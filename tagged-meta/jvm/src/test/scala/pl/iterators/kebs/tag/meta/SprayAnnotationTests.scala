@@ -62,14 +62,14 @@ class SprayAnnotationTests extends AnyFunSuite with Matchers with KebsSprayJson 
   test("generated implicits use validation (object)") {
     import SprayTestTags._
     val reader = implicitly[JsonReader[PositiveInt]]
-    an[IllegalArgumentException] shouldBe thrownBy(reader.read(JsNumber(-10)))
+    a[DeserializationException] shouldBe thrownBy(reader.read(JsNumber(-10)))
     reader.read(JsNumber(10)) shouldEqual 10
   }
 
   test("generated implicits use validation (trait)") {
     import SprayTestTagsFromTrait._
     val reader = implicitly[JsonReader[NegativeInt]]
-    an[IllegalArgumentException] shouldBe thrownBy(reader.read(JsNumber(10)))
+    a[DeserializationException] shouldBe thrownBy(reader.read(JsNumber(10)))
     reader.read(JsNumber(-10)) shouldEqual -10
   }
 
