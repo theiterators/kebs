@@ -1,12 +1,16 @@
 package pl.iterators.kebs.sprayjson
 
 import pl.iterators.kebs.core.instances.InstanceConverter
+import pl.iterators.kebs.core.json.{JsonConfig, NoneHandling}
 import pl.iterators.kebs.core.macros.ValueClassLike
-import spray.json.{DefaultJsonProtocol, JsValue, JsonFormat, JsonReader, RootJsonFormat}
+import pl.iterators.kebs.core.naming.Naming
+import spray.json.{DefaultJsonProtocol, JsValue, JsonFormat, NullOptions}
 
-trait KebsSprayJson { self: DefaultJsonProtocol =>
-  import macros.KebsSprayMacros
-  implicit def jsonFormatN[T <: Product]: RootJsonFormat[T] = macro KebsSprayMacros.materializeRootFormat[T]
+trait KebsSprayJson extends KebsSprayJsonAutoCompat { self: DefaultJsonProtocol =>
+  // read through the protocol, not implicitly: another protocol imported in the same scope would make it ambiguous
+  def kebsJsonConfig: JsonConfig =
+    JsonConfig.default.withNoneHandling(if (this.isInstanceOf[NullOptions]) NoneHandling.WriteNull else NoneHandling.Omit)
+
   implicit def jsonFlatFormat[T, A](implicit rep: ValueClassLike[T, A], baseJsonFormat: JsonFormat[A]): JsonFormat[T] = {
     val reader: JsValue => T = json => rep.apply(baseJsonFormat.read(json))
     val writer: T => JsValue = obj => baseJsonFormat.write(rep.unapply(obj))
@@ -18,20 +22,10 @@ trait KebsSprayJson { self: DefaultJsonProtocol =>
     jsonFormat[T](reader, writer)
   }
 
-  final def jsonFormatRec[T <: Product]: RootJsonFormat[T] = macro KebsSprayMacros.materializeLazyFormat[T]
-
-  @inline
-  def _kebs_getField[T](value: JsValue, fieldName: String)(implicit reader: JsonReader[T]) = fromField[T](value, fieldName)
-
   trait KebsSprayJsonSnakified extends KebsSprayJson { self: DefaultJsonProtocol =>
-    import macros.KebsSprayMacros
-    implicit def snakifiedJsonFormatN[T <: Product]: RootJsonFormat[T] = macro KebsSprayMacros.SnakifyVariant.materializeRootFormat[T]
+    override def kebsJsonConfig: JsonConfig = super.kebsJsonConfig.withFieldNaming(Naming.snakeCase)
   }
   trait KebsSprayJsonCapitalized extends KebsSprayJson { self: DefaultJsonProtocol =>
-    import macros.KebsSprayMacros
-    // format: off
-    implicit def capitalizedJsonFormatN[T <: Product]: RootJsonFormat[T] =
-    macro KebsSprayMacros.CapitalizedCamelCase.materializeRootFormat[T]
-    // format: on
+    override def kebsJsonConfig: JsonConfig = super.kebsJsonConfig.withFieldNaming(Naming.pascalCase)
   }
 }

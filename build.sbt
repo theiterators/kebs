@@ -154,9 +154,9 @@ val pekkoStream        = "org.apache.pekko" %% "pekko-stream"         % pekkoVer
 val pekkoStreamTestkit = "org.apache.pekko" %% "pekko-stream-testkit" % pekkoVersion
 val pekkoHttp          = "org.apache.pekko" %% "pekko-http"           % pekkoHttpVersion
 val pekkoHttpTestkit   = "org.apache.pekko" %% "pekko-http-testkit"   % pekkoHttpVersion
+val pekkoHttpSprayJson = "org.apache.pekko" %% "pekko-http-spray-json" % pekkoHttpVersion
 
 def pekkoHttpInExamples = {
-  val pekkoHttpSprayJson = "org.apache.pekko" %% "pekko-http-spray-json" % pekkoHttpVersion
   Seq(pekkoStream, pekkoHttp, pekkoHttpSprayJson)
 }
 
@@ -235,9 +235,11 @@ lazy val enumeratumSettings = commonMacroSettings ++ hearthMacroSettings ++ Seq(
   scalacOptions ++= paradiseFlag(scalaVersion.value)
 )
 
-lazy val sprayJsonSettings = commonSettings ++ Seq(
+lazy val sprayJsonSettings = commonSettings ++ hearthMacroSettings ++ generatedCodeTestSettings ++ Seq(
   libraryDependencies += sprayJson,
-  libraryDependencies += optionalEnumeratum.value
+  libraryDependencies += optionalEnumeratum.value,
+  libraryDependencies += pekkoStream        % "test",
+  libraryDependencies += pekkoHttpSprayJson % "test"
 )
 
 lazy val playJsonSettings = commonSettings ++ Seq(
