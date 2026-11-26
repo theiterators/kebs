@@ -9,14 +9,13 @@ private[kebs] trait ValueClassLikeMacrosImpl { this: hearth.MacroCommons =>
 
   final class ProductFallback[T, F](val construct: Expr[F] => Expr[T], val access: Expr[T] => Expr[F])
 
+  def checkValueClass[T: Type]: Unit = {
+    singleFieldOrAbort[T]
+    ()
+  }
+
   def deriveValueClassLike[T: Type]: Expr_?? = {
-    val caseClass: CaseClass[T] = CaseClass.parse[T].toOption match {
-      case Some(cc) => cc
-      case None     => Environment.reportErrorAndAbort(s"${Type[T].prettyPrint} is not a case class")
-    }
-    val field: Parameter = singleField(caseClass).getOrElse(
-      Environment.reportErrorAndAbort(s"To derive ValueClassLike, ${Type[T].prettyPrint} must have exactly one field")
-    )
+    val (caseClass, field) = singleFieldOrAbort[T]
     // a nested path (field.tpe.Underlying) breaks cross-quotes on 2.13
     val fieldType: ?? = field.tpe
     import fieldType.Underlying as F
@@ -27,6 +26,17 @@ private[kebs] trait ValueClassLikeMacrosImpl { this: hearth.MacroCommons =>
   def deriveValueClassLikeWithFallback[T: Type, F: Type](fallback: ProductFallback[T, F]): Expr[ValueClassLike[T, F]] = {
     val caseClass = CaseClass.parse[T].toOption.filter(cc => singleField(cc).exists(_.tpe.Underlying =:= Type[F]))
     build[T, F](caseClass, Some(fallback))
+  }
+
+  private def singleFieldOrAbort[T: Type]: (CaseClass[T], Parameter) = {
+    val caseClass: CaseClass[T] = CaseClass.parse[T].toOption match {
+      case Some(cc) => cc
+      case None     => Environment.reportErrorAndAbort(s"${Type[T].prettyPrint} is not a case class")
+    }
+    val field: Parameter = singleField(caseClass).getOrElse(
+      Environment.reportErrorAndAbort(s"To derive ValueClassLike, ${Type[T].prettyPrint} must have exactly one field")
+    )
+    (caseClass, field)
   }
 
   private def singleField[T](caseClass: CaseClass[T]): Option[Parameter] =

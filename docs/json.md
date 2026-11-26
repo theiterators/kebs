@@ -11,7 +11,7 @@ title: JSON derivation
 
 - **Case classes**, generic ones, recursive ones and those with more than 22 fields included.
 - **Sealed hierarchies**, as an object with the name of the case: `{"Rect":{"w":1.0,"h":2.0}}`, `{"Empty":{}}`. Nested hierarchies are flattened to their leaves.
-- **Value classes** (single-field case classes), as the wrapped value, when `CaseClass1ToValueClass` is mixed in; [opaque](opaque.md) and [tagged](tagged.md) types too. That includes a single-field case of a sealed hierarchy: `{"Dot":2.0}`. With a discriminator, writing such a case fails.
+- **Value classes** (single-field case classes), as the wrapped value, when [marked](core-concepts.md#valueclasslikevc-f1) with `derives ValueClass` or `CaseClass1ToValueClass` is mixed in; [opaque](opaque.md) and [tagged](tagged.md) types too. That includes a single-field case of a sealed hierarchy: `{"Dot":2.0}`. With a discriminator, writing such a case fails.
 - **Types with an `InstanceConverter`**, as the converted value (see [instances](instances.md)).
 - **Enums and value enums**, as their name or value, when both the module's enum traits and the support of the enum (`KebsEnum` / `KebsValueEnum`, `KebsEnumeratum` / `KebsValueEnumeratum`, see [enums](enums.md)) are mixed in. Without that support an enum is a sealed hierarchy: `{"Red":{}}`.
 

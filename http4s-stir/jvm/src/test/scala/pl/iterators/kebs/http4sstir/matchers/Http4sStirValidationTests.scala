@@ -8,7 +8,7 @@ import scala.concurrent.duration._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.core.macros.ValueClassLike
+import pl.iterators.kebs.core.macros.{CaseClass1ToValueClass, ValueClassLike}
 
 object Http4sStirValidationTestsDomain {
   final case class Code(value: String)
@@ -18,14 +18,15 @@ object Http4sStirValidationTestsDomain {
   }
 }
 
-// without CaseClass1ToValueClass, which would win over Code's own instance
+// Code's own instance wins over CaseClass1ToValueClass
 class Http4sStirValidationTests
     extends AnyFunSuite
     with Matchers
     with Directives
     with ScalatestRouteTest
     with ScalaFutures
-    with KebsHttp4sStirUnmarshallers {
+    with KebsHttp4sStirUnmarshallers
+    with CaseClass1ToValueClass {
   import Http4sStirValidationTestsDomain._
   implicit val routeTestTimeout: RouteTestTimeout    = RouteTestTimeout(5.seconds)
   implicit def runtime: cats.effect.unsafe.IORuntime = cats.effect.unsafe.IORuntime.global

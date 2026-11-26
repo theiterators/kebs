@@ -26,7 +26,6 @@ class PureConfigInstancesTests extends AnyFunSuite with Matchers {
 
   object Protocol extends KebsPureConfig with TimeInstances with UtilInstances with NetInstances with CaseClass1ToValueClass
   object Milli    extends KebsPureConfig with InstantEpochMilliLong
-  object Plain    extends KebsPureConfig
 
   private def read[T: ConfigReader](value: String)    = ConfigSource.string(s"key = $value").at("key").load[T]
   private def written[T: ConfigWriter](value: T): Any = ConfigWriter[T].to(value).unwrapped
@@ -71,9 +70,8 @@ class PureConfigInstancesTests extends AnyFunSuite with Matchers {
     read[Positive]("0").left.toOption.get.prettyPrint() should include("not positive")
   }
 
-  // a hand-written instance loses to CaseClass1ToValueClass in lexical scope
-  test("a value class's own from decides") {
-    import Plain._
+  test("a value class's own from decides, also next to CaseClass1ToValueClass") {
+    import Protocol._
     read[Code]("abc") shouldBe Right(Code("abc"))
     read[Code]("abcd").left.toOption.get.prettyPrint() should include("not three letters")
   }

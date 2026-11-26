@@ -9,14 +9,12 @@ import spray.json._
 
 class SprayValidationTests extends AnyFunSuite with Matchers {
   object Protocol extends DefaultJsonProtocol with KebsSprayJson with CaseClass1ToValueClass
-  // a hand-written instance loses to CaseClass1ToValueClass in lexical scope
-  object Plain extends DefaultJsonProtocol with KebsSprayJson
 
   private def failure[T: JsonReader](json: String): String =
     intercept[DeserializationException](json.parseJson.convertTo[T]).getMessage
 
-  test("a value class's own from decides") {
-    import Plain._
+  test("a value class's own from decides, also next to CaseClass1ToValueClass") {
+    import Protocol._
     "\"abc\"".parseJson.convertTo[Code] shouldBe Code("abc")
     failure[Code]("\"abcd\"") should include("not three letters")
   }

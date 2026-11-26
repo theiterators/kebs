@@ -16,19 +16,18 @@ object ValidationGeneratorsTests {
 
 class ValidationGeneratorsTests extends AnyFunSuite with Matchers {
   import KebsArbitrarySupport._
+  import CaseClass1ToValueClass._
   import ValidationGeneratorsTests._
 
   private def samples[T](n: Int)(implicit arbitrary: Arbitrary[T]): List[T] = List.fill(n)(arbitrary.arbitrary.sample).flatten
 
   test("values that a value class rejects are not generated") {
-    import CaseClass1ToValueClass._
     val values = samples[Positive](500)
     values should not be empty
     all(values.map(_.value)) should be > 0
   }
 
-  // a hand-written instance loses to CaseClass1ToValueClass in lexical scope
-  test("a value class's own from decides") {
+  test("a value class's own from decides, also next to CaseClass1ToValueClass") {
     all(samples[Code](500).map(_.value.length)) shouldBe 3
   }
 }
