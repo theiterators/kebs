@@ -59,13 +59,14 @@ val routes = HttpRoutes.of[IO] {
 | `InstanceLong[T]` | `Long` path segment → `T` | `InstanceConverter[T, Long]` |
 | `InstanceUUID[T]` | `UUID` path segment → `T` | `InstanceConverter[T, UUID]` |
 | `EnumString[T]` | `String` path segment → `T` | `EnumLike[T]` |
+| `ValueEnumString[T]`, `ValueEnumInt[T]`, `ValueEnumLong[T]`, `ValueEnumShort[T]`, `ValueEnumByte[T]` | path segment → `T` | `ValueEnumLike[_, T]` |
 
 ### QueryParamDecoder derivation
 
 The same import also provides automatic `QueryParamDecoder` instances for:
 - Any type with a `ValueClassLike` (value classes, opaque types, tagged types)
 - Any type with an `InstanceConverter` (java.time types, UUID, etc.)
-- Any type with an `EnumLike`
+- Any type with an `EnumLike` or a `ValueEnumLike`
 
 ```scala
 object AgeQueryParamMatcher extends QueryParamDecoderMatcher[Age]("age")

@@ -551,7 +551,13 @@ lazy val jsonschemaSupport = project
 
 lazy val scalacheckSupport = project
   .in(file("scalacheck"))
-  .dependsOn(core.jvm, enumSupport.jvm, opaque.jvm % "test -> test")
+  .dependsOn(
+    core.jvm,
+    enumSupport.jvm,
+    enumeratumSupport.jvm % "test -> compile",
+    opaque.jvm            % "test -> test",
+    testkit.jvm           % "test -> compile"
+  )
   .settings(scalacheckSettings *)
   .settings(publishSettings *)
   .settings(
@@ -681,7 +687,7 @@ lazy val enumeratumSupport = crossProject(JSPlatform, NativePlatform, JVMPlatfor
 
 lazy val pureConfigSupport = project
   .in(file("pureconfig"))
-  .dependsOn(core.jvm)
+  .dependsOn(core.jvm, enumeratumSupport.jvm % "test -> compile", instances.jvm % "test -> compile", testkit.jvm % "test -> compile")
   .settings(pureConfigSettings *)
   .settings(publishSettings *)
   .settings(

@@ -1,7 +1,7 @@
 package pl.iterators.kebs.http4s
 
 import org.http4s._
-import pl.iterators.kebs.core.enums.{EnumLike, EnumNaming}
+import pl.iterators.kebs.core.enums.{EnumLike, EnumNaming, ValueEnumLike, ValueEnumLikeEntry}
 import pl.iterators.kebs.core.instances.InstanceConverter
 import pl.iterators.kebs.core.macros.ValueClassLike
 
@@ -30,6 +30,26 @@ trait KebsHttp4s {
       val named = naming.applyTo(e)
       new PathVar[T](str => Try(naming.lookup(named, str).getOrElse(throw new IllegalArgumentException(s"enum case not found: $str"))))
     }
+  }
+
+  object ValueEnumString {
+    def apply[T <: ValueEnumLikeEntry[String]](implicit e: ValueEnumLike[String, T]) = new PathVar[T](str => Try(e.withValue(str)))
+  }
+
+  object ValueEnumInt {
+    def apply[T <: ValueEnumLikeEntry[Int]](implicit e: ValueEnumLike[Int, T]) = new PathVar[T](str => Try(e.withValue(str.toInt)))
+  }
+
+  object ValueEnumLong {
+    def apply[T <: ValueEnumLikeEntry[Long]](implicit e: ValueEnumLike[Long, T]) = new PathVar[T](str => Try(e.withValue(str.toLong)))
+  }
+
+  object ValueEnumShort {
+    def apply[T <: ValueEnumLikeEntry[Short]](implicit e: ValueEnumLike[Short, T]) = new PathVar[T](str => Try(e.withValue(str.toShort)))
+  }
+
+  object ValueEnumByte {
+    def apply[T <: ValueEnumLikeEntry[Byte]](implicit e: ValueEnumLike[Byte, T]) = new PathVar[T](str => Try(e.withValue(str.toByte)))
   }
 
   object WrappedInt {
@@ -67,5 +87,12 @@ trait KebsHttp4s {
     QueryParamDecoder[String].emap(str =>
       naming.lookup(named, str).toRight(ParseFailure(s"enum case not found: $str", s"enum case not found: $str"))
     )
+  }
+  implicit def valueEnumQueryParamDecoder[V, E <: ValueEnumLikeEntry[V]](implicit
+      e: ValueEnumLike[V, E],
+      qpd: QueryParamDecoder[V]
+  ): QueryParamDecoder[E] = qpd.emap { value =>
+    val message = s"$value is not a member of ${e.values.map(_.value).mkString(", ")}"
+    e.withValueOption(value).toRight(ParseFailure(message, message))
   }
 }
