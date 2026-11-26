@@ -5,22 +5,28 @@ import pl.iterators.kebs.core.instances.InstanceConverter
 import pl.iterators.kebs.core.macros.ValueClassLike
 import org.apache.pekko.http.scaladsl.unmarshalling.PredefinedFromStringUnmarshallers._
 import org.apache.pekko.http.scaladsl.util.FastFuture
-import pl.iterators.kebs.core.enums.{EnumLike, ValueEnumLike, ValueEnumLikeEntry}
+import pl.iterators.kebs.core.enums.{EnumLike, EnumNaming, ValueEnumLike, ValueEnumLikeEntry}
 
 trait KebsPekkoHttpEnumUnmarshallers {
-  final def enumUnmarshaller[E](`enum`: EnumLike[E]): FromStringUnmarshaller[E] = Unmarshaller { _ => name =>
-    `enum`.withNameInsensitiveOption(name) match {
-      case Some(enumEntry) => FastFuture.successful(enumEntry)
-      case None            =>
-        FastFuture.failed(
-          new IllegalArgumentException(s"""Invalid value '$name'. Expected one of: ${`enum`.getNamesToValuesMap.keysIterator
-              .mkString(", ")}""")
-        )
+  final def enumUnmarshaller[E](`enum`: EnumLike[E]): FromStringUnmarshaller[E] = namedEnumUnmarshaller(`enum`, EnumNaming.default)
+
+  final def namedEnumUnmarshaller[E](`enum`: EnumLike[E], naming: EnumNaming): FromStringUnmarshaller[E] = {
+    val named = naming.applyTo(`enum`)
+    Unmarshaller { _ => name =>
+      naming.lookup(named, name) match {
+        case Some(enumEntry) => FastFuture.successful(enumEntry)
+        case None            =>
+          FastFuture.failed(
+            new IllegalArgumentException(
+              s"""Invalid value '$name'. Expected one of: ${named.getNamesToValuesMap.keysIterator.mkString(", ")}"""
+            )
+          )
+      }
     }
   }
 
-  implicit def kebsEnumUnmarshaller[E](implicit ev: EnumLike[E]): FromStringUnmarshaller[E] =
-    enumUnmarshaller(ev)
+  implicit def kebsEnumUnmarshaller[E](implicit ev: EnumLike[E], naming: EnumNaming): FromStringUnmarshaller[E] =
+    namedEnumUnmarshaller(ev, naming)
 }
 
 private[kebs] trait LowerPriorityKebsPekkoHttpValueEnumUnmarshallers {
