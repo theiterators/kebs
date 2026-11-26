@@ -28,9 +28,15 @@ lazy val baseSettings = Seq(
   organizationName     := "Iterators",
   organizationHomepage := Some(url("https://iterato.rs")),
   homepage             := Some(url("https://github.com/theiterators/kebs")),
-  scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature", "-encoding", "utf8") ++ (if (scalaVersion.value.startsWith("3"))
-                                                                                             Seq("-Xmax-inlines", "64", "-Yretain-trees")
-                                                                                           else Seq("-Xsource:3", "-Wconf:cat=scala3-migration:s"))
+  scalacOptions ++= Seq(
+    "-deprecation",
+    "-unchecked",
+    "-feature",
+    "-encoding",
+    "utf8"
+  ) ++ (if (scalaVersion.value.startsWith("3"))
+          Seq("-Xmax-inlines", "64", "-Yretain-trees")
+        else Seq("-Xsource:3", "-Wconf:cat=scala3-migration:s"))
 )
 
 lazy val commonMacroSettings = baseSettings ++ Seq(
@@ -115,20 +121,19 @@ val hearthV = "0.4.5"
 val scalaTest  = Def.setting("org.scalatest" %%% "scalatest" % "3.2.20")
 val scalaCheck = Def.setting("org.scalacheck" %%% "scalacheck" % "1.19.0")
 
-val baklava         = "pl.iterators"        %% "baklava-core"    % "2.4.0"
-val slick           = "com.typesafe.slick"  %% "slick"           % "3.6.1"
-val optionalSlick   = optional(slick)
-val playJson        = Def.setting("org.playframework" %%% "play-json" % "3.0.6")
-val slickPg         = "com.github.tminglei" %% "slick-pg"        % "0.23.1"
-val doobie          = "org.typelevel"       %% "doobie-core"     % "1.0.0-RC14"
-val h2              = "com.h2database"       % "h2"              % "2.5.252"
-val doobiePg        = "org.typelevel"       %% "doobie-postgres" % "1.0.0-RC14"
-val sprayJson       = "io.spray"            %% "spray-json"      % "1.3.6"
-val circeV          = "0.14.17"
-val circe           = Def.setting("io.circe" %%% "circe-core" % circeV)
-val circeAuto       = Def.setting("io.circe" %%% "circe-generic" % circeV)
-val circeAutoExtras = Def.setting("io.circe" %%% "circe-generic-extras" % "0.14.4")
-val circeParser     = Def.setting("io.circe" %%% "circe-parser" % circeV)
+val baklava       = "pl.iterators"        %% "baklava-core"    % "2.4.0"
+val slick         = "com.typesafe.slick"  %% "slick"           % "3.6.1"
+val optionalSlick = optional(slick)
+val playJson      = Def.setting("org.playframework" %%% "play-json" % "3.0.6")
+val slickPg       = "com.github.tminglei" %% "slick-pg"        % "0.23.1"
+val doobie        = "org.typelevel"       %% "doobie-core"     % "1.0.0-RC14"
+val h2            = "com.h2database"       % "h2"              % "2.5.252"
+val doobiePg      = "org.typelevel"       %% "doobie-postgres" % "1.0.0-RC14"
+val sprayJson     = "io.spray"            %% "spray-json"      % "1.3.6"
+val circeV        = "0.14.17"
+val circe         = Def.setting("io.circe" %%% "circe-core" % circeV)
+val circeAuto     = Def.setting("io.circe" %%% "circe-generic" % circeV)
+val circeParser   = Def.setting("io.circe" %%% "circe-parser" % circeV)
 
 val jsonschema = "com.github.andyglow" %% "scala-jsonschema" % "0.7.11"
 
@@ -150,11 +155,12 @@ val enumeratumInTest   = Def.setting("com.beachape" %%% "enumeratum" % enumeratu
 val pekkoVersion       = "2.0.0"
 val pekkoHttpVersion   = "2.0.1"
 val pekkoHttpJsonV     = "2.0.0"
-val pekkoStream        = "org.apache.pekko" %% "pekko-stream"         % pekkoVersion
-val pekkoStreamTestkit = "org.apache.pekko" %% "pekko-stream-testkit" % pekkoVersion
-val pekkoHttp          = "org.apache.pekko" %% "pekko-http"           % pekkoHttpVersion
-val pekkoHttpTestkit   = "org.apache.pekko" %% "pekko-http-testkit"   % pekkoHttpVersion
-val pekkoHttpSprayJson = "org.apache.pekko" %% "pekko-http-spray-json" % pekkoHttpVersion
+val pekkoStream        = "org.apache.pekko"     %% "pekko-stream"          % pekkoVersion
+val pekkoStreamTestkit = "org.apache.pekko"     %% "pekko-stream-testkit"  % pekkoVersion
+val pekkoHttp          = "org.apache.pekko"     %% "pekko-http"            % pekkoHttpVersion
+val pekkoHttpTestkit   = "org.apache.pekko"     %% "pekko-http-testkit"    % pekkoHttpVersion
+val pekkoHttpSprayJson = "org.apache.pekko"     %% "pekko-http-spray-json" % pekkoHttpVersion
+val pekkoHttpCirce     = "com.github.pjfanning" %% "pekko-http-circe"      % pekkoHttpJsonV
 
 def pekkoHttpInExamples = {
   Seq(pekkoStream, pekkoHttp, pekkoHttpSprayJson)
@@ -196,7 +202,7 @@ lazy val slickSettings = commonSettings ++ Seq(
 
 lazy val doobieSettings = commonSettings ++ Seq(
   libraryDependencies += doobie,
-  libraryDependencies += (h2 % "test"),
+  libraryDependencies += (h2       % "test"),
   libraryDependencies += (doobiePg % "test"),
   libraryDependencies += (enumeratumInTest.value)
 )
@@ -248,14 +254,10 @@ lazy val playJsonSettings = commonSettings ++ hearthMacroSettings ++ generatedCo
   libraryDependencies += (enumeratumInTest.value)
 )
 
-lazy val circeSettings = commonSettings ++ Seq(
+lazy val circeSettings = commonSettings ++ hearthMacroSettings ++ generatedCodeTestSettings ++ Seq(
   libraryDependencies += circe.value,
-  libraryDependencies += circeAuto.value,
   libraryDependencies += optionalEnumeratum.value,
   libraryDependencies += (circeParser.value % "test")
-) ++ Seq(
-  libraryDependencies ++= (if (scalaVersion.value.startsWith("3")) Nil
-                           else Seq(circeAutoExtras.value))
 )
 
 lazy val pekkoHttpSettings = commonSettings ++ Seq(
@@ -300,6 +302,7 @@ lazy val opaqueSettings = commonSettings
 
 lazy val examplesSettings = commonSettings ++ Seq(
   libraryDependencies += slickPg,
+  libraryDependencies += circeAuto.value,
   libraryDependencies += circeParser.value,
   libraryDependencies ++= enumeratumInExamples,
   libraryDependencies ++= pekkoHttpInExamples,
@@ -405,6 +408,20 @@ lazy val circeSupport = crossProject(JSPlatform, NativePlatform, JVMPlatform)
     description := "Automatic generation of circe formats for case-classes",
     moduleName  := "kebs-circe"
   )
+  .jvmSettings(
+    libraryDependencies += pekkoStream    % "test",
+    libraryDependencies += pekkoHttp      % "test",
+    libraryDependencies += pekkoHttpCirce % "test",
+    // a test compiles snippets to see kebs' warnings
+    libraryDependencies ++= (if (scalaVersion.value.startsWith("3"))
+                               Seq("org.scala-lang" %% "scala3-compiler" % scalaVersion.value % "test")
+                             else Nil),
+    Test / resourceGenerators += Def.task {
+      val file = (Test / resourceManaged).value / "kebs-test-classpath.txt"
+      IO.write(file, (Test / dependencyClasspath).value.files.mkString(java.io.File.pathSeparator))
+      Seq(file)
+    }
+  )
 
 lazy val pekkoHttpSupport = project
   .in(file("pekko-http"))
@@ -414,7 +431,9 @@ lazy val pekkoHttpSupport = project
     enumSupport.jvm,
     instances.jvm  % "test -> test",
     tagged.jvm     % "test -> test",
-    taggedMeta.jvm % "test -> test", testkit.jvm % "test -> compile")
+    taggedMeta.jvm % "test -> test",
+    testkit.jvm    % "test -> compile"
+  )
   .settings(pekkoHttpSettings *)
   .settings(publishSettings *)
   .settings(
@@ -428,7 +447,15 @@ lazy val http4sSupport = crossProject(JSPlatform, NativePlatform, JVMPlatform)
   .withoutSuffixFor(JVMPlatform)
   .crossType(CrossType.Full)
   .in(file("http4s"))
-  .dependsOn(core, instances, enumSupport % "test -> test", opaque % "test -> test", tagged % "test -> test", taggedMeta % "test -> test", testkit % "test -> compile")
+  .dependsOn(
+    core,
+    instances,
+    enumSupport % "test -> test",
+    opaque      % "test -> test",
+    tagged      % "test -> test",
+    taggedMeta  % "test -> test",
+    testkit     % "test -> compile"
+  )
   .settings(http4sSettings *)
   .nativeSettings(
     tlVersionIntroduced := List("2.13", "3").map(_ -> "2.2.0").toMap
@@ -452,7 +479,9 @@ lazy val http4sStirSupport = crossProject(JSPlatform, NativePlatform, JVMPlatfor
     circeSupport % "test -> test",
     opaque       % "test -> test",
     tagged       % "test -> test",
-    taggedMeta   % "test -> test", testkit % "test -> compile")
+    taggedMeta   % "test -> test",
+    testkit      % "test -> compile"
+  )
   .settings(http4sStirSettings *)
   .jvmSettings(
     libraryDependencies += http4sStirTestkit.value % "test"

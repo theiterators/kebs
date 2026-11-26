@@ -1,6 +1,5 @@
 package pl.iterators.kebs.circe
 
-import io.circe.{Decoder, Encoder}
 import java.time.ZonedDateTime
 import pl.iterators.kebs.core.enums.ValueEnumLikeEntry
 
@@ -20,8 +19,7 @@ package object model {
 
   case class Compound(CField: C, DField: D)
 
-  // https://github.com/circe/circe/issues/1980
-  case class R(a: Int, rs: Seq[R]) derives Decoder, Encoder.AsObject
+  case class R(a: Int, rs: Seq[R])
 
   enum Greeting {
     case Hello, GoodBye, Hi, Bye
