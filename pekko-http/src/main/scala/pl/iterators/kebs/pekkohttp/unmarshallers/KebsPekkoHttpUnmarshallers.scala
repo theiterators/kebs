@@ -94,8 +94,8 @@ trait KebsPekkoHttpUnmarshallers
 
 private[kebs] trait LowPriorityKebsPekkoHttpUnmarshallers {
   implicit def kebsInstancesUnmarshaller[A, B](implicit ico: InstanceConverter[B, A]): Unmarshaller[A, B] =
-    Unmarshaller.strict[A, B](ico.decode)
+    Unmarshaller.strict[A, B](ico.decodeEither(_).fold(e => throw new IllegalArgumentException(e), identity))
 
   implicit def kebsUnmarshaller[A, B](implicit rep: ValueClassLike[B, A]): Unmarshaller[A, B] =
-    Unmarshaller.strict[A, B](rep.apply)
+    Unmarshaller.strict[A, B](rep.from(_).fold(e => throw new IllegalArgumentException(e), identity))
 }

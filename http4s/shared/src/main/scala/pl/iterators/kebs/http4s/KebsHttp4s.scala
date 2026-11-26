@@ -17,12 +17,14 @@ trait KebsHttp4s {
         None
   }
 
+  private def read[A, T](from: A => Either[String, T]): A => Try[T] = from(_).left.map(new IllegalArgumentException(_)).toTry
+
   object WrappedString {
-    def apply[T](implicit rep: ValueClassLike[T, String]) = new PathVar[T](str => Try(rep.apply(str)))
+    def apply[T](implicit rep: ValueClassLike[T, String]) = new PathVar[T](str => Try(str).flatMap(read(rep.from)))
   }
 
   object InstanceString {
-    def apply[T](implicit rep: InstanceConverter[T, String]) = new PathVar[T](str => Try(rep.decode(str)))
+    def apply[T](implicit rep: InstanceConverter[T, String]) = new PathVar[T](str => Try(str).flatMap(read(rep.decodeEither)))
   }
 
   object EnumString {
@@ -53,35 +55,36 @@ trait KebsHttp4s {
   }
 
   object WrappedInt {
-    def apply[T](implicit rep: ValueClassLike[T, Int]) = new PathVar[T](str => Try(rep.apply(str.toInt)))
+    def apply[T](implicit rep: ValueClassLike[T, Int]) = new PathVar[T](str => Try(str.toInt).flatMap(read(rep.from)))
   }
 
   object InstanceInt {
-    def apply[T](implicit rep: InstanceConverter[T, Int]) = new PathVar[T](str => Try(rep.decode(str.toInt)))
+    def apply[T](implicit rep: InstanceConverter[T, Int]) = new PathVar[T](str => Try(str.toInt).flatMap(read(rep.decodeEither)))
   }
 
   object WrappedLong {
-    def apply[T](implicit rep: ValueClassLike[T, Long]) = new PathVar[T](str => Try(rep.apply(str.toLong)))
+    def apply[T](implicit rep: ValueClassLike[T, Long]) = new PathVar[T](str => Try(str.toLong).flatMap(read(rep.from)))
   }
 
   object InstanceLong {
-    def apply[T](implicit rep: InstanceConverter[T, Long]) = new PathVar[T](str => Try(rep.decode(str.toLong)))
+    def apply[T](implicit rep: InstanceConverter[T, Long]) = new PathVar[T](str => Try(str.toLong).flatMap(read(rep.decodeEither)))
   }
 
   object WrappedUUID {
-    def apply[T](implicit rep: ValueClassLike[T, UUID]) = new PathVar[T](str => Try(rep.apply(UUID.fromString(str))))
+    def apply[T](implicit rep: ValueClassLike[T, UUID]) = new PathVar[T](str => Try(UUID.fromString(str)).flatMap(read(rep.from)))
   }
 
   object InstanceUUID {
-    def apply[T](implicit rep: InstanceConverter[T, UUID]) = new PathVar[T](str => Try(rep.decode(UUID.fromString(str))))
+    def apply[T](implicit rep: InstanceConverter[T, UUID]) =
+      new PathVar[T](str => Try(UUID.fromString(str)).flatMap(read(rep.decodeEither)))
   }
 
   implicit def vcLikeQueryParamDecoder[T, U](implicit rep: ValueClassLike[T, U], qpd: QueryParamDecoder[U]): QueryParamDecoder[T] =
-    qpd.emap(u => Try(rep.apply(u)).toEither.left.map(t => ParseFailure(t.getMessage, t.getMessage)))
+    qpd.emap(u => rep.from(u).left.map(e => ParseFailure(e, e)))
   implicit def instanceConverterQueryParamDecoder[T, U](implicit
       rep: InstanceConverter[T, U],
       qpd: QueryParamDecoder[U]
-  ): QueryParamDecoder[T] = qpd.emap(u => Try(rep.decode(u)).toEither.left.map(t => ParseFailure(t.getMessage, t.getMessage)))
+  ): QueryParamDecoder[T] = qpd.emap(u => rep.decodeEither(u).left.map(e => ParseFailure(e, e)))
   implicit def enumQueryParamDecoder[E](implicit e: EnumLike[E], naming: EnumNaming): QueryParamDecoder[E] = {
     val named = naming.applyTo(e)
     QueryParamDecoder[String].emap(str =>

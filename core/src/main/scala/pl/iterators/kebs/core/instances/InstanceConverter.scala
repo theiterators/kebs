@@ -1,11 +1,14 @@
 package pl.iterators.kebs.core.instances
 
+import pl.iterators.kebs.core.macros.ValueClassLike
+
 import scala.reflect.{ClassTag, classTag}
 import scala.util.control.NonFatal
 
 trait InstanceConverter[Obj, Val] {
   def encode(obj: Obj): Val
   def decode(value: Val): Obj
+  def decodeEither(value: Val): Either[String, Obj] = ValueClassLike.catching(decode)(value)
 }
 object InstanceConverter {
   private def errorMessage(clazz: String, value: String, formatOpt: Option[String]): String = {

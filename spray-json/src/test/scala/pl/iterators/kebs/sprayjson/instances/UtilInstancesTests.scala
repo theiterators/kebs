@@ -2,7 +2,6 @@ package pl.iterators.kebs.sprayjson.instances
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.core.instances.InstanceConverter.DecodeErrorException
 import pl.iterators.kebs.instances.UtilInstances
 import pl.iterators.kebs.sprayjson.KebsSprayJson
 import spray.json._
@@ -35,7 +34,7 @@ class UtilInstancesTests extends AnyFunSuite with Matchers with DefaultJsonProto
     val jf    = implicitly[JsonFormat[Currency]]
     val value = "not a Currency"
 
-    assertThrows[DecodeErrorException](jf.read(JsString(value)))
+    assertThrows[DeserializationException](jf.read(JsString(value)))
   }
 
   test("Locale standard format") {
@@ -60,6 +59,6 @@ class UtilInstancesTests extends AnyFunSuite with Matchers with DefaultJsonProto
     val jf    = implicitly[JsonFormat[UUID]]
     val value = "not an UUID"
 
-    assertThrows[DecodeErrorException](jf.read(JsString(value)))
+    assertThrows[DeserializationException](jf.read(JsString(value)))
   }
 }
