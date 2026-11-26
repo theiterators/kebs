@@ -242,7 +242,8 @@ lazy val sprayJsonSettings = commonSettings ++ hearthMacroSettings ++ generatedC
   libraryDependencies += pekkoHttpSprayJson % "test"
 )
 
-lazy val playJsonSettings = commonSettings ++ Seq(
+lazy val playJsonSettings = commonSettings ++ hearthMacroSettings ++ generatedCodeTestSettings ++ Seq(
+  Test / scalacOptions -= "-Xcheck-macros", // play's Json.format does not pass
   libraryDependencies += playJson.value,
   libraryDependencies += (enumeratumInTest.value)
 )
