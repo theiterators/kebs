@@ -25,10 +25,14 @@ private[circe] trait CirceMacrosImpl extends JsonDerivationMacrosImpl { this: Ma
 
   // an Encoder.AsObject request derives T although it may have an Encoder, which nested uses of T prefer
   def neededEncoders[T: Type](config: Expr[JsonConfig]): Needed = new EncoderDerivation(config).needed[T](preferExisting = true)
+  def neededEncoders[T: Type](config: Expr[JsonConfig], preferExisting: Boolean, hidesExisting: Boolean): Needed =
+    new EncoderDerivation(config).needed[T](preferExisting, hidesExisting)
   def recordedEncoder[T: Type](config: Expr[JsonConfig]): Expr[Encoder.AsObject[T]] = asObject(new EncoderDerivation(config).recorded[T])
   def encoderLevel[T: Type](config: Expr[JsonConfig]): Expr[Encoder.AsObject[T]]    = asObject(new EncoderDerivation(config).oneLevel[T])
 
   def neededDecoders[T: Type](config: Expr[JsonConfig]): Needed = new DecoderDerivation(config).needed[T](preferExisting = false)
+  def neededDecoders[T: Type](config: Expr[JsonConfig], preferExisting: Boolean, hidesExisting: Boolean): Needed =
+    new DecoderDerivation(config).needed[T](preferExisting, hidesExisting)
   def recordedDecoder[T: Type](config: Expr[JsonConfig]): Expr[Decoder[T]] = new DecoderDerivation(config).recorded[T]
   def decoderLevel[T: Type](config: Expr[JsonConfig]): Expr[Decoder[T]]    = new DecoderDerivation(config).oneLevel[T]
 

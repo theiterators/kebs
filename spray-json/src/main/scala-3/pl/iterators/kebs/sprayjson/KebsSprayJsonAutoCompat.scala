@@ -9,7 +9,7 @@ import scala.deriving.Mirror
 import scala.quoted.*
 
 // a parent of KebsSprayJson, so that jsonFlatFormat wins a JsonFormat request for a value class (as in kebs 2)
-private[sprayjson] trait KebsSprayJsonAutoCompat { self: KebsSprayJson =>
+private[sprayjson] trait KebsSprayJsonAutoCompat { self: KebsSprayJsonSemiauto =>
   inline implicit def kebsAutoJsonFormat[T](using m: Mirror.ProductOf[T]): RootJsonFormat[T] =
     KebsSprayJsonMacros.auto[T](kebsJsonConfig)
 
@@ -17,10 +17,17 @@ private[sprayjson] trait KebsSprayJsonAutoCompat { self: KebsSprayJson =>
   transparent inline implicit def kebsAutoJsonFormatSealed[T](using m: Mirror.SumOf[T]): RootJsonFormat[T] =
     KebsSprayJsonMacros.autoSealed[T](kebsJsonConfig)
 
-  inline def jsonFormatN[T]: RootJsonFormat[T]      = KebsSprayJsonMacros.explicitly[T](kebsJsonConfig)
-  inline def jsonFormatSealed[T]: RootJsonFormat[T] = KebsSprayJsonMacros.explicitly[T](kebsJsonConfig)
+}
 
-  @deprecated("jsonFormatN handles recursive types", "3.0.0")
+// always derives the type itself, with the protocol's configuration
+private[sprayjson] trait KebsSprayJsonDeriveCompat { self: KebsSprayJsonSemiauto =>
+  inline def deriveFormat[T]: RootJsonFormat[T] = KebsSprayJsonMacros.explicitly[T](kebsJsonConfig)
+
+  @deprecated("use deriveFormat", "3.0.0")
+  inline def jsonFormatN[T]: RootJsonFormat[T] = KebsSprayJsonMacros.explicitly[T](kebsJsonConfig)
+  @deprecated("use deriveFormat", "3.0.0")
+  inline def jsonFormatSealed[T]: RootJsonFormat[T] = KebsSprayJsonMacros.explicitly[T](kebsJsonConfig)
+  @deprecated("use deriveFormat, which handles recursive types", "3.0.0")
   inline final def jsonFormatRec[T]: RootJsonFormat[T] = KebsSprayJsonMacros.explicitly[T](kebsJsonConfig)
 }
 

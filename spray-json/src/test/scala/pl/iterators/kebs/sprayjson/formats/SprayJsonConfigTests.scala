@@ -90,21 +90,21 @@ class SprayJsonConfigTests extends AnyFunSuite with Matchers {
 
   test("another protocol's derivation uses that protocol's config") {
     import Default._
-    val format = Kebab.jsonFormatN[Naming]
+    val format = Kebab.deriveFormat[Naming]
     format.write(Naming(1, "a", 2, "u")) shouldBe
     """{"some-field":1,"another-field-name":"a","field1-name":2,"http-url":"u"}""".parseJson
   }
 
   test("an explicit derivation call always derives, with that protocol's config") {
     import Default._
-    Kebab.jsonFormatN[Comp2].write(Comp2(1)) shouldBe """{"some-field":1}""".parseJson
+    Kebab.deriveFormat[Comp2].write(Comp2(1)) shouldBe """{"some-field":1}""".parseJson
     implicitly[RootJsonFormat[Comp2]].write(Comp2(1)) shouldBe """{"someField":1}""".parseJson
   }
 
   test("a derived format handed to an implicit val is not that val") {
     object Holder {
       import Default._
-      private def derived: RootJsonFormat[Inner] = jsonFormatN[Inner]
+      private def derived: RootJsonFormat[Inner] = deriveFormat[Inner]
       implicit val format: RootJsonFormat[Inner] = derived
     }
     Holder.format.write(Inner(1)) shouldBe """{"a":1}""".parseJson

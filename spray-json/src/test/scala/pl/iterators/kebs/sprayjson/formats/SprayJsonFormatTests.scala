@@ -131,7 +131,7 @@ class SprayJsonFormatTests extends AnyFunSuite with Matchers {
   case class Book(name: String, chapters: List[Chapter])
   case class Chapter(name: String)
 
-  implicit val chapterRootFormat: RootJsonFormat[Chapter] = jsonFormatN[Chapter]
+  implicit val chapterRootFormat: RootJsonFormat[Chapter] = deriveFormat[Chapter]
 
   test("work with nested single field objects") {
     val json =

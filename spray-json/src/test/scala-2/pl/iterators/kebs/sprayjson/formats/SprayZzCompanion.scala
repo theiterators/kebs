@@ -22,7 +22,7 @@ object SprayZzCompanion {
   }
   final case class Named(someField: Int, otherField: Int)
   object Named {
-    implicit val format = Snake.jsonFormatN[Named]
+    implicit val format = Snake.deriveFormat[Named]
   }
   final case class NamedHolder(named: SprayAaCompanion.Named, n: Int)
   def writtenNamed: String = NamedHolder(SprayAaCompanion.Named(1, 2), 3).toJson.compactPrint

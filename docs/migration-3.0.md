@@ -82,7 +82,7 @@ Kebs 2 remains for older versions, on the `series/2.x` branch.
 ### spray-json
 
 - **`jsonFormatN` is not implicit any more.** A selective import of it must import `kebsAutoJsonFormat` (and `kebsAutoJsonFormatSealed` for sealed hierarchies).
-- `jsonFormatRec` is deprecated: use `jsonFormatN`, or nothing.
+- `jsonFormatN`, `jsonFormatSealed` and `jsonFormatRec` are deprecated: use `deriveFormat`, or nothing.
 - Removed: `FieldNamingStrategy`, `namingStrategy`, `nullOptions` (Scala 3), `snakifiedJsonFormatN`, `capitalizedJsonFormatN`, `_kebs_getField` (Scala 2). Override [`kebsJsonConfig`](json.md#configuration), or mix in `NullOptions`.
 - To hide derivation, hide `kebsAutoJsonFormat` and `kebsAutoJsonFormatSealed`. Hiding `jsonFormatN` has no effect any more.
 
@@ -107,6 +107,7 @@ Kebs 2 remains for older versions, on the `series/2.x` branch.
 - [JSON derivation](json.md) on both Scala versions in all four modules: sealed hierarchies, recursive types, naming, discriminators, default values, `@fieldName`, `@transientField`
 - [naming styles](enums.md#naming-styles) for enums, in every module
 - `AnyVal` case classes on Scala 3 (kebs 2 did not compile them), written as the wrapped value with `CaseClass1ToValueClass`
+- [explicit derivation](json.md#explicit-derivation) with the same names in all JSON modules (`derive*`), and semi-automatic protocols (`KebsCirceSemiauto` and so on) that derive nothing implicitly
 - [value classes per type](core-concepts.md#valueclasslikevc-f1): `derives ValueClass` (Scala 3) or an implicit `ValueClass.derived` in the companion, instead of `CaseClass1ToValueClass` for a whole scope
 - `scala.Enumeration` on Scala 3, `KebsValueEnum` on Scala 2
 - value enums in http4s, enums and converters in pureconfig, enums in scalacheck

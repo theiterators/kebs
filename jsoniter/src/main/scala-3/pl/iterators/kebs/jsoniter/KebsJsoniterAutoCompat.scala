@@ -7,10 +7,13 @@ import pl.iterators.kebs.jsoniter.internal.JsoniterMacrosImpl
 
 import scala.quoted.*
 
-private[jsoniter] trait KebsJsoniterAutoCompat { self: KebsJsoniter =>
+private[jsoniter] trait KebsJsoniterAutoCompat { self: KebsJsoniterSemiauto =>
   // transparent: where nothing is derived, the search goes on
   transparent inline implicit def kebsAutoJsonValueCodec[T]: JsonValueCodec[T] = KebsJsoniterMacros.auto[T](kebsJsonConfig)
+}
 
+// always derives the type itself, with the protocol's configuration
+private[jsoniter] trait KebsJsoniterDeriveCompat { self: KebsJsoniterSemiauto =>
   inline def deriveCodec[T]: JsonValueCodec[T] = KebsJsoniterMacros.explicitly[T](kebsJsonConfig)
 }
 

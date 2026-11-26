@@ -115,13 +115,13 @@ For alternative encodings (e.g. `Instant` as epoch millis instead of ISO string)
 
 ## Explicit formats
 
-Formats are implicit, but can also be made explicitly. `jsonFormatN` and `jsonFormatSealed` always derive, with the configuration of their protocol, also when the type has a format. For example, to serialize a 1-field case class as an object (not flat):
+Formats are implicit, but can also be made explicitly (see [explicit derivation](json.md#explicit-derivation)). `deriveFormat` always derives, with the configuration of its protocol, also when the type has a format. For example, to serialize a 1-field case class as an object (not flat):
 
 ```scala
 case class Chapter(name: String)
-implicit val chapterRootFormat: RootJsonFormat[Chapter] = jsonFormatN[Chapter]
+implicit val chapterRootFormat: RootJsonFormat[Chapter] = deriveFormat[Chapter]
 ```
 
 An explicit format takes the configuration of its protocol, but looks value classes and converters up in scope, so import the protocol that has them.
 
-`jsonFormatRec` is a deprecated alias of `jsonFormatN`: recursive types need nothing extra.
+`jsonFormatN`, `jsonFormatSealed` and `jsonFormatRec` are deprecated aliases of `deriveFormat`: recursive types need nothing extra.

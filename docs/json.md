@@ -33,6 +33,19 @@ object Page {
 }
 ```
 
+## Explicit derivation
+
+Every protocol can also derive an instance where you ask for it: `deriveEncoder`, `deriveDecoder` and `deriveCodec` in circe, `deriveFormat` in spray-json, `deriveReads`, `deriveWrites` and `deriveFormat` in play-json, `deriveCodec` in jsoniter. They always derive the type itself, with the configuration of their protocol, also when it has an instance; types inside it that have none are derived within the same instance.
+
+To derive nothing implicitly, use the semi-automatic protocol of the module: `KebsCirceSemiauto`, `KebsSprayJsonSemiauto`, `KebsPlayJsonSemiauto`, `KebsJsoniterSemiauto` (or import `circe.semiauto._` and so on). It has everything of the full protocol (value classes, converters, configuration, the methods above) except the implicit derivation, so every instance is made once, where you define it:
+
+```scala
+object Protocol extends KebsCirceSemiauto
+import Protocol._
+
+implicit val thingCodec: Codec.AsObject[Thing] = deriveCodec[Thing]
+```
+
 ## Configuration
 
 Override `kebsJsonConfig` in the protocol object:
@@ -88,4 +101,4 @@ A `@transientField` is neither written nor read, and needs a default value.
 | a discriminator is written | last | by name | last | first |
 | `Either` | `{"Right":{"value":1}}` | the bare value | not supported | not supported |
 | a case object at its own type | `{}` | `{}` | not derived | not derived |
-| explicit derivation | | `jsonFormatN`, `jsonFormatSealed` | `deriveReads`, `deriveWrites`, `deriveFormat` | `deriveCodec` |
+| explicit derivation | `deriveEncoder`, `deriveDecoder`, `deriveCodec` | `deriveFormat` | `deriveReads`, `deriveWrites`, `deriveFormat` | `deriveCodec` |

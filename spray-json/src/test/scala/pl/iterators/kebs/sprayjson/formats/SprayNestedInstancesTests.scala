@@ -79,8 +79,8 @@ object SprayNestedInstancesTestDomain {
 
   object Derived extends DefaultJsonProtocol with KebsSprayJson
   object Defined extends PageFormats with DefaultJsonProtocol {
-    implicit val recFormat: RootJsonFormat[RecPage] = Derived.jsonFormatN[RecPage]
-    implicit val adtFormat: RootJsonFormat[Adt]     = Derived.jsonFormatSealed[Adt]
+    implicit val recFormat: RootJsonFormat[RecPage] = Derived.deriveFormat[RecPage]
+    implicit val adtFormat: RootJsonFormat[Adt]     = Derived.deriveFormat[Adt]
   }
 }
 
@@ -180,7 +180,7 @@ class SprayNestedInstancesTests extends AnyFunSuite with Matchers {
     }
     check(HasPage(Page(List(item)), 1), """{"n":1,"x":{"DATA":["i:1"]}}""")
     checkRoot(HasList(List(item), 1), """{"n":1,"x":["i:1"]}""")
-    jsonFormatN[HasTuple].write(HasTuple((1, item), 1)).compactPrint shouldBe """{"n":1,"x":[1,"i:1"]}"""
+    deriveFormat[HasTuple].write(HasTuple((1, item), 1)).compactPrint shouldBe """{"n":1,"x":[1,"i:1"]}"""
   }
 
   test("an implicit defined by an explicit derivation of a recursive type") {
