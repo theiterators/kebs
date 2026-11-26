@@ -46,6 +46,8 @@ import Protocol._
 implicit val thingCodec: Codec.AsObject[Thing] = deriveCodec[Thing]
 ```
 
+On Scala 3 each of them is expanded where it is written, so keep them in the companions of their types: a few hundred in one object exceed the size the JVM allows a class.
+
 ## Configuration
 
 Override `kebsJsonConfig` in the protocol object:
