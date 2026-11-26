@@ -90,8 +90,8 @@ class ValueClassLikeTests extends AnyFunSuite with Matchers with CaseClass1ToVal
   }
 
   test("InstanceConverter's decodeEither turns decode's exception into its message") {
-    val converter = pl.iterators.kebs.core.instances.InstanceConverter[java.time.Duration, String](_.toString, java.time.Duration.parse(_))
-    converter.decodeEither("PT1S") shouldBe Right(java.time.Duration.ofSeconds(1))
+    val converter = pl.iterators.kebs.core.instances.InstanceConverter[Int, String](_.toString, _.toInt)
+    converter.decodeEither("1") shouldBe Right(1)
     converter.decodeEither("x").left.toOption.get should include("cannot be parsed from x")
   }
 }
