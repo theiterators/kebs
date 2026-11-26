@@ -3,7 +3,6 @@ package pl.iterators.kebs.sprayjson.instances
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import pl.iterators.kebs.instances.net.URIString
-import pl.iterators.kebs.core.instances.InstanceConverter.DecodeErrorException
 import pl.iterators.kebs.sprayjson.KebsSprayJson
 import spray.json._
 
@@ -24,7 +23,7 @@ class NetInstancesTests extends AnyFunSuite with Matchers with DefaultJsonProtoc
     val jf    = implicitly[JsonFormat[URI]]
     val value = "not a URI"
 
-    assertThrows[DecodeErrorException](jf.read(JsString(value)))
+    assertThrows[DeserializationException](jf.read(JsString(value)))
   }
 
   test("No ValueClassLike implicits derived") {

@@ -2,7 +2,6 @@ package pl.iterators.kebs.sprayjson.instances
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import pl.iterators.kebs.core.instances.InstanceConverter.DecodeErrorException
 import pl.iterators.kebs.instances.TimeInstances
 import pl.iterators.kebs.sprayjson.KebsSprayJson
 import spray.json._
@@ -61,7 +60,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with DefaultJsonProto
     val jf    = implicitly[JsonFormat[DayOfWeek]]
     val value = 8
 
-    assertThrows[DecodeErrorException](jf.read(JsNumber(value)))
+    assertThrows[DeserializationException](jf.read(JsNumber(value)))
   }
 
   test("Duration standard format") {
@@ -77,7 +76,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with DefaultJsonProto
     val jf    = implicitly[JsonFormat[Duration]]
     val value = "NotADuration"
 
-    assertThrows[DecodeErrorException](jf.read(JsString(value)))
+    assertThrows[DeserializationException](jf.read(JsString(value)))
   }
 
   test("Instant standard format") {
@@ -93,7 +92,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with DefaultJsonProto
     val jf    = implicitly[JsonFormat[Instant]]
     val value = "NotAnInstant"
 
-    assertThrows[DecodeErrorException](jf.read(JsString(value)))
+    assertThrows[DeserializationException](jf.read(JsString(value)))
   }
 
   test("LocalDate standard format") {
@@ -109,7 +108,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with DefaultJsonProto
     val jf    = implicitly[JsonFormat[LocalDate]]
     val value = "NotALocalDate"
 
-    assertThrows[DecodeErrorException](jf.read(JsString(value)))
+    assertThrows[DeserializationException](jf.read(JsString(value)))
   }
 
   test("LocalDateTime standard format") {
@@ -125,7 +124,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with DefaultJsonProto
     val jf    = implicitly[JsonFormat[LocalDateTime]]
     val value = "NotALocalDateTime"
 
-    assertThrows[DecodeErrorException](jf.read(JsString(value)))
+    assertThrows[DeserializationException](jf.read(JsString(value)))
   }
 
   test("LocalTime standard format") {
@@ -141,7 +140,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with DefaultJsonProto
     val jf    = implicitly[JsonFormat[LocalTime]]
     val value = "NotALocalTime"
 
-    assertThrows[DecodeErrorException](jf.read(JsString(value)))
+    assertThrows[DeserializationException](jf.read(JsString(value)))
   }
 
   test("Month standard format") {
@@ -157,7 +156,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with DefaultJsonProto
     val jf    = implicitly[JsonFormat[Month]]
     val value = 13
 
-    assertThrows[DecodeErrorException](jf.read(JsNumber(value)))
+    assertThrows[DeserializationException](jf.read(JsNumber(value)))
   }
 
   test("MonthDay standard format") {
@@ -173,7 +172,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with DefaultJsonProto
     val jf    = implicitly[JsonFormat[MonthDay]]
     val value = "NotAMonthDay"
 
-    assertThrows[DecodeErrorException](jf.read(JsString(value)))
+    assertThrows[DeserializationException](jf.read(JsString(value)))
   }
 
   test("OffsetDateTime standard format") {
@@ -189,7 +188,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with DefaultJsonProto
     val jf    = implicitly[JsonFormat[OffsetDateTime]]
     val value = "NotAnOffsetDateTime"
 
-    assertThrows[DecodeErrorException](jf.read(JsString(value)))
+    assertThrows[DeserializationException](jf.read(JsString(value)))
   }
 
   test("OffsetTime standard format") {
@@ -205,7 +204,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with DefaultJsonProto
     val jf    = implicitly[JsonFormat[OffsetTime]]
     val value = "NotAnOffsetTime"
 
-    assertThrows[DecodeErrorException](jf.read(JsString(value)))
+    assertThrows[DeserializationException](jf.read(JsString(value)))
   }
 
   test("Period standard format") {
@@ -221,7 +220,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with DefaultJsonProto
     val jf    = implicitly[JsonFormat[Period]]
     val value = "NotAPeriod"
 
-    assertThrows[DecodeErrorException](jf.read(JsString(value)))
+    assertThrows[DeserializationException](jf.read(JsString(value)))
   }
 
   test("Year standard format") {
@@ -237,7 +236,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with DefaultJsonProto
     val jf    = implicitly[JsonFormat[Year]]
     val value = Int.MinValue
 
-    assertThrows[DecodeErrorException](jf.read(JsNumber(value)))
+    assertThrows[DeserializationException](jf.read(JsNumber(value)))
   }
 
   test("YearMonth standard format") {
@@ -253,7 +252,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with DefaultJsonProto
     val jf    = implicitly[JsonFormat[YearMonth]]
     val value = "NotAYearMonth"
 
-    assertThrows[DecodeErrorException](jf.read(JsString(value)))
+    assertThrows[DeserializationException](jf.read(JsString(value)))
   }
 
   test("ZoneId standard format") {
@@ -269,7 +268,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with DefaultJsonProto
     val jf    = implicitly[JsonFormat[ZoneId]]
     val value = "NotAZoneId"
 
-    assertThrows[DecodeErrorException](jf.read(JsString(value)))
+    assertThrows[DeserializationException](jf.read(JsString(value)))
   }
 
   test("ZoneOffset standard format") {
@@ -285,7 +284,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with DefaultJsonProto
     val jf    = implicitly[JsonFormat[ZoneOffset]]
     val value = "NotAZoneOffset"
 
-    assertThrows[DecodeErrorException](jf.read(JsString(value)))
+    assertThrows[DeserializationException](jf.read(JsString(value)))
   }
 
   test("ZonedDateTime standard format") {
@@ -301,7 +300,7 @@ class TimeInstancesTests extends AnyFunSuite with Matchers with DefaultJsonProto
     val jf    = implicitly[JsonFormat[ZonedDateTime]]
     val value = "NotAZoneOffset"
 
-    assertThrows[DecodeErrorException](jf.read(JsString(value)))
+    assertThrows[DeserializationException](jf.read(JsString(value)))
   }
 
 }
