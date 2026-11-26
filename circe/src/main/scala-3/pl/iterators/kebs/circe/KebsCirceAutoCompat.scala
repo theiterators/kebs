@@ -59,8 +59,10 @@ private[circe] object KebsCirceMacros {
     m.auto {
       m.encoderRole[A](config) match {
         case EntryPointRole.Record => m.recordedEncoder[A](config)
-        case EntryPointRole.Derive => block[Encoder.AsObject[A]](config, m.encodersNeeded[A](config))
-        case _                     => stepAside[A]
+        case EntryPointRole.Derive =>
+          warnIfCirceConfiguration
+          block[Encoder.AsObject[A]](config, m.encodersNeeded[A](config))
+        case _ => stepAside[A]
       }
     }
   }
@@ -70,11 +72,20 @@ private[circe] object KebsCirceMacros {
     m.auto {
       m.decoderRole[A](config) match {
         case EntryPointRole.Record => m.recordedDecoder[A](config)
-        case EntryPointRole.Derive => block[Decoder[A]](config, m.decodersNeeded[A](config))
-        case _                     => stepAside[A]
+        case EntryPointRole.Derive =>
+          warnIfCirceConfiguration
+          block[Decoder[A]](config, m.decodersNeeded[A](config))
+        case _ => stepAside[A]
       }
     }
   }
+
+  // kebs 2 derived with it, so ignoring it silently would change the JSON
+  private def warnIfCirceConfiguration(using Quotes): Unit =
+    if (Expr.summon[io.circe.derivation.Configuration].isDefined)
+      quotes.reflect.report.warning(
+        "kebs-circe ignores the implicit io.circe.derivation.Configuration in scope; override kebsJsonConfig in the protocol instead"
+      )
 
   private def stepAside[A: Type](using Quotes): Nothing =
     quotes.reflect.report.errorAndAbort(s"${Type.show[A]} is not derived here")

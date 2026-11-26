@@ -191,7 +191,7 @@ val scalacheck = "org.scalacheck" %% "scalacheck" % "1.19.0"
 val scalacheckMagnolify = "com.spotify"         % "magnolify-scalacheck" % "0.9.8"
 val scalacheckDerived   = "io.github.martinhh" %% "scalacheck-derived"   % "0.11.0"
 
-val enumeratumVersion         = "1.9.8"
+val enumeratumVersion         = "1.9.9"
 val enumeratumPlayJsonVersion = "1.8.2"
 val enumeratum                = Def.setting("com.beachape" %%% "enumeratum" % enumeratumVersion)
 def enumeratumInExamples      = {
@@ -201,8 +201,8 @@ def enumeratumInExamples      = {
 val optionalEnumeratum = Def.setting("com.beachape" %%% "enumeratum" % enumeratumVersion % "provided")
 val enumeratumInTest   = Def.setting("com.beachape" %%% "enumeratum" % enumeratumVersion % "test")
 
-val pekkoVersion       = "1.7.1"
-val pekkoHttpVersion   = "1.4.2"
+val pekkoVersion       = "2.0.0"
+val pekkoHttpVersion   = "2.0.1"
 val pekkoHttpJsonV     = "2.0.0"
 val pekkoStream        = "org.apache.pekko"     %% "pekko-stream"              % pekkoVersion
 val pekkoStreamTestkit = "org.apache.pekko"     %% "pekko-stream-testkit"      % pekkoVersion
@@ -461,7 +461,16 @@ lazy val circeSupport = crossProject(JSPlatform, NativePlatform, JVMPlatform)
   .jvmSettings(
     libraryDependencies += pekkoStream    % "test",
     libraryDependencies += pekkoHttp      % "test",
-    libraryDependencies += pekkoHttpCirce % "test"
+    libraryDependencies += pekkoHttpCirce % "test",
+    // a test compiles snippets to see kebs' warnings
+    libraryDependencies ++= (if (scalaVersion.value.startsWith("3"))
+                               Seq("org.scala-lang" %% "scala3-compiler" % scalaVersion.value % "test")
+                             else Nil),
+    Test / resourceGenerators += Def.task {
+      val file = (Test / resourceManaged).value / "kebs-test-classpath.txt"
+      IO.write(file, (Test / dependencyClasspath).value.files.mkString(java.io.File.pathSeparator))
+      Seq(file)
+    }
   )
 
 lazy val jsoniterSettings = commonSettings ++ hearthMacroSettings ++ generatedCodeTestSettings ++ Seq(
