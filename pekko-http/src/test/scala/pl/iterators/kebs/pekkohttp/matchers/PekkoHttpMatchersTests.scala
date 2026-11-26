@@ -1,6 +1,7 @@
 package pl.iterators.kebs.pekkohttp.matchers
 
-import org.apache.pekko.http.scaladsl.server.Directives
+import org.apache.pekko.http.scaladsl.model.StatusCodes
+import org.apache.pekko.http.scaladsl.server.{Directives, Route}
 import org.apache.pekko.http.scaladsl.testkit.ScalatestRouteTest
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.funsuite.AnyFunSuite
@@ -14,6 +15,10 @@ import pl.iterators.kebs.pekkohttp.{KebsEnumForTests, KebsValueEnumForTests}
 
 import java.net.URI
 import java.time.{DayOfWeek, Instant, ZonedDateTime}
+
+object PekkoHttpMatchersTests {
+  final case class Positive(value: Int) { require(value > 0, "not positive") }
+}
 
 class PekkoHttpMatchersTests
     extends AnyFunSuite
@@ -124,6 +129,47 @@ class PekkoHttpMatchersTests
     }
     Get("/test/ce7a7cf1-8c00-49a9-a963-9fd119dd0642") ~> testRoute ~> check {
       responseAs[String] shouldEqual "ce7a7cf1-8c00-49a9-a963-9fd119dd0642"
+    }
+  }
+
+  test("A value that is not one of the enum does not match") {
+    val testRoute = path("test" / Segment.asEnum[Greeting])(greeting => complete(greeting.toString)) ~
+      path("test" / Segment)(other => complete(s"other $other"))
+    Get("/test/nope") ~> testRoute ~> check {
+      responseAs[String] shouldEqual "other nope"
+    }
+    Get("/test/nope") ~> Route.seal(path("test" / Segment.asEnum[Greeting])(greeting => complete(greeting.toString))) ~> check {
+      status shouldEqual StatusCodes.NotFound
+    }
+  }
+
+  test("A value that is not one of the value enum does not match") {
+    val testRoute = path("test" / IntNumber.asValueEnum[LibraryItem])(item => complete(item.toString)) ~
+      path("test" / Segment)(other => complete(s"other $other"))
+    Get("/test/9") ~> testRoute ~> check {
+      responseAs[String] shouldEqual "other 9"
+    }
+  }
+
+  test("A value that a value class rejects does not match") {
+    val testRoute = path("test" / IntNumber.as[PekkoHttpMatchersTests.Positive])(positive => complete(positive.toString)) ~
+      path("test" / Segment)(other => complete(s"other $other"))
+    Get("/test/1") ~> testRoute ~> check {
+      responseAs[String] shouldEqual "Positive(1)"
+    }
+    Get("/test/0") ~> testRoute ~> check {
+      responseAs[String] shouldEqual "other 0"
+    }
+  }
+
+  test("A value that an InstanceConverter rejects does not match") {
+    val testRoute = path("test" / IntNumber.to[DayOfWeek])(day => complete(day.toString)) ~
+      path("test" / Segment)(other => complete(s"other $other"))
+    Get("/test/1") ~> testRoute ~> check {
+      responseAs[String] shouldEqual "MONDAY"
+    }
+    Get("/test/8") ~> testRoute ~> check {
+      responseAs[String] shouldEqual "other 8"
     }
   }
 }

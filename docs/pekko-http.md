@@ -51,6 +51,8 @@ import pl.iterators.kebs.pekkohttp.matchers.KebsPekkoHttpMatchers
 // or: import pl.iterators.kebs.pekkohttp.matchers._
 ```
 
+A segment that cannot be converted (an unknown enum value, a value a class rejects) does not match, so other routes are tried and the answer is 404 if none matches.
+
 ### `.as[T]` — value class wrapping
 
 Converts a path segment via `ValueClassLike`:
