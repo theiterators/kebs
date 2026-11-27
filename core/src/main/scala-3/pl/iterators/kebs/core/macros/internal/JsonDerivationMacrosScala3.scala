@@ -76,7 +76,8 @@ private[kebs] trait JsonDerivationMacrosScala3 extends JsonDerivationMacrosImpl 
         import instance.tpe.Underlying as X
         LocalInstances.Untyped(instance.typeClass, TypeRepr.of(using summon[Type[X]]), instance.isCollection)
       },
-      needed.rootIsImplicit
+      needed.rootIsImplicit,
+      needed.refersToRoot
     )
   }
 }
@@ -84,7 +85,7 @@ private[kebs] trait JsonDerivationMacrosScala3 extends JsonDerivationMacrosImpl 
 private[kebs] object LocalInstances {
   final class Untyped(val typeClass: String, val typeRepr: Any, val isCollection: Boolean)
 
-  final class Needed(val instances: List[Untyped], val rootIsImplicit: Boolean)
+  final class Needed(val instances: List[Untyped], val rootIsImplicit: Boolean, val refersToRoot: Boolean)
 
   final class Definition[C](val codec: Expr[C])(using val tpe: Type[C]) {
     def creator(using Quotes): Expr[() => Any] = '{ () => $codec }
@@ -97,6 +98,24 @@ private[kebs] object LocalInstances {
   // { lazy val config; lazy val codecs = LocalCodecs(() => level, ...); implicit def codec: Codec[X] = codecs.get(0); ... ; result }
   // Not lazy vals: they are parameters of the closures that use them, of which there may be more than a method can have.
   def block[R: Type](config: Expr[JsonConfig], needed: Needed)(define: Define)(result: Option[Expr[R]])(using Quotes): Expr[R] = {
+    import quotes.reflect.*
+    val owner = Symbol.spliceOwner
+    needed.instances match {
+      // nothing else needs the root's instance, so none is defined
+      case List(root) if !needed.refersToRoot && result.isEmpty =>
+        val configSymbol = Symbol.newVal(owner, "kebsConfig", TypeRepr.of[JsonConfig], Flags.EmptyFlags, Symbol.noSymbol)
+        val configValue  = ValDef(configSymbol, Some(config.asTerm.changeOwner(configSymbol)))
+        val definition   = root.typeRepr.asInstanceOf[TypeRepr].asType match {
+          case '[x] => define[x](root, Ref(configSymbol).asExprOf[JsonConfig])
+        }
+        Block(List(configValue), definition.codec.asTerm).asExprOf[R]
+      case _ => withLazyVals[R](config, needed)(define)(result)
+    }
+  }
+
+  private def withLazyVals[R: Type](config: Expr[JsonConfig], needed: Needed)(define: Define)(result: Option[Expr[R]])(using
+      Quotes
+  ): Expr[R] = {
     import quotes.reflect.*
     val owner        = Symbol.spliceOwner
     val configSymbol = Symbol.newVal(owner, "kebsConfig", TypeRepr.of[JsonConfig], Flags.Lazy, Symbol.noSymbol)
