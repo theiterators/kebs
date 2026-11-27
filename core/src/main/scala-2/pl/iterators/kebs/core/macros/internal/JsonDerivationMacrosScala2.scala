@@ -111,9 +111,22 @@ private[kebs] trait JsonDerivationMacrosScala2 extends JsonDerivationMacrosImpl 
   protected def localInstances(config: Tree, needed: Needed, rootName: Option[TermName])(
       define: (LocalInstance, Tree, c.Type) => (Tree, Tree)
   )(result: Option[Tree]): Tree = {
-    val codecs     = TypeName(c.freshName("KebsCodecs"))
     val configName = TermName(c.freshName("kebsConfig"))
-    val instances  = needed.instances.zipWithIndex.map { case (instance, index) =>
+    needed.instances match {
+      // nothing else needs the root's instance, so none is defined: the class costs more to compile than the codec
+      case List(root) if !needed.refersToRoot && rootName.isEmpty && result.isEmpty =>
+        import root.tpe.Underlying as X
+        val (_, level) = define(root, q"$configName", Type[X].tpe.asInstanceOf[c.Type])
+        q"{ val $configName: _root_.pl.iterators.kebs.core.json.JsonConfig = $config; $level }"
+      case _ => withClass(config, configName, needed, rootName)(define)(result)
+    }
+  }
+
+  private def withClass(config: Tree, configName: TermName, needed: Needed, rootName: Option[TermName])(
+      define: (LocalInstance, Tree, c.Type) => (Tree, Tree)
+  )(result: Option[Tree]): Tree = {
+    val codecs    = TypeName(c.freshName("KebsCodecs"))
+    val instances = needed.instances.zipWithIndex.map { case (instance, index) =>
       import instance.tpe.Underlying as X
       val (codec, level) = define(instance, q"$configName", Type[X].tpe.asInstanceOf[c.Type])
       val name           = rootName.filter(_ => index == 0).getOrElse(TermName(c.freshName("kebsCodec")))

@@ -141,7 +141,8 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
   final class LocalInstance(val typeClass: String, val tpe: ??, val isCollection: Boolean)
 
   // rootIsImplicit: whether nested uses of the root's type go through its own local instance, the first one
-  final class Needed(val instances: List[LocalInstance], val rootIsImplicit: Boolean)
+  // refersToRoot: whether the root's type is among the types it needs, so that its instance must be in scope
+  final class Needed(val instances: List[LocalInstance], val rootIsImplicit: Boolean, val refersToRoot: Boolean)
 
   final class LookUp(val exists: Boolean, derivable: => Boolean, val requests: List[(String, ??)], val usesHidden: Boolean) {
     def isDerivable: Boolean = derivable
@@ -264,7 +265,7 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
         else (SummoningResult.NotFound(CodecT): SummoningResult[Codec[T]], new JsonDerivationState.Requests)
       val exists = found(result).isDefined
       if (exists) requestedBy(result, requests).foreach(discovery.visit)
-      new Needed(discovery.instances, rootIsImplicit = !exists)
+      new Needed(discovery.instances, rootIsImplicit = !exists, discovery.refersToRoot)
     }
 
     // the instances that a root needs as local ones when it has an instance itself
@@ -273,7 +274,7 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
       val discovery                       = new Discovery(Type[T].prettyPrint, this :: siblings, hidden = None)
       val (result, requests)              = JsonDerivationState.discovering(search[Codec[T]](ignored))
       requestedBy(result, requests).foreach(discovery.visit)
-      new Needed(discovery.instances, rootIsImplicit = true)
+      new Needed(discovery.instances, rootIsImplicit = true, refersToRoot = true)
     }
 
     // not those of candidates that were tried on the way
@@ -512,8 +513,11 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
     private val seen                   = mutable.Set.empty[(String, String, Boolean)]
     private val locals                 = mutable.ListBuffer.empty[LocalInstance]
     def instances: List[LocalInstance] = locals.toList
+    private var rootType               = Option.empty[String]
+    var refersToRoot                   = false
 
     def derive[A: Type](derivation: Discoverable): Unit = {
+      if (rootType.isEmpty) rootType = Some(Type[A].plainPrint)
       seen ++= List(true, false).map((derivation.typeClass, Type[A].plainPrint, _))
       locals += new LocalInstance(derivation.typeClass, Type[A].as_??, derivation.isCollection[A])
       derivation.parts[A].foreach(visit(derivation, _))
@@ -524,6 +528,7 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
 
     private def visit(derivation: Discoverable, tpe: ??, requested: Boolean = false): Unit = {
       import tpe.Underlying as A
+      if (rootType.contains(Type[A].plainPrint)) refersToRoot = true
       val isWanted = requested && isStandardLibrary[A]
       if ((isWanted || mayNeedInstance[A]) && seen.add((derivation.typeClass, Type[A].plainPrint, isWanted))) {
         if (nesting[A] > MaxNesting)

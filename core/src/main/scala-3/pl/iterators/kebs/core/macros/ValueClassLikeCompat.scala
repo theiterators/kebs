@@ -27,7 +27,10 @@ private[macros] trait ValueClassCompat {
 final private[macros] class ValueClassLikeMacros(q: Quotes) extends hearth.MacroCommonsScala3(using q), ValueClassLikeMacrosImpl
 
 private[macros] object ValueClassLikeMacros {
-  def materialize[T <: Product: Type, F1: Type](m: Expr[Mirror.ProductOf[T]])(using q: Quotes): Expr[ValueClassLike[T, F1]] = {
+  def materialize[T <: Product: Type, F1: Type](m: Expr[Mirror.ProductOf[T]])(using q: Quotes): Expr[ValueClassLike[T, F1]] =
+    plain[T].filter(_.isExprOf[ValueClassLike[T, F1]]).map(_.asExprOf[ValueClassLike[T, F1]]).getOrElse(viaHearth[T, F1](m))
+
+  private def viaHearth[T <: Product: Type, F1: Type](m: Expr[Mirror.ProductOf[T]])(using q: Quotes): Expr[ValueClassLike[T, F1]] = {
     val macros = new ValueClassLikeMacros(q)
     macros.deriveValueClassLikeWithFallback[T, F1](
       // used inside another quote
@@ -38,8 +41,39 @@ private[macros] object ValueClassLikeMacros {
     )
   }
 
-  def materializeValueClass[T <: AnyVal: Type, F1: Type](using q: Quotes): Expr[ValueClassLike[T, F1]] =
-    new ValueClassLikeMacros(q).deriveValueClassLike[T].value.asInstanceOf[Expr[ValueClassLike[T, F1]]]
+  // tried in every search for a ValueClassLike of an AnyVal, primitives included, so it gives up before hearth's set-up
+  def materializeValueClass[T <: AnyVal: Type, F1: Type](using q: Quotes): Expr[ValueClassLike[T, F1]] = {
+    import q.reflect.*
+    val symbol = TypeRepr.of[T].dealias.typeSymbol
+    if (!symbol.isClassDef || !symbol.flags.is(Flags.Case) || symbol.flags.is(Flags.Module))
+      report.errorAndAbort(s"${symbol.name} is not a case class") // Type.show would cost more than the rest
+    plain[T].getOrElse(new ValueClassLikeMacros(q).deriveValueClassLike[T].value).asInstanceOf[Expr[ValueClassLike[T, F1]]]
+  }
+
+  // The usual case without hearth, whose set-up costs more than the rest of an expansion, made at each search: a public case
+  // class with a public field and no apply of its own, built with its constructor as its synthetic apply would be.
+  private def plain[T: Type](using q: Quotes): Option[Expr[ValueClassLike[T, ?]]] = {
+    import q.reflect.*
+    def isPublic(symbol: Symbol): Boolean =
+      !symbol.flags.is(Flags.Private) && !symbol.flags.is(Flags.Protected) && symbol.privateWithin.isEmpty &&
+        symbol.protectedWithin.isEmpty
+    val tpe         = TypeRepr.of[T].dealias
+    val cls         = tpe.typeSymbol
+    val constructor = cls.primaryConstructor
+    val parameters  = constructor.paramSymss.filterNot(_.headOption.exists(_.isType)).flatten
+    val ownApply    = cls.companionModule.methodMember("apply").exists(!_.flags.is(Flags.Synthetic))
+    (parameters, cls.caseFields) match {
+      case (List(_), List(field)) if cls.flags.is(Flags.Case) && field.isValDef && isPublic(constructor) && isPublic(field) && !ownApply =>
+        tpe.memberType(field).asType match {
+          case '[f] =>
+            def construct(value: Expr[f]): Expr[T] =
+              New(Inferred(tpe)).select(constructor).appliedToTypes(tpe.typeArgs).appliedTo(value.asTerm).asExprOf[T]
+            def access(obj: Expr[T]): Expr[f] = obj.asTerm.select(field).asExprOf[f]
+            Some('{ new ValueClassLike[T, f]((value: f) => ${ construct('value) }, (obj: T) => ${ access('obj) }) })
+        }
+      case _ => None
+    }
+  }
 
   def marker[VC: Type](using q: Quotes): Expr[ValueClass[VC]] = {
     new ValueClassLikeMacros(q).checkValueClass[VC]

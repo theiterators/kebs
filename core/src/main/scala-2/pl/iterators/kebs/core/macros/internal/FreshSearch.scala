@@ -1,5 +1,6 @@
 package pl.iterators.kebs.core.macros.internal
 
+import java.lang.reflect.Method
 import scala.reflect.macros.blackbox
 import scala.util.Try
 
@@ -19,9 +20,15 @@ private[kebs] object FreshSearch {
 
   def isAvailable(c: blackbox.Context): Boolean = openImplicits(c).isDefined
 
+  // Class.getMethods copies every method on each call, and this runs at each search
+  private val methods = new ClassValue[Map[(String, Int), Method]] {
+    def computeValue(cls: Class[_]): Map[(String, Int), Method] =
+      cls.getMethods.reverseIterator.map(m => (m.getName, m.getParameterCount) -> m).toMap
+  }
+
+  private def method(owner: AnyRef, name: String, parameters: Int): Method = methods.get(owner.getClass)((name, parameters))
+
   private def openImplicits(c: blackbox.Context): Option[(() => AnyRef, AnyRef => Unit)] = Try {
-    def method(owner: AnyRef, name: String, parameters: Int) =
-      owner.getClass.getMethods.find(m => m.getName == name && m.getParameterCount == parameters).get
     val typer   = method(c, "callsiteTyper", 0).invoke(c)
     val context = method(typer, "context", 0).invoke(typer)
     val read    = method(context, "openImplicits", 0)
