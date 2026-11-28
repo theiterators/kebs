@@ -52,7 +52,32 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
   protected def converterOf[A: Type]: Option[Wrapping]
 
   // the types of the instances that the methods made in an expression
-  protected def madeBy[A](methods: Seq[UntypedMethod], expr: Expr[A]): List[??] = Nil
+  protected def madeBy[A](methods: Ignored, expr: Expr[A]): List[??] = Nil
+
+  // implicit definitions a search passes over, as the compiler's symbols: hearth would describe every method of their owners
+  final protected class Ignored(val symbols: List[Any]) {
+    def ++(other: Ignored): Ignored = new Ignored(symbols ++ other.symbols)
+    def isEmpty: Boolean            = symbols.isEmpty
+  }
+  protected val nothingIgnored: Ignored = new Ignored(Nil)
+
+  // of A or its companion
+  protected def methodsNamed[A: Type](names: Set[String]): Ignored
+  protected def implicitsOf[A: Type]: Ignored
+  protected def searchIgnoring[A: Type](ignored: Ignored): SummoningResult[A]
+
+  // the compiler's own type, to recognise a type again
+  protected def compilerType[A: Type]: AnyRef
+  // the item of Option[Item], not of its subtypes
+  protected def optionItemOf[A: Type]: Option[??]
+
+  // tells types apart; hearth prints with syntax highlighting, and the same types are asked about again and again
+  private val keys                     = new java.util.HashMap[AnyRef, String]
+  protected def keyOf[A: Type]: String = keys.computeIfAbsent(compilerType[A], _ => Type[A].plainPrint)
+  private def keyOf(tpe: ??): String   = {
+    import tpe.Underlying as A
+    keyOf[A]
+  }
 
   private var extensionsLoaded = false
 
@@ -69,8 +94,11 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
     extensionsLoaded = true
   }
 
+  private val names                       = new java.util.HashMap[AnyRef, String]
+  protected def fullName[T: Type]: String = names.computeIfAbsent(compilerType[T], _ => Type.fqcn[T])
+
   def isStandardLibrary[T: Type]: Boolean = {
-    val name = Type.fqcn[T]
+    val name = fullName[T]
     name.startsWith("scala.") || name.startsWith("java.") || name.startsWith("(")
   }
 
@@ -78,12 +106,33 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
   protected def derivesPekkoHierarchies: Boolean = false
 
   private def isPekkoHierarchy[T: Type]: Boolean =
-    Type.isSealed[T] && !Type.isCaseClass[T] && Set("org.apache.pekko.", "akka.").exists(Type.fqcn[T].startsWith)
+    Type.isSealed[T] && !Type.isCaseClass[T] && Set("org.apache.pekko.", "akka.").exists(fullName[T].startsWith)
 
   def isLeftToItsLibrary[T: Type]: Boolean = isStandardLibrary[T] || (isPekkoHierarchy[T] && !derivesPekkoHierarchies)
 
-  private def search[A: Type](ignored: Seq[UntypedMethod]): SummoningResult[A] =
-    JsonDerivationState.searching(expansionOwner)(withFreshSearch(Type[A].summonExprIgnoring(ignored*)))
+  // An expansion's searches share its scope, so a search made again finds the same, and so does one made while discovering,
+  // unless an entry point recorded a type on the way: then the instance found has a placeholder. An instance is handed out
+  // once (discovery only looks at its own), so that no code is in the result twice.
+  private val searches = mutable.Map.empty[(String, List[Any]), SummoningResult[?]]
+
+  private def search[A: Type](ignored: Ignored): SummoningResult[A] = {
+    def searched  = JsonDerivationState.searching(expansionOwner)(withFreshSearch(searchIgnoring[A](ignored)))
+    val key       = (keyOf[A], ignored.symbols)
+    val recording = JsonDerivationState.isRecording
+    val result    =
+      if (recording) searched
+      else
+        searches.remove(key) match {
+          case Some(earlier) => earlier.asInstanceOf[SummoningResult[A]]
+          case None          => searched
+        }
+    result match {
+      case SummoningResult.Found(instance) => if (recording && placeholderKeys(instance).isEmpty) searches.update(key, result)
+      case SummoningResult.NotFound(_)     => searches.update(key, result)
+      case _                               => if (!recording) searches.update(key, result)
+    }
+    result
+  }
 
   private def found[A: Type](result: SummoningResult[A]): Option[Expr[A]] = result match {
     case SummoningResult.Found(instance) => Some(instance)
@@ -92,12 +141,12 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
     case SummoningResult.Diverging(_)    => Environment.reportErrorAndAbort(s"Diverging search for ${Type[A].prettyPrint}")
   }
 
-  protected def summonInstance[A: Type](ignored: Seq[UntypedMethod]): Option[Expr[A]] = found(search[A](ignored))
+  protected def summonInstance[A: Type](ignored: Ignored): Option[Expr[A]] = found(search[A](ignored))
 
   // an implicit entry point that is tried inside a level's search has nothing to offer: what it could derive is local already
   protected def entryPointRole[T: Type](typeClass: String, stepsAsideForExisting: Boolean)(hasInstance: => Boolean): EntryPointRole =
     entryPoint {
-      def exists = JsonDerivationState.exists(s"$typeClass ${Type[T].plainPrint}")(hasInstance)
+      def exists = JsonDerivationState.exists(s"$typeClass ${keyOf[T]}")(hasInstance)
       if (JsonDerivationState.isDiscovering) {
         if (JsonDerivationState.isInsisting || !exists) EntryPointRole.Record
         else {
@@ -114,10 +163,6 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
     JsonDerivationState.entryPoint(error => macroAborts(error.getClass.getName))(body)
 
   private val macroAborts = Set("scala.reflect.macros.runtime.AbortMacroException", "scala.quoted.runtime.StopMacroExpansion")
-
-  // Type[A].unsortedMethods would resolve the types of all of A's methods
-  protected def methodsNamed[A: Type](names: Set[String]): Seq[UntypedMethod] =
-    UntypedType.fromTyped[A].unsortedMethods.filter(method => names(method.name))
 
   private lazy val FieldNameType: Type[fieldName]           = Type.of[fieldName]
   private lazy val TransientFieldType: Type[transientField] = Type.of[transientField]
@@ -161,16 +206,16 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
     // of the library's other type classes: a user's instance may need them too (a Format needs a Reads and a Writes)
     protected def siblings: List[Discoverable] = Nil
     protected def codecType[A: Type]: Type[Codec[A]]
-    protected def entryPoints: Seq[UntypedMethod]
+    protected def entryPoints: Ignored
     // the library's own instances of generic types, where they would be ambiguous with a user's
-    protected def libraryContainers: Seq[UntypedMethod]
-    protected def libraryOptions: Seq[UntypedMethod]      = libraryContainers
+    protected def libraryContainers: Ignored
+    protected def libraryOptions: Ignored                 = libraryContainers
     protected def derivesFromStandardLibrary: Set[String] = Set.empty
     // the elements of a collection that the library's own instances are not used for, because next to local instances they
     // would also accept one of the elements' supertype
     protected def elementOf[F: Type]: Option[??]                                    = None
     protected def collectionCodec[F: Type, X: Type](codecs: Codecs): Expr[Codec[F]] = rejectMissing[F]
-    protected def libraryCollections: Seq[UntypedMethod]                            = Nil
+    protected def libraryCollections: Ignored                                       = nothingIgnored
 
     // a codec made of the codecs of other types: of a type that is written as another one, or of a standard type that the library
     // has no instance of
@@ -192,11 +237,16 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
 
     private val derivable = mutable.Map.empty[String, Boolean]
 
+    // a quote on Scala 3, unpickled at each use
+    private val codecTypes                               = new java.util.HashMap[AnyRef, AnyRef]
+    final protected def codecOf[A: Type]: Type[Codec[A]] =
+      codecTypes.computeIfAbsent(compilerType[A], _ => codecType[A].asInstanceOf[AnyRef]).asInstanceOf[Type[Codec[A]]]
+
     final class Codecs(indices: Map[String, Int], made: Set[String], val local: Expr[LocalCodecs]) {
       // whether there is no instance of the type
-      def isMade[F: Type]: Boolean       = made(Type[F].plainPrint)
-      def indexOf[F: Type]: Int          = indices(Type[F].plainPrint)
-      def apply[F: Type]: Expr[Codec[F]] = codecAt[Codec[F]](local, indexOf[F])(using codecType[F])
+      def isMade[F: Type]: Boolean       = made(keyOf[F])
+      def indexOf[F: Type]: Int          = indices(keyOf[F])
+      def apply[F: Type]: Expr[Codec[F]] = codecAt[Codec[F]](local, indexOf[F])(using codecOf[F])
     }
 
     final def oneLevel[T: Type]: Expr[Codec[T]] = JsonDerivationState.asRoot {
@@ -210,18 +260,18 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
     final def isInline[F: Type]: Boolean = isStandardLibrary[F] && composite[F].isDefined
 
     private def withCodecs[T: Type](parts: List[??], areCases: Boolean = false)(build: Codecs => Expr[Codec[T]]): Expr[Codec[T]] = {
-      val distinct = parts.distinctBy(_.Underlying.plainPrint)
+      val distinct = parts.distinctBy(keyOf(_))
       val missing  = mutable.Set.empty[String]
       val creators = distinct.map { part =>
         import part.Underlying as F
-        implicit val CodecF: Type[Codec[F]] = codecType[F]
+        implicit val CodecF: Type[Codec[F]] = codecOf[F]
         val instance                        = found(instanceAtLevelOf[F])
-        if (instance.isEmpty) missing += Type[F].plainPrint
+        if (instance.isEmpty) missing += keyOf[F]
         val ofObject = if (areCases) objectCodec[F] else None
         creator[Codec[F]](instance.orElse(ofObject.map(_.apply())).orElse(inlineCodec[F]).getOrElse(rejectMissing[F]))
       }
-      val indices = distinct.map(_.Underlying.plainPrint).zipWithIndex.toMap
-      withLocalCodecs[Codec[T]](creators)(local => build(new Codecs(indices, missing.toSet, local)))(using codecType[T])
+      val indices = distinct.map(keyOf(_)).zipWithIndex.toMap
+      withLocalCodecs[Codec[T]](creators)(local => build(new Codecs(indices, missing.toSet, local)))(using codecOf[T])
     }
 
     private def inlineCodec[F: Type]: Option[Expr[Codec[F]]] =
@@ -231,7 +281,7 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
 
     // a type that is converted to itself would be followed endlessly
     final protected def unlessInProgress[F: Type, A](purpose: String)(body: => A): A = {
-      val name = purpose + Type[F].plainPrint
+      val name = purpose + keyOf[F]
       if (inProgress(name)) Environment.reportErrorAndAbort(s"${Type[F].prettyPrint} is converted to itself")
       inProgress += name
       try body
@@ -240,17 +290,17 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
 
     final def isCollection[A: Type]: Boolean = elementOf[A].isDefined
 
-    final def hides[A: Type]: Boolean = isHidden[Codec[A]](using codecType[A])
+    final def hides[A: Type]: Boolean = isHidden[Codec[A]](using codecOf[A])
 
     protected def rejectMissing[F: Type]: Nothing = Environment.reportErrorAndAbort(
-      s"No ${codecType[F].prettyPrint} in scope, and kebs derives one only for case classes and sealed hierarchies outside the standard library and pekko"
+      s"No ${codecOf[F].prettyPrint} in scope, and kebs derives one only for case classes and sealed hierarchies outside the standard library and pekko"
     )
 
     final def recorded[A: Type]: Expr[Codec[A]] = entryPoint {
       if (!isDerivable[A] && !isInline[A]) Environment.reportErrorAndAbort(s"${Type[A].prettyPrint} is not derived here")
-      val key = s"$typeClass ${Type[A].plainPrint}"
+      val key = s"$typeClass ${keyOf[A]}"
       JsonDerivationState.request(JsonDerivationState.Request(typeClass, key, UntypedType.fromTyped[A].asInstanceOf[AnyRef]))
-      placeholder[Codec[A]](key)(using codecType[A])
+      placeholder[Codec[A]](key)(using codecOf[A])
     }
 
     // the instances a root needs as local ones, its own first; hidesExisting: it has the name of the implicit being defined
@@ -259,7 +309,7 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
       val hidden    = if (hidesExisting) Some(Type[T].as_??) else None
       val discovery = new Discovery(Type[T].prettyPrint, this :: siblings, hidden)
       discovery.derive[T](this)
-      implicit val CodecT: Type[Codec[T]] = codecType[T]
+      implicit val CodecT: Type[Codec[T]] = codecOf[T]
       val (result, requests)              =
         if (preferExisting) JsonDerivationState.discovering(instanceOf[T])
         else (SummoningResult.NotFound(CodecT): SummoningResult[Codec[T]], new JsonDerivationState.Requests)
@@ -269,8 +319,8 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
     }
 
     // the instances that a root needs as local ones when it has an instance itself
-    final def neededBeside[T: Type](ignored: Seq[UntypedMethod]): Needed = JsonDerivationState.inOneScope {
-      implicit val CodecT: Type[Codec[T]] = codecType[T]
+    final def neededBeside[T: Type](ignored: Ignored): Needed = JsonDerivationState.inOneScope {
+      implicit val CodecT: Type[Codec[T]] = codecOf[T]
       val discovery                       = new Discovery(Type[T].prettyPrint, this :: siblings, hidden = None)
       val (result, requests)              = JsonDerivationState.discovering(search[Codec[T]](ignored))
       requestedBy(result, requests).foreach(discovery.visit)
@@ -289,7 +339,7 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
     }
 
     final def lookUp[A: Type]: LookUp = {
-      implicit val CodecA: Type[Codec[A]] = codecType[A]
+      implicit val CodecA: Type[Codec[A]] = codecOf[A]
       val (result, requests)              = JsonDerivationState.discovering(instanceOf[A])
       val requested                       = requestedBy(result, requests)
       lazy val derivable                  = isDerivable[A]
@@ -316,15 +366,15 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
           val fieldType: ?? = field.tpe
           import fieldType.Underlying as F
           implicit val Rep: Type[ValueClassLike[A, F]] = Type.of[ValueClassLike[A, F]]
-          if (summonInstance[ValueClassLike[A, F]](Nil).isDefined)
+          if (summonInstance[ValueClassLike[A, F]](nothingIgnored).isDefined)
             Environment.reportErrorAndAbort(
-              s"${Type[A].prettyPrint} is written as its only field, and there is no ${codecType[F].prettyPrint} without one of ${Type[A].prettyPrint}"
+              s"${Type[A].prettyPrint} is written as its only field, and there is no ${codecOf[F].prettyPrint} without one of ${Type[A].prettyPrint}"
             )
         case _ => ()
       }
 
     private def rejectUnusable[A: Type](): Unit = {
-      implicit val CodecA: Type[Codec[A]] = codecType[A]
+      implicit val CodecA: Type[Codec[A]] = codecOf[A]
       JsonDerivationState.discovering(JsonDerivationState.insistingOn(search[Codec[A]](entryPoints)))._1 match {
         case SummoningResult.Found(_) =>
           Environment.reportErrorAndAbort(
@@ -345,7 +395,7 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
 
     // a user's instance first: next to the library's own for the same container it would be ambiguous
     private def instanceOf[A: Type]: SummoningResult[Codec[A]] = {
-      implicit val CodecA: Type[Codec[A]] = codecType[A]
+      implicit val CodecA: Type[Codec[A]] = codecOf[A]
       if (isCollection[A]) search[Codec[A]](entryPoints ++ libraryContainers)
       else if (Type.typeArguments[A].isEmpty || libraryContainers.isEmpty) search[Codec[A]](entryPoints)
       else
@@ -357,14 +407,14 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
 
     // a collection without a local instance is the library's after all
     private def instanceAtLevelOf[A: Type]: SummoningResult[Codec[A]] = {
-      implicit val CodecA: Type[Codec[A]] = codecType[A]
+      implicit val CodecA: Type[Codec[A]] = codecOf[A]
       instanceOf[A] match {
         case SummoningResult.NotFound(_) if isCollection[A] => search[Codec[A]](entryPoints)
         case result                                         => result
       }
     }
 
-    final def isDerivable[A: Type]: Boolean = derivable.getOrElseUpdate(Type[A].plainPrint, derivation[A].isDefined)
+    final def isDerivable[A: Type]: Boolean = derivable.getOrElseUpdate(keyOf[A], derivation[A].isDefined)
 
     // standard library sums and tuples have the library's own codecs; deriving them would silently change their shape
     private def derivation[F: Type]: Option[() => Expr[Codec[F]]] =
@@ -376,7 +426,7 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
       }
 
     private def ownDerivation[F: Type]: Option[() => Expr[Codec[F]]] =
-      if (isLeftToItsLibrary[F] && !derivesFromStandardLibrary(Type.fqcn[F])) None
+      if (isLeftToItsLibrary[F] && !derivesFromStandardLibrary(fullName[F])) None
       else if (!derivesObjects && Expr.singletonOf[F].isDefined) None
       else
         objectCodec[F]
@@ -405,7 +455,7 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
             else List(NameTransformer.decode(name) -> Type[C].as_??)
           })
           .filter(_.nonEmpty)
-          .map(_.distinctBy(_._2.Underlying.plainPrint))
+          .map(_.distinctBy(leaf => keyOf(leaf._2)))
 
     final class ProductShape[T: Type](val caseClass: CaseClass[T]) {
       private val productType: Type[T] = Type[T]
@@ -422,19 +472,26 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
       private lazy val optionItems: Map[Int, ??] = fields.flatMap { field =>
         val fieldType: ?? = field.tpe
         import fieldType.Underlying as A
-        Type[A] match {
-          case IsOption(isOption) =>
-            import isOption.Underlying as Item
-            implicit val CodecA: Type[Codec[A]] = codecType[A]
-            if (Type[A] =:= Type.of[Option[Item]] && summonInstance[Codec[A]](entryPoints ++ libraryOptions).isEmpty && !isConverted[A])
-              Some(field.index -> Type[Item].as_??)
-            else None
-          case _ => None
-        }
+        optionItemOf[A]
+          .filter { _ =>
+            implicit val CodecA: Type[Codec[A]] = codecOf[A]
+            summonInstance[Codec[A]](entryPoints ++ libraryOptions).isEmpty && !isConverted[A]
+          }
+          .map(field.index -> _)
       }.toMap
 
+      // hearth makes the values of all fields at once
+      private var valuesAt: Option[(Expr[T], Map[String, Expr_??])] = None
+      private def fieldValues(obj: Expr[T]): Map[String, Expr_??]   = valuesAt match {
+        case Some((at, values)) if at.asInstanceOf[AnyRef] eq obj.asInstanceOf[AnyRef] => values
+        case _                                                                         =>
+          val values = caseClass.caseFieldValuesAt(obj).toMap
+          valuesAt = Some((obj, values))
+          values
+      }
+
       def value[A: Type](obj: Expr[T], field: JsonField): Expr[A] =
-        caseClass.caseFieldValuesAt(obj).get(field.name).map(_.value.asInstanceOf[Expr[A]]).getOrElse {
+        fieldValues(obj).get(field.name).map(_.value.asInstanceOf[Expr[A]]).getOrElse {
           // a field not accessible at the call site
           implicit val T: Type[T] = productType
           val index               = Expr(field.index)
@@ -458,10 +515,10 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
     }
   }
 
-  private def codecAt[C: Type](local: Expr[LocalCodecs], index: Int): Expr[C] = {
-    val indexExpr = Expr(index)
-    Expr.quote(Expr.splice(local).get[C](Expr.splice(indexExpr)))
-  }
+  // made for every field or case; built directly, as hearth's cross-quotes unpickle a quote at each use on Scala 3
+  protected def codecAt[C: Type](local: Expr[LocalCodecs], index: Int): Expr[C]
+  protected def listOf[A: Type](parts: List[Expr[A]]): Expr[List[A]]
+  protected def statements(parts: List[Expr[Unit]]): Expr[Unit]
 
   private def creator[C: Type](instance: Expr[C]): Expr[() => Any] = Expr.quote((() => Expr.splice(instance)): (() => Any))
 
@@ -475,20 +532,6 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
         Expr.splice(build(Expr.quote(codecs)))
       }
     }
-
-  // balanced: code nested as deep as a type has fields or cases overflows the compiler's stack
-  protected def combined[A](parts: List[Expr[A]])(combine: (Expr[A], Expr[A]) => Expr[A]): Option[Expr[A]] = parts match {
-    case Nil         => None
-    case part :: Nil => Some(part)
-    case _           =>
-      val (left, right) = parts.splitAt(parts.size / 2)
-      combined(left)(combine).flatMap(l => combined(right)(combine).map(r => combine(l, r)))
-  }
-
-  protected def listOf[A: Type](parts: List[Expr[A]]): Expr[List[A]] =
-    combined(parts.map(part => Expr.quote(LocalCodecs.one[A](Expr.splice(part))))) { (left, right) =>
-      Expr.quote(LocalCodecs.concat[A](Expr.splice(left), Expr.splice(right)))
-    }.getOrElse(Expr.quote(List.empty[A]))
 
   // whether a value is of a case, by the order of the cases, which is also that of their codecs
   protected def caseTests(leaves: List[(String, ??)]): Expr[List[Any => Boolean]] = {
@@ -509,7 +552,7 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
   }
 
   // Types are walked, not only searched for: before the local instances exist, the search for a recursive container may fail.
-  final private class Discovery(root: String, derivations: List[Discoverable], hidden: Option[??]) {
+  final private class Discovery(root: => String, derivations: List[Discoverable], hidden: Option[??]) {
     private val seen                   = mutable.Set.empty[(String, String, Boolean)]
     private val locals                 = mutable.ListBuffer.empty[LocalInstance]
     def instances: List[LocalInstance] = locals.toList
@@ -517,8 +560,8 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
     var refersToRoot                   = false
 
     def derive[A: Type](derivation: Discoverable): Unit = {
-      if (rootType.isEmpty) rootType = Some(Type[A].plainPrint)
-      seen ++= List(true, false).map((derivation.typeClass, Type[A].plainPrint, _))
+      if (rootType.isEmpty) rootType = Some(keyOf[A])
+      seen ++= List(true, false).map((derivation.typeClass, keyOf[A], _))
       locals += new LocalInstance(derivation.typeClass, Type[A].as_??, derivation.isCollection[A])
       derivation.parts[A].foreach(visit(derivation, _))
     }
@@ -528,9 +571,9 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
 
     private def visit(derivation: Discoverable, tpe: ??, requested: Boolean = false): Unit = {
       import tpe.Underlying as A
-      if (rootType.contains(Type[A].plainPrint)) refersToRoot = true
+      if (rootType.contains(keyOf[A])) refersToRoot = true
       val isWanted = requested && isStandardLibrary[A]
-      if ((isWanted || mayNeedInstance[A]) && seen.add((derivation.typeClass, Type[A].plainPrint, isWanted))) {
+      if ((isWanted || mayNeedInstance[A]) && seen.add((derivation.typeClass, keyOf[A], isWanted))) {
         if (nesting[A] > MaxNesting)
           Environment.reportErrorAndAbort(s"$root refers to ever larger types (${Type[A].plainPrint.take(80)}...)")
         if (hidden.exists(_.Underlying =:= Type[A])) derive[A](derivation)

@@ -64,6 +64,11 @@ final private[jsoniter] class KebsJsoniterMacros(val c: whitebox.Context)
       }(result)
     })
 
+  override protected def ownLevel(instance: LocalInstance, config: Tree): Option[Tree] = {
+    import instance.tpe.Underlying as X
+    Some(c.untypecheck(codecLevel[X](c.Expr[JsonConfig](config)).tree))
+  }
+
   def level[T: c.WeakTypeTag](config: c.Expr[JsonConfig]): c.Expr[JsonValueCodec[T]] = retyped(codecLevel[T](config))
   def existing[T: c.WeakTypeTag]: c.Expr[JsonValueCodec[T]]                          = explicitEntry(retyped(existingCodec[T]))
 }

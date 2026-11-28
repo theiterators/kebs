@@ -150,8 +150,8 @@ private[jsoniter] trait JsoniterMacrosImpl extends JsonDerivationMacrosImpl { th
 
   final private class JsoniterDerivation(config: Expr[JsonConfig]) extends JsonDerivation[JsonValueCodec]("JsonValueCodec") {
     protected def codecType[A: Type]: Type[JsonValueCodec[A]] = Type.of[JsonValueCodec[A]]
-    protected def entryPoints: Seq[UntypedMethod]             = derivationEntryPoints
-    protected def libraryContainers: Seq[UntypedMethod]       = Nil
+    protected def entryPoints: Ignored                        = derivationEntryPoints
+    protected def libraryContainers: Ignored                  = nothingIgnored
 
     private val composites: mutable.Map[String, Option[Composite[Any]]] = mutable.Map.empty
     private val wrappers: mutable.Map[String, Option[Composite[Any]]]   = mutable.Map.empty
@@ -166,7 +166,7 @@ private[jsoniter] trait JsoniterMacrosImpl extends JsonDerivationMacrosImpl { th
     private def once[F: Type](answers: mutable.Map[String, Option[Composite[Any]]])(
         answer: => Option[Composite[F]]
     ): Option[Composite[F]] =
-      answers.getOrElseUpdate(Type[F].plainPrint, answer.asInstanceOf[Option[Composite[Any]]]).asInstanceOf[Option[Composite[F]]]
+      answers.getOrElseUpdate(keyOf[F], answer.asInstanceOf[Option[Composite[Any]]]).asInstanceOf[Option[Composite[F]]]
 
     private def findWrapper[F: Type]: Option[Composite[F]] =
       converterOf[F]
@@ -204,7 +204,7 @@ private[jsoniter] trait JsoniterMacrosImpl extends JsonDerivationMacrosImpl { th
       case ArrayOf(item) =>
         import item.Underlying as X
         implicit val ClassTagX: Type[ClassTag[X]] = Type.of[ClassTag[X]]
-        summonInstance[ClassTag[X]](Nil).map { tag =>
+        summonInstance[ClassTag[X]](nothingIgnored).map { tag =>
           composed[F, X](codecs =>
             Expr
               .quote(JsoniterDerivationRuntime.array[X](Expr.splice(codecs.local), Expr.splice(tag)))
@@ -217,7 +217,7 @@ private[jsoniter] trait JsoniterMacrosImpl extends JsonDerivationMacrosImpl { th
         implicit val FactoryF: Type[Factory[(K, V), F]] = Type.of[Factory[(K, V), F]]
         for {
           keys    <- keyCodec[K]
-          factory <- summonInstance[Factory[(K, V), F]](Nil)
+          factory <- summonInstance[Factory[(K, V), F]](nothingIgnored)
         } yield composed[F, V](codecs =>
           Expr.quote(JsoniterDerivationRuntime.map[K, V, F](Expr.splice(codecs.local), Expr.splice(keys), Expr.splice(factory)))
         )
@@ -226,7 +226,7 @@ private[jsoniter] trait JsoniterMacrosImpl extends JsonDerivationMacrosImpl { th
       case IterableOf(item)                                              =>
         import item.Underlying as X
         implicit val FactoryF: Type[Factory[X, F]] = Type.of[Factory[X, F]]
-        summonInstance[Factory[X, F]](Nil).map { factory =>
+        summonInstance[Factory[X, F]](nothingIgnored).map { factory =>
           composed[F, X](codecs => Expr.quote(JsoniterDerivationRuntime.iterable[X, F](Expr.splice(codecs.local), Expr.splice(factory))))
         }
       case _ => None
@@ -237,7 +237,7 @@ private[jsoniter] trait JsoniterMacrosImpl extends JsonDerivationMacrosImpl { th
 
     private def keyCodec[K: Type]: Option[Expr[JsonKeyCodec[K]]] = unlessInProgress[K, Option[Expr[JsonKeyCodec[K]]]]("key ") {
       implicit val KeyCodec: Type[JsonKeyCodec[K]] = Type.of[JsonKeyCodec[K]]
-      summonInstance[JsonKeyCodec[K]](Nil)
+      summonInstance[JsonKeyCodec[K]](nothingIgnored)
         .orElse(converterOf[K].flatMap { converter =>
           val base: ?? = converter.base
           import base.Underlying as B
@@ -364,7 +364,7 @@ private[jsoniter] trait JsoniterMacrosImpl extends JsonDerivationMacrosImpl { th
         out: Expr[JsonWriter],
         obj: Expr[T]
     ): Expr[Unit] =
-      combined(product.fields.filterNot(_.transient).map { field =>
+      statements(product.fields.filterNot(_.transient).map { field =>
         val fieldType: ?? = field.tpe
         import fieldType.Underlying as A
         val index = Expr(field.index)
@@ -394,12 +394,7 @@ private[jsoniter] trait JsoniterMacrosImpl extends JsonDerivationMacrosImpl { th
               }
             )
         }
-      }) { (first, second) =>
-        Expr.quote {
-          Expr.splice(first)
-          Expr.splice(second)
-        }
-      }.getOrElse(Expr.quote(()))
+      })
 
     private def writeUnboxed[A: Type](
         fields: Expr[JsoniterDerivationRuntime.Fields],

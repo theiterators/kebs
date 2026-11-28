@@ -43,6 +43,7 @@ private[kebs] object JsonDerivationState {
   def isSearching: Boolean   = state.get.searchOwner.isDefined
   def isDiscovering: Boolean = isSearching && state.get.requests.isDefined
   def isInsisting: Boolean   = state.get.insisting
+  def isRecording: Boolean   = state.get.requests.isDefined
 
   def asRoot[A](body: => A): A = during(State())(body)
 

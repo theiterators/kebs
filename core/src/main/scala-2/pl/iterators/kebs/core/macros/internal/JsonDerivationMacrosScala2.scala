@@ -3,12 +3,56 @@ package pl.iterators.kebs.core.macros.internal
 import pl.iterators.kebs.core.instances.InstanceConverter
 import pl.iterators.kebs.core.macros.ValueClassLike
 
+import scala.reflect.macros.TypecheckException
 import scala.util.control.NonFatal
 
 private[kebs] trait JsonDerivationMacrosScala2 extends JsonDerivationMacrosImpl { this: hearth.MacroCommonsScala2 =>
   import c.universe._
 
   override protected def withFreshSearch[A](search: => A): A = FreshSearch(c)(search)
+
+  override protected def methodsNamed[A: Type](names: Set[String]): Ignored =
+    new Ignored(withCompanion(Type[A].tpe.asInstanceOf[c.Type]).flatMap { tpe =>
+      names.toList.flatMap(name => tpe.member(TermName(name)).alternatives)
+    })
+
+  override protected def implicitsOf[A: Type]: Ignored =
+    new Ignored(withCompanion(Type[A].tpe.asInstanceOf[c.Type]).flatMap { tpe =>
+      tpe.baseClasses.flatMap(_.info.decls.filter(member => member.isTerm && member.isImplicit))
+    }.distinct)
+
+  private def withCompanion(tpe: c.Type): List[c.Type] = {
+    val companion = if (tpe.typeSymbol.isModuleClass) NoSymbol else tpe.typeSymbol.companion
+    tpe :: (if (companion.isModule) List(companion.typeSignature) else Nil)
+  }
+
+  override protected def searchIgnoring[A: Type](ignored: Ignored): SummoningResult[A] =
+    try {
+      val excluded = ignored.symbols.asInstanceOf[List[Symbol]]
+      val instance = c.inferImplicitValueIgnoring(Type[A].tpe.asInstanceOf[c.Type], silent = true)(excluded*)
+      if (instance.isEmpty) SummoningResult.NotFound(Type[A]) else SummoningResult.Found(c.Expr[A](instance).asInstanceOf[Expr[A]])
+    } catch {
+      case error: TypecheckException if error.getMessage.startsWith("ambiguous implicit values:")   => SummoningResult.Ambiguous(Type[A])
+      case error: TypecheckException if error.getMessage.startsWith("diverging implicit expansion") => SummoningResult.Diverging(Type[A])
+      case _: TypecheckException                                                                    => SummoningResult.NotFound(Type[A])
+    }
+
+  override protected def compilerType[A: Type]: AnyRef = Type[A].tpe
+
+  override protected def optionItemOf[A: Type]: Option[??] = Type[A].tpe.asInstanceOf[c.Type].dealias match {
+    case TypeRef(_, symbol, List(item)) if symbol == definitions.OptionClass => Some(item.asInstanceOf[UntypedType].as_??)
+    case _                                                                   => None
+  }
+
+  override protected def codecAt[C: Type](local: Expr[LocalCodecs], index: Int): Expr[C] =
+    c.Expr[Any](q"${local.tree}.get[${Type[C].tpe.asInstanceOf[c.Type]}]($index)").asInstanceOf[Expr[C]]
+
+  override protected def listOf[A: Type](parts: List[Expr[A]]): Expr[List[A]] =
+    c.Expr[Any](q"_root_.scala.collection.immutable.List[${Type[A].tpe.asInstanceOf[c.Type]}](..${parts.map(_.tree)})")
+      .asInstanceOf[Expr[List[A]]]
+
+  override protected def statements(parts: List[Expr[Unit]]): Expr[Unit] =
+    c.Expr[Any](q"{ ..${parts.map(_.tree)}; () }").asInstanceOf[Expr[Unit]]
 
   // hearth refers to them by their symbols, which is not enough inside classes
   override protected def withPath[F: Type, A](code: Expr[A]): Expr[A] = {
@@ -113,10 +157,11 @@ private[kebs] trait JsonDerivationMacrosScala2 extends JsonDerivationMacrosImpl 
   )(result: Option[Tree]): Tree = {
     val configName = TermName(c.freshName("kebsConfig"))
     needed.instances match {
-      // nothing else needs the root's instance, so none is defined: the class costs more to compile than the codec
-      case List(root) if !needed.refersToRoot && rootName.isEmpty && result.isEmpty =>
+      // nothing else needs the root's instance, so none is defined: the class costs more to compile than the codec. The
+      // level is derived here, in the scope it would have, where the searches it needs were made already.
+      case List(root) if !needed.refersToRoot && result.isEmpty =>
         import root.tpe.Underlying as X
-        val (_, level) = define(root, q"$configName", Type[X].tpe.asInstanceOf[c.Type])
+        val level = ownLevel(root, q"$configName").getOrElse(define(root, q"$configName", Type[X].tpe.asInstanceOf[c.Type])._2)
         q"{ val $configName: _root_.pl.iterators.kebs.core.json.JsonConfig = $config; $level }"
       case _ => withClass(config, configName, needed, rootName)(define)(result)
     }
@@ -148,6 +193,9 @@ private[kebs] trait JsonDerivationMacrosScala2 extends JsonDerivationMacrosImpl 
       (new $codecs).$member
     }"""
   }
+
+  // the code of a local instance's level, given the config
+  protected def ownLevel(instance: LocalInstance, config: Tree): Option[Tree] = None
 
   // re-typed, so that the owners of the local codecs are fixed before lambdalift sees the references between them
   protected def retyped[A: c.WeakTypeTag](expr: Expr[A]): c.Expr[A] = c.Expr[A](c.untypecheck(expr.tree))

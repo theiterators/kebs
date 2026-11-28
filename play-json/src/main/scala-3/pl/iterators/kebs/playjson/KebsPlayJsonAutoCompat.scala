@@ -73,9 +73,9 @@ private[playjson] object KebsPlayJsonMacros {
       m.readsRole[T](stepsAsideForExisting = false) match {
         case EntryPointRole.StepAside   => stepAside[T]
         case EntryPointRole.Record      => m.recordedReads[T](config)
-        case EntryPointRole.Derive      => block[Reads[T]](config, m.readsNeeded[T](config, preferExisting = false))(None)
+        case EntryPointRole.Derive      => block[Reads[T]](m, config, m.readsNeeded[T](config, preferExisting = false))(None)
         case EntryPointRole.UseExisting =>
-          block[Reads[T]](config, m.readsNeededBesideExisting[T](config))(Some('{ KebsPlayJsonMacros.existingReads[T] }))
+          block[Reads[T]](m, config, m.readsNeededBesideExisting[T](config))(Some('{ KebsPlayJsonMacros.existingReads[T] }))
       }
     }
   }
@@ -112,26 +112,26 @@ private[playjson] object KebsPlayJsonMacros {
 
   def derivedReadsImpl[T: Type](config: Expr[JsonConfig])(using q: Quotes): Expr[Reads[T]] = {
     val m = macros
-    m.auto(block[Reads[T]](config, m.readsNeeded[T](config, preferExisting = false))(None))
+    m.auto(block[Reads[T]](m, config, m.readsNeeded[T](config, preferExisting = false))(None))
   }
 
   def derivedWritesImpl[T: Type](config: Expr[JsonConfig])(using q: Quotes): Expr[OWrites[T]] = {
     val m = macros
-    m.auto(block[OWrites[T]](config, m.writesNeeded[T](config, preferExisting = false))(None))
+    m.auto(block[OWrites[T]](m, config, m.writesNeeded[T](config, preferExisting = false))(None))
   }
 
   // recursive uses go through the implicit being defined (implicit val reads = deriveReads[T]), if there is one
   def explicitReadsImpl[T: Type](config: Expr[JsonConfig])(using q: Quotes): Expr[Reads[T]] = {
     val m = macros
-    m.explicitly(block[Reads[T]](config, m.readsNeeded[T](config, preferExisting = true))(None))
+    m.explicitly(block[Reads[T]](m, config, m.readsNeeded[T](config, preferExisting = true))(None))
   }
 
   def explicitWritesImpl[T: Type](config: Expr[JsonConfig])(using q: Quotes): Expr[OWrites[T]] = {
     val m = macros
-    m.explicitly(block[OWrites[T]](config, m.writesNeeded[T](config, preferExisting = true))(None))
+    m.explicitly(block[OWrites[T]](m, config, m.writesNeeded[T](config, preferExisting = true))(None))
   }
 
-  private def block[R: Type](config: Expr[JsonConfig], needed: LocalInstances.Needed)(
+  private def block[R: Type](m: KebsPlayJsonMacros, config: Expr[JsonConfig], needed: LocalInstances.Needed)(
       result: Option[Expr[R]]
   )(using Quotes): Expr[R] =
     LocalInstances.block[R](config, needed)(
@@ -140,6 +140,12 @@ private[playjson] object KebsPlayJsonMacros {
           if (instance.typeClass == "Reads") new LocalInstances.Definition('{ KebsPlayJsonMacros.oneReads[X]($config) })
           else if (instance.isCollection) new LocalInstances.Definition('{ KebsPlayJsonMacros.oneCollectionWrites[X]($config) })
           else new LocalInstances.Definition('{ KebsPlayJsonMacros.oneWrites[X]($config) })
+        override def ownLevel[X: Type](instance: LocalInstances.Untyped, config: Expr[JsonConfig])(using
+            Quotes
+        ): Option[LocalInstances.Definition[?]] =
+          if (instance.typeClass == "Reads") Some(new LocalInstances.Definition(m.readsLevel[X](config)))
+          else if (instance.isCollection) Some(new LocalInstances.Definition(m.collectionWritesLevel[X](config)))
+          else Some(new LocalInstances.Definition(m.writesLevel[X](config)))
       }
     )(result)
 

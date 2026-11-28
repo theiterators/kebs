@@ -75,8 +75,8 @@ private[playjson] trait PlayJsonMacrosImpl extends JsonDerivationMacrosImpl { th
   final private class ReadsDerivation(config: Expr[JsonConfig]) extends JsonDerivation[Reads]("Reads") {
     override protected def siblings: List[Discoverable] = List(new WritesDerivation(config))
     protected def codecType[A: Type]: Type[Reads[A]]    = Type.of[Reads[A]]
-    protected def entryPoints: Seq[UntypedMethod]       = readsEntryPoints
-    protected def libraryContainers: Seq[UntypedMethod] = readsContainers
+    protected def entryPoints: Ignored                  = readsEntryPoints
+    protected def libraryContainers: Ignored            = readsContainers
 
     protected def singletonCodec[T: Type](value: Expr[T]): Expr[Reads[T]] =
       Expr.quote(PlayDerivationRuntime.singletonReads[T](Expr.splice(value)))
@@ -172,11 +172,11 @@ private[playjson] trait PlayJsonMacrosImpl extends JsonDerivationMacrosImpl { th
   }
 
   final private class WritesDerivation(config: Expr[JsonConfig]) extends JsonDerivation[Writes]("Writes") {
-    override protected def siblings: List[Discoverable]           = List(new ReadsDerivation(config))
-    protected def codecType[A: Type]: Type[Writes[A]]             = Type.of[Writes[A]]
-    protected def entryPoints: Seq[UntypedMethod]                 = writesEntryPoints
-    protected def libraryContainers: Seq[UntypedMethod]           = writesContainers
-    override protected def libraryCollections: Seq[UntypedMethod] = iterableWrites
+    override protected def siblings: List[Discoverable] = List(new ReadsDerivation(config))
+    protected def codecType[A: Type]: Type[Writes[A]]   = Type.of[Writes[A]]
+    protected def entryPoints: Ignored                  = writesEntryPoints
+    protected def libraryContainers: Ignored            = writesContainers
+    override protected def libraryCollections: Ignored  = iterableWrites
 
     // iterableWrites2 accepts the Writes of any supertype of the elements, which on Scala 3 can be a local one
     override protected def elementOf[F: Type]: Option[??] = Type.typeArguments[F] match {
@@ -210,7 +210,7 @@ private[playjson] trait PlayJsonMacrosImpl extends JsonDerivationMacrosImpl { th
         members: Expr[PlayDerivationRuntime.Members],
         obj: Expr[T]
     ): Expr[Unit] =
-      combined(product.fields.filterNot(_.transient).map { field =>
+      statements(product.fields.filterNot(_.transient).map { field =>
         val fieldType: ?? = field.tpe
         import fieldType.Underlying as A
         val index = Expr(field.index)
@@ -225,12 +225,7 @@ private[playjson] trait PlayJsonMacrosImpl extends JsonDerivationMacrosImpl { th
             }
           case None => Expr.quote(Expr.splice(members).add[A](Expr.splice(index), Expr.splice(value), Expr.splice(codecs[A])))
         }
-      }) { (first, second) =>
-        Expr.quote {
-          Expr.splice(first)
-          Expr.splice(second)
-        }
-      }.getOrElse(Expr.quote(()))
+      })
 
     protected def sumCodec[T: Type](leaves: List[(String, ??)]): Codecs => Expr[Writes[T]] = {
       val names = caseNames(leaves)

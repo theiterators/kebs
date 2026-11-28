@@ -32,6 +32,14 @@ object JsoniterFlatTestDomain {
   final case class HasOwned(owned: Owned, all: List[Owned])
   final case class Numbers(a: Int, b: List[Int], c: Map[Int, Int], d: Option[Int], e: String)
 
+  // a user's instance with code a macro made while it was searched for, met in several containers of one type
+  final case class Cents(value: Long)
+  object Cents {
+    implicit def viaValueClass(implicit rep: ValueClassLike[Cents, Long]): JsonValueCodec[Cents] =
+      JsoniterNestedInstancesTestDomain.asString(text => rep.apply(text.toLong), cents => rep.unapply(cents).toString)
+  }
+  final case class Wallet(all: List[Cents], best: Option[Cents], pair: (Cents, Cents), byShop: Map[String, Cents])
+
   trait NameTag
   type Name = String @@ NameTag
   implicit val nameRep: ValueClassLike[Name, String] = new ValueClassLike[Name, String](_.taggedWith[NameTag], name => name)
@@ -68,6 +76,14 @@ class JsoniterFlatTests extends JsoniterTestBase {
     roundTrip(Wrapped(1), "1")
     roundTrip(Holder(Wrapped(1), Id("x"), 2), """{"wrapped":1,"id":"x","n":2}""")
     roundTrip(Person(Id("x"), "Ann", 30, None), """{"id":"x","name":"Ann","age":30,"nickname":null}""")
+  }
+
+  test("a user's instance made by a macro, in several containers") {
+    import Flat._
+    roundTrip(
+      Wallet(List(Cents(1)), Some(Cents(2)), (Cents(3), Cents(4)), Map("a" -> Cents(5))),
+      """{"all":["1"],"best":"2","pair":["3","4"],"byShop":{"a":"5"}}"""
+    )
   }
 
   test("an object without CaseClass1ToValueClass, AnyVal or not") {

@@ -14,7 +14,7 @@ private[circe] trait CirceMacrosImpl extends JsonDerivationMacrosImpl { this: Ma
   private lazy val encoderEntryPoints = methodsNamed(Set("importedEncoder"))(using Type.of[Encoder.type])
   private lazy val decoderEntryPoints = methodsNamed(Set("importedDecoder"))(using Type.of[Decoder.type])
   // not only encodeOption: an Option is also encoded as an Iterable
-  private lazy val encoderOptions = UntypedType.fromTyped(using Type.of[Encoder.type]).unsortedMethods.filter(_.isImplicit)
+  private lazy val encoderOptions = implicitsOf(using Type.of[Encoder.type])
 
   // Exported instances have the lowest priority, so an existing one was preferred already
   private def role[T: Type](typeClass: String, isDerivable: Boolean): EntryPointRole =
@@ -42,7 +42,7 @@ private[circe] trait CirceMacrosImpl extends JsonDerivationMacrosImpl { this: Ma
   // circe has no instances of Either; kebs 2 derived it
   private val derivedStandardLibrary = Set("scala.util.Either", "scala.util.Left", "scala.util.Right")
 
-  def isDerived[T: Type]: Boolean = !isLeftToItsLibrary[T] || derivedStandardLibrary(Type.fqcn[T])
+  def isDerived[T: Type]: Boolean = !isLeftToItsLibrary[T] || derivedStandardLibrary(fullName[T])
 
   private def names(fields: List[JsonField]): (Expr[List[String]], Expr[List[Option[String]]]) = {
     implicit val StringType: Type[String]                   = Type.of[String]
@@ -61,9 +61,9 @@ private[circe] trait CirceMacrosImpl extends JsonDerivationMacrosImpl { this: Ma
   final private class EncoderDerivation(config: Expr[JsonConfig]) extends JsonDerivation[Encoder]("Encoder") {
     override protected def siblings: List[Discoverable]            = List(new DecoderDerivation(config))
     protected def codecType[A: Type]: Type[Encoder[A]]             = Type.of[Encoder[A]]
-    protected def entryPoints: Seq[UntypedMethod]                  = encoderEntryPoints
-    protected def libraryContainers: Seq[UntypedMethod]            = Nil
-    override protected def libraryOptions: Seq[UntypedMethod]      = encoderOptions
+    protected def entryPoints: Ignored                             = encoderEntryPoints
+    protected def libraryContainers: Ignored                       = nothingIgnored
+    override protected def libraryOptions: Ignored                 = encoderOptions
     override protected def derivesFromStandardLibrary: Set[String] = derivedStandardLibrary
 
     @nowarn("msg=never used")
@@ -86,7 +86,7 @@ private[circe] trait CirceMacrosImpl extends JsonDerivationMacrosImpl { this: Ma
         members: Expr[CirceDerivationRuntime.Members],
         obj: Expr[T]
     ): Expr[Unit] =
-      combined(product.fields.filterNot(_.transient).map { field =>
+      statements(product.fields.filterNot(_.transient).map { field =>
         val fieldType: ?? = field.tpe
         import fieldType.Underlying as A
         val index = Expr(field.index)
@@ -101,12 +101,7 @@ private[circe] trait CirceMacrosImpl extends JsonDerivationMacrosImpl { this: Ma
             }
           case None => Expr.quote(Expr.splice(members).add[A](Expr.splice(index), Expr.splice(value), Expr.splice(codecs[A])))
         }
-      }) { (first, second) =>
-        Expr.quote {
-          Expr.splice(first)
-          Expr.splice(second)
-        }
-      }.getOrElse(Expr.quote(()))
+      })
 
     protected def sumCodec[T: Type](leaves: List[(String, ??)]): Codecs => Expr[Encoder[T]] = {
       val names = caseNames(leaves)
@@ -121,8 +116,8 @@ private[circe] trait CirceMacrosImpl extends JsonDerivationMacrosImpl { this: Ma
   final private class DecoderDerivation(config: Expr[JsonConfig]) extends JsonDerivation[Decoder]("Decoder") {
     override protected def siblings: List[Discoverable]            = List(new EncoderDerivation(config))
     protected def codecType[A: Type]: Type[Decoder[A]]             = Type.of[Decoder[A]]
-    protected def entryPoints: Seq[UntypedMethod]                  = decoderEntryPoints
-    protected def libraryContainers: Seq[UntypedMethod]            = Nil
+    protected def entryPoints: Ignored                             = decoderEntryPoints
+    protected def libraryContainers: Ignored                       = nothingIgnored
     override protected def derivesFromStandardLibrary: Set[String] = derivedStandardLibrary
 
     protected def singletonCodec[T: Type](value: Expr[T]): Expr[Decoder[T]] =
