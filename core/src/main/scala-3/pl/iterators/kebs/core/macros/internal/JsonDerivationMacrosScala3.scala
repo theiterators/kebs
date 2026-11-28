@@ -16,6 +16,42 @@ private[kebs] trait JsonDerivationMacrosScala3 extends JsonDerivationMacrosImpl 
     }
   }
 
+  override protected def methodsNamed[A: Type](names: Set[String]): Ignored = {
+    import quotes.reflect.*
+    new Ignored(Members.declared(using quotes)(TypeRepr.of(using summon[Type[A]]))(member => names(member.name)))
+  }
+
+  override protected def implicitsOf[A: Type]: Ignored = {
+    import quotes.reflect.*
+    new Ignored(Members.declared(using quotes)(TypeRepr.of(using summon[Type[A]])) { member =>
+      member.flags.is(Flags.Implicit) || member.flags.is(Flags.Given)
+    })
+  }
+
+  override protected def searchIgnoring[A: Type](ignored: Ignored): SummoningResult[A] = {
+    import quotes.reflect.*
+    Implicits.searchIgnoring(TypeRepr.of(using summon[Type[A]]))(ignored.symbols.asInstanceOf[List[Symbol]]*) match {
+      case found: ImplicitSearchSuccess => SummoningResult.Found(found.tree.asExprOf[A])
+      case _: AmbiguousImplicits        => SummoningResult.Ambiguous(summon[Type[A]])
+      case _: DivergingImplicit         => SummoningResult.Diverging(summon[Type[A]])
+      case _                            => SummoningResult.NotFound(summon[Type[A]])
+    }
+  }
+
+  override protected def compilerType[A: Type]: AnyRef = {
+    import quotes.reflect.*
+    TypeRepr.of(using summon[Type[A]]).asInstanceOf[AnyRef]
+  }
+
+  override protected def optionItemOf[A: Type]: Option[??] = {
+    import quotes.reflect.*
+    TypeRepr.of(using summon[Type[A]]).dealias match {
+      case AppliedType(option, List(item)) if option.typeSymbol == Symbol.requiredClass("scala.Option") =>
+        Some(item.asInstanceOf[UntypedType].as_??)
+      case _ => None
+    }
+  }
+
   override protected def valueClassOf[A: Type]: Option[Wrapping] = wrapping[A]("pl.iterators.kebs.core.macros.ValueClassLike")
   override protected def converterOf[A: Type]: Option[Wrapping]  = wrapping[A]("pl.iterators.kebs.core.instances.InstanceConverter")
 
@@ -48,11 +84,11 @@ private[kebs] trait JsonDerivationMacrosScala3 extends JsonDerivationMacrosImpl 
   }
 
   // an inferred type argument of a method that accepts a supertype is only visible here
-  override protected def madeBy[A](methods: Seq[UntypedMethod], expr: Expr[A]): List[??] =
+  override protected def madeBy[A](methods: Ignored, expr: Expr[A]): List[??] =
     if (methods.isEmpty) Nil
     else {
       import quotes.reflect.*
-      val symbols = methods.map(_.symbol).toSet
+      val symbols = methods.symbols.toSet[Any]
       val collect = new TreeAccumulator[List[UntypedType]] {
         def foldTree(types: List[UntypedType], tree: Tree)(owner: Symbol): List[UntypedType] = tree match {
           case call @ Apply(_, _) if symbols(call.symbol) =>
@@ -79,6 +115,19 @@ private[kebs] trait JsonDerivationMacrosScala3 extends JsonDerivationMacrosImpl 
       needed.rootIsImplicit,
       needed.refersToRoot
     )
+  }
+}
+
+// Symbol.methodMember lists every member of the class, and hearth would describe each one
+private[kebs] object Members {
+  // the term members of a type and its companion, inherited ones included
+  def declared(using q: Quotes)(tpe: q.reflect.TypeRepr)(wanted: q.reflect.Symbol => Boolean): List[q.reflect.Symbol] = {
+    import q.reflect.*
+    val owner     = tpe.dealias.typeSymbol
+    val companion = if (owner.flags.is(Flags.Module)) Nil else List(owner.companionModule.moduleClass).filterNot(_.isNoSymbol)
+    (owner :: companion).flatMap { cls =>
+      cls.typeRef.baseClasses.flatMap(_.declarations.filter(member => member.isTerm && wanted(member)))
+    }.distinct
   }
 }
 

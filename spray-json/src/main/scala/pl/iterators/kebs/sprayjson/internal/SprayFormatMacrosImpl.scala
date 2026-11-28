@@ -9,13 +9,13 @@ import spray.json.{CollectionFormats, JsValue, JsonFormat, RootJsonFormat, Stand
 
 private[sprayjson] trait SprayFormatMacrosImpl extends JsonDerivationMacrosImpl { this: MacroCommons & StdExtensions =>
 
-  private def protocolMethods(names: String*): Seq[UntypedMethod] = methodsNamed(names.toSet)(using Type.of[KebsSprayJson])
+  private def protocolMethods(names: String*): Ignored = methodsNamed(names.toSet)(using Type.of[KebsSprayJson])
 
   private lazy val derivationEntryPoints = protocolMethods("kebsAutoJsonFormat", "kebsAutoJsonFormatSealed")
   // kebs' own generic formats do not count as an existing root instance: a root request derives an object (kebs 2)
   private lazy val ignoredAtRoot = derivationEntryPoints ++ protocolMethods("jsonFlatFormat", "jsonConversionFormat2")
   private lazy val containers    =
-    UntypedType.fromTyped(using Type.of[CollectionFormats]).unsortedMethods.filter(_.isImplicit) ++
+    implicitsOf(using Type.of[CollectionFormats]) ++
       methodsNamed(Set("optionFormat"))(using Type.of[StandardFormats])
 
   private def existing[T: Type]: Option[Expr[JsonFormat[T]]] = {
@@ -46,10 +46,10 @@ private[sprayjson] trait SprayFormatMacrosImpl extends JsonDerivationMacrosImpl 
 
   final private class SprayDerivation(config: Expr[JsonConfig]) extends JsonDerivation[JsonFormat]("JsonFormat") {
     protected def codecType[A: Type]: Type[JsonFormat[A]] = Type.of[JsonFormat[A]]
-    protected def entryPoints: Seq[UntypedMethod]         = derivationEntryPoints
+    protected def entryPoints: Ignored                    = derivationEntryPoints
     // spray has no formats of these; kebs 2 derived them
     override protected def derivesFromStandardLibrary: Set[String] = Set("scala.Some", "scala.util.Left", "scala.util.Right")
-    protected def libraryContainers: Seq[UntypedMethod]            = containers
+    protected def libraryContainers: Ignored                       = containers
 
     protected def singletonCodec[T: Type](value: Expr[T]): Expr[JsonFormat[T]] =
       Expr.quote(SprayDerivationRuntime.singleton[T](Expr.splice(value)))

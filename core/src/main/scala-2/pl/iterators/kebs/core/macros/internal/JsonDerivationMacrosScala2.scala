@@ -3,12 +3,46 @@ package pl.iterators.kebs.core.macros.internal
 import pl.iterators.kebs.core.instances.InstanceConverter
 import pl.iterators.kebs.core.macros.ValueClassLike
 
+import scala.reflect.macros.TypecheckException
 import scala.util.control.NonFatal
 
 private[kebs] trait JsonDerivationMacrosScala2 extends JsonDerivationMacrosImpl { this: hearth.MacroCommonsScala2 =>
   import c.universe._
 
   override protected def withFreshSearch[A](search: => A): A = FreshSearch(c)(search)
+
+  override protected def methodsNamed[A: Type](names: Set[String]): Ignored =
+    new Ignored(withCompanion(Type[A].tpe.asInstanceOf[c.Type]).flatMap { tpe =>
+      names.toList.flatMap(name => tpe.member(TermName(name)).alternatives)
+    })
+
+  override protected def implicitsOf[A: Type]: Ignored =
+    new Ignored(withCompanion(Type[A].tpe.asInstanceOf[c.Type]).flatMap { tpe =>
+      tpe.baseClasses.flatMap(_.info.decls.filter(member => member.isTerm && member.isImplicit))
+    }.distinct)
+
+  private def withCompanion(tpe: c.Type): List[c.Type] = {
+    val companion = if (tpe.typeSymbol.isModuleClass) NoSymbol else tpe.typeSymbol.companion
+    tpe :: (if (companion.isModule) List(companion.typeSignature) else Nil)
+  }
+
+  override protected def searchIgnoring[A: Type](ignored: Ignored): SummoningResult[A] =
+    try {
+      val excluded = ignored.symbols.asInstanceOf[List[Symbol]]
+      val instance = c.inferImplicitValueIgnoring(Type[A].tpe.asInstanceOf[c.Type], silent = true)(excluded*)
+      if (instance.isEmpty) SummoningResult.NotFound(Type[A]) else SummoningResult.Found(c.Expr[A](instance).asInstanceOf[Expr[A]])
+    } catch {
+      case error: TypecheckException if error.getMessage.startsWith("ambiguous implicit values:")   => SummoningResult.Ambiguous(Type[A])
+      case error: TypecheckException if error.getMessage.startsWith("diverging implicit expansion") => SummoningResult.Diverging(Type[A])
+      case _: TypecheckException                                                                    => SummoningResult.NotFound(Type[A])
+    }
+
+  override protected def compilerType[A: Type]: AnyRef = Type[A].tpe
+
+  override protected def optionItemOf[A: Type]: Option[??] = Type[A].tpe.asInstanceOf[c.Type].dealias match {
+    case TypeRef(_, symbol, List(item)) if symbol == definitions.OptionClass => Some(item.asInstanceOf[UntypedType].as_??)
+    case _                                                                   => None
+  }
 
   // hearth refers to them by their symbols, which is not enough inside classes
   override protected def withPath[F: Type, A](code: Expr[A]): Expr[A] = {
