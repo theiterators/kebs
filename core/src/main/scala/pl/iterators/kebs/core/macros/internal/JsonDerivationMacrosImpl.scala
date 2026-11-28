@@ -94,8 +94,11 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
     extensionsLoaded = true
   }
 
+  private val names                       = new java.util.HashMap[AnyRef, String]
+  protected def fullName[T: Type]: String = names.computeIfAbsent(compilerType[T], _ => Type.fqcn[T])
+
   def isStandardLibrary[T: Type]: Boolean = {
-    val name = Type.fqcn[T]
+    val name = fullName[T]
     name.startsWith("scala.") || name.startsWith("java.") || name.startsWith("(")
   }
 
@@ -103,7 +106,7 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
   protected def derivesPekkoHierarchies: Boolean = false
 
   private def isPekkoHierarchy[T: Type]: Boolean =
-    Type.isSealed[T] && !Type.isCaseClass[T] && Set("org.apache.pekko.", "akka.").exists(Type.fqcn[T].startsWith)
+    Type.isSealed[T] && !Type.isCaseClass[T] && Set("org.apache.pekko.", "akka.").exists(fullName[T].startsWith)
 
   def isLeftToItsLibrary[T: Type]: Boolean = isStandardLibrary[T] || (isPekkoHierarchy[T] && !derivesPekkoHierarchies)
 
@@ -228,11 +231,16 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
 
     private val derivable = mutable.Map.empty[String, Boolean]
 
+    // a quote on Scala 3, unpickled at each use
+    private val codecTypes                               = new java.util.HashMap[AnyRef, AnyRef]
+    final protected def codecOf[A: Type]: Type[Codec[A]] =
+      codecTypes.computeIfAbsent(compilerType[A], _ => codecType[A].asInstanceOf[AnyRef]).asInstanceOf[Type[Codec[A]]]
+
     final class Codecs(indices: Map[String, Int], made: Set[String], val local: Expr[LocalCodecs]) {
       // whether there is no instance of the type
       def isMade[F: Type]: Boolean       = made(keyOf[F])
       def indexOf[F: Type]: Int          = indices(keyOf[F])
-      def apply[F: Type]: Expr[Codec[F]] = codecAt[Codec[F]](local, indexOf[F])(using codecType[F])
+      def apply[F: Type]: Expr[Codec[F]] = codecAt[Codec[F]](local, indexOf[F])(using codecOf[F])
     }
 
     final def oneLevel[T: Type]: Expr[Codec[T]] = JsonDerivationState.asRoot {
@@ -250,14 +258,14 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
       val missing  = mutable.Set.empty[String]
       val creators = distinct.map { part =>
         import part.Underlying as F
-        implicit val CodecF: Type[Codec[F]] = codecType[F]
+        implicit val CodecF: Type[Codec[F]] = codecOf[F]
         val instance                        = found(instanceAtLevelOf[F])
         if (instance.isEmpty) missing += keyOf[F]
         val ofObject = if (areCases) objectCodec[F] else None
         creator[Codec[F]](instance.orElse(ofObject.map(_.apply())).orElse(inlineCodec[F]).getOrElse(rejectMissing[F]))
       }
       val indices = distinct.map(keyOf(_)).zipWithIndex.toMap
-      withLocalCodecs[Codec[T]](creators)(local => build(new Codecs(indices, missing.toSet, local)))(using codecType[T])
+      withLocalCodecs[Codec[T]](creators)(local => build(new Codecs(indices, missing.toSet, local)))(using codecOf[T])
     }
 
     private def inlineCodec[F: Type]: Option[Expr[Codec[F]]] =
@@ -276,17 +284,17 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
 
     final def isCollection[A: Type]: Boolean = elementOf[A].isDefined
 
-    final def hides[A: Type]: Boolean = isHidden[Codec[A]](using codecType[A])
+    final def hides[A: Type]: Boolean = isHidden[Codec[A]](using codecOf[A])
 
     protected def rejectMissing[F: Type]: Nothing = Environment.reportErrorAndAbort(
-      s"No ${codecType[F].prettyPrint} in scope, and kebs derives one only for case classes and sealed hierarchies outside the standard library and pekko"
+      s"No ${codecOf[F].prettyPrint} in scope, and kebs derives one only for case classes and sealed hierarchies outside the standard library and pekko"
     )
 
     final def recorded[A: Type]: Expr[Codec[A]] = entryPoint {
       if (!isDerivable[A] && !isInline[A]) Environment.reportErrorAndAbort(s"${Type[A].prettyPrint} is not derived here")
       val key = s"$typeClass ${keyOf[A]}"
       JsonDerivationState.request(JsonDerivationState.Request(typeClass, key, UntypedType.fromTyped[A].asInstanceOf[AnyRef]))
-      placeholder[Codec[A]](key)(using codecType[A])
+      placeholder[Codec[A]](key)(using codecOf[A])
     }
 
     // the instances a root needs as local ones, its own first; hidesExisting: it has the name of the implicit being defined
@@ -295,7 +303,7 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
       val hidden    = if (hidesExisting) Some(Type[T].as_??) else None
       val discovery = new Discovery(Type[T].prettyPrint, this :: siblings, hidden)
       discovery.derive[T](this)
-      implicit val CodecT: Type[Codec[T]] = codecType[T]
+      implicit val CodecT: Type[Codec[T]] = codecOf[T]
       val (result, requests)              =
         if (preferExisting) JsonDerivationState.discovering(instanceOf[T])
         else (SummoningResult.NotFound(CodecT): SummoningResult[Codec[T]], new JsonDerivationState.Requests)
@@ -306,7 +314,7 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
 
     // the instances that a root needs as local ones when it has an instance itself
     final def neededBeside[T: Type](ignored: Ignored): Needed = JsonDerivationState.inOneScope {
-      implicit val CodecT: Type[Codec[T]] = codecType[T]
+      implicit val CodecT: Type[Codec[T]] = codecOf[T]
       val discovery                       = new Discovery(Type[T].prettyPrint, this :: siblings, hidden = None)
       val (result, requests)              = JsonDerivationState.discovering(search[Codec[T]](ignored))
       requestedBy(result, requests).foreach(discovery.visit)
@@ -325,7 +333,7 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
     }
 
     final def lookUp[A: Type]: LookUp = {
-      implicit val CodecA: Type[Codec[A]] = codecType[A]
+      implicit val CodecA: Type[Codec[A]] = codecOf[A]
       val (result, requests)              = JsonDerivationState.discovering(instanceOf[A])
       val requested                       = requestedBy(result, requests)
       lazy val derivable                  = isDerivable[A]
@@ -354,13 +362,13 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
           implicit val Rep: Type[ValueClassLike[A, F]] = Type.of[ValueClassLike[A, F]]
           if (summonInstance[ValueClassLike[A, F]](nothingIgnored).isDefined)
             Environment.reportErrorAndAbort(
-              s"${Type[A].prettyPrint} is written as its only field, and there is no ${codecType[F].prettyPrint} without one of ${Type[A].prettyPrint}"
+              s"${Type[A].prettyPrint} is written as its only field, and there is no ${codecOf[F].prettyPrint} without one of ${Type[A].prettyPrint}"
             )
         case _ => ()
       }
 
     private def rejectUnusable[A: Type](): Unit = {
-      implicit val CodecA: Type[Codec[A]] = codecType[A]
+      implicit val CodecA: Type[Codec[A]] = codecOf[A]
       JsonDerivationState.discovering(JsonDerivationState.insistingOn(search[Codec[A]](entryPoints)))._1 match {
         case SummoningResult.Found(_) =>
           Environment.reportErrorAndAbort(
@@ -381,7 +389,7 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
 
     // a user's instance first: next to the library's own for the same container it would be ambiguous
     private def instanceOf[A: Type]: SummoningResult[Codec[A]] = {
-      implicit val CodecA: Type[Codec[A]] = codecType[A]
+      implicit val CodecA: Type[Codec[A]] = codecOf[A]
       if (isCollection[A]) search[Codec[A]](entryPoints ++ libraryContainers)
       else if (Type.typeArguments[A].isEmpty || libraryContainers.isEmpty) search[Codec[A]](entryPoints)
       else
@@ -393,7 +401,7 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
 
     // a collection without a local instance is the library's after all
     private def instanceAtLevelOf[A: Type]: SummoningResult[Codec[A]] = {
-      implicit val CodecA: Type[Codec[A]] = codecType[A]
+      implicit val CodecA: Type[Codec[A]] = codecOf[A]
       instanceOf[A] match {
         case SummoningResult.NotFound(_) if isCollection[A] => search[Codec[A]](entryPoints)
         case result                                         => result
@@ -412,7 +420,7 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
       }
 
     private def ownDerivation[F: Type]: Option[() => Expr[Codec[F]]] =
-      if (isLeftToItsLibrary[F] && !derivesFromStandardLibrary(Type.fqcn[F])) None
+      if (isLeftToItsLibrary[F] && !derivesFromStandardLibrary(fullName[F])) None
       else if (!derivesObjects && Expr.singletonOf[F].isDefined) None
       else
         objectCodec[F]
@@ -460,14 +468,24 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
         import fieldType.Underlying as A
         optionItemOf[A]
           .filter { _ =>
-            implicit val CodecA: Type[Codec[A]] = codecType[A]
+            implicit val CodecA: Type[Codec[A]] = codecOf[A]
             summonInstance[Codec[A]](entryPoints ++ libraryOptions).isEmpty && !isConverted[A]
           }
           .map(field.index -> _)
       }.toMap
 
+      // hearth makes the values of all fields at once
+      private var valuesAt: Option[(Expr[T], Map[String, Expr_??])] = None
+      private def fieldValues(obj: Expr[T]): Map[String, Expr_??]   = valuesAt match {
+        case Some((at, values)) if at.asInstanceOf[AnyRef] eq obj.asInstanceOf[AnyRef] => values
+        case _                                                                         =>
+          val values = caseClass.caseFieldValuesAt(obj).toMap
+          valuesAt = Some((obj, values))
+          values
+      }
+
       def value[A: Type](obj: Expr[T], field: JsonField): Expr[A] =
-        caseClass.caseFieldValuesAt(obj).get(field.name).map(_.value.asInstanceOf[Expr[A]]).getOrElse {
+        fieldValues(obj).get(field.name).map(_.value.asInstanceOf[Expr[A]]).getOrElse {
           // a field not accessible at the call site
           implicit val T: Type[T] = productType
           val index               = Expr(field.index)
@@ -491,10 +509,10 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
     }
   }
 
-  private def codecAt[C: Type](local: Expr[LocalCodecs], index: Int): Expr[C] = {
-    val indexExpr = Expr(index)
-    Expr.quote(Expr.splice(local).get[C](Expr.splice(indexExpr)))
-  }
+  // made for every field or case; built directly, as hearth's cross-quotes unpickle a quote at each use on Scala 3
+  protected def codecAt[C: Type](local: Expr[LocalCodecs], index: Int): Expr[C]
+  protected def listOf[A: Type](parts: List[Expr[A]]): Expr[List[A]]
+  protected def statements(parts: List[Expr[Unit]]): Expr[Unit]
 
   private def creator[C: Type](instance: Expr[C]): Expr[() => Any] = Expr.quote((() => Expr.splice(instance)): (() => Any))
 
@@ -508,20 +526,6 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
         Expr.splice(build(Expr.quote(codecs)))
       }
     }
-
-  // balanced: code nested as deep as a type has fields or cases overflows the compiler's stack
-  protected def combined[A](parts: List[Expr[A]])(combine: (Expr[A], Expr[A]) => Expr[A]): Option[Expr[A]] = parts match {
-    case Nil         => None
-    case part :: Nil => Some(part)
-    case _           =>
-      val (left, right) = parts.splitAt(parts.size / 2)
-      combined(left)(combine).flatMap(l => combined(right)(combine).map(r => combine(l, r)))
-  }
-
-  protected def listOf[A: Type](parts: List[Expr[A]]): Expr[List[A]] =
-    combined(parts.map(part => Expr.quote(LocalCodecs.one[A](Expr.splice(part))))) { (left, right) =>
-      Expr.quote(LocalCodecs.concat[A](Expr.splice(left), Expr.splice(right)))
-    }.getOrElse(Expr.quote(List.empty[A]))
 
   // whether a value is of a case, by the order of the cases, which is also that of their codecs
   protected def caseTests(leaves: List[(String, ??)]): Expr[List[Any => Boolean]] = {

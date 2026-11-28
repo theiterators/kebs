@@ -210,7 +210,7 @@ private[playjson] trait PlayJsonMacrosImpl extends JsonDerivationMacrosImpl { th
         members: Expr[PlayDerivationRuntime.Members],
         obj: Expr[T]
     ): Expr[Unit] =
-      combined(product.fields.filterNot(_.transient).map { field =>
+      statements(product.fields.filterNot(_.transient).map { field =>
         val fieldType: ?? = field.tpe
         import fieldType.Underlying as A
         val index = Expr(field.index)
@@ -225,12 +225,7 @@ private[playjson] trait PlayJsonMacrosImpl extends JsonDerivationMacrosImpl { th
             }
           case None => Expr.quote(Expr.splice(members).add[A](Expr.splice(index), Expr.splice(value), Expr.splice(codecs[A])))
         }
-      }) { (first, second) =>
-        Expr.quote {
-          Expr.splice(first)
-          Expr.splice(second)
-        }
-      }.getOrElse(Expr.quote(()))
+      })
 
     protected def sumCodec[T: Type](leaves: List[(String, ??)]): Codecs => Expr[Writes[T]] = {
       val names = caseNames(leaves)

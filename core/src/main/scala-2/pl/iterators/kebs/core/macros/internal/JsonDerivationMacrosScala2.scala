@@ -44,6 +44,16 @@ private[kebs] trait JsonDerivationMacrosScala2 extends JsonDerivationMacrosImpl 
     case _                                                                   => None
   }
 
+  override protected def codecAt[C: Type](local: Expr[LocalCodecs], index: Int): Expr[C] =
+    c.Expr[Any](q"${local.tree}.get[${Type[C].tpe.asInstanceOf[c.Type]}]($index)").asInstanceOf[Expr[C]]
+
+  override protected def listOf[A: Type](parts: List[Expr[A]]): Expr[List[A]] =
+    c.Expr[Any](q"_root_.scala.collection.immutable.List[${Type[A].tpe.asInstanceOf[c.Type]}](..${parts.map(_.tree)})")
+      .asInstanceOf[Expr[List[A]]]
+
+  override protected def statements(parts: List[Expr[Unit]]): Expr[Unit] =
+    c.Expr[Any](q"{ ..${parts.map(_.tree)}; () }").asInstanceOf[Expr[Unit]]
+
   // hearth refers to them by their symbols, which is not enough inside classes
   override protected def withPath[F: Type, A](code: Expr[A]): Expr[A] = {
     val (prefix, module) = Type[F].tpe.asInstanceOf[c.Type].dealias match {

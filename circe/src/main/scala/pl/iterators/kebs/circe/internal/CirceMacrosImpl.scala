@@ -42,7 +42,7 @@ private[circe] trait CirceMacrosImpl extends JsonDerivationMacrosImpl { this: Ma
   // circe has no instances of Either; kebs 2 derived it
   private val derivedStandardLibrary = Set("scala.util.Either", "scala.util.Left", "scala.util.Right")
 
-  def isDerived[T: Type]: Boolean = !isLeftToItsLibrary[T] || derivedStandardLibrary(Type.fqcn[T])
+  def isDerived[T: Type]: Boolean = !isLeftToItsLibrary[T] || derivedStandardLibrary(fullName[T])
 
   private def names(fields: List[JsonField]): (Expr[List[String]], Expr[List[Option[String]]]) = {
     implicit val StringType: Type[String]                   = Type.of[String]
@@ -86,7 +86,7 @@ private[circe] trait CirceMacrosImpl extends JsonDerivationMacrosImpl { this: Ma
         members: Expr[CirceDerivationRuntime.Members],
         obj: Expr[T]
     ): Expr[Unit] =
-      combined(product.fields.filterNot(_.transient).map { field =>
+      statements(product.fields.filterNot(_.transient).map { field =>
         val fieldType: ?? = field.tpe
         import fieldType.Underlying as A
         val index = Expr(field.index)
@@ -101,12 +101,7 @@ private[circe] trait CirceMacrosImpl extends JsonDerivationMacrosImpl { this: Ma
             }
           case None => Expr.quote(Expr.splice(members).add[A](Expr.splice(index), Expr.splice(value), Expr.splice(codecs[A])))
         }
-      }) { (first, second) =>
-        Expr.quote {
-          Expr.splice(first)
-          Expr.splice(second)
-        }
-      }.getOrElse(Expr.quote(()))
+      })
 
     protected def sumCodec[T: Type](leaves: List[(String, ??)]): Codecs => Expr[Encoder[T]] = {
       val names = caseNames(leaves)

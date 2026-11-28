@@ -78,7 +78,7 @@ private[sprayjson] trait SprayFormatMacrosImpl extends JsonDerivationMacrosImpl 
         members: Expr[SprayDerivationRuntime.Members],
         obj: Expr[T]
     ): Expr[Unit] =
-      combined(product.fields.filterNot(_.transient).map { field =>
+      statements(product.fields.filterNot(_.transient).map { field =>
         val fieldType: ?? = field.tpe
         import fieldType.Underlying as A
         val index = Expr(field.index)
@@ -93,12 +93,7 @@ private[sprayjson] trait SprayFormatMacrosImpl extends JsonDerivationMacrosImpl 
             }
           case None => Expr.quote(Expr.splice(members).add[A](Expr.splice(index), Expr.splice(value), Expr.splice(codecs[A])))
         }
-      }) { (first, second) =>
-        Expr.quote {
-          Expr.splice(first)
-          Expr.splice(second)
-        }
-      }.getOrElse(Expr.quote(()))
+      })
 
     private def readFields[T: Type](
         product: ProductShape[T],

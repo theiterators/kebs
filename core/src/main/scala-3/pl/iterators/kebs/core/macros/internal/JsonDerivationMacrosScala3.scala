@@ -52,6 +52,29 @@ private[kebs] trait JsonDerivationMacrosScala3 extends JsonDerivationMacrosImpl 
     }
   }
 
+  // in the context of the quote they go to
+  override protected def codecAt[C: Type](local: Expr[LocalCodecs], index: Int): Expr[C] = {
+    given q: Quotes = CrossQuotes.ctx[Quotes]
+    import q.reflect.*
+    Select
+      .unique(local.asTerm, "get")
+      .appliedToType(TypeRepr.of(using summon[Type[C]]))
+      .appliedTo(Literal(IntConstant(index)))
+      .asExpr
+      .asInstanceOf[Expr[C]]
+  }
+
+  override protected def listOf[A: Type](parts: List[Expr[A]]): Expr[List[A]] = {
+    given q: Quotes = CrossQuotes.ctx[Quotes]
+    scala.quoted.Expr.ofList(parts)(using summon[Type[A]])
+  }
+
+  override protected def statements(parts: List[Expr[Unit]]): Expr[Unit] = {
+    given q: Quotes = CrossQuotes.ctx[Quotes]
+    import q.reflect.*
+    Block(parts.map(_.asTerm), Literal(UnitConstant())).asExpr.asInstanceOf[Expr[Unit]]
+  }
+
   override protected def valueClassOf[A: Type]: Option[Wrapping] = wrapping[A]("pl.iterators.kebs.core.macros.ValueClassLike")
   override protected def converterOf[A: Type]: Option[Wrapping]  = wrapping[A]("pl.iterators.kebs.core.instances.InstanceConverter")
 
