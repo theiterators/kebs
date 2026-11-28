@@ -77,7 +77,7 @@ private[circe] object KebsCirceMacros {
         case EntryPointRole.Record => m.recordedEncoder[A](config)
         case EntryPointRole.Derive =>
           warnIfCirceConfiguration
-          block[Encoder.AsObject[A]](config, m.encodersNeeded[A](config))
+          block[Encoder.AsObject[A]](m, config, m.encodersNeeded[A](config))
         case _ => stepAside[A]
       }
     }
@@ -90,7 +90,7 @@ private[circe] object KebsCirceMacros {
         case EntryPointRole.Record => m.recordedDecoder[A](config)
         case EntryPointRole.Derive =>
           warnIfCirceConfiguration
-          block[Decoder[A]](config, m.decodersNeeded[A](config))
+          block[Decoder[A]](m, config, m.decodersNeeded[A](config))
         case _ => stepAside[A]
       }
     }
@@ -100,7 +100,7 @@ private[circe] object KebsCirceMacros {
     val m = macros
     m.explicitly {
       warnIfCirceConfiguration
-      block[Encoder.AsObject[A]](config, m.encodersNeededExplicitly[A](config))
+      block[Encoder.AsObject[A]](m, config, m.encodersNeededExplicitly[A](config))
     }
   }
 
@@ -108,7 +108,7 @@ private[circe] object KebsCirceMacros {
     val m = macros
     m.explicitly {
       warnIfCirceConfiguration
-      block[Decoder[A]](config, m.decodersNeededExplicitly[A](config))
+      block[Decoder[A]](m, config, m.decodersNeededExplicitly[A](config))
     }
   }
 
@@ -122,12 +122,17 @@ private[circe] object KebsCirceMacros {
   private def stepAside[A: Type](using Quotes): Nothing =
     quotes.reflect.report.errorAndAbort(s"${Type.show[A]} is not derived here")
 
-  private def block[R: Type](config: Expr[JsonConfig], needed: LocalInstances.Needed)(using Quotes): Expr[R] =
+  private def block[R: Type](m: KebsCirceMacros, config: Expr[JsonConfig], needed: LocalInstances.Needed)(using Quotes): Expr[R] =
     LocalInstances.block[R](config, needed)(
       new LocalInstances.Define {
         def apply[X: Type](instance: LocalInstances.Untyped, config: Expr[JsonConfig])(using Quotes): LocalInstances.Definition[?] =
           if (instance.typeClass == "Encoder") new LocalInstances.Definition('{ KebsCirceMacros.oneEncoder[X]($config) })
           else new LocalInstances.Definition('{ KebsCirceMacros.oneDecoder[X]($config) })
+        override def ownLevel[X: Type](instance: LocalInstances.Untyped, config: Expr[JsonConfig])(using
+            Quotes
+        ): Option[LocalInstances.Definition[?]] =
+          if (instance.typeClass == "Encoder") Some(new LocalInstances.Definition(m.encoderLevel[X](config)))
+          else Some(new LocalInstances.Definition(m.decoderLevel[X](config)))
       }
     )(None)
 

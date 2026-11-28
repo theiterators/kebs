@@ -55,12 +55,12 @@ private[jsoniter] object KebsJsoniterMacros {
 
   def derivedImpl[T: Type](config: Expr[JsonConfig])(using q: Quotes): Expr[JsonValueCodec[T]] = {
     val m = macros
-    m.auto(block[T](config, m.needed[T](config, preferExisting = false))(None))
+    m.auto(block[T](m, config, m.needed[T](config, preferExisting = false))(None))
   }
 
   def usingExistingImpl[T: Type](config: Expr[JsonConfig])(using q: Quotes): Expr[JsonValueCodec[T]] = {
     val m = macros
-    m.auto(block[T](config, m.neededBeside[T](config))(Some('{ KebsJsoniterMacros.existing[T] })))
+    m.auto(block[T](m, config, m.neededBeside[T](config))(Some('{ KebsJsoniterMacros.existing[T] })))
   }
 
   def existingImpl[T: Type](using q: Quotes): Expr[JsonValueCodec[T]] = {
@@ -71,16 +71,19 @@ private[jsoniter] object KebsJsoniterMacros {
   // recursive uses go through the implicit being defined (implicit val codec = deriveCodec[T]), if there is one
   def explicitlyImpl[T: Type](config: Expr[JsonConfig])(using q: Quotes): Expr[JsonValueCodec[T]] = {
     val m = macros
-    m.explicitly(block[T](config, m.needed[T](config, preferExisting = true))(None))
+    m.explicitly(block[T](m, config, m.needed[T](config, preferExisting = true))(None))
   }
 
-  private def block[T: Type](config: Expr[JsonConfig], needed: LocalInstances.Needed)(
+  private def block[T: Type](m: KebsJsoniterMacros, config: Expr[JsonConfig], needed: LocalInstances.Needed)(
       result: Option[Expr[JsonValueCodec[T]]]
   )(using Quotes): Expr[JsonValueCodec[T]] =
     LocalInstances.block[JsonValueCodec[T]](config, needed)(
       new LocalInstances.Define {
         def apply[X: Type](instance: LocalInstances.Untyped, config: Expr[JsonConfig])(using Quotes): LocalInstances.Definition[?] =
           new LocalInstances.Definition('{ KebsJsoniterMacros.level[X]($config) })
+        override def ownLevel[X: Type](instance: LocalInstances.Untyped, config: Expr[JsonConfig])(using
+            Quotes
+        ): Option[LocalInstances.Definition[?]] = Some(new LocalInstances.Definition(m.codecLevel[X](config)))
       }
     )(result)
 

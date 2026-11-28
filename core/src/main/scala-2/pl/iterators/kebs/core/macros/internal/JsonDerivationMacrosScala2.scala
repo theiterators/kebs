@@ -147,10 +147,11 @@ private[kebs] trait JsonDerivationMacrosScala2 extends JsonDerivationMacrosImpl 
   )(result: Option[Tree]): Tree = {
     val configName = TermName(c.freshName("kebsConfig"))
     needed.instances match {
-      // nothing else needs the root's instance, so none is defined: the class costs more to compile than the codec
-      case List(root) if !needed.refersToRoot && rootName.isEmpty && result.isEmpty =>
+      // nothing else needs the root's instance, so none is defined: the class costs more to compile than the codec. The
+      // level is derived here, in the scope it would have, where the searches it needs were made already.
+      case List(root) if !needed.refersToRoot && result.isEmpty =>
         import root.tpe.Underlying as X
-        val (_, level) = define(root, q"$configName", Type[X].tpe.asInstanceOf[c.Type])
+        val level = ownLevel(root, q"$configName").getOrElse(define(root, q"$configName", Type[X].tpe.asInstanceOf[c.Type])._2)
         q"{ val $configName: _root_.pl.iterators.kebs.core.json.JsonConfig = $config; $level }"
       case _ => withClass(config, configName, needed, rootName)(define)(result)
     }
@@ -182,6 +183,9 @@ private[kebs] trait JsonDerivationMacrosScala2 extends JsonDerivationMacrosImpl 
       (new $codecs).$member
     }"""
   }
+
+  // the code of a local instance's level, given the config
+  protected def ownLevel(instance: LocalInstance, config: Tree): Option[Tree] = None
 
   // re-typed, so that the owners of the local codecs are fixed before lambdalift sees the references between them
   protected def retyped[A: c.WeakTypeTag](expr: Expr[A]): c.Expr[A] = c.Expr[A](c.untypecheck(expr.tree))

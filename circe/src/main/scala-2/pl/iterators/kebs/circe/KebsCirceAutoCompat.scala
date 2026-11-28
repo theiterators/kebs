@@ -96,6 +96,12 @@ final private[circe] class KebsCirceMacros(val c: whitebox.Context)
     }(None)
   }
 
+  override protected def ownLevel(instance: LocalInstance, config: Tree): Option[Tree] = {
+    import instance.tpe.Underlying as X
+    val configExpr = c.Expr[JsonConfig](config)
+    Some(c.untypecheck((if (instance.typeClass == "Encoder") encoderLevel[X](configExpr) else decoderLevel[X](configExpr)).tree))
+  }
+
   def oneEncoder[T: c.WeakTypeTag](config: c.Expr[JsonConfig]): c.Expr[Encoder.AsObject[T]] = retyped(encoderLevel[T](config))
   def oneDecoder[T: c.WeakTypeTag](config: c.Expr[JsonConfig]): c.Expr[Decoder[T]]          = retyped(decoderLevel[T](config))
 }

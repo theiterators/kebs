@@ -122,6 +122,16 @@ final private[playjson] class KebsPlayJsonMacros(val c: whitebox.Context)
       }(None)
     }
 
+  override protected def ownLevel(instance: LocalInstance, config: Tree): Option[Tree] = {
+    import instance.tpe.Underlying as X
+    val configExpr = c.Expr[JsonConfig](config)
+    val level      =
+      if (instance.typeClass == "Reads") readsLevel[X](configExpr).tree
+      else if (instance.isCollection) collectionWritesLevel[X](configExpr).tree
+      else writesLevel[X](configExpr).tree
+    Some(c.untypecheck(level))
+  }
+
   def oneReads[T: c.WeakTypeTag](config: c.Expr[JsonConfig]): c.Expr[Reads[T]]             = retyped(readsLevel[T](config))
   def oneWrites[T: c.WeakTypeTag](config: c.Expr[JsonConfig]): c.Expr[OWrites[T]]          = retyped(writesLevel[T](config))
   def oneCollectionWrites[T: c.WeakTypeTag](config: c.Expr[JsonConfig]): c.Expr[Writes[T]] = retyped(collectionWritesLevel[T](config))

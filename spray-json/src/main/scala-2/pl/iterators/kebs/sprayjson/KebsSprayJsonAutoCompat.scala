@@ -122,6 +122,11 @@ final private[sprayjson] class KebsSprayJsonMacros(val c: whitebox.Context)
       }(result)
     })
 
+  override protected def ownLevel(instance: LocalInstance, config: Tree): Option[Tree] = {
+    import instance.tpe.Underlying as X
+    Some(c.untypecheck(formatLevel[X](c.Expr[JsonConfig](config)).tree))
+  }
+
   def level[T: c.WeakTypeTag](config: c.Expr[JsonConfig]): c.Expr[RootJsonFormat[T]] = retyped(formatLevel[T](config))
   def existing[T: c.WeakTypeTag]: c.Expr[RootJsonFormat[T]]                          = explicitEntry(retyped(existingFormat[T]))
 }

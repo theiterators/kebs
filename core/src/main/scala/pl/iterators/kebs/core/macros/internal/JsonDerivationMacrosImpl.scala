@@ -107,8 +107,23 @@ private[kebs] trait JsonDerivationMacrosImpl { this: MacroCommons & StdExtension
 
   def isLeftToItsLibrary[T: Type]: Boolean = isStandardLibrary[T] || (isPekkoHierarchy[T] && !derivesPekkoHierarchies)
 
-  private def search[A: Type](ignored: Ignored): SummoningResult[A] =
-    JsonDerivationState.searching(expansionOwner)(withFreshSearch(searchIgnoring[A](ignored)))
+  // An expansion's searches share its scope, so a search made again finds the same, and so does one made while discovering,
+  // unless an entry point recorded a type on the way: then the instance found has a placeholder.
+  private val searches = mutable.Map.empty[(String, List[Any]), SummoningResult[?]]
+
+  private def search[A: Type](ignored: Ignored): SummoningResult[A] = {
+    def searched = JsonDerivationState.searching(expansionOwner)(withFreshSearch(searchIgnoring[A](ignored)))
+    val key      = (keyOf[A], ignored.symbols)
+    if (JsonDerivationState.isRecording) {
+      val result = searched
+      result match {
+        case SummoningResult.Found(instance) if placeholderKeys(instance).isEmpty => searches.update(key, result)
+        case SummoningResult.NotFound(_)                                          => searches.update(key, result)
+        case _                                                                    => ()
+      }
+      result
+    } else searches.getOrElseUpdate(key, searched).asInstanceOf[SummoningResult[A]]
+  }
 
   private def found[A: Type](result: SummoningResult[A]): Option[Expr[A]] = result match {
     case SummoningResult.Found(instance) => Some(instance)

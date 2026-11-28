@@ -142,6 +142,8 @@ private[kebs] object LocalInstances {
 
   trait Define {
     def apply[X: Type](instance: Untyped, config: Expr[JsonConfig])(using Quotes): Definition[?]
+    // the code of the level itself, instead of the call of its macro
+    def ownLevel[X: Type](instance: Untyped, config: Expr[JsonConfig])(using Quotes): Option[Definition[?]] = None
   }
 
   // { lazy val config; lazy val codecs = LocalCodecs(() => level, ...); implicit def codec: Codec[X] = codecs.get(0); ... ; result }
@@ -150,12 +152,14 @@ private[kebs] object LocalInstances {
     import quotes.reflect.*
     val owner = Symbol.spliceOwner
     needed.instances match {
-      // nothing else needs the root's instance, so none is defined
+      // nothing else needs the root's instance, so none is defined, and its level is derived here, in the scope it would
+      // have, where the searches it needs were made already
       case List(root) if !needed.refersToRoot && result.isEmpty =>
         val configSymbol = Symbol.newVal(owner, "kebsConfig", TypeRepr.of[JsonConfig], Flags.EmptyFlags, Symbol.noSymbol)
         val configValue  = ValDef(configSymbol, Some(config.asTerm.changeOwner(configSymbol)))
+        val configRef    = Ref(configSymbol).asExprOf[JsonConfig]
         val definition   = root.typeRepr.asInstanceOf[TypeRepr].asType match {
-          case '[x] => define[x](root, Ref(configSymbol).asExprOf[JsonConfig])
+          case '[x] => define.ownLevel[x](root, configRef).getOrElse(define[x](root, configRef))
         }
         Block(List(configValue), definition.codec.asTerm).asExprOf[R]
       case _ => withLazyVals[R](config, needed)(define)(result)
