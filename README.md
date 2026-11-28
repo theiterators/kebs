@@ -51,7 +51,6 @@ libraryDependencies ++= Seq(
 | `kebs-spray-json` | Spray `JsonFormat` derivation (flat, snakified, >22 fields) |
 | `kebs-play-json` | Play JSON `Format` instances |
 | `kebs-circe` | Circe `Encoder` / `Decoder` derivation (snakified/capitalized) |
-| `kebs-akka-http` | Akka HTTP unmarshallers + path matchers (Scala 2 only) |
 | `kebs-pekko-http` | Pekko HTTP unmarshallers + path matchers |
 | `kebs-http4s` | http4s path/query parameter codecs |
 | `kebs-http4s-stir` | http4s-stir directives + path matchers |
