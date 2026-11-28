@@ -4,7 +4,7 @@ addSbtPlugin("org.scalameta"  % "sbt-scalafmt"             % "2.6.1")
 addSbtPlugin("com.github.sbt" % "sbt-jmh"                  % "0.4.9")
 addSbtPlugin("org.typelevel"  % "sbt-typelevel-ci-release" % "0.8.7")
 addSbtPlugin("org.jmotor.sbt" % "sbt-dependency-updates"   % "1.2.9")
-addSbtPlugin("org.scalameta"  % "sbt-mdoc"                 % "2.9.3")
+addSbtPlugin("org.scalameta"  % "sbt-mdoc"                 % "2.10.0")
 
 addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject"      % "1.3.2")
 addSbtPlugin("org.portable-scala" % "sbt-scala-native-crossproject" % "1.3.2")
